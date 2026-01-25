@@ -1,0 +1,24 @@
+import 'package:equatable/equatable.dart';
+
+class PrayerTimesEntity extends Equatable {
+  final DateTime fajr;
+  final DateTime sunrise;
+  final DateTime dhuhr;
+  final DateTime asr;
+  final DateTime maghrib;
+  final DateTime isha;
+  final String locationName;
+
+  const PrayerTimesEntity({
+    required this.fajr,
+    required this.sunrise,
+    required this.dhuhr,
+    required this.asr,
+    required this.maghrib,
+    required this.isha,
+    required this.locationName,
+  });
+
+  @override
+  List<Object?> get props => [fajr, sunrise, dhuhr, asr, maghrib, isha, locationName];
+}

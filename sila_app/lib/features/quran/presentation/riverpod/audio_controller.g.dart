@@ -1,0 +1,42 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'audio_controller.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+String _$audioControllerHash() => r'64ce1f8999fdf402432fa77328a791bf5ce6af3e';
+
+/// See also [AudioController].
+@ProviderFor(AudioController)
+final audioControllerProvider =
+    AutoDisposeNotifierProvider<AudioController, Raw<AudioPlayer>>.internal(
+  AudioController.new,
+  name: r'audioControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$audioControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$AudioController = AutoDisposeNotifier<Raw<AudioPlayer>>;
+String _$playingAyahIdHash() => r'60f143ffc65d6a86e8c7f20a5cde8dfe379b2e05';
+
+/// See also [PlayingAyahId].
+@ProviderFor(PlayingAyahId)
+final playingAyahIdProvider =
+    AutoDisposeNotifierProvider<PlayingAyahId, int?>.internal(
+  PlayingAyahId.new,
+  name: r'playingAyahIdProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$playingAyahIdHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$PlayingAyahId = AutoDisposeNotifier<int?>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
