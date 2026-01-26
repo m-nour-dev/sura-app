@@ -8,6 +8,8 @@ class PrayerTimesEntity extends Equatable {
   final DateTime maghrib;
   final DateTime isha;
   final String locationName;
+  final double latitude;
+  final double longitude;
 
   const PrayerTimesEntity({
     required this.fajr,
@@ -17,8 +19,10 @@ class PrayerTimesEntity extends Equatable {
     required this.maghrib,
     required this.isha,
     required this.locationName,
+    required this.latitude,
+    required this.longitude,
   });
 
   @override
-  List<Object?> get props => [fajr, sunrise, dhuhr, asr, maghrib, isha, locationName];
+  List<Object?> get props => [fajr, sunrise, dhuhr, asr, maghrib, isha, locationName, latitude, longitude];
 }

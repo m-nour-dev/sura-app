@@ -45,8 +45,15 @@ class PrayerRepository {
     params.madhab = Madhab.shafi;
     
     final date = DateComponents.from(DateTime.now());
-    final prayerTimes = PrayerTimes(myCoordinates, date, params);
-
+    
+    // Calculate UTC offset from device
+    final now = DateTime.now();
+    final utcOffset = now.timeZoneOffset;
+    
+    // Pass utcOffset to PrayerTimes so it calculates times relative to DEVICE time, not location time.
+    // Ideally, we want location time, but for the App to show "Next Prayer" relative to "Now", they must match.
+    final prayerTimes = PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
+    
     return PrayerTimesEntity(
       fajr: prayerTimes.fajr,
       sunrise: prayerTimes.sunrise,
@@ -55,6 +62,8 @@ class PrayerRepository {
       maghrib: prayerTimes.maghrib,
       isha: prayerTimes.isha,
       locationName: city,
+      latitude: lat,
+      longitude: long,
     );
   }
   

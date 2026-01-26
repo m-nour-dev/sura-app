@@ -40,5 +40,13 @@
   "gift_thawab": "إهداء ثواب",
   "vefa_reminder_title": "هدية للأحباب",
   "vefa_reminder_body": "هل تود إهداء ثواب ما قرأت لأحد أحبابك؟",
-  "tap_to_count": "اضغط للعد"
+  "tap_to_count": "اضغط للعد",
+  "daily_wird": "الورد اليومي",
+  "start_reading": "تابع قراءة الورد",
+  "great_job_wird_done": "أحسنت! أتممت وردك اليومي، تقبل الله منك.",
+  "wird_completed_title": "إتمام الورد",
+  "wird_completed_body": "هل ترغب في إهداء ثواب هذا الورد لأحد أحبائك؟",
+  "done_only": "أتممت فقط",
+  "page": "صفحة",
+  "juz": "الجزء"
 }

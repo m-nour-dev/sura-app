@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sila_app/features/vefa/data/models/vefa_person_model.dart';
+import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 
 class IsarService {
   late Future<Isar> db;
@@ -13,7 +14,7 @@ class IsarService {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return await Isar.open(
-        [VefaPersonModelSchema],
+        [VefaPersonModelSchema, WirdSettingsSchema],
         directory: dir.path,
         inspector: true,
       );
