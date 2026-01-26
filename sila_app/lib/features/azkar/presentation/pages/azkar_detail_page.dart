@@ -1,3 +1,4 @@
+import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,66 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
   // Map to track progress of each item: index -> currentCount
   final Map<int, int> _counts = {};
 
+  void _checkCompletion(List items) {
+    if (items.isEmpty) return;
+    
+    // Check if all items are completed
+    bool allCompleted = true;
+    for (int i = 0; i < items.length; i++) {
+      final requiredCount = items[i].count;
+      final currentCount = _counts[i] ?? 0;
+      if (currentCount < requiredCount) {
+        allCompleted = false;
+        break;
+      }
+    }
+
+    if (allCompleted) {
+      // Small delay to let the UI update last count
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) _showVefaDialog();
+      });
+    }
+  }
+
+  void _showVefaDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('vefa_reminder_title'.tr()),
+        content: Text('vefa_reminder_body'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('cancel'.tr()), // We need to ensure logic handles key or default close
+          ),
+          FilledButton.icon(
+             icon: const Icon(Icons.diversity_1),
+            onPressed: () {
+               Navigator.pop(context);
+               // Navigate to Vefa Page or show simplified sheet
+               // For now navigate to Vefa Page which shows the list
+               // Ideally we should open a selection sheet here directly, but VefaPage serves the purpose
+               // Or better: Show BottomSheet with Vefa List
+                _showVefaSelectionSheet();
+            },
+            label: Text('gift_thawab'.tr()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showVefaSelectionSheet() {
+     Navigator.of(context).push(
+       MaterialPageRoute(
+         builder: (context) => const VefaPage(isSelectionMode: true),
+         fullscreenDialog: true, // Make it look like a modal
+       )
+     );
+  }
+
+  // REPLACING WITH BETTER IMPLEMENTATION BELOW
   @override
   Widget build(BuildContext context) {
     final azkarAsync = ref.watch(azkarDataProvider);
@@ -59,6 +120,11 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                             setState(() {
                               _counts[index] = currentCount + 1;
                             });
+                             // Use local variable for check as state update is scheduled
+                             if (_counts[index]! >= item.count) {
+                               // Check complete list
+                               _checkCompletion(items);
+                             }
                           },
                     child: Padding(
                       padding: const EdgeInsets.all(16),

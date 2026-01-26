@@ -6,6 +6,8 @@ import 'package:sila_app/features/home/presentation/pages/home_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
 import 'package:sila_app/features/quran/presentation/pages/quran_page.dart';
 
+import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+
 // State provider for Bottom Navigation Index
 final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -21,6 +23,7 @@ class MainLayout extends ConsumerWidget {
       const QuranPage(),
       const AzkarPage(),
       const PrayersPage(),
+      const VefaPage(),
     ];
 
     return Scaffold(
@@ -34,7 +37,7 @@ class MainLayout extends ConsumerWidget {
           NavigationDestination(
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home_rounded),
-            label: 'Home', // Localization managed via Main Dashboard usually, or we can add keys
+            label: 'Home', 
           ),
           NavigationDestination(
             icon: const Icon(Icons.menu_book_outlined),
@@ -50,6 +53,11 @@ class MainLayout extends ConsumerWidget {
             icon: const Icon(Icons.access_time_outlined),
             selectedIcon: const Icon(Icons.access_time_filled_rounded),
             label: 'prayers'.tr(),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.diversity_1_outlined),
+            selectedIcon: const Icon(Icons.diversity_1_rounded),
+            label: 'vefa_system'.tr(),
           ),
         ],
       ),
