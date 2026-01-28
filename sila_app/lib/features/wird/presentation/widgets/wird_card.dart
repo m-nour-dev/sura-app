@@ -39,11 +39,12 @@ class WirdCard extends ConsumerWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              image: const DecorationImage(
-                image: AssetImage('assets/images/pattern_bg.png'), // Future improvement: add pattern
-                fit: BoxFit.cover,
-                opacity: 0.05,
-              ),
+              // TODO: Add pattern_bg.png image when available
+              // image: const DecorationImage(
+              //   image: AssetImage('assets/images/pattern_bg.png'),
+              //   fit: BoxFit.cover,
+              //   opacity: 0.05,
+              // ),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

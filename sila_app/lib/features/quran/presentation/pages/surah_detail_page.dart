@@ -51,19 +51,37 @@ class SurahDetailPage extends ConsumerWidget {
                             // Visual feedback
                             ref.read(playingAyahIdProvider.notifier).setPlaying(ayah.number);
                             
-                            // Production: Use the real URL from the API
-                            final urlToUse = ayah.audioUrl!; 
-                            
-                            print("Attempting to play: $urlToUse");
-                            await ref.read(audioControllerProvider.notifier).playAudio(urlToUse);
+                            // Use the AudioController correctly
+                            final audioController = ref.read(audioControllerProvider.notifier);
+                            print("Attempting to play: ${ayah.audioUrl}");
+                            await audioController.playAudio(ayah.audioUrl!);
                           } catch (e) {
-                             showDialog(
-                               context: context,
-                               builder: (c) => AlertDialog(
-                                 title: const Text("Audio Error"),
-                                 content: Text("Could not play sound.\nReason: $e\n\nNote: On Web, this is often a CORS issue."),
-                               ),
-                             );
+                            // Reset playing state on error
+                            ref.read(playingAyahIdProvider.notifier).setPlaying(null);
+                            
+                            if (!context.mounted) return;
+                            
+                            showDialog(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                icon: Icon(
+                                  Icons.error_outline,
+                                  color: Theme.of(context).colorScheme.error,
+                                  size: 48,
+                                ),
+                                title: const Text("خطأ في تشغيل الصوت"),
+                                content: const Text(
+                                  "عذراً، لا يمكن تشغيل الصوت حالياً.\n\n"
+                                  "يرجى التأكد من اتصالك بالإنترنت والمحاولة مرة أخرى."
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(dialogContext).pop(),
+                                    child: const Text("حسناً"),
+                                  ),
+                                ],
+                              ),
+                            );
                           }
                         }
                       },

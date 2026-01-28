@@ -26,6 +26,7 @@ dependencies:
   easy_localization: ^3.0.3
   google_fonts: ^6.1.0
   just_audio: ^0.10.5
+  audio_session: ^0.1.21
   adhan: ^2.0.0+1
   geolocator: ^14.0.2
   geocoding: ^4.0.0
