@@ -33,10 +33,29 @@ class LocationService {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
       if (placemarks.isNotEmpty) {
-        return placemarks.first.locality ?? placemarks.first.country ?? "Unknown Location";
+        final place = placemarks.first;
+        
+        // Try to get most specific location name
+        String? cityName = place.locality ?? 
+                          place.subAdministrativeArea ?? 
+                          place.administrativeArea ?? 
+                          place.country;
+        
+        String? countryName = place.country;
+        
+        if (cityName != null) {
+          // Add country if available and different from city
+          if (countryName != null && countryName != cityName) {
+            return "$cityName, $countryName";
+          }
+          return cityName;
+        }
+        
+        return "Unknown Location";
       }
       return "Unknown Location";
     } catch (e) {
+      print("Geocoding Error: $e");
       return "Unknown Location";
     }
   }

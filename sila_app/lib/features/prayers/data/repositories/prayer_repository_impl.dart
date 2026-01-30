@@ -1,22 +1,29 @@
 import 'package:adhan/adhan.dart';
 import 'package:sila_app/core/services/location_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sila_app/core/services/timezone_service.dart';
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
 
 class PrayerRepository {
-  // Mock Location: Istanbul, Turkey
-  static const double _lat = 41.0082;
-  static const double _long = 28.9784;
+  // Default Location: Istanbul, Turkey (fallback)
+  static const double _defaultLat = 41.0082;
+  static const double _defaultLong = 28.9784;
 
   Future<PrayerTimesEntity> getPrayerTimes() async {
-    // Services invocation (Should actully be injected via Riverpod, but for simplicity instantiating here or passing)
+    // Initialize services
     final locService = LocationService();
     final prefs = PrefsService();
+    final timezoneService = TimezoneService();
+    
+    // Ensure timezone service is initialized
+    await timezoneService.initialize();
 
-    double lat = 41.0082; // Default Istanbul
-    double long = 28.9784;
+    // Default values
+    double lat = _defaultLat;
+    double long = _defaultLong;
     String city = "İstanbul, Türkiye";
 
+    // Get location coordinates
     try {
       final isAuto = await prefs.isAutoLocation();
 
@@ -25,9 +32,6 @@ class PrayerRepository {
         lat = position.latitude;
         long = position.longitude;
         city = await locService.getCityFromCoordinates(lat, long);
-        
-        // Save these auto coordinates as "last known" implicitly or separate key?
-        // For now just use them.
       } else {
         final stored = await prefs.getStoredLocation();
         if (stored != null) {
@@ -40,18 +44,28 @@ class PrayerRepository {
       print("Location Error: $e"); // Fallback to default
     }
 
-    final myCoordinates = Coordinates(lat, long);
-    final params = CalculationMethod.turkey.getParameters();
-    params.madhab = Madhab.shafi;
+    // Get timezone for the location
+    final timezoneName = timezoneService.getTimezoneFromCoordinates(lat, long);
+    print("Prayer times timezone: $timezoneName for coordinates: $lat, $long");
+
+    // Get calculation method from preferences
+    final methodString = await prefs.getCalculationMethod();
+    final params = _getCalculationParams(methodString);
     
+    // Create coordinates and date
+    final myCoordinates = Coordinates(lat, long);
     final date = DateComponents.from(DateTime.now());
     
-    // Calculate UTC offset from device
-    final now = DateTime.now();
-    final utcOffset = now.timeZoneOffset;
+    // Get timezone offset for the location
+    final tzLocation = timezoneService.getLocation(timezoneName);
+    final locationNow = tzLocation != null 
+        ? timezoneService.getCurrentTimeInTimezone(timezoneName)
+        : DateTime.now();
+    final utcOffset = locationNow.timeZoneOffset;
     
-    // Pass utcOffset to PrayerTimes so it calculates times relative to DEVICE time, not location time.
-    // Ideally, we want location time, but for the App to show "Next Prayer" relative to "Now", they must match.
+    print("Location timezone offset: $utcOffset");
+    
+    // Calculate prayer times using location timezone
     final prayerTimes = PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
     
     return PrayerTimesEntity(
@@ -64,15 +78,88 @@ class PrayerRepository {
       locationName: city,
       latitude: lat,
       longitude: long,
+      timezoneName: timezoneName,
     );
   }
   
-  // Method to get next prayer
+  /// Get calculation parameters based on method string
+  CalculationParameters _getCalculationParams(String method) {
+    CalculationParameters params;
+    
+    switch (method.toLowerCase()) {
+      case 'muslim_world_league':
+        params = CalculationMethod.muslim_world_league.getParameters();
+        break;
+      case 'egyptian':
+        params = CalculationMethod.egyptian.getParameters();
+        break;
+      case 'karachi':
+        params = CalculationMethod.karachi.getParameters();
+        break;
+      case 'umm_al_qura':
+        params = CalculationMethod.umm_al_qura.getParameters();
+        break;
+      case 'dubai':
+        params = CalculationMethod.dubai.getParameters();
+        break;
+      case 'qatar':
+        params = CalculationMethod.qatar.getParameters();
+        break;
+      case 'kuwait':
+        params = CalculationMethod.kuwait.getParameters();
+        break;
+      case 'singapore':
+        params = CalculationMethod.singapore.getParameters();
+        break;
+      case 'north_america':
+        params = CalculationMethod.north_america.getParameters();
+        break;
+      case 'turkey':
+      default:
+        params = CalculationMethod.turkey.getParameters();
+    }
+    
+    // Set madhab to Shafi (can be made configurable later)
+    params.madhab = Madhab.shafi;
+    
+    return params;
+  }
+  
+  /// Get next prayer using actual location coordinates
   Future<Prayer> getNextPrayer() async {
-     final myCoordinates = Coordinates(_lat, _long);
-    final params = CalculationMethod.turkey.getParameters();
+    final prefs = PrefsService();
+    final locService = LocationService();
+    
+    // Get actual location (same logic as getPrayerTimes)
+    double lat = _defaultLat;
+    double long = _defaultLong;
+
+    try {
+      final isAuto = await prefs.isAutoLocation();
+
+      if (isAuto) {
+        final position = await locService.determinePosition();
+        lat = position.latitude;
+        long = position.longitude;
+      } else {
+        final stored = await prefs.getStoredLocation();
+        if (stored != null) {
+          lat = stored["lat"];
+          long = stored["long"];
+        }
+      }
+    } catch (e) {
+      print("Location Error in getNextPrayer: $e");
+    }
+
+    // Get calculation method
+    final methodString = await prefs.getCalculationMethod();
+    final params = _getCalculationParams(methodString);
+    
+    final myCoordinates = Coordinates(lat, long);
     final date = DateComponents.from(DateTime.now());
     final prayerTimes = PrayerTimes(myCoordinates, date, params);
+    
     return prayerTimes.nextPrayer();
   }
 }
