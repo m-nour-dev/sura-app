@@ -30,12 +30,51 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+            
+        <!-- Notification Channel -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="adhan_channel"/>
+            
+        <!-- Alarm Manager Service for Background Scheduling -->
+        <service
+            android:name="io.flutter.plugins.androidalarmmanager.AlarmService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false"/>
+            
+        <!-- Reboot Receiver to Reschedule Notifications -->
+        <receiver
+            android:name="io.flutter.plugins.androidalarmmanager.RebootBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    
+    <!-- Notification Permissions (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    
+    <!-- Exact Alarm for Scheduled Notifications (Android 12+) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    
+    <!-- Boot Completed to Reschedule After Restart -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    
+    <!-- Wake Lock for Background Tasks -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    
+    <!-- Foreground Service (for future use) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    
+    <!-- Existing Permissions -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

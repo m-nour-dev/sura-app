@@ -3,10 +3,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/services/timezone_service.dart';
+// Adhan services temporarily disabled
+// import 'package:sila_app/core/services/notification_service.dart';
+// import 'package:sila_app/core/services/adhan_scheduler_service.dart';
+// import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  
+  // Initialize timezone service for prayer time calculations
+  final timezoneService = TimezoneService();
+  await timezoneService.initialize();
+  
+  // Adhan notification initialization temporarily disabled
+  // final notificationService = NotificationService();
+  // await notificationService.initialize();
+  // await notificationService.requestPermissions();
+  // try {
+  //   final prayerRepo = PrayerRepositoryImpl();
+  //   final adhanScheduler = AdhanSchedulerService();
+  //   final prayerTimes = await prayerRepo.getPrayerTimes();
+  //   await adhanScheduler.scheduleAllPrayers(prayerTimes);
+  //   print('Initial Adhan scheduling completed');
+  // } catch (e) {
+  //   print('Error scheduling initial Adhan: $e');
+  // }
 
   runApp(
     ProviderScope(
