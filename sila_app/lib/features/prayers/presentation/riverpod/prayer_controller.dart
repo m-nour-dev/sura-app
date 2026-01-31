@@ -6,8 +6,8 @@ import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.da
 part 'prayer_controller.g.dart';
 
 @riverpod
-PrayerRepository prayerRepository(PrayerRepositoryRef ref) {
-  return PrayerRepository();
+PrayerRepositoryImpl prayerRepository(PrayerRepositoryRef ref) {
+  return PrayerRepositoryImpl();
 }
 
 @riverpod

@@ -6,11 +6,12 @@ part of 'prayer_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$prayerRepositoryHash() => r'c8a8b894f1005c488300918b135b43e5405f954c';
+String _$prayerRepositoryHash() => r'9dcfac8f343b46cbfa5b0afa59c55417e51519fd';
 
 /// See also [prayerRepository].
 @ProviderFor(prayerRepository)
-final prayerRepositoryProvider = AutoDisposeProvider<PrayerRepository>.internal(
+final prayerRepositoryProvider =
+    AutoDisposeProvider<PrayerRepositoryImpl>.internal(
   prayerRepository,
   name: r'prayerRepositoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -20,7 +21,7 @@ final prayerRepositoryProvider = AutoDisposeProvider<PrayerRepository>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef PrayerRepositoryRef = AutoDisposeProviderRef<PrayerRepository>;
+typedef PrayerRepositoryRef = AutoDisposeProviderRef<PrayerRepositoryImpl>;
 String _$prayerTimesControllerHash() =>
     r'72b91277c13bc96b0c6434f7150142332e0552db';
 
