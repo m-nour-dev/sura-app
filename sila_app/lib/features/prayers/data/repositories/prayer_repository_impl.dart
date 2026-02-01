@@ -69,13 +69,20 @@ class PrayerRepositoryImpl extends PrayerRepository {
     // Calculate prayer times using location timezone
     final prayerTimes = PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
     
+    // Adhan returns times in UTC but with the hour adjusted to the local timezone (if utcOffset is used).
+    // We need to convert these "UTC-masquerading-as-local" times to actual Local DateTime objects
+    // so that comparisons with DateTime.now() (which is Local) work correctly.
+    DateTime toLocal(DateTime dt) {
+      return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
+    }
+
     return PrayerTimesEntity(
-      fajr: prayerTimes.fajr,
-      sunrise: prayerTimes.sunrise,
-      dhuhr: prayerTimes.dhuhr,
-      asr: prayerTimes.asr,
-      maghrib: prayerTimes.maghrib,
-      isha: prayerTimes.isha,
+      fajr: toLocal(prayerTimes.fajr),
+      sunrise: toLocal(prayerTimes.sunrise),
+      dhuhr: toLocal(prayerTimes.dhuhr),
+      asr: toLocal(prayerTimes.asr),
+      maghrib: toLocal(prayerTimes.maghrib),
+      isha: toLocal(prayerTimes.isha),
       locationName: city,
       latitude: lat,
       longitude: long,

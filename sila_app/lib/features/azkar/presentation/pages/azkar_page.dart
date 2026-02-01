@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sila_app/features/azkar/presentation/pages/tasbih_page.dart';
 import 'package:sila_app/features/azkar/presentation/pages/azkar_detail_page.dart'; // Import
 import 'package:sila_app/features/azkar/presentation/widgets/azkar_category_card.dart';
+import 'package:sila_app/features/sunan_mahjoura/presentation/pages/sunan_list_page.dart';
 
 class AzkarPage extends StatelessWidget {
   const AzkarPage({super.key});
@@ -91,6 +92,16 @@ class AzkarPage extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const TasbihPage()),
+              );
+            },
+          ),
+          AzkarCategoryCard(
+            title: 'sunan_mahjoura'.tr(),
+            icon: Icons.lightbulb_outline_rounded,
+            color: Colors.amber.shade700,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SunanListPage()),
               );
             },
           ),
