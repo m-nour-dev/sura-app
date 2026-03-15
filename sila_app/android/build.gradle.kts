@@ -14,10 +14,15 @@ subprojects {
                 if (namespace == null || namespace!!.isEmpty()) {
                     namespace = project.group.toString()
                 }
-                compileSdkVersion(36)
+                compileSdkVersion(35)
             }
         }
     }
+}
+
+rootProject.layout.buildDirectory.set(file("../build"))
+subprojects {
+    layout.buildDirectory.set(rootProject.layout.buildDirectory.dir(project.name))
 }
 
 tasks.register<Delete>("clean") {

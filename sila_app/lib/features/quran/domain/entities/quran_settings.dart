@@ -1,0 +1,30 @@
+import 'package:equatable/equatable.dart';
+
+enum QuranThemeMode { light, dark, sepia }
+
+class QuranSettings extends Equatable {
+  final double fontSize;
+  final String fontFamily;
+  final QuranThemeMode themeMode;
+
+  const QuranSettings({
+    required this.fontSize,
+    required this.fontFamily,
+    required this.themeMode,
+  });
+
+  QuranSettings copyWith({
+    double? fontSize,
+    String? fontFamily,
+    QuranThemeMode? themeMode,
+  }) {
+    return QuranSettings(
+      fontSize: fontSize ?? this.fontSize,
+      fontFamily: fontFamily ?? this.fontFamily,
+      themeMode: themeMode ?? this.themeMode,
+    );
+  }
+
+  @override
+  List<Object?> get props => [fontSize, fontFamily, themeMode];
+}

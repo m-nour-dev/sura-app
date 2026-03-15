@@ -1,9 +1,10 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart';
+import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdCard extends ConsumerWidget {
@@ -15,357 +16,268 @@ class WirdCard extends ConsumerWidget {
 
     return wirdStateAsync.when(
       data: (state) {
-        final startPage = state.currentPage;
-        final endPage = state.targetPage;
-        final isDone = state.isCompletedToday;
-        
-        // Status Logic
-        Color statusColor = Colors.grey;
-        String statusText = 'على الجدول';
-        if (state.daysDifference > 0) {
-          statusColor = Colors.green;
-          statusText = 'متقدم بـ ${state.daysDifference} يوم';
-        } else if (state.daysDifference < 0) {
-          statusColor = Colors.orange;
-          statusText = 'متأخر بـ ${state.daysDifference.abs()} يوم';
-        }
-
-        final startSurah = quran.getSurahNameArabic(quran.getPageData(startPage)[0]['surah']); 
-        
-        return Card(
-          elevation: 8,
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              // TODO: Add pattern_bg.png image when available
-              // image: const DecorationImage(
-              //   image: AssetImage('assets/images/pattern_bg.png'),
-              //   fit: BoxFit.cover,
-              //   opacity: 0.05,
-              // ),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDone 
-                  ? [const Color(0xFF1B5E20), const Color(0xFF43A047)]
-                  : [Colors.white, const Color(0xFFF5F5F5)],
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Header Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: isDone ? Colors.white24 : Theme.of(context).primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.menu_book_rounded,
-                              color: isDone ? Colors.white : Theme.of(context).primaryColor,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'daily_wird'.tr(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: isDone ? Colors.white : Colors.black87,
-                                ),
-                              ),
-                              if (!isDone)
-                                Text(
-                                  statusText,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: statusColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      // Settings Button
-                      IconButton(
-                        icon: Icon(Icons.tune, color: isDone ? Colors.white70 : Colors.grey),
-                        onPressed: () => _showSettingsDialog(context, ref, state.pagesPerDay),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Main Content
-                  if (isDone)
-                     Container(
-                       padding: const EdgeInsets.all(16),
-                       decoration: BoxDecoration(
-                         color: Colors.white10,
-                         borderRadius: BorderRadius.circular(16),
-                       ),
-                       child: Column(
-                         children: [
-                           const Icon(Icons.check_circle_outline, color: Colors.white, size: 48),
-                           const SizedBox(height: 8),
-                           Text(
-                            'great_job_wird_done'.tr(),
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          // Read More Button
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                side: const BorderSide(color: Colors.white54),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: () async {
-                                 // Open Reader starting from current page
-                                 // We don't need a specific target, just let them read
-                                 await Navigator.push(
-                                   context, 
-                                   MaterialPageRoute(
-                                     builder: (_) => WirdReaderPage(
-                                       startPage: endPage, // Start from where they left off
-                                       endPage: endPage + state.pagesPerDay, // Suggest next chunk
-                                     )
-                                   )
-                                 );
-                              },
-                              icon: const Icon(Icons.menu_book),
-                              label: const Text('قراءة المزيد (زيادة الخير)'),
-                            ),
-                          )
-                         ],
-                       ),
-                     )
-                  else ...[
-                    // Pages Display (Creative Layout)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildCreativePageInfo(context, 'من صفحة', startPage, startSurah, true),
-                        Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey[300], size: 16),
-                        _buildCreativePageInfo(context, 'إلى صفحة', endPage, '', false),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 24),
-
-                    // Progress Bar
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: state.khatmaProgress,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-                        minHeight: 6,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'نسبة الختمة: ${(state.khatmaProgress * 100).toStringAsFixed(1)}%',
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                      textAlign: TextAlign.end,
-                    ),
-
-                    const SizedBox(height: 16),
-                    
-                    // Action Button
-                    SizedBox(
-                      height: 54,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD4AF37), // Gold
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        onPressed: () async {
-                           final shouldComplete = await Navigator.push<bool>(
-                             context, 
-                             MaterialPageRoute(
-                               builder: (_) => WirdReaderPage(
-                                 startPage: startPage,
-                                 endPage: endPage,
-                               )
-                             )
-                           );
-                           
-                           if (shouldComplete == true && context.mounted) {
-                             _showCompletionDialog(context, ref);
-                           }
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('start_reading'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
+        return Transform.translate(
+          // Single overlap point: card floats 28px over the header
+          offset: const Offset(0, -28),
+          child: Column(
+            children: [
+              _buildMainWirdCard(context, ref, state),
+              const SizedBox(height: 16),
+              _buildActionButtons(context, ref, state),
+            ],
           ),
         );
       },
-      loading: () => const Card(child: Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator()))),
-      error: (e, s) => Card(child: Padding(padding: EdgeInsets.all(16), child: Text("Error: $e"))),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text("Error: $e")),
     );
   }
 
-  Widget _buildCreativePageInfo(BuildContext context, String label, int pageNum, String subLabel, bool isStart) {
-    return Column(
-      crossAxisAlignment: isStart ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-      children: [
-        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-        const SizedBox(height: 4),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              '$pageNum',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
-                height: 1,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Text('صفحة', style: TextStyle(color: Colors.grey[500], fontSize: 10)),
-          ],
-        ),
-        if (subLabel.isNotEmpty)
-          Container(
-             margin: const EdgeInsets.only(top: 4),
-             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-             decoration: BoxDecoration(
-               color: Colors.brown[50],
-               borderRadius: BorderRadius.circular(4),
-             ),
-             child: Text(subLabel, style: TextStyle(color: Colors.brown[800], fontSize: 10, fontWeight: FontWeight.bold)),
+  // ─── Main Wird Card ───
+  Widget _buildMainWirdCard(BuildContext context, WidgetRef ref, WirdState state) {
+    final safeStartPage = state.currentPage.clamp(1, 604);
+    final safeTargetPage = state.targetPage.clamp(1, 604);
+
+    final pageData = quran.getPageData(safeStartPage);
+    final surahNum = pageData.isNotEmpty ? pageData[0]['surah'] : 1;
+    final startAyah = pageData.isNotEmpty ? pageData[0]['start'] : 1;
+    final firstVerse = quran.getVerse(surahNum, startAyah);
+    final juz = quran.getJuzNumber(surahNum, startAyah);
+
+    final targetPageData = quran.getPageData(safeTargetPage);
+    final targetSurahNum = targetPageData.isNotEmpty ? targetPageData[0]['surah'] : 1;
+    final targetStartAyah = targetPageData.isNotEmpty ? targetPageData[0]['start'] : 1;
+
+    return Container(
+      width: double.infinity,
+      // Research: generous internal padding (28px) for Arabic content
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // ── Header row: Juz label + "من قوله تعالى" ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'الجزء $juz',
+                  style: GoogleFonts.outfit(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              Text(
+                'من قوله تعالى',
+                style: GoogleFonts.amiri(
+                  color: AppTheme.primaryColor.withOpacity(0.6),
+                  fontSize: 15,
+                  height: 1.6,
+                ),
+              ),
+            ],
+          ),
+
+          // Research: 32-40px breathing room before Quranic text
+          const SizedBox(height: 36),
+
+          // ── Quranic Verse ──
+          // Research: Amiri font, 26px min, line-height 1.8 for diacritics
+          Text(
+            firstVerse,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.amiri(
+              fontSize: 26,
+              height: 1.8,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+
+          const SizedBox(height: 36),
+
+          // ── Divider ──
+          Divider(
+            color: Colors.grey.withOpacity(0.15),
+            height: 1,
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── From: surah / page ──
+          _buildInfoRow(
+            'سورة ${quran.getSurahNameArabic(surahNum)} - آية $startAyah',
+            'صفحة $safeStartPage',
+            AppTheme.primaryColor.withOpacity(0.7),
+          ),
+          const SizedBox(height: 10),
+          // ── To: surah / page ──
+          _buildInfoRow(
+            'إلى سورة ${quran.getSurahNameArabic(targetSurahNum)} - آية $targetStartAyah',
+            'صفحة $safeTargetPage',
+            AppTheme.primaryColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Reusable info row ──
+  Widget _buildInfoRow(String label, String value, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Text(
+            label,
+            style: GoogleFonts.outfit(
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              height: 1.5,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          value,
+          style: GoogleFonts.outfit(
+            color: color,
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+          ),
+        ),
       ],
     );
   }
 
-  void _showSettingsDialog(BuildContext context, WidgetRef ref, int currentPageCount) {
-    int selectedPages = currentPageCount;
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('إعدادات الورد اليومي'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('كم صفحة تريد أن تقرأ يومياً؟'),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove_circle_outline),
-                        onPressed: () {
-                          if (selectedPages > 1) setState(() => selectedPages--);
-                        },
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '$selectedPages',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_circle_outline),
-                        onPressed: () {
-                          setState(() => selectedPages++);
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'سيتم ختم القرآن في ${(604 / selectedPages).round()} يوم تقريباً',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
+  // ─── Action Buttons ───
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref, WirdState state) {
+    return Row(
+      children: [
+        // "I finished reading" (Gold)
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFECA638),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('إلغاء'),
+              onPressed: () => _showCompletionDialog(context, ref, state),
+              child: Text(
+                'أتممت القراءة',
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
                 ),
-                FilledButton(
-                  onPressed: () {
-                    ref.read(wirdControllerProvider.notifier).updatePagesPerDay(selectedPages);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('حفظ'),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        // "Continue reading" (Green)
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ],
-            );
-          },
-        );
-      },
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => WirdReaderPage(
+                      startPage: state.currentPage,
+                      endPage: state.targetPage,
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                'تابع القراءة',
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  void _showCompletionDialog(BuildContext context, WidgetRef ref) {
+  // ─── Completion Dialog ───
+  void _showCompletionDialog(BuildContext context, WidgetRef ref, WirdState state) {
+    final isKhatmaComplete = state.targetPage >= 604;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('wird_completed_title'.tr()),
-        content: Text('wird_completed_body'.tr()),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          isKhatmaComplete ? 'ختم القرآن الكريم 🎉' : 'إتمام الورد',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          isKhatmaComplete
+              ? 'مبارك! لقد أتممت قراءة القرآن الكريم كاملاً.\nتقبل الله منك وجعل بكل حرف نوراً في قلبك وحياتك.\n\nهل تود البدء بختمة جديدة؟'
+              : 'هل انتهيت من قراءة الورد المحدد لهذا اليوم؟\nسيتم تحديث تقدمك في الختمة.',
+          style: GoogleFonts.outfit(fontSize: 15, height: 1.6),
+        ),
         actions: [
           TextButton(
-            onPressed: () {
-               ref.read(wirdControllerProvider.notifier).completeWird();
-               Navigator.pop(context);
-            },
-            child: Text('done_only'.tr()),
+            onPressed: () => Navigator.pop(context),
+            child: Text('إلغاء', style: GoogleFonts.outfit()),
           ),
-          FilledButton.icon(
-             icon: const Icon(Icons.diversity_1),
-             label: Text('gift_thawab'.tr()),
-             onPressed: () {
-               ref.read(wirdControllerProvider.notifier).completeWird();
-               Navigator.pop(context);
-               // Navigate to Vefa Selection
-               Navigator.push(context, MaterialPageRoute(builder: (_) => const VefaPage(isSelectionMode: true)));
-             },
-          )
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              if (isKhatmaComplete) {
+                ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, 604).then((_) {
+                  ref.read(wirdControllerProvider.notifier).startNewKhatma();
+                });
+              } else {
+                ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, state.targetPage);
+              }
+              Navigator.pop(context);
+            },
+            child: Text(
+              isKhatmaComplete ? 'بدء ختمة جديدة' : 'تم بحمد الله',
+              style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );

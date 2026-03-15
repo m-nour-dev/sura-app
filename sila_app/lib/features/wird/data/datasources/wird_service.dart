@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:sila_app/features/wird/data/models/wird_settings.dart';
+import 'package:sila_app/features/wird/data/models/wird_history.dart';
 
 class WirdService {
   final Isar _isar;
@@ -25,6 +26,10 @@ class WirdService {
     return settings;
   }
 
+  Future<List<WirdHistory>> getHistory() async {
+    return await _isar.wirdHistorys.where().sortByDateDesc().findAll();
+  }
+
   Future<void> updateCurrentPage(int page) async {
     final settings = await getSettings();
     settings.currentPage = page;
@@ -43,12 +48,20 @@ class WirdService {
     });
   }
 
-  Future<void> completeDailyWird() async {
+  Future<void> completeDailyWird(int startPage, int endPage) async {
     final settings = await getSettings();
     settings.lastCompletionDate = DateTime.now();
+    settings.currentPage = endPage; // Advance current page
     
+    final history = WirdHistory()
+      ..date = DateTime.now()
+      ..startPage = startPage
+      ..endPage = endPage
+      ..isFullCompletion = true;
+
     await _isar.writeTxn(() async {
       await _isar.wirdSettings.put(settings);
+      await _isar.wirdHistorys.put(history);
     });
   }
 
@@ -61,6 +74,7 @@ class WirdService {
     
     await _isar.writeTxn(() async {
       await _isar.wirdSettings.put(settings);
+      // Optional: Clear history on reset? Usually no, but for now we leave it.
     });
   }
 }

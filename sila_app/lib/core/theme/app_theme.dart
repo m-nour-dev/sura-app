@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF0F766E); // Teal 700
-  static const Color accentColor = Color(0xFFCA8A04); // Yellow 600 (Gold)
-  static const Color backgroundColor = Color(0xFFF8FAFC); // Slate 50
-  static const Color darkBackgroundColor = Color(0xFF0F172A); // Slate 900
+  // Premium Palette
+  static const Color primaryColor = Color(0xFF064E3B); // Deep Emerald
+  static const Color accentColor = Color(0xFFD97706); // Burnished Gold
+  static const Color backgroundColor = Color(0xFFFDFBF7); // Warm Ivory
+  static const Color surfaceColor = Color(0xFFF9F5EC); // Soft Parchment
+  static const Color darkBackgroundColor = Color(0xFF0F172A); // Midnight Navy
+  static const Color darkSurfaceColor = Color(0xFF1E293B); // Slate 800
 
   // Light Theme
   static ThemeData get lightTheme {
@@ -16,15 +19,24 @@ class AppTheme {
         seedColor: primaryColor,
         primary: primaryColor,
         secondary: accentColor,
-        surface: backgroundColor,
+        surface: surfaceColor,
+        background: backgroundColor,
       ),
       scaffoldBackgroundColor: backgroundColor,
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme),
+      textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme).copyWith(
+        displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: primaryColor),
+        titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: primaryColor),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: primaryColor),
+        titleTextStyle: TextStyle(
+          color: primaryColor,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -37,9 +49,10 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
-        primary: primaryColor,
-        secondary: accentColor,
-        surface: darkBackgroundColor,
+        primary: const Color(0xFF10B981), // Minted Emerald for better visibility in dark
+        secondary: const Color(0xFFF59E0B), // Glowing Saffron
+        surface: darkSurfaceColor,
+        background: darkBackgroundColor,
       ),
       scaffoldBackgroundColor: darkBackgroundColor,
       textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
