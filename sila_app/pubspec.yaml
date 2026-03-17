@@ -57,6 +57,7 @@ dev_dependencies:
   mocktail: ^1.0.0
   http: ^1.6.0
   isar_generator: ^3.1.0+1
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -64,3 +65,10 @@ flutter:
     - assets/translations/
     - assets/data/
     - assets/audio/
+    - assets/icon/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  remove_alpha_ios: true

@@ -37,7 +37,7 @@ class MainLayout extends ConsumerWidget {
           NavigationDestination(
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home_rounded),
-            label: 'Home', 
+            label: 'الرئيسية',
           ),
           NavigationDestination(
             icon: const Icon(Icons.menu_book_outlined),

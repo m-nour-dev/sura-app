@@ -57,8 +57,9 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     return settingsState.when(
       data: (settings) {
         final surahData = quran.getPageData(_currentPage);
-        final currentSurah = surahData.isNotEmpty ? surahData[0]['surah'] : 1;
-        final currentJuz = quran.getJuzNumber(_currentPage, 1);
+        final currentSurah = surahData.isNotEmpty ? surahData[0]['surah'] as int : 1;
+        final firstAyah = surahData.isNotEmpty ? surahData[0]['start'] as int : 1;
+        final currentJuz = quran.getJuzNumber(currentSurah, firstAyah);
         final surahName = quran.getSurahNameArabic(currentSurah);
 
         return Scaffold(
@@ -206,9 +207,34 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   }
 
   Widget _buildSurahSegment(int surahNum, int startAyah, int endAyah, QuranSettings settings) {
-    String versesText = "";
+    List<TextSpan> allSpans = [];
+    List<Map<String, dynamic>> ayahPositions = [];
+    int currentLength = 0;
+    
     for (int i = startAyah; i <= endAyah; i++) {
-      versesText += "${quran.getVerse(surahNum, i)} ﴿${_arabicNumber(i)}﴾ ";
+      final key = '${surahNum}_$i';
+      
+      // Fallback to plain quran data if Tajweed fails or isn't loaded
+      String rawVerse = (_isQuranDataLoaded && _tajweedData.containsKey(key)) 
+          ? _tajweedData[key] 
+          : quran.getVerse(surahNum, i);
+          
+      // Ensure we add the ayah number and a space
+      rawVerse = "$rawVerse ﴿${_arabicNumber(i)}﴾ ";
+      
+      // Parse spans and calculate true plain text length
+      final spansResult = _buildTajweedSpans(rawVerse, settings);
+      final spans = spansResult['spans'] as List<TextSpan>;
+      final plainLength = spansResult['length'] as int;
+      
+      ayahPositions.add({
+        'ayahNum': i,
+        'start': currentLength,
+        'end': currentLength + plainLength,
+      });
+      
+      currentLength += plainLength;
+      allSpans.addAll(spans);
     }
     
     return Column(
@@ -225,15 +251,76 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
              ), 
         ],
         
-        _buildSelectableVerse(surahNum, startAyah, endAyah, versesText, settings),
+        _buildSelectableVerse(surahNum, startAyah, endAyah, allSpans, ayahPositions, settings),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildSelectableVerse(int surahNum, int startAyah, int endAyah, String versesText, QuranSettings settings) {
-    return SelectableText(
-      versesText,
+  Map<String, dynamic> _buildTajweedSpans(String text, QuranSettings settings) {
+    List<TextSpan> spans = [];
+    int plainLength = 0;
+    
+    // Pattern to match [ruleCode[content]
+    final RegExp exp = RegExp(r'\[([a-zA-Z0-9:]+)\[([^\]]+)\]');
+    int lastIndex = 0;
+    
+    for (final Match m in exp.allMatches(text)) {
+      if (m.start > lastIndex) {
+        final substring = text.substring(lastIndex, m.start);
+        spans.add(TextSpan(text: substring));
+        plainLength += substring.length;
+      }
+      
+      String rule = m.group(1)!;
+      String tajweedText = m.group(2)!;
+      Color textColor = _getTajweedColor(rule, settings);
+      
+      spans.add(TextSpan(
+        text: tajweedText,
+        style: TextStyle(color: textColor),
+      ));
+      plainLength += tajweedText.length;
+      
+      lastIndex = m.end;
+    }
+    
+    if (lastIndex < text.length) {
+      final substring = text.substring(lastIndex);
+      spans.add(TextSpan(text: substring));
+      plainLength += substring.length;
+    }
+    
+    return {'spans': spans, 'length': plainLength};
+  }
+
+  Color _getTajweedColor(String rule, QuranSettings settings) {
+    final baseColor = _getTextColor(settings.themeMode);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    
+    if (rule.startsWith('h') || rule.startsWith('s') || rule.startsWith('l') || rule.startsWith('w')) {
+      return isDark ? Colors.grey[600]! : Colors.grey[400]!;
+    } else if (rule.startsWith('g') || rule.startsWith('f')) {
+      return Colors.green;
+    } else if (rule.startsWith('m')) {
+      return Colors.red;
+    } else if (rule.startsWith('o')) {
+      return Colors.red[900]!;
+    } else if (rule.startsWith('q')) {
+      return Colors.blue;
+    } else if (rule.startsWith('c')) {
+      return Colors.purple;
+    } else if (rule.startsWith('p')) {
+      return Colors.green[700]!;
+    } else if (rule.startsWith('i')) {
+      return Colors.cyan;
+    }
+    return baseColor;
+  }
+
+  Widget _buildSelectableVerse(int surahNum, int startAyah, int endAyah, List<TextSpan> spans, List<Map<String, dynamic>> ayahPositions, QuranSettings settings) {
+    return SelectableText.rich(
+      TextSpan(children: spans),
       textAlign: TextAlign.justify,
       textDirection: ui.TextDirection.rtl,
       style: GoogleFonts.getFont(
@@ -249,7 +336,21 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
             label: '📖 تفسير',
             onPressed: () {
               ContextMenuController.removeAny();
-              _showTafsirSheet(context, surahNum, startAyah, endAyah, settings);
+              
+              final selection = editableTextState.textEditingValue.selection;
+              int selectedAyahNum = startAyah;
+              
+              if (selection.isValid) {
+                 final selStart = selection.start;
+                 for (var pos in ayahPositions) {
+                    if (selStart >= pos['start'] && selStart < pos['end']) {
+                       selectedAyahNum = pos['ayahNum'];
+                       break;
+                    }
+                 }
+              }
+              
+              _showTafsirSheet(context, surahNum, selectedAyahNum, selectedAyahNum, settings);
             },
           ),
         ];
@@ -266,104 +367,179 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     final surahName = quran.getSurahNameArabic(surahNum);
     final isDark = settings.themeMode == QuranThemeMode.dark;
     
+    // For single verse selection, display the verse text itself prominently
+    final verseText = startAyah == endAyah ? quran.getVerse(surahNum, startAyah) : "";
+    
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent, // Transparent for Glassmorphism
       isScrollControlled: true,
-      barrierColor: Colors.black.withOpacity(0.3),
+      barrierColor: Colors.black.withOpacity(0.5), // Darker barrier for focus
       builder: (context) => BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16), // Stronger blur
         child: DraggableScrollableSheet(
-          initialChildSize: 0.5,
-          minChildSize: 0.3,
-          maxChildSize: 0.85,
+          initialChildSize: 0.55,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
           builder: (context, scrollController) => Container(
             decoration: BoxDecoration(
-              color: _getBackgroundColor(settings.themeMode).withOpacity(isDark ? 0.75 : 0.85),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              color: _getBackgroundColor(settings.themeMode).withOpacity(isDark ? 0.85 : 0.95),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+              boxShadow: [
+                 BoxShadow(
+                   color: _getAccentColor(settings.themeMode).withOpacity(0.15),
+                   blurRadius: 30,
+                   spreadRadius: 5,
+                 )
+              ],
               border: Border.all(
-                color: Colors.white.withOpacity(isDark ? 0.1 : 0.5),
-                width: 1.5,
+                color: _getAccentColor(settings.themeMode).withOpacity(isDark ? 0.2 : 0.4),
+                width: 1.0,
               ),
             ),
             child: SingleChildScrollView(
               controller: scrollController,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Center(
                     child: Container(
-                      width: 48,
+                      width: 50,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(3),
+                        color: Colors.grey.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: _getAccentColor(settings.themeMode).withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(Icons.auto_awesome_outlined, color: _getAccentColor(settings.themeMode)),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        'التفسير الميسّر',
-                        style: GoogleFonts.outfit(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: _getTextColor(settings.themeMode),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: _getAccentColor(settings.themeMode).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: _getAccentColor(settings.themeMode).withOpacity(0.2)),
-                    ),
-                    child: Text(
-                      'سورة $surahName - الآيات $startAyah إلى $endAyah',
-                      style: GoogleFonts.amiri(
-                        fontSize: 16,
-                        color: _getAccentColor(settings.themeMode),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    tafsir,
-                    style: GoogleFonts.amiri(
-                      fontSize: 20,
-                      height: 2.1,
-                      color: _getTextColor(settings.themeMode),
                     ),
                   ),
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _getAccentColor(settings.themeMode),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                               gradient: LinearGradient(
+                                 colors: [
+                                    _getAccentColor(settings.themeMode),
+                                    _getAccentColor(settings.themeMode).withOpacity(0.7)
+                                 ],
+                                 begin: Alignment.topLeft,
+                                 end: Alignment.bottomRight,
+                               ),
+                               shape: BoxShape.circle,
+                               boxShadow: [
+                                 BoxShadow(
+                                   color: _getAccentColor(settings.themeMode).withOpacity(0.4),
+                                   blurRadius: 10, offset: const Offset(0, 4)
+                                 )
+                               ]
+                            ),
+                            child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 24),
+                          ),
+                          const SizedBox(width: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'التفسير الميسّر',
+                                style: GoogleFonts.cairo(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: _getTextColor(settings.themeMode),
+                                ),
+                              ),
+                              Text(
+                                'سورة $surahName - آية $startAyah',
+                                style: GoogleFonts.cairo(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: _getAccentColor(settings.themeMode),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      onPressed: () => Navigator.pop(context),
-                      child: Text('إغلاق التفاصيل', style: GoogleFonts.outfit(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                      IconButton(
+                        icon: Icon(Icons.close_rounded, color: Colors.grey[500], size: 28),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Quranic Verse Quote Block
+                  if (verseText.isNotEmpty) ...[
+                     Container(
+                       padding: const EdgeInsets.all(24),
+                       decoration: BoxDecoration(
+                         color: _getAccentColor(settings.themeMode).withOpacity(0.05),
+                         borderRadius: BorderRadius.circular(24),
+                         border: Border.all(color: _getAccentColor(settings.themeMode).withOpacity(0.15)),
+                       ),
+                       child: Column(
+                         children: [
+                           Icon(Icons.format_quote_rounded, color: _getAccentColor(settings.themeMode).withOpacity(0.5), size: 32),
+                           const SizedBox(height: 8),
+                           Text(
+                             "﴿ $verseText ﴾",
+                             textAlign: TextAlign.center,
+                             textDirection: ui.TextDirection.rtl,
+                             style: TextStyle(
+                               fontFamily: 'Amiri',
+                               fontSize: 24,
+                               height: 2.0,
+                               fontWeight: FontWeight.bold,
+                               color: _getTextColor(settings.themeMode),
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     const SizedBox(height: 32),
+                  ],
+                  
+                  // Tafsir Text
+                  Text(
+                    "التفسير:",
+                    textAlign: TextAlign.right,
+                    textDirection: ui.TextDirection.rtl,
+                    style: GoogleFonts.cairo(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: _getAccentColor(settings.themeMode),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  Text(
+                    tafsir.replaceAll('\n', '\n\n'), // Ensure paragraph breaks
+                    textAlign: TextAlign.justify,
+                    textDirection: ui.TextDirection.rtl,
+                    style: TextStyle(
+                      fontFamily: settings.fontFamily, // Match reader font
+                      fontSize: settings.fontSize * 0.9, // Slightly smaller than Quran text
+                      height: 2.2,
+                      color: _getTextColor(settings.themeMode).withOpacity(0.9),
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _getAccentColor(settings.themeMode),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      elevation: 4,
+                      shadowColor: _getAccentColor(settings.themeMode).withOpacity(0.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('إغلاق', style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -374,32 +550,34 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   }
 
   Map<String, dynamic> _tafsirData = {};
-  bool _isTafsirLoaded = false;
+  Map<String, dynamic> _tajweedData = {};
+  bool _isQuranDataLoaded = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_isTafsirLoaded) {
-      _loadTafsirData();
+    if (!_isQuranDataLoaded) {
+      _loadQuranData();
     }
   }
 
-  Future<void> _loadTafsirData() async {
+  Future<void> _loadQuranData() async {
     try {
-      final String jsonString = await DefaultAssetBundle.of(context).loadString('assets/data/tafseer.json');
+      final String tafsirStr = await DefaultAssetBundle.of(context).loadString('assets/data/tafseer.json');
+      final String tajweedStr = await DefaultAssetBundle.of(context).loadString('assets/data/tajweed.json');
       setState(() {
-        _tafsirData = Map<String, dynamic>.from(
-          jsonDecode(jsonString),
-        );
-        _isTafsirLoaded = true;
+        _tafsirData = Map<String, dynamic>.from(jsonDecode(tafsirStr));
+        _tajweedData = Map<String, dynamic>.from(jsonDecode(tajweedStr));
+        _isQuranDataLoaded = true;
       });
     } catch (e) {
-      debugPrint('Error loading tafsir data: $e');
+      debugPrint('Error loading quran data: $e');
+      setState(() => _isQuranDataLoaded = true); // Proceed anyway to show plain text
     }
   }
 
   String _getTafsir(int surahNum, int startAyah, int endAyah) {
-    if (!_isTafsirLoaded) {
+    if (!_isQuranDataLoaded || _tafsirData.isEmpty) {
       return 'جاري تحميل التفسير...';
     }
     
