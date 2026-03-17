@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -218,26 +219,205 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
              Padding(
                padding: const EdgeInsets.symmetric(vertical: 16.0),
                child: Text(
-                 "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", 
+                 "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", 
                  style: TextStyle(fontFamily: 'Amiri', fontSize: 24, color: _getTextColor(settings.themeMode)),
                ),
              ), 
         ],
         
-        Text(
-          versesText,
-          textAlign: TextAlign.justify,
-          textDirection: ui.TextDirection.rtl,
-          style: GoogleFonts.getFont(
-            settings.fontFamily,
-            fontSize: settings.fontSize,
-            height: 2.2, // Match the typical mushaf spacing
-            color: _getTextColor(settings.themeMode),
-          ),
-        ),
+        _buildSelectableVerse(surahNum, startAyah, endAyah, versesText, settings),
         const SizedBox(height: 16),
       ],
     );
+  }
+
+  Widget _buildSelectableVerse(int surahNum, int startAyah, int endAyah, String versesText, QuranSettings settings) {
+    return SelectableText(
+      versesText,
+      textAlign: TextAlign.justify,
+      textDirection: ui.TextDirection.rtl,
+      style: GoogleFonts.getFont(
+        settings.fontFamily,
+        fontSize: settings.fontSize,
+        height: 2.2,
+        color: _getTextColor(settings.themeMode),
+      ),
+      contextMenuBuilder: (context, editableTextState) {
+        final List<ContextMenuButtonItem> buttonItems = [
+          ...editableTextState.contextMenuButtonItems,
+          ContextMenuButtonItem(
+            label: '📖 تفسير',
+            onPressed: () {
+              ContextMenuController.removeAny();
+              _showTafsirSheet(context, surahNum, startAyah, endAyah, settings);
+            },
+          ),
+        ];
+        return AdaptiveTextSelectionToolbar.buttonItems(
+          anchors: editableTextState.contextMenuAnchors,
+          buttonItems: buttonItems,
+        );
+      },
+    );
+  }
+
+  void _showTafsirSheet(BuildContext context, int surahNum, int startAyah, int endAyah, QuranSettings settings) {
+    final tafsir = _getTafsir(surahNum, startAyah, endAyah);
+    final surahName = quran.getSurahNameArabic(surahNum);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent, // Transparent for Glassmorphism
+      isScrollControlled: true,
+      barrierColor: Colors.black.withOpacity(0.3),
+      builder: (context) => BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          builder: (context, scrollController) => Container(
+            decoration: BoxDecoration(
+              color: _getBackgroundColor(settings.themeMode).withOpacity(isDark ? 0.75 : 0.85),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              border: Border.all(
+                color: Colors.white.withOpacity(isDark ? 0.1 : 0.5),
+                width: 1.5,
+              ),
+            ),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 48,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: _getAccentColor(settings.themeMode).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.auto_awesome_outlined, color: _getAccentColor(settings.themeMode)),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        'التفسير الميسّر',
+                        style: GoogleFonts.outfit(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: _getTextColor(settings.themeMode),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: _getAccentColor(settings.themeMode).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: _getAccentColor(settings.themeMode).withOpacity(0.2)),
+                    ),
+                    child: Text(
+                      'سورة $surahName - الآيات $startAyah إلى $endAyah',
+                      style: GoogleFonts.amiri(
+                        fontSize: 16,
+                        color: _getAccentColor(settings.themeMode),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    tafsir,
+                    style: GoogleFonts.amiri(
+                      fontSize: 20,
+                      height: 2.1,
+                      color: _getTextColor(settings.themeMode),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _getAccentColor(settings.themeMode),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('إغلاق التفاصيل', style: GoogleFonts.outfit(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Map<String, dynamic> _tafsirData = {};
+  bool _isTafsirLoaded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isTafsirLoaded) {
+      _loadTafsirData();
+    }
+  }
+
+  Future<void> _loadTafsirData() async {
+    try {
+      final String jsonString = await DefaultAssetBundle.of(context).loadString('assets/data/tafseer.json');
+      setState(() {
+        _tafsirData = Map<String, dynamic>.from(
+          jsonDecode(jsonString),
+        );
+        _isTafsirLoaded = true;
+      });
+    } catch (e) {
+      debugPrint('Error loading tafsir data: $e');
+    }
+  }
+
+  String _getTafsir(int surahNum, int startAyah, int endAyah) {
+    if (!_isTafsirLoaded) {
+      return 'جاري تحميل التفسير...';
+    }
+    
+    // In many Tafsir JSONs, keys are exactly "Surah_Ayah" (e.g., "1_1")
+    String fullTafsir = '';
+    for(int i = startAyah; i <= endAyah; i++) {
+       final key = '${surahNum}_$i';
+       final text = _tafsirData[key];
+       if (text != null) {
+          fullTafsir += '$text\\n\\n';
+       }
+    }
+    
+    if (fullTafsir.trim().isEmpty) {
+       return 'للأسف، التفسير لهذه الآيات غير متوفر في النسخة الحالية.';
+    }
+    
+    return fullTafsir.trim();
   }
 
   String _arabicNumber(int number) {

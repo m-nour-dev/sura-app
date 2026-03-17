@@ -30,30 +30,13 @@ class HomeHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Logo cluster (icon + name)
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E5641),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome,
-                      color: Color(0xFFECA638),
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'صلة',
-                    style: GoogleFonts.amiri(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFFECA638),
-                    ),
-                  ),
-                ],
+              Text(
+                'صلة',
+                style: GoogleFonts.amiri(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFFECA638),
+                ),
               ),
               // Hijri date pill
               Container(
