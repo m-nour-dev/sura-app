@@ -1,16 +1,34 @@
 # sila_app
 
-A new Flutter project.
+تطبيق Flutter لمشروع **صلة** (Sila): تطبيق إسلامي متكامل يجمع بين القرآن، الأذكار، المواقيت، الورد، وميزة التسميع الذكي.
 
-## Getting Started
+## المزايا الأحدث
 
-This project is a starting point for a Flutter application.
+- تحسينات كبيرة على ميزة التسميع:
+  - استقرار أعلى لـ STT وإعادة تشغيل تلقائية بعد الانقطاع.
+  - منع تضارب STT/TTS أثناء نطق التصحيح.
+  - مؤشر حالة الاستماع وتجربة أخطاء أوضح.
+  - تقرير جلسة مفصل مع نسبة دقة وتصنيف للأخطاء.
+- نظام تفضيلات شخصية للتسميع:
+  - سلوك التطبيق عند الخطأ.
+  - عدد المحاولات قبل احتساب الخطأ.
+  - تشغيل/إيقاف صوت التصحيح.
+  - مستوى الصرامة في التقييم.
 
-A few resources to get you started if this is your first Flutter project:
+## التشغيل محلياً
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+flutter pub get
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## الفحص والاختبارات
+
+```bash
+flutter analyze
+flutter test
+```
+
+## ملاحظة
+
+قد تظهر نتائج `analyze` على شكل ملاحظات lint/deprecations في بعض الملفات. هذه لا تمنع تشغيل التطبيق لكنها تحتاج تحسين تدريجي.

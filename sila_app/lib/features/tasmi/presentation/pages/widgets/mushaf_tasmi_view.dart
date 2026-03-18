@@ -88,12 +88,19 @@ class MushafTasmiView extends ConsumerWidget {
 
       if (isLastWordOfAyah) {
         spans.add(
-          WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: _buildAyahNumber(entry.verseNumber, theme, fontSize),
+          TextSpan(
+            text: ' ﴿${_toArabicNumber(entry.verseNumber.toString())}﴾ ',
+            style: TextStyle(
+              color: theme.brightness == Brightness.dark
+                  ? const Color(0xFF81C784)
+                  : const Color(0xFF1B5E20),
+              fontSize: fontSize * 0.60,
+              fontFamily: 'Amiri',
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+            ),
           ),
         );
-        spans.add(const TextSpan(text: ' '));
       }
     }
     return spans;
@@ -120,37 +127,12 @@ class MushafTasmiView extends ConsumerWidget {
           color: const Color(0xFFA32D2D),
           backgroundColor: const Color(0xFFA32D2D).withOpacity(0.15),
         );
+      case WordEntryStatus.skipped:
+        return const TextStyle(color: Colors.grey);
       case WordEntryStatus.hidden:
         // Completely invisible but retains perfect text shaping boundaries
         return const TextStyle(color: Colors.transparent);
     }
   }
 
-  Widget _buildAyahNumber(int number, ThemeData theme, double fontSize) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: theme.colorScheme.surface,
-        border: Border.all(
-          color: theme.colorScheme.primary.withOpacity(0.5),
-          width: 1.5,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          _toArabicNumber(number.toString()),
-          style: TextStyle(
-            color: theme.colorScheme.primary,
-            fontSize: fontSize * 0.45,
-            fontFamily: 'Amiri',
-            fontWeight: FontWeight.bold,
-            height: 1.0,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
 }

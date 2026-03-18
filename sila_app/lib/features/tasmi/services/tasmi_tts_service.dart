@@ -10,6 +10,7 @@ class TasmiTtsService {
   bool _initialized = false;
   bool _isSpeaking = false;
   Timer? _debounceTimer;
+  Completer<void>? _speakCompleter;
 
   bool get isSpeaking => _isSpeaking;
 
@@ -22,7 +23,7 @@ class TasmiTtsService {
     await _tts.setPitch(1.0);
 
     // Prevents the internal native Android service from deadlocking Dart if interrupted
-    await _tts.awaitSpeakCompletion(false);
+    await _tts.awaitSpeakCompletion(true);
 
     _tts.setStartHandler(() {
       _isSpeaking = true;
@@ -30,15 +31,24 @@ class TasmiTtsService {
 
     _tts.setCompletionHandler(() {
       _isSpeaking = false;
+      if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
+        _speakCompleter!.complete();
+      }
     });
 
     _tts.setCancelHandler(() {
       _isSpeaking = false;
+      if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
+        _speakCompleter!.complete();
+      }
     });
 
     _tts.setErrorHandler((msg) {
       _isSpeaking = false;
       debugPrint('TTS Error: $msg');
+      if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
+        _speakCompleter!.completeError(Exception(msg));
+      }
     });
 
     final voices = await _tts.getVoices;
@@ -59,13 +69,15 @@ class TasmiTtsService {
     debugPrint('✅ TasmiTtsService ready');
   }
 
-  void speakWord(String word) {
+  Future<void> speakWord(String word) async {
     if (!_initialized) return;
 
     // Debounce rapid requests to prevent overlap and Android audio channel locking
     if (_debounceTimer?.isActive ?? false) {
       _debounceTimer!.cancel();
     }
+
+    _speakCompleter = Completer<void>();
 
     _debounceTimer = Timer(const Duration(milliseconds: 150), () async {
       try {
@@ -75,25 +87,36 @@ class TasmiTtsService {
         }
         
         debugPrint('🔊 Speaking: "$word"');
-        _tts.speak(word).catchError((e) {
-          debugPrint('TTS Engine Exception: $e');
-          _isSpeaking = false;
-        });
+        await _tts.speak(word);
+        if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
+          _speakCompleter!.complete();
+        }
       } catch (e) {
         debugPrint('TTS Global Error: $e');
         _isSpeaking = false;
+        if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
+          _speakCompleter!.completeError(e);
+        }
       }
     });
+
+    return _speakCompleter!.future;
   }
 
   void stop() {
     _debounceTimer?.cancel();
     _isSpeaking = false;
+    if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
+      _speakCompleter!.complete();
+    }
     _tts.stop();
   }
 
   void dispose() {
     _debounceTimer?.cancel();
+    if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
+      _speakCompleter!.complete();
+    }
     _tts.stop();
   }
 }

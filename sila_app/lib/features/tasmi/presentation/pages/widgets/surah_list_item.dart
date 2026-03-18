@@ -67,7 +67,7 @@ class SurahListItem extends StatelessWidget {
                   textDirection: TextDirection.rtl,
                   children: [
                     Text(
-                      'سورة ${quran.getSurahName(surahNumber)}',
+                      'سورة ${quran.getSurahNameArabic(surahNumber)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,

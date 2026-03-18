@@ -1,6 +1,6 @@
 
 // Defines the state of a single word in the recitation view.
-enum WordEntryStatus { hidden, correct, closeError, wrongWord }
+enum WordEntryStatus { hidden, correct, closeError, wrongWord, skipped }
 
 class TasmiWordEntry {
   final int verseNumber;

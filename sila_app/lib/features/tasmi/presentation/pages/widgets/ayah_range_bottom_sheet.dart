@@ -55,7 +55,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
         children: [
           // Header
           Text(
-            'سورة ${quran.getSurahName(widget.surahNumber)}',
+            'سورة ${quran.getSurahNameArabic(widget.surahNumber)}',
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           Text(

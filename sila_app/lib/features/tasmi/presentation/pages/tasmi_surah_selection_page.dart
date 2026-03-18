@@ -81,7 +81,7 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
       if (normalizedQuery.isEmpty) {
         matchesSearch = true;
       } else {
-        matchesSearch = TajweedNormalizer.normalize(quran.getSurahName(i)).contains(normalizedQuery) ||
+        matchesSearch = TajweedNormalizer.normalize(quran.getSurahNameArabic(i)).contains(normalizedQuery) ||
                         i.toString().contains(normalizedQuery) ||
                         _toArabicNumber(i.toString()).contains(normalizedQuery);
       }

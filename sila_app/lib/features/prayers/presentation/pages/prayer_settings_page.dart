@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sila_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/adhan_settings_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
@@ -168,6 +169,25 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
                   MaterialPageRoute(builder: (_) => const QiblahPage())),
               trailing:
                   const Icon(Icons.chevron_right_rounded, color: Colors.white38),
+            ),
+          ]),
+
+          const SizedBox(height: 16),
+
+          _Section(label: 'التسميع', children: [
+            _Tile(
+              icon: Icons.tune_rounded,
+              title: 'إعدادات التسميع',
+              subtitle: 'غيّر تفضيلاتك للتسميع',
+              trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TasmiOnboardingPage(
+                    onDone: () => Navigator.pop(context),
+                  ),
+                ),
+              ),
             ),
           ]),
         ],

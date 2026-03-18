@@ -1,37 +1,40 @@
 
 import 'dart:math';
+import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
 
 enum WordMatchResult { correct, closeError, wrongWord }
 
 class TajweedNormalizer {
   static String normalize(String text) {
-    // Strip:
-    // - Quran annotations (U+0610 to U+061A)
-    // - Tashkeel / Diacritics (U+064B to U+065F)
-    // - Tatweel (U+0640)
-    // - Dagger Alif (U+0670)
-    // - Quranic stop signs & rub el hizb, etc (U+06D6 to U+06ED)
-    final pattern = RegExp(r'[\u0610-\u061A\u064B-\u065F\u0640\u0670\u06D6-\u06ED]');
-    String normalized = text.replaceAll(pattern, '');
+    String result = text;
 
-    // Replace specific Arabic letters with their base form for broader matching.
-    // Replace أ, إ, آ, ٱ with ا
-    normalized = normalized.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
-    // Replace ة with ه
-    normalized = normalized.replaceAll('ة', 'ه');
-    // Replace ى and ئ with ي
-    normalized = normalized.replaceAll(RegExp(r'[ىئ]'), 'ي');
-    // Replace ؤ with و
-    normalized = normalized.replaceAll('ؤ', 'و');
+    result = result.replaceAll(RegExp(r'[\u064B-\u065F\u0670]'), '');
+    result = result.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
+    result = result.replaceAll('ة', 'ه');
+    result = result.replaceAll('ى', 'ي');
+    result = result.replaceAll('ؤ', 'و');
+    result = result.replaceAll('ئ', 'ي');
 
-    // Trim and remove extra whitespace
-    return normalized.trim().replaceAll(RegExp(r'\s+'), ' ');
+    result = result.replaceAll('ص', 'س');
+    result = result.replaceAll('ض', 'د');
+    result = result.replaceAll('ط', 'ت');
+    result = result.replaceAll('ظ', 'ز');
+    result = result.replaceAll('ث', 'س');
+    result = result.replaceAll('ذ', 'ز');
+
+    result = result.replaceAll('اا', 'ا');
+
+    result = result.replaceAll(RegExp(r'[۩﴿﴾ۖۗۘۙۚۛۜ۞]'), '');
+    result = result.replaceAll(RegExp(r'\s+'), ' ');
+
+    return result.trim();
   }
 
   /// Compares a spoken word against the expected Quranic word.
   static WordMatchResult compareWord({
     required String spoken,
     required String expected,
+    StrictnessLevel strictness = StrictnessLevel.medium,
   }) {
     final normalizedSpoken = normalize(spoken);
     final normalizedExpected = normalize(expected);
@@ -42,11 +45,31 @@ class TajweedNormalizer {
 
     final similarityScore = _similarity(normalizedSpoken, normalizedExpected);
 
-    if (similarityScore >= 0.75) {
-      return WordMatchResult.closeError;
-    } else {
-      return WordMatchResult.wrongWord;
+    final correctThreshold = switch (strictness) {
+      StrictnessLevel.easy => 0.65,
+      StrictnessLevel.medium => 0.75,
+      StrictnessLevel.strict => 0.90,
+    };
+
+    final closeThreshold = switch (strictness) {
+      StrictnessLevel.easy => 0.45,
+      StrictnessLevel.medium => 0.55,
+      StrictnessLevel.strict => 0.70,
+    };
+
+    if (strictness == StrictnessLevel.easy && similarityScore >= closeThreshold) {
+      return WordMatchResult.correct;
     }
+
+    if (similarityScore >= correctThreshold) {
+      return WordMatchResult.correct;
+    }
+
+    if (similarityScore >= closeThreshold) {
+      return WordMatchResult.closeError;
+    }
+
+    return WordMatchResult.wrongWord;
   }
 
   /// Calculates the Levenshtein similarity between two strings, from 0.0 to 1.0.

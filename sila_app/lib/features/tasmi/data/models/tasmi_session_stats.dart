@@ -1,22 +1,48 @@
 
+import 'package:equatable/equatable.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
 
-class TasmiSessionStats {
+class TasmiSessionStats extends Equatable {
   final int correctCount;
-  final int errorCount;
-  final List<TasmiWordError> errors;
+  final int closeErrorCount;
+  final int wrongCount;
+  final int skippedCount;
+  final List<TasmiWordError> errorList;
 
-  TasmiSessionStats({
+  int get totalErrors => closeErrorCount + wrongCount;
+
+  int get errorCount => totalErrors;
+
+  List<TasmiWordError> get errors => errorList;
+
+  double get accuracyPercent {
+    final total = correctCount + totalErrors;
+    if (total == 0) return 100;
+    return (correctCount / total) * 100;
+  }
+
+  const TasmiSessionStats({
     required this.correctCount,
-    required this.errorCount,
-    required this.errors,
+    required this.closeErrorCount,
+    required this.wrongCount,
+    required this.skippedCount,
+    required this.errorList,
   });
 
-  factory TasmiSessionStats.initial() {
-    return TasmiSessionStats(
-      correctCount: 0,
-      errorCount: 0,
-      errors: [],
-    );
-  }
+  factory TasmiSessionStats.initial() => const TasmiSessionStats(
+        correctCount: 0,
+        closeErrorCount: 0,
+        wrongCount: 0,
+        skippedCount: 0,
+        errorList: [],
+      );
+
+  @override
+  List<Object?> get props => [
+        correctCount,
+        closeErrorCount,
+        wrongCount,
+        skippedCount,
+        errorList,
+      ];
 }
