@@ -4,6 +4,7 @@ import 'package:quran/quran.dart' as quran;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart';
+import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
 import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 
@@ -170,6 +171,16 @@ class WirdCard extends ConsumerWidget {
 
   // ─── Action Buttons ───
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, WirdState state) {
+    final pageData = quran.getPageData(state.currentPage.clamp(1, 604));
+    final surahNum = pageData.isNotEmpty ? pageData[0]['surah'] : 1;
+    final startAyah = pageData.isNotEmpty ? pageData[0]['start'] : 1;
+
+    final targetPageData = quran.getPageData(state.targetPage.clamp(1, 604));
+    final targetSurahNum = targetPageData.isNotEmpty ? targetPageData[0]['surah'] : 1;
+    // Note: This is a simplification. A proper implementation would need to get the exact end ayah.
+    final endAyah = quran.getVerseCount(targetSurahNum);
+
+
     return Row(
       children: [
         // "I finished reading" (Gold)
@@ -188,6 +199,38 @@ class WirdCard extends ConsumerWidget {
               onPressed: () => _showCompletionDialog(context, ref, state),
               child: Text(
                 'أتممت القراءة',
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        // "Tasmi3" (New Button)
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor.withOpacity(0.8),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TasmiSurahSelectionPage(),
+                  ),
+                );
+              },
+              child: Text(
+                'تسميع',
                 style: GoogleFonts.outfit(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,

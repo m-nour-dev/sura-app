@@ -87,27 +87,30 @@ class NotificationService {
     // prayerTime is already a local DateTime — convert to TZDateTime using local tz
     final scheduledTime = tz.TZDateTime.from(prayerTime, tz.local);
 
-    const androidDetails = AndroidNotificationDetails(
+    final soundName = soundFile?.split('.').first;
+    
+    final androidDetails = AndroidNotificationDetails(
       'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
-      // Use the default channel sound (avoiding missing asset crash)
+      sound: soundName != null ? RawResourceAndroidNotificationSound(soundName) : null,
       enableVibration: true,
       enableLights: true,
-      color: Color(0xFF43A047),
+      color: const Color(0xFF43A047),
       icon: '@mipmap/ic_launcher',
     );
 
-    const iosDetails = DarwinNotificationDetails(
+    final iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      sound: soundFile,
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
@@ -163,12 +166,10 @@ class NotificationService {
     return await _notifications.pendingNotificationRequests();
   }
 
-  void _onNotificationTap(NotificationResponse response) {
-    final payload = response.payload;
-    if (payload != null) {
-      // Play the user's selected sound when notification is tapped
-      playAdhan('adhan_mecca.mp3');
-    }
+  void _onNotificationTap(NotificationResponse response) async {
+    final prefs = PrefsService();
+    final sound = await prefs.getAdhanSound();
+    playAdhan(sound);
   }
 
   String _getPrayerNameArabic(String name) {
