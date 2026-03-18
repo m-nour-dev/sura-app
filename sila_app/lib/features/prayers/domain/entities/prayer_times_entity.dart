@@ -10,7 +10,8 @@ class PrayerTimesEntity extends Equatable {
   final String locationName;
   final double latitude;
   final double longitude;
-  final String timezoneName; // e.g., "Europe/Istanbul", "America/New_York"
+  final String countryCode;        // e.g. "TR", "EG", "SA"
+  final String calculationMethod; // e.g. "turkey", "egyptian"
 
   const PrayerTimesEntity({
     required this.fajr,
@@ -22,9 +23,13 @@ class PrayerTimesEntity extends Equatable {
     required this.locationName,
     required this.latitude,
     required this.longitude,
-    required this.timezoneName,
+    this.countryCode = 'TR',
+    this.calculationMethod = 'turkey',
   });
 
   @override
-  List<Object?> get props => [fajr, sunrise, dhuhr, asr, maghrib, isha, locationName, latitude, longitude, timezoneName];
+  List<Object?> get props => [
+    fajr, sunrise, dhuhr, asr, maghrib, isha,
+    locationName, latitude, longitude, countryCode, calculationMethod,
+  ];
 }

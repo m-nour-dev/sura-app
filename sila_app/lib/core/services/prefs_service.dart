@@ -1,95 +1,103 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefsService {
-  static const String keyIsAutoLocation = "is_auto_location";
-  static const String keyLat = "latitude";
-  static const String keyLong = "longitude";
-  static const String keyCity = "city_name";
-  static const String keyCalculationMethod = "calculation_method";
+  static const String _keyIsAutoLocation = 'is_auto_location';
+  static const String _keyLat = 'latitude';
+  static const String _keyLong = 'longitude';
+  static const String _keyCity = 'city_name';
+  static const String _keyCountryCode = 'country_code';
+  static const String _keyCalculationMethod = 'calculation_method';
+  static const String _keyAdhanNotificationsEnabled = 'adhan_notifications_enabled';
+  static const String _keyAdhanSound = 'adhan_sound';
+
+  // ─── Location ────────────────────────────────────────────────────────────
 
   Future<void> setAutoLocation(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(keyIsAutoLocation, value);
+    await prefs.setBool(_keyIsAutoLocation, value);
   }
 
   Future<bool> isAutoLocation() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(keyIsAutoLocation) ?? true; // Default to Auto
+    return prefs.getBool(_keyIsAutoLocation) ?? true;
   }
 
-  Future<void> saveManualLocation(double lat, double long, String cityName) async {
+  Future<void> saveManualLocation(
+    double lat,
+    double long,
+    String cityName, {
+    String countryCode = 'XX',
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble(keyLat, lat);
-    await prefs.setDouble(keyLong, long);
-    await prefs.setString(keyCity, cityName);
-    await prefs.setBool(keyIsAutoLocation, false); // Switch to manual
+    await prefs.setDouble(_keyLat, lat);
+    await prefs.setDouble(_keyLong, long);
+    await prefs.setString(_keyCity, cityName);
+    await prefs.setString(_keyCountryCode, countryCode);
+    await prefs.setBool(_keyIsAutoLocation, false);
   }
 
   Future<Map<String, dynamic>?> getStoredLocation() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey(keyLat)) return null;
-    
+    if (!prefs.containsKey(_keyLat)) return null;
     return {
-      "lat": prefs.getDouble(keyLat),
-      "long": prefs.getDouble(keyLong),
-      "city": prefs.getString(keyCity) ?? "Manual Location"
+      'lat': prefs.getDouble(_keyLat),
+      'long': prefs.getDouble(_keyLong),
+      'city': prefs.getString(_keyCity) ?? 'Manual Location',
+      'countryCode': prefs.getString(_keyCountryCode) ?? 'XX',
     };
   }
 
-  /// Get prayer time calculation method
-  /// Returns: 'turkey', 'muslim_world_league', 'egyptian', 'karachi', 'umm_al_qura', 'dubai', 'qatar', 'kuwait', 'singapore', 'north_america', 'france', 'tehran'
+  Future<void> saveCountryCode(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyCountryCode, code);
+  }
+
+  Future<String> getCountryCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyCountryCode) ?? 'XX';
+  }
+
+  // ─── Calculation Method ───────────────────────────────────────────────────
+
   Future<String> getCalculationMethod() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(keyCalculationMethod) ?? 'turkey'; // Default to Turkey
+    return prefs.getString(_keyCalculationMethod) ?? 'turkey';
   }
 
-  /// Set prayer time calculation method
   Future<void> setCalculationMethod(String method) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(keyCalculationMethod, method);
+    await prefs.setString(_keyCalculationMethod, method);
   }
 
-  // ========== Adhan Settings ==========
+  // ─── Adhan Settings ───────────────────────────────────────────────────────
 
-  static const String keyAdhanNotificationsEnabled = "adhan_notifications_enabled";
-  static const String keyAdhanSound = "adhan_sound";
-
-  /// Check if Adhan notifications are enabled globally
   Future<bool> isAdhanNotificationsEnabled() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(keyAdhanNotificationsEnabled) ?? true; // Default enabled
+    return prefs.getBool(_keyAdhanNotificationsEnabled) ?? true;
   }
 
-  /// Enable/disable Adhan notifications globally
   Future<void> setAdhanNotificationsEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(keyAdhanNotificationsEnabled, enabled);
+    await prefs.setBool(_keyAdhanNotificationsEnabled, enabled);
   }
 
-  /// Check if Adhan is enabled for specific prayer
   Future<bool> isAdhanEnabled(String prayerName) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'adhan_enabled_${prayerName.toLowerCase()}';
-    return prefs.getBool(key) ?? true; // Default enabled
+    return prefs.getBool('adhan_enabled_${prayerName.toLowerCase()}') ?? true;
   }
 
-  /// Enable/disable Adhan for specific prayer
   Future<void> setAdhanEnabled(String prayerName, bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
-    final key = 'adhan_enabled_${prayerName.toLowerCase()}';
-    await prefs.setBool(key, enabled);
+    await prefs.setBool('adhan_enabled_${prayerName.toLowerCase()}', enabled);
   }
 
-  /// Get selected Adhan sound
-  /// Returns: 'adhan_mecca.mp3', 'adhan_medina.mp3', 'adhan_egypt.mp3', 'adhan_mishary.mp3', 'adhan_turkey.mp3'
   Future<String> getAdhanSound() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(keyAdhanSound) ?? 'adhan_mecca.mp3'; // Default
+    return prefs.getString(_keyAdhanSound) ?? 'adhan_mecca.mp3';
   }
 
-  /// Set Adhan sound
   Future<void> setAdhanSound(String soundFile) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(keyAdhanSound, soundFile);
+    await prefs.setString(_keyAdhanSound, soundFile);
   }
 }

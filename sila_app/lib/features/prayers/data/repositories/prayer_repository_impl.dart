@@ -1,7 +1,6 @@
 import 'package:adhan/adhan.dart';
 import 'package:sila_app/core/services/location_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/core/services/timezone_service.dart';
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
 import 'package:sila_app/features/prayers/domain/repositories/prayer_repository.dart';
 
@@ -9,69 +8,79 @@ class PrayerRepositoryImpl extends PrayerRepository {
   // Default Location: Istanbul, Turkey (fallback)
   static const double _defaultLat = 41.0082;
   static const double _defaultLong = 28.9784;
+  static const String _defaultCity = 'İstanbul, Türkiye';
 
+  @override
   Future<PrayerTimesEntity> getPrayerTimes() async {
-    // Initialize services
     final locService = LocationService();
     final prefs = PrefsService();
-    final timezoneService = TimezoneService();
-    
-    // Ensure timezone service is initialized
-    await timezoneService.initialize();
 
-    // Default values
     double lat = _defaultLat;
     double long = _defaultLong;
-    String city = "İstanbul, Türkiye";
+    String city = _defaultCity;
+    String countryCode = 'TR';
 
-    // Get location coordinates
+    // Get location
     try {
       final isAuto = await prefs.isAutoLocation();
+      String? oldCountryCode = await prefs.getCountryCode();
 
       if (isAuto) {
         final position = await locService.determinePosition();
         lat = position.latitude;
         long = position.longitude;
-        city = await locService.getCityFromCoordinates(lat, long);
+        final locationInfo = await locService.getLocationInfo(lat, long);
+        city = locationInfo['city'] ?? _defaultCity;
+        countryCode = locationInfo['countryCode'] ?? 'TR';
+
+        // ONLY Auto-select calculation method if the country actually changed
+        // This prevents overwriting the user's manual method choice on every reload
+        if (oldCountryCode != countryCode) {
+          final autoMethod = _getMethodForCountry(countryCode);
+          await prefs.setCalculationMethod(autoMethod);
+          await prefs.saveCountryCode(countryCode);
+        }
       } else {
         final stored = await prefs.getStoredLocation();
         if (stored != null) {
-          lat = stored["lat"];
-          long = stored["long"];
-          city = stored["city"];
+          lat = stored['lat'] as double;
+          long = stored['long'] as double;
+          city = stored['city'] as String;
+          countryCode = stored['countryCode'] as String? ?? 'TR';
+          
+          if (oldCountryCode != countryCode) {
+             final autoMethod = _getMethodForCountry(countryCode);
+             await prefs.setCalculationMethod(autoMethod);
+             await prefs.saveCountryCode(countryCode);
+          }
         }
       }
     } catch (e) {
-      print("Location Error: $e"); // Fallback to default
+      print('Location Error: $e');
     }
-
-    // Get timezone for the location
-    final timezoneName = timezoneService.getTimezoneFromCoordinates(lat, long);
-    print("Prayer times timezone: $timezoneName for coordinates: $lat, $long");
 
     // Get calculation method from preferences
     final methodString = await prefs.getCalculationMethod();
     final params = _getCalculationParams(methodString);
-    
-    // Create coordinates and date
+
     final myCoordinates = Coordinates(lat, long);
     final date = DateComponents.from(DateTime.now());
-    
-    // Get timezone offset for the location
-    final tzLocation = timezoneService.getLocation(timezoneName);
-    final locationNow = tzLocation != null 
-        ? timezoneService.getCurrentTimeInTimezone(timezoneName)
-        : DateTime.now();
-    final utcOffset = locationNow.timeZoneOffset;
-    
-    print("Location timezone offset: $utcOffset");
-    
-    // Calculate prayer times using location timezone
-    final prayerTimes = PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
-    
-    // Adhan returns times in UTC but with the hour adjusted to the local timezone (if utcOffset is used).
-    // We need to convert these "UTC-masquerading-as-local" times to actual Local DateTime objects
-    // so that comparisons with DateTime.now() (which is Local) work correctly.
+
+    // Use the device's local timezone offset — this is the most reliable way
+    // to ensure prayer times align with what the user sees on their clock.
+    final utcOffset = DateTime.now().timeZoneOffset;
+
+    final prayerTimes = PrayerTimes(
+      myCoordinates,
+      date,
+      params,
+      utcOffset: utcOffset,
+    );
+
+    // The adhan library with utcOffset returns DateTime objects where:
+    //   - isUtc = true  (the kind is UTC)
+    //   - but the hour/minute values are already LOCAL (shifted by utcOffset)
+    // So we must read the hour/minute/second directly and create a LOCAL DateTime.
     DateTime toLocal(DateTime dt) {
       return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
     }
@@ -86,14 +95,87 @@ class PrayerRepositoryImpl extends PrayerRepository {
       locationName: city,
       latitude: lat,
       longitude: long,
-      timezoneName: timezoneName,
+      countryCode: countryCode,
+      calculationMethod: methodString,
     );
   }
-  
-  /// Get calculation parameters based on method string
+
+  @override
+  Future<Prayer> getNextPrayer() async {
+    final prefs = PrefsService();
+    final locService = LocationService();
+
+    double lat = _defaultLat;
+    double long = _defaultLong;
+
+    try {
+      final isAuto = await prefs.isAutoLocation();
+      if (isAuto) {
+        final position = await locService.determinePosition();
+        lat = position.latitude;
+        long = position.longitude;
+      } else {
+        final stored = await prefs.getStoredLocation();
+        if (stored != null) {
+          lat = stored['lat'] as double;
+          long = stored['long'] as double;
+        }
+      }
+    } catch (e) {
+      print('Location Error in getNextPrayer: $e');
+    }
+
+    final methodString = await prefs.getCalculationMethod();
+    final params = _getCalculationParams(methodString);
+
+    final myCoordinates = Coordinates(lat, long);
+    final date = DateComponents.from(DateTime.now());
+
+    // Use same utcOffset as getPrayerTimes for consistency
+    final utcOffset = DateTime.now().timeZoneOffset;
+    final prayerTimes = PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
+
+    return prayerTimes.nextPrayer();
+  }
+
+  /// Automatically pick the correct calculation method for a given country.
+  String _getMethodForCountry(String countryCode) {
+    switch (countryCode.toUpperCase()) {
+      case 'TR': // Turkey
+        return 'turkey';
+      case 'EG': // Egypt
+        return 'egyptian';
+      case 'SA': // Saudi Arabia
+        return 'umm_al_qura';
+      case 'MA': // Morocco
+        return 'morocco';
+      case 'ID': // Indonesia
+        return 'indonesia';
+      case 'IN': // India
+        return 'north_america'; // ISNA is widely used in India too
+      case 'US': // USA
+      case 'CA': // Canada
+        return 'north_america';
+      case 'PK': // Pakistan
+        return 'karachi';
+      case 'MY': // Malaysia
+      case 'SG': // Singapore
+        return 'singapore';
+      case 'AE': // UAE
+        return 'dubai';
+      case 'QA': // Qatar
+        return 'qatar';
+      case 'KW': // Kuwait
+        return 'kuwait';
+      default:
+        return 'muslim_world_league';
+    }
+  }
+
+  /// Map method string to CalculationParameters
   CalculationParameters _getCalculationParams(String method) {
     CalculationParameters params;
-    
+
     switch (method.toLowerCase()) {
       case 'muslim_world_league':
         params = CalculationMethod.muslim_world_league.getParameters();
@@ -122,52 +204,20 @@ class PrayerRepositoryImpl extends PrayerRepository {
       case 'north_america':
         params = CalculationMethod.north_america.getParameters();
         break;
+      case 'morocco':
+        // Morocco: Fajr angle 19°, Isha angle 17° (Moroccan Ministry)
+        params = CalculationParameters(fajrAngle: 19.0, ishaAngle: 17.0);
+        break;
+      case 'indonesia':
+        // Indonesia KEMENAG: Fajr angle 20°, Isha angle 18°
+        params = CalculationParameters(fajrAngle: 20.0, ishaAngle: 18.0);
+        params.madhab = Madhab.shafi;
+        break;
       case 'turkey':
       default:
         params = CalculationMethod.turkey.getParameters();
     }
-    
-    // Set madhab to Shafi (can be made configurable later)
-    params.madhab = Madhab.shafi;
-    
+
     return params;
-  }
-  
-  /// Get next prayer using actual location coordinates
-  Future<Prayer> getNextPrayer() async {
-    final prefs = PrefsService();
-    final locService = LocationService();
-    
-    // Get actual location (same logic as getPrayerTimes)
-    double lat = _defaultLat;
-    double long = _defaultLong;
-
-    try {
-      final isAuto = await prefs.isAutoLocation();
-
-      if (isAuto) {
-        final position = await locService.determinePosition();
-        lat = position.latitude;
-        long = position.longitude;
-      } else {
-        final stored = await prefs.getStoredLocation();
-        if (stored != null) {
-          lat = stored["lat"];
-          long = stored["long"];
-        }
-      }
-    } catch (e) {
-      print("Location Error in getNextPrayer: $e");
-    }
-
-    // Get calculation method
-    final methodString = await prefs.getCalculationMethod();
-    final params = _getCalculationParams(methodString);
-    
-    final myCoordinates = Coordinates(lat, long);
-    final date = DateComponents.from(DateTime.now());
-    final prayerTimes = PrayerTimes(myCoordinates, date, params);
-    
-    return prayerTimes.nextPrayer();
   }
 }

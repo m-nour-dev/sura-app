@@ -41,20 +41,35 @@ class _LocationSettingsDialogState extends State<LocationSettingsDialog> {
   Future<void> _saveManual() async {
     final cityName = _cityController.text.trim();
     if (cityName.isEmpty) return;
-
     setState(() => _isLoading = true);
-
     try {
-      final loc = await locationFromAddress(cityName);
-      if (loc.isNotEmpty) {
-        await _prefs.saveManualLocation(loc.first.latitude, loc.first.longitude, cityName);
-        if (mounted) Navigator.pop(context, true); // Return true to refresh
+      final locations = await locationFromAddress(cityName);
+      if (locations.isNotEmpty) {
+        final loc = locations.first;
+        // Reverse-geocode to get country code
+        final locSvc = LocationService();
+        final info = await locSvc.getLocationInfo(loc.latitude, loc.longitude);
+        final countryCode = info['countryCode'] ?? 'XX';
+        await _prefs.saveManualLocation(
+          loc.latitude,
+          loc.longitude,
+          cityName,
+          countryCode: countryCode,
+        );
+        if (mounted) Navigator.pop(context, true);
       } else {
-        // Show error (SnackBar not ideal in dialog, usually validation text)
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("City not found")));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('المدينة غير موجودة')),
+          );
+        }
       }
     } catch (e) {
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ: $e')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

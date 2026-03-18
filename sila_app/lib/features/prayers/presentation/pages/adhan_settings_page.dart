@@ -1,330 +1,309 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
+import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class AdhanSettingsPage extends ConsumerStatefulWidget {
   const AdhanSettingsPage({super.key});
-
   @override
   ConsumerState<AdhanSettingsPage> createState() => _AdhanSettingsPageState();
 }
 
 class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
-  final PrefsService _prefsService = PrefsService();
-  final AdhanSchedulerService _adhanService = AdhanSchedulerService();
+  final _prefs = PrefsService();
+  final _adhanSvc = AdhanSchedulerService();
 
   bool _adhanEnabled = true;
   String _selectedSound = 'adhan_mecca.mp3';
-  
   Map<String, bool> _prayerSettings = {
-    'fajr': true,
-    'dhuhr': true,
-    'asr': true,
-    'maghrib': true,
-    'isha': true,
+    'fajr': true, 'dhuhr': true, 'asr': true, 'maghrib': true, 'isha': true,
   };
+
+  static const _sounds = {
+    'adhan_mecca.mp3': 'أذان مكة المكرمة',
+    'adhan_medina.mp3': 'أذان المدينة المنورة',
+    'adhan_egypt.mp3': 'أذان مصر',
+    'adhan_mishary.mp3': 'أذان مشاري العفاسي',
+    'adhan_turkey.mp3': 'أذان تركيا',
+  };
+
+  static const _prayerList = [
+    {'key': 'fajr',    'name': 'الفجر',   'icon': Icons.wb_twilight_rounded},
+    {'key': 'dhuhr',   'name': 'الظهر',   'icon': Icons.wb_sunny_rounded},
+    {'key': 'asr',     'name': 'العصر',   'icon': Icons.wb_sunny_outlined},
+    {'key': 'maghrib', 'name': 'المغرب',  'icon': Icons.wb_incandescent_rounded},
+    {'key': 'isha',    'name': 'العشاء',  'icon': Icons.nightlight_round},
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadSettings();
+    _load();
   }
 
-  Future<void> _loadSettings() async {
-    final adhanEnabled = await _prefsService.isAdhanNotificationsEnabled();
-    final adhanSound = await _prefsService.getAdhanSound();
-
-    final fajrEnabled = await _prefsService.isAdhanEnabled('fajr');
-    final dhuhrEnabled = await _prefsService.isAdhanEnabled('dhuhr');
-    final asrEnabled = await _prefsService.isAdhanEnabled('asr');
-    final maghribEnabled = await _prefsService.isAdhanEnabled('maghrib');
-    final ishaEnabled = await _prefsService.isAdhanEnabled('isha');
-
-    setState(() {
-      _adhanEnabled = adhanEnabled;
-      _selectedSound = adhanSound;
-      _prayerSettings = {
-        'fajr': fajrEnabled,
-        'dhuhr': dhuhrEnabled,
-        'asr': asrEnabled,
-        'maghrib': maghribEnabled,
-        'isha': ishaEnabled,
-      };
-    });
-  }
-
-  Future<void> _toggleAdhan(bool value) async {
-    await _prefsService.setAdhanNotificationsEnabled(value);
-    setState(() {
-      _adhanEnabled = value;
-    });
-
-    // Reschedule or cancel notifications
-    if (value) {
-      ref.invalidate(prayerTimesControllerProvider);
-    } else {
-      await _adhanService.cancelAllPrayers();
+  Future<void> _load() async {
+    final enabled = await _prefs.isAdhanNotificationsEnabled();
+    final sound = await _prefs.getAdhanSound();
+    final Map<String, bool> settings = {};
+    for (final p in _prayerList) {
+      settings[p['key'] as String] =
+          await _prefs.isAdhanEnabled(p['key'] as String);
     }
-
-    _showSnackBar(value ? 'تم تفعيل الأذان' : 'تم تعطيل الأذان');
+    if (mounted) {
+      setState(() {
+        _adhanEnabled = enabled;
+        _selectedSound = sound;
+        _prayerSettings = settings;
+      });
+    }
   }
 
-  Future<void> _togglePrayerAdhan(String prayerName, bool value) async {
-    await _prefsService.setAdhanEnabled(prayerName, value);
-    setState(() {
-      _prayerSettings[prayerName] = value;
-    });
+  Future<void> _toggleGlobal(bool v) async {
+    await _prefs.setAdhanNotificationsEnabled(v);
+    setState(() => _adhanEnabled = v);
+    if (!v) await _adhanSvc.cancelAllPrayers();
+    _snack(v ? 'تم تفعيل الأذان' : 'تم تعطيل الأذان');
+  }
 
-    // Reschedule notifications
+  Future<void> _togglePrayer(String key, bool v) async {
+    await _prefs.setAdhanEnabled(key, v);
+    setState(() => _prayerSettings[key] = v);
     ref.invalidate(prayerTimesControllerProvider);
-
-    final prayerNameArabic = _getPrayerNameArabic(prayerName);
-    _showSnackBar(value
-        ? 'تم تفعيل أذان $prayerNameArabic'
-        : 'تم تعطيل أذان $prayerNameArabic');
+    _snack(v ? 'تم تفعيل أذان ${_arabicName(key)}' : 'تم تعطيل أذان ${_arabicName(key)}');
   }
 
-  Future<void> _changeAdhanSound(String soundFile) async {
-    await _prefsService.setAdhanSound(soundFile);
-    setState(() {
-      _selectedSound = soundFile;
-    });
-    _showSnackBar('تم تغيير صوت الأذان');
+  Future<void> _changeSound(String f) async {
+    await _prefs.setAdhanSound(f);
+    setState(() => _selectedSound = f);
+    _snack('تم تغيير صوت الأذان');
   }
 
   Future<void> _testAdhan() async {
-    await _adhanService.testAdhan(_selectedSound);
-    _showSnackBar('جاري تشغيل الأذان...');
-
-    // Stop after 30 seconds
-    Future.delayed(const Duration(seconds: 30), () {
-      _adhanService.stopAdhan();
-    });
+    await _adhanSvc.testAdhan(_selectedSound);
+    _snack('جاري تشغيل الأذان...');
+    Future.delayed(const Duration(seconds: 30), _adhanSvc.stopAdhan);
   }
 
-  void _showSnackBar(String message) {
+  void _snack(String msg) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+        SnackBar(content: Text(msg, style: GoogleFonts.cairo()),
+            duration: const Duration(seconds: 2)),
       );
     }
   }
 
-  String _getPrayerNameArabic(String prayerName) {
-    switch (prayerName) {
-      case 'fajr':
-        return 'الفجر';
-      case 'dhuhr':
-        return 'الظهر';
-      case 'asr':
-        return 'العصر';
-      case 'maghrib':
-        return 'المغرب';
-      case 'isha':
-        return 'العشاء';
-      default:
-        return prayerName;
-    }
-  }
-
-  String _getSoundDisplayName(String soundFile) {
-    switch (soundFile) {
-      case 'adhan_mecca.mp3':
-        return 'أذان مكة المكرمة';
-      case 'adhan_medina.mp3':
-        return 'أذان المدينة المنورة';
-      case 'adhan_egypt.mp3':
-        return 'أذان مصر';
-      case 'adhan_mishary.mp3':
-        return 'أذان مشاري العفاسي';
-      case 'adhan_turkey.mp3':
-        return 'أذان تركيا';
-      default:
-        return soundFile;
-    }
+  String _arabicName(String key) {
+    final match = _prayerList.firstWhere(
+        (p) => p['key'] == key, orElse: () => {'name': key});
+    return match['name'] as String;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0A0F1E),
       appBar: AppBar(
-        title: const Text('إعدادات الأذان'),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF43A047),
+        backgroundColor: const Color(0xFF0A0F1E),
         foregroundColor: Colors.white,
+        centerTitle: true,
+        title: Text('إعدادات الأذان',
+            style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
+        elevation: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Global Adhan Toggle
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+          // ── Global toggle ────────────────────────────────────────────────
+          _card(
             child: SwitchListTile(
-              title: const Text(
-                'تفعيل الأذان',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              subtitle: const Text('تفعيل أو تعطيل جميع إشعارات الأذان'),
+              title: Text('تفعيل الأذان',
+                  style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16)),
+              subtitle: Text('تفعيل جميع إشعارات الأذان',
+                  style: GoogleFonts.cairo(color: Colors.white38, fontSize: 12)),
               value: _adhanEnabled,
-              onChanged: _toggleAdhan,
+              onChanged: _toggleGlobal,
               activeColor: const Color(0xFF43A047),
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // Adhan Sound Selector
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+          // ── Sound selector ───────────────────────────────────────────────
+          _card(
             child: ListTile(
-              title: const Text(
-                'صوت الأذان',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              leading: Container(
+                width: 40, height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF43A047).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.volume_up_rounded,
+                    color: Color(0xFF66BB6A), size: 20),
               ),
-              subtitle: Text(_getSoundDisplayName(_selectedSound)),
-              leading: const Icon(Icons.volume_up, color: Color(0xFF43A047)),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: _showAdhanSoundDialog,
+              title: Text('صوت الأذان',
+                  style: GoogleFonts.cairo(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+              subtitle: Text(_sounds[_selectedSound] ?? _selectedSound,
+                  style: GoogleFonts.cairo(color: Colors.white38, fontSize: 12)),
+              trailing: const Icon(Icons.chevron_right_rounded,
+                  color: Colors.white38),
+              onTap: _showSoundDialog,
             ),
           ),
 
           const SizedBox(height: 24),
 
-          // Per-Prayer Settings Header
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Text(
-              'تفعيل الأذان لكل صلاة',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF43A047),
-              ),
+          // ── Per-prayer ───────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text('تفعيل الأذان لكل صلاة',
+                style: GoogleFonts.cairo(
+                    color: const Color(0xFF43A047),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700)),
+          ),
+
+          _card(
+            child: Column(
+              children: _prayerList.asMap().entries.map((entry) {
+                final i = entry.key;
+                final p = entry.value;
+                final key = p['key'] as String;
+                final isEnabled = _prayerSettings[key] ?? true;
+                return Column(
+                  children: [
+                    SwitchListTile(
+                      secondary: Icon(p['icon'] as IconData,
+                          color: _adhanEnabled && isEnabled
+                              ? const Color(0xFF66BB6A)
+                              : Colors.white24,
+                          size: 22),
+                      title: Text(p['name'] as String,
+                          style: GoogleFonts.cairo(
+                              color: _adhanEnabled ? Colors.white : Colors.white30,
+                              fontSize: 15)),
+                      value: isEnabled && _adhanEnabled,
+                      onChanged: _adhanEnabled
+                          ? (v) => _togglePrayer(key, v)
+                          : null,
+                      activeColor: const Color(0xFF43A047),
+                    ),
+                    if (i < _prayerList.length - 1)
+                      Divider(color: Colors.white.withOpacity(0.06), height: 1,
+                          indent: 16, endIndent: 16),
+                  ],
+                );
+              }).toList(),
             ),
           ),
 
-          // Per-Prayer Toggles
-          _buildPrayerToggle('fajr', 'الفجر', Icons.wb_twilight),
-          _buildPrayerToggle('dhuhr', 'الظهر', Icons.wb_sunny),
-          _buildPrayerToggle('asr', 'العصر', Icons.wb_sunny_outlined),
-          _buildPrayerToggle('maghrib', 'المغرب', Icons.wb_incandescent),
-          _buildPrayerToggle('isha', 'العشاء', Icons.nightlight_round),
-
           const SizedBox(height: 24),
 
-          // Test Adhan Button
-          ElevatedButton.icon(
-            onPressed: _testAdhan,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF43A047),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          // ── Test button ──────────────────────────────────────────────────
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _testAdhan,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2E7D32),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
-            ),
-            icon: const Icon(Icons.play_circle_outline),
-            label: const Text(
-              'اختبار الأذان',
-              style: TextStyle(fontSize: 16),
+              icon: const Icon(Icons.play_circle_outline_rounded),
+              label: Text('اختبار صوت الأذان',
+                  style: GoogleFonts.cairo(fontSize: 15)),
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // Info Card
-          Card(
-            color: Colors.blue.shade50,
-            shape: RoundedRectangleBorder(
+          // ── Info ─────────────────────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue.withOpacity(0.2)),
             ),
-            child: const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.blue),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'سيتم تشغيل الأذان تلقائياً في أوقات الصلاة حتى لو كان التطبيق مغلقاً',
-                      style: TextStyle(fontSize: 13),
-                    ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline_rounded,
+                    color: Colors.blueAccent, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'سيتم تشغيل الأذان تلقائياً في أوقات الصلاة حتى لو كان التطبيق مغلقاً',
+                    style: GoogleFonts.cairo(color: Colors.white54, fontSize: 12),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
+
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildPrayerToggle(String prayerName, String arabicName, IconData icon) {
-    final isEnabled = _prayerSettings[prayerName] ?? true;
-
-    return Card(
-      elevation: 1,
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+  Widget _card({required Widget child}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.07)),
       ),
-      child: SwitchListTile(
-        title: Text(arabicName, style: const TextStyle(fontSize: 16)),
-        value: isEnabled && _adhanEnabled,
-        onChanged: _adhanEnabled ? (value) => _togglePrayerAdhan(prayerName, value) : null,
-        secondary: Icon(icon, color: const Color(0xFF43A047)),
-        activeColor: const Color(0xFF43A047),
-      ),
+      child: child,
     );
   }
 
-  void _showAdhanSoundDialog() {
-    final adhanSounds = {
-      'adhan_mecca.mp3': 'أذان مكة المكرمة',
-      'adhan_medina.mp3': 'أذان المدينة المنورة',
-      'adhan_egypt.mp3': 'أذان مصر',
-      'adhan_mishary.mp3': 'أذان مشاري العفاسي',
-      'adhan_turkey.mp3': 'أذان تركيا',
-    };
-
+  void _showSoundDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('اختر صوت الأذان'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: adhanSounds.entries.map((entry) {
-              return RadioListTile<String>(
-                value: entry.key,
-                groupValue: _selectedSound,
-                title: Text(entry.value),
-                onChanged: (value) {
-                  if (value != null) {
-                    _changeAdhanSound(value);
-                    Navigator.pop(context);
-                  }
-                },
-                activeColor: const Color(0xFF43A047),
-              );
-            }).toList(),
-          ),
+      builder: (_) => Dialog(
+        backgroundColor: const Color(0xFF0D1B2A),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text('اختر صوت الأذان',
+                  style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold)),
+            ),
+            ..._sounds.entries.map((e) => RadioListTile<String>(
+                  value: e.key,
+                  groupValue: _selectedSound,
+                  title: Text(e.value,
+                      style: GoogleFonts.cairo(color: Colors.white70)),
+                  activeColor: const Color(0xFF43A047),
+                  onChanged: (v) {
+                    if (v != null) {
+                      _changeSound(v);
+                      Navigator.pop(context);
+                    }
+                  },
+                )),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('إلغاء',
+                  style: GoogleFonts.cairo(color: Colors.white38)),
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
-          ),
-        ],
       ),
     );
   }

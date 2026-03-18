@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'package:adhan/adhan.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';  // Added Import
-
+import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayer_settings_page.dart';
+import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
 
 class NextPrayerCard extends ConsumerStatefulWidget {
   const NextPrayerCard({super.key});
@@ -16,27 +15,35 @@ class NextPrayerCard extends ConsumerStatefulWidget {
   ConsumerState<NextPrayerCard> createState() => _NextPrayerCardState();
 }
 
-class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
+class _NextPrayerCardState extends ConsumerState<NextPrayerCard>
+    with SingleTickerProviderStateMixin {
   Timer? _timer;
-  Duration _timeLeft = Duration.zero;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnim;
 
   @override
   void initState() {
     super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
     _startTimer();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _pulseController.dispose();
     super.dispose();
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {});
-      }
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
     });
   }
 
@@ -45,236 +52,251 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
     final timesAsync = ref.watch(prayerTimesControllerProvider);
 
     return timesAsync.when(
-      data: (timesEntity) {
-        // Calculate Next Prayer Manually
+      data: (entity) {
+        // ── Find next prayer ──────────────────────────────────────────────
         final now = DateTime.now();
-        
         final prayers = [
-          (key: 'fajr', time: timesEntity.fajr),
-          (key: 'sunrise', time: timesEntity.sunrise),
-          (key: 'dhuhr', time: timesEntity.dhuhr),
-          (key: 'asr', time: timesEntity.asr),
-          (key: 'maghrib', time: timesEntity.maghrib),
-          (key: 'isha', time: timesEntity.isha),
+          (key: 'fajr', time: entity.fajr),
+          (key: 'sunrise', time: entity.sunrise),
+          (key: 'dhuhr', time: entity.dhuhr),
+          (key: 'asr', time: entity.asr),
+          (key: 'maghrib', time: entity.maghrib),
+          (key: 'isha', time: entity.isha),
         ];
 
-        String nextPrayerKey = 'fajr';
-        DateTime? nextPrayerTime;
-
+        String nextKey = 'fajr';
+        DateTime? nextTime;
         for (final p in prayers) {
           if (p.time.isAfter(now)) {
-             nextPrayerTime = p.time;
-             nextPrayerKey = p.key;
-             break;
+            nextTime = p.time;
+            nextKey = p.key;
+            break;
           }
         }
+        nextTime ??= entity.fajr.add(const Duration(days: 1));
 
-        // Check if next is Fajr tomorrow
-        if (nextPrayerTime == null) {
-           nextPrayerTime = timesEntity.fajr.add(const Duration(days: 1));
-           nextPrayerKey = 'fajr';
-        }
-        
-        _timeLeft = nextPrayerTime.difference(now);
-        
-        // Sanity check: If time left is > 24 hours or negative (shouldn't be negative due to checks)
-        // This implies we are comparing against a wrong day.
-        // For visual safety, we cap it or just show "--"
-        if (_timeLeft.inHours > 24) {
-           // Fallback/Error state
-           _timeLeft = Duration.zero; 
-        }
+        Duration timeLeft = nextTime.difference(now);
+        // Safety: clamp to sane range
+        if (timeLeft.isNegative) timeLeft = Duration.zero;
+        if (timeLeft.inHours > 24) timeLeft = Duration.zero;
 
-        final nextPrayerName = nextPrayerKey.tr(); // Using .tr() on the key
-        final dateNow = DateTime.now();
-        final dateFormat = DateFormat('EEEE, d MMMM y', context.locale.toString());
-        
+        final hours = timeLeft.inHours.toString().padLeft(2, '0');
+        final mins = timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0');
+        final secs = timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
+
+        final nextPrayerName = nextKey.tr();
+        final dateStr = DateFormat('EEEE، d MMMM y', 'ar').format(now);
+
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF43A047), Color(0xFF2E7D32)], // Vibrant Green
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF0F172A), // very dark slate
+                Color(0xFF1E1B4B), // deep indigo
+                Color(0xFF312E81), // indigo
+              ],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.green.withOpacity(0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
+                color: const Color(0xFF312E81).withOpacity(0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Top Row: Settings - Location - Qibla
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Stack(
+            children: [
+              // Decorative circles
+              Positioned(
+                top: -30,
+                right: -30,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.03),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -40,
+                left: -20,
+                child: Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.02),
+                  ),
+                ),
+              ),
+
+              // Content
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Settings (Left in LTR, Right in RTL) -> In Arabic it will be Right. 
-                    // Let's behave naturally.
-                    IconButton(
-                      icon: const Icon(Icons.tune, color: Colors.white70, size: 20),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const PrayerSettingsPage()));
-                      },
+                    // Top row: settings | location | qiblah
+                    // Top row: location centered
+                    Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.location_on_rounded,
+                              color: Colors.white70, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            entity.locationName,
+                            style: GoogleFonts.cairo(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
 
-                    // Location (Center ish)
+                    const SizedBox(height: 16),
+
+                    // "Time remaining for X"
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.location_on, color: Colors.white, size: 16),
-                        const SizedBox(width: 6),
+                        FadeTransition(
+                          opacity: _pulseAnim,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF818CF8), // light indigo
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Text(
-                          timesEntity.locationName ?? 'location_mock'.tr(),
-                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                          '${'remaining_time'.tr()} - $nextPrayerName',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white70,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
-                    
-                    // Qibla Shortcut
-                    // Qibla Shortcut
-                    IconButton(
-                      icon: const Icon(Icons.explore, color: Colors.white70, size: 20),
-                      onPressed: () {
-                         Navigator.push(context, MaterialPageRoute(builder: (_) => QiblahPage())); 
-                      },
+
+                    const SizedBox(height: 12),
+
+                    // Big countdown
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        _timeUnit(hours),
+                        _sep(),
+                        _timeUnit(mins),
+                        _sep(),
+                        _timeUnit(secs, small: true),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Date row
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                            color: Colors.white.withOpacity(0.1), width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.calendar_today_rounded,
+                              color: Colors.white54, size: 13),
+                          const SizedBox(width: 8),
+                          Text(
+                            dateStr,
+                            style: GoogleFonts.cairo(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-                
-                const SizedBox(height: 10),
-                
-                // "Time Remaining for X" Text
-                Text(
-                  '${'remaining_time'.tr()} - $nextPrayerName',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                
-                const SizedBox(height: 8),
-                
-                // BIG COUNTDOWN
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    _buildTimeUnit(_timeLeft.inHours.toString().padLeft(2, '0')),
-                    _buildTimeSeparator(),
-                    _buildTimeUnit(_timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0')),
-                    _buildTimeSeparator(),
-                    _buildTimeUnit(_timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0'), isSeconds: true),
-                  ],
-                ),
-                
-                const SizedBox(height: 24),
-                
-                // Footer: Date
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.calendar_today, color: Colors.white70, size: 14),
-                      const SizedBox(width: 8),
-                      Text(
-                        dateFormat.format(dateNow),
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
-      loading: () => _buildLoadingCard(),
-      error: (e, s) => _buildErrorCard(e.toString()),
+      loading: () => _loadingCard(),
+      error: (e, _) => _errorCard(e.toString()),
     );
   }
 
-  Widget _buildTimeUnit(String value, {bool isSeconds = false}) {
+  Widget _timeUnit(String v, {bool small = false}) {
     return Text(
-      value,
-      style: TextStyle(
+      v,
+      style: GoogleFonts.robotoMono(
         color: Colors.white,
-        fontSize: isSeconds ? 36 : 56, 
+        fontSize: small ? 32 : 52,
         fontWeight: FontWeight.bold,
         height: 1,
       ),
     );
   }
 
-  Widget _buildTimeSeparator() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Text(
-        ':',
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.5),
-          fontSize: 36,
-          fontWeight: FontWeight.bold,
+  Widget _sep() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Text(
+          ':',
+          style: GoogleFonts.robotoMono(
+            color: Colors.white.withOpacity(0.4),
+            fontSize: 38,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildLoadingCard() {
+  Widget _loadingCard() {
     return Container(
-      width: double.infinity,
-      height: 200,
+      height: 220,
       decoration: BoxDecoration(
-        color: Colors.grey.shade800,
-        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1B5E20), Color(0xFF388E3C)],
+        ),
+        borderRadius: BorderRadius.circular(24),
       ),
-      child: const Center(
-        child: CircularProgressIndicator(color: Colors.white),
-      ),
+      child: const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
   }
 
-  Widget _buildErrorCard(String error) {
+  Widget _errorCard(String error) {
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.red.shade800,
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.red.shade900,
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Center(
-        child: Text(
-          'Error: $error',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
-          textAlign: TextAlign.center,
-        ),
+        child: Text(error,
+            style: const TextStyle(color: Colors.white),
+            textAlign: TextAlign.center),
       ),
     );
-  }
-
-  String _getPrayerName(Prayer? prayer) {
-    if (prayer == null) return "---";
-    switch (prayer) {
-      case Prayer.fajr: return 'fajr'.tr();
-      case Prayer.sunrise: return 'sunrise'.tr();
-      case Prayer.dhuhr: return 'dhuhr'.tr();
-      case Prayer.asr: return 'asr'.tr();
-      case Prayer.maghrib: return 'maghrib'.tr();
-      case Prayer.isha: return 'isha'.tr();
-      case Prayer.none: return 'esha'.tr();
-      default: return '';
-    }
   }
 }

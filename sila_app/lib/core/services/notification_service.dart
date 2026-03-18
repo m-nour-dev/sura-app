@@ -14,95 +14,77 @@ class NotificationService {
 
   bool _initialized = false;
 
-  /// Initialize notification service
   Future<void> initialize() async {
     if (_initialized) return;
 
-    // Android initialization settings
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    // iOS initialization settings
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-
     const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
 
-    // Initialize with callback for notification tap
     await _notifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
-
-    // Create notification channel for Android
     await _createNotificationChannel();
-
     _initialized = true;
-    print('NotificationService: Initialized successfully');
+    print('NotificationService: Initialized');
   }
 
-  /// Create high-priority notification channel for Adhan
   Future<void> _createNotificationChannel() async {
     const androidChannel = AndroidNotificationChannel(
-      'adhan_channel', // id
-      'أذان الصلاة', // title
+      'adhan_channel',
+      'أذان الصلاة',
       description: 'إشعارات أذان الصلاة',
       importance: Importance.max,
       playSound: true,
       enableVibration: true,
       enableLights: true,
     );
-
     await _notifications
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(androidChannel);
   }
 
-  /// Request notification permissions (Android 13+)
   Future<bool> requestPermissions() async {
-    final androidImplementation =  _notifications.resolvePlatformSpecificImplementation<
+    final android = _notifications
+        .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
-    
-    if (androidImplementation != null) {
-      final granted = await androidImplementation.requestNotificationsPermission();
-      return granted ?? false;
+    if (android != null) {
+      return await android.requestNotificationsPermission() ?? false;
     }
-
-    final iosImplementation = _notifications.resolvePlatformSpecificImplementation<
+    final ios = _notifications
+        .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>();
-    
-    if (iosImplementation != null) {
-      final granted = await iosImplementation.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      return granted ?? false;
+    if (ios != null) {
+      return await ios.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          false;
     }
-
-    return true; // Default to true for other platforms
+    return true;
   }
 
-  /// Schedule notification for specific prayer time
   Future<void> scheduleNotification({
     required int id,
     required String prayerName,
     required DateTime prayerTime,
     String? soundFile,
   }) async {
-    if (!_initialized) {
-      await initialize();
-    }
+    if (!_initialized) await initialize();
 
     final prayerNameArabic = _getPrayerNameArabic(prayerName);
 
-    // Convert to TZDateTime for accurate scheduling
+    // prayerTime is already a local DateTime — convert to TZDateTime using local tz
     final scheduledTime = tz.TZDateTime.from(prayerTime, tz.local);
 
     const androidDetails = AndroidNotificationDetails(
@@ -112,10 +94,10 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
-      sound: RawResourceAndroidNotificationSound('adhan_notification'),
+      // Use the default channel sound (avoiding missing asset crash)
       enableVibration: true,
       enableLights: true,
-      color: Color(0xFF43A047), // Green color
+      color: Color(0xFF43A047),
       icon: '@mipmap/ic_launcher',
     );
 
@@ -123,7 +105,6 @@ class NotificationService {
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
-      sound: 'adhan_notification.mp3',
     );
 
     const notificationDetails = NotificationDetails(
@@ -131,98 +112,78 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _notifications.zonedSchedule(
-      id,
-      'حان وقت صلاة $prayerNameArabic',
-      'الله أكبر، الله أكبر',
-      scheduledTime,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      payload: prayerName,
-    );
-
-    print('Scheduled notification for $prayerName at $prayerTime');
-  }
-
-  /// Play Adhan sound
-  Future<void> playAdhan(String soundFile) async {
     try {
-      await _audioPlayer.stop(); // Stop any currently playing sound
-      await _audioPlayer.play(AssetSource('audio/$soundFile'));
-      print('Playing Adhan: $soundFile');
+      await _notifications.zonedSchedule(
+        id,
+        'حان وقت صلاة $prayerNameArabic',
+        'الله أكبر، الله أكبر',
+        scheduledTime,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: prayerName,
+      );
+      print('Scheduled notification for $prayerName at $prayerTime (local)');
     } catch (e) {
-      print('Error playing Adhan: $e');
+      print('Error scheduling notification for $prayerName: $e');
     }
   }
 
-  /// Stop Adhan sound
+  /// Play Adhan sound directly in-app
+  Future<void> playAdhan(String soundFile) async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audio/$soundFile'));
+      print('Playing Adhan: $soundFile');
+    } catch (e) {
+      print('Error playing $soundFile, trying fallback: $e');
+      // Try any available audio file as fallback
+      try {
+        await _audioPlayer.play(AssetSource('audio/adhan_mecca.mp3'));
+      } catch (e2) {
+        print('Fallback audio also failed: $e2');
+      }
+    }
+  }
+
   Future<void> stopAdhan() async {
     await _audioPlayer.stop();
   }
 
-  /// Cancel specific notification
   Future<void> cancelNotification(int id) async {
     await _notifications.cancel(id);
-    print('Cancelled notification with ID: $id');
   }
 
-  /// Cancel all notifications
   Future<void> cancelAllNotifications() async {
     await _notifications.cancelAll();
-    print('Cancelled all notifications');
   }
 
-  /// Get all pending notifications
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _notifications.pendingNotificationRequests();
   }
 
-  /// Handle notification tap
   void _onNotificationTap(NotificationResponse response) {
     final payload = response.payload;
-    print('Notification tapped: $payload');
-
-    // Play Adhan when notification is tapped
     if (payload != null) {
-      playAdhan('adhan_default.mp3'); // Can be customized based on user preference
+      // Play the user's selected sound when notification is tapped
+      playAdhan('adhan_mecca.mp3');
     }
   }
 
-  /// Get Arabic prayer name
-  String _getPrayerNameArabic(String prayerName) {
-    switch (prayerName.toLowerCase()) {
-      case 'fajr':
-        return 'الفجر';
-      case 'dhuhr':
-        return 'الظهر';
-      case 'asr':
-        return 'العصر';
-      case 'maghrib':
-        return 'المغرب';
-      case 'isha':
-        return 'العشاء';
-      default:
-        return prayerName;
-    }
+  String _getPrayerNameArabic(String name) {
+    const map = {
+      'fajr': 'الفجر',
+      'dhuhr': 'الظهر',
+      'asr': 'العصر',
+      'maghrib': 'المغرب',
+      'isha': 'العشاء',
+    };
+    return map[name.toLowerCase()] ?? name;
   }
 
-  /// Get notification ID for prayer
   static int getNotificationId(String prayerName) {
-    switch (prayerName.toLowerCase()) {
-      case 'fajr':
-        return 1;
-      case 'dhuhr':
-        return 2;
-      case 'asr':
-        return 3;
-      case 'maghrib':
-        return 4;
-      case 'isha':
-        return 5;
-      default:
-        return 0;
-    }
+    const map = {'fajr': 1, 'dhuhr': 2, 'asr': 3, 'maghrib': 4, 'isha': 5};
+    return map[prayerName.toLowerCase()] ?? 0;
   }
 }

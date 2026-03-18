@@ -6,7 +6,6 @@ class LocationService {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw Exception('Location services are disabled.');
@@ -21,42 +20,51 @@ class LocationService {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permissions are permanently denied, we cannot request permissions.');
+      throw Exception(
+          'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition();
   }
 
-  Future<String> getCityFromCoordinates(double lat, double long) async {
+  /// Returns a map with 'city', 'country', 'countryCode' keys.
+  Future<Map<String, String>> getLocationInfo(double lat, double long) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+      final placemarks = await placemarkFromCoordinates(lat, long);
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
+
+        // Try progressively broader area names if specific ones are null/empty
+        String? city = place.locality;
+        if (city == null || city.isEmpty) city = place.subAdministrativeArea;
+        if (city == null || city.isEmpty) city = place.administrativeArea;
+        if (city == null || city.isEmpty) city = place.name;
+        if (city == null || city.isEmpty) city = place.thoroughfare;
         
-        // Try to get most specific location name
-        String? cityName = place.locality ?? 
-                          place.subAdministrativeArea ?? 
-                          place.administrativeArea ?? 
-                          place.country;
-        
-        String? countryName = place.country;
-        
-        if (cityName != null) {
-          // Add country if available and different from city
-          if (countryName != null && countryName != cityName) {
-            return "$cityName, $countryName";
-          }
-          return cityName;
-        }
-        
-        return "Unknown Location";
+        city ??= 'موقع غير معروف'; // Fallback Arabic
+
+        final country = place.country ?? '';
+        final countryCode = place.isoCountryCode ?? 'XX';
+
+        final displayCity =
+            (country.isNotEmpty && country != city) ? '$city, $country' : city;
+
+        return {
+          'city': displayCity,
+          'country': country,
+          'countryCode': countryCode,
+        };
       }
-      return "Unknown Location";
+      return {'city': 'موقع غير معروف', 'country': '', 'countryCode': 'XX'};
     } catch (e) {
-      print("Geocoding Error: $e");
-      return "Unknown Location";
+      print('Geocoding Error: $e');
+       return {'city': 'موقع غير معروف', 'country': '', 'countryCode': 'XX'};
     }
+  }
+
+  /// Legacy helper — kept for backward compat
+  Future<String> getCityFromCoordinates(double lat, double long) async {
+    final info = await getLocationInfo(lat, long);
+    return info['city'] ?? 'Unknown Location';
   }
 }
