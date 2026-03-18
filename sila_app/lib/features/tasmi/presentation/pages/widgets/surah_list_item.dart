@@ -2,6 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 
+String _toArabicNumber(String input) {
+  const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  for (int i = 0; i < english.length; i++) {
+    input = input.replaceAll(english[i], arabic[i]);
+  }
+  return input;
+}
+
 class SurahListItem extends StatelessWidget {
   final int surahNumber;
   final bool isMakki;
@@ -42,7 +51,7 @@ class SurahListItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  surahNumber.toString(),
+                  _toArabicNumber(surahNumber.toString()),
                   style: TextStyle(
                     color: theme.primaryColor,
                     fontWeight: FontWeight.bold,
@@ -66,7 +75,7 @@ class SurahListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${quran.getVerseCount(surahNumber)} آية',
+                      '${_toArabicNumber(quran.getVerseCount(surahNumber).toString())} آية',
                       style: TextStyle(
                         color: theme.textTheme.bodySmall?.color,
                         fontSize: 14,

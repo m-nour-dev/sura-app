@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -9,9 +8,8 @@ class TasmiSpeechService {
   final stt.SpeechToText _speech = stt.SpeechToText();
   final _wordController = StreamController<String>.broadcast();
   
-  // Keep track of the last recognized words to avoid duplicates if needed,
-  // though the requirement says "Extract only the last NEW word".
   String _lastRecognizedWords = '';
+  bool _isManuallyStopped = false;
 
   Stream<String> get wordStream => _wordController.stream;
 
@@ -45,19 +43,31 @@ class TasmiSpeechService {
       }
     }
 
+    _isManuallyStopped = false;
+    _startInternal();
+  }
+
+  Future<void> _startInternal() async {
+    if (_isManuallyStopped) return;
+    
     _lastRecognizedWords = '';
     
-    await _speech.listen(
-      onResult: _onResult,
-      localeId: 'ar_SA',
-      listenMode: stt.ListenMode.dictation,
-      pauseFor: const Duration(seconds: 3),
-      cancelOnError: false,
-      partialResults: true,
-    );
+    try {
+      await _speech.listen(
+        onResult: _onResult,
+        localeId: 'ar_SA',
+        listenMode: stt.ListenMode.dictation,
+        pauseFor: const Duration(seconds: 10), // Give users more time to breathe between Ayahs
+        cancelOnError: false,
+        partialResults: true,
+      );
+    } catch (e) {
+      print('Speech listen error: $e');
+    }
   }
 
   Future<void> stopListening() async {
+    _isManuallyStopped = true;
     await _speech.stop();
   }
 
@@ -65,8 +75,11 @@ class TasmiSpeechService {
     if (result.recognizedWords.isNotEmpty) {
       String currentWords = result.recognizedWords;
       
-      // The speech_to_text package returns the full sentence so far.
-      // We need to extract only the newly added part.
+      // If the speech engine restarts internally, currentWords will be shorter.
+      // We must reset our tracked substring logic.
+      if (currentWords.length < _lastRecognizedWords.length) {
+        _lastRecognizedWords = '';
+      }
       
       if (currentWords.length > _lastRecognizedWords.length) {
         // Extract the new part
@@ -90,11 +103,19 @@ class TasmiSpeechService {
 
   void _onStatus(String status) {
     // print('Speech status: $status');
-    // You might want to expose status updates via another stream if needed
+    // If the engine stops listening because it timed out (user breathed), autorestart!
+    if (status == 'done' || status == 'notListening') {
+      if (!_isManuallyStopped) {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (!_isManuallyStopped && !_speech.isListening) {
+             _startInternal();
+          }
+        });
+      }
+    }
   }
 
   void _onError(SpeechRecognitionError error) {
-    // Handle specific error cases
     String errorMessage = 'حدث خطأ في التعرف على الصوت';
     
     if (error.errorMsg == 'error_permission') {
@@ -103,7 +124,6 @@ class TasmiSpeechService {
       errorMessage = 'يرجى التحقق من الاتصال بالإنترنت';
     }
     
-    // Only add error if it's a permanent failure, otherwise just log
     if (error.permanent) {
        _wordController.addError(errorMessage);
     }

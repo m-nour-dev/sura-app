@@ -1,6 +1,15 @@
 
 import 'package:flutter/material.dart';
 
+String _toArabicNumber(String input) {
+  const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  for (int i = 0; i < english.length; i++) {
+    input = input.replaceAll(english[i], arabic[i]);
+  }
+  return input;
+}
+
 class TasmiPageHeader extends StatelessWidget implements PreferredSizeWidget {
   final String surahName;
   final int fromAya;
@@ -37,7 +46,7 @@ class TasmiPageHeader extends StatelessWidget implements PreferredSizeWidget {
                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      'الآيات $fromAya - $toAya',
+                      'الآيات ${_toArabicNumber(fromAya.toString())} - ${_toArabicNumber(toAya.toString())}',
                       style: TextStyle(color: theme.textTheme.bodySmall?.color, fontSize: 15),
                     ),
                   ],

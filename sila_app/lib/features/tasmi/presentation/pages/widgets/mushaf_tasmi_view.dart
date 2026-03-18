@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,26 +22,42 @@ class MushafTasmiView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final words = ref.watch(tasmiControllerProvider.select((s) => s.words));
+    // Optimization: Select only words and currentIndex to prevent rebuilding on other state changes
+    final words = ref.watch(tasmiControllerProvider.select((state) => state.words));
+    final currentIndex = ref.watch(tasmiControllerProvider.select((state) => state.currentIndex));
     final theme = Theme.of(context);
-
-    // --- PLACEHOLDER: Replace with your actual settings provider ---
     const fontFamily = 'Amiri';
-    const fontSize = 24.0;
-    // --- END PLACEHOLDER ---
+    const fontSize = 28.0;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: RichText(
-        textAlign: TextAlign.right,
-        text: TextSpan(
-          style: GoogleFonts.getFont(
-            fontFamily,
-            fontSize: fontSize,
-            height: 2.2,
-            color: theme.textTheme.bodyLarge?.color,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: RichText(
+            textAlign: TextAlign.justify,
+            text: TextSpan(
+              style: GoogleFonts.getFont(
+                fontFamily,
+                fontSize: fontSize,
+                height: 2.2, // Generous line height for Mushaf aesthetics
+                color: theme.textTheme.bodyLarge?.color,
+              ),
+              children: _buildTextSpans(words, currentIndex, theme, fontFamily, fontSize),
+            ),
           ),
-          children: _buildTextSpans(words, theme, fontFamily, fontSize),
         ),
       ),
     );
@@ -50,6 +65,7 @@ class MushafTasmiView extends ConsumerWidget {
 
   List<InlineSpan> _buildTextSpans(
     List<TasmiWordEntry> words,
+    int currentIndex,
     ThemeData theme,
     String fontFamily,
     double fontSize,
@@ -59,29 +75,14 @@ class MushafTasmiView extends ConsumerWidget {
 
     for (int i = 0; i < words.length; i++) {
       final entry = words[i];
-      
-      if (entry.status == WordEntryStatus.hidden) {
-        // ROOT CAUSE FIX: Use Opacity widget to reliably reserve space.
-        spans.add(
-          WidgetSpan(
-            child: Opacity(
-              opacity: 0,
-              child: Text(
-                entry.word,
-                style: GoogleFonts.getFont(fontFamily, fontSize: fontSize, height: 2.2),
-              ),
-            ),
-          ),
-        );
-        spans.add(const TextSpan(text: ' '));
-      } else {
-        spans.add(
-          TextSpan(
-            text: '${entry.word} ',
-            style: _getWordStyle(entry.status, theme),
-          ),
-        );
-      }
+      final isCurrent = i == currentIndex;
+
+      spans.add(
+        TextSpan(
+          text: '${entry.word} ',
+          style: _getWordStyle(entry.status, isCurrent, theme),
+        ),
+      );
 
       bool isLastWordOfAyah = (i + 1 == words.length) || (words[i + 1].verseNumber != entry.verseNumber);
 
@@ -98,10 +99,20 @@ class MushafTasmiView extends ConsumerWidget {
     return spans;
   }
 
-  TextStyle _getWordStyle(WordEntryStatus status, ThemeData theme) {
+  TextStyle _getWordStyle(WordEntryStatus status, bool isCurrent, ThemeData theme) {
+    // Current word being recited gets a distinct highlight
+    if (isCurrent) {
+      return TextStyle(
+        color: theme.colorScheme.primary, // Highlight color
+        backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        fontWeight: FontWeight.bold,
+      );
+    }
+
     switch (status) {
       case WordEntryStatus.correct:
-        return TextStyle(color: theme.primaryColor);
+        // Proper green for Mushaf success
+        return const TextStyle(color: Color(0xFF2E7D32));
       case WordEntryStatus.closeError:
         return const TextStyle(color: Colors.amber);
       case WordEntryStatus.wrongWord:
@@ -110,25 +121,34 @@ class MushafTasmiView extends ConsumerWidget {
           backgroundColor: const Color(0xFFA32D2D).withOpacity(0.15),
         );
       case WordEntryStatus.hidden:
-        // This case is now handled by the Opacity widget.
-        return const TextStyle(); 
+        // Completely invisible but retains perfect text shaping boundaries
+        return const TextStyle(color: Colors.transparent);
     }
   }
 
   Widget _buildAyahNumber(int number, ThemeData theme, double fontSize) {
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: theme.primaryColor.withOpacity(0.15),
-        border: Border.all(color: theme.primaryColor, width: 1),
+        color: theme.colorScheme.surface,
+        border: Border.all(
+          color: theme.colorScheme.primary.withOpacity(0.5),
+          width: 1.5,
+        ),
       ),
-      child: Text(
-        _toArabicNumber(number.toString()),
-        style: TextStyle(
-          color: theme.primaryColor,
-          fontSize: fontSize * 0.6,
-          fontWeight: FontWeight.bold,
+      child: Center(
+        child: Text(
+          _toArabicNumber(number.toString()),
+          style: TextStyle(
+            color: theme.colorScheme.primary,
+            fontSize: fontSize * 0.45,
+            fontFamily: 'Amiri',
+            fontWeight: FontWeight.bold,
+            height: 1.0,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );

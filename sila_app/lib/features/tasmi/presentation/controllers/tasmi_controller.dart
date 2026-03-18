@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
@@ -11,10 +12,8 @@ import 'package:sila_app/features/tasmi/data/repositories/i_tasmi_error_reposito
 import 'package:sila_app/features/tasmi/data/repositories/isar_tasmi_error_repository.dart';
 import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
-
-// Assuming isarProvider is defined elsewhere as per the project structure
-// e.g., in a core/data/providers.dart file
-// import 'package:sila_app/core/data/providers.dart';
+import 'package:sila_app/features/tasmi/services/tasmi_tts_service.dart'; // ← ADDED: TTS service import
+import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 
 part 'tasmi_controller.g.dart';
 
@@ -133,6 +132,10 @@ class TasmiController extends _$TasmiController {
     // 4. Start speech service
     await _speechService.startListening();
 
+    // ← ADDED: TTS init
+    final tts = ref.read(tasmiTtsServiceProvider);
+    await tts.initialize();
+
     // 5. Listen to wordStream
     _speechSubscription?.cancel(); // Cancel any previous subscription
     _speechSubscription = _speechService.wordStream.listen(
@@ -144,7 +147,7 @@ class TasmiController extends _$TasmiController {
     );
   }
 
-  void _onWordSpoken(String spokenWord) {
+  Future<void> _onWordSpoken(String spokenWord) async {
     if (state.currentIndex >= state.words.length) return; // Session finished
 
     final currentEntry = state.words[state.currentIndex];
@@ -165,16 +168,25 @@ class TasmiController extends _$TasmiController {
           : WordEntryStatus.wrongWord;
 
       newCorrectionWord = currentEntry.word;
+      // ← ADDED: TTS speak correct word
+      ref.read(tasmiTtsServiceProvider).speakWord(currentEntry.word);
 
       // Save error to repository
-      final error = TasmiWordError()
-        ..surahIndex = _surahNumber!
-        ..verseNumber = currentEntry.verseNumber
-        ..correctWord = currentEntry.word
-        ..spokenWord = spokenWord
-        ..errorTypeIndex = result.index
-        ..timestamp = DateTime.now();
-      ref.read(tasmiErrorRepositoryProvider).saveError(error);
+      final repoAsync = ref.read(tasmiErrorRepositoryProvider);
+      repoAsync.when(
+        data: (repo) {
+          final errorModel = TasmiWordError()
+            ..surahIndex = _surahNumber!
+            ..verseNumber = currentEntry.verseNumber
+            ..correctWord = currentEntry.word
+            ..spokenWord = spokenWord
+            ..errorTypeIndex = result.index
+            ..timestamp = DateTime.now();
+          repo.saveError(errorModel);
+        },
+        loading: () {},
+        error: (_, __) {},
+      );
 
       // Schedule correction bubble to disappear
       Future.delayed(const Duration(seconds: 2), () {
@@ -199,6 +211,7 @@ class TasmiController extends _$TasmiController {
   void stopSession() {
     _speechService.stopListening();
     _speechSubscription?.cancel();
+    ref.read(tasmiTtsServiceProvider).stop(); // ← ADDED: TTS stop
     if (state.status != TasmiStatus.finished) {
       _finish(); // Also calculate stats if stopped manually
     }
@@ -207,6 +220,7 @@ class TasmiController extends _$TasmiController {
   void _finish() {
     _speechService.stopListening();
     _speechSubscription?.cancel();
+    ref.read(tasmiTtsServiceProvider).stop(); // ← ADDED: TTS stop
 
     int correctCount = 0;
     int errorCount = 0;
@@ -232,11 +246,23 @@ class TasmiController extends _$TasmiController {
   }
 }
 
-// Provider for the Tasmi Error Repository
-@riverpod
-ITasmiErrorRepository tasmiErrorRepository(TasmiErrorRepositoryRef ref) {
-  // This is a placeholder. You must replace this with how you actually get your Isar instance.
-  // final isar = ref.watch(isarProvider);
-  // return IsarTasmiErrorRepository(isar);
-  throw UnimplementedError('Please provide the Isar instance to tasmiErrorRepositoryProvider');
+final tasmiErrorRepositoryProvider = FutureProvider<ITasmiErrorRepository>((ref) async {
+  try {
+    final isar = await ref.watch(isarInstanceProvider.future);
+    return IsarTasmiErrorRepository(isar);
+  } catch (_) {
+    return _NoOpTasmiErrorRepository();
+  }
+});
+
+// Fallback no-op repository used while Isar is loading
+class _NoOpTasmiErrorRepository implements ITasmiErrorRepository {
+  @override
+  Future<void> saveError(TasmiWordError error) async {}
+  @override
+  Future<List<TasmiWordError>> getAll() async => [];
+  @override
+  Future<List<TasmiWordError>> getBySurah(int surahIndex) async => [];
+  @override
+  Future<void> clearAll() async {}
 }

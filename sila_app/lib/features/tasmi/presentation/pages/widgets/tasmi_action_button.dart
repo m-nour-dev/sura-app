@@ -44,6 +44,7 @@ class TasmiActionButton extends StatelessWidget {
               child: _buildFullWidthButton(
                 context: context,
                 label: 'عرض النتائج',
+                icon: Icons.analytics, // Fixed: Added missing icon to prevent crash
                 onPressed: onShowResults,
                 color: theme.primaryColor,
               ),

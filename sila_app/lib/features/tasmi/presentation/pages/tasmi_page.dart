@@ -61,7 +61,14 @@ class TasmiPage extends ConsumerWidget {
                         ],
                       ),
                     if (state.status != TasmiStatus.idle)
-                      const MushafTasmiView(),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          debugPrint(
+                            '📐 Mushaf constraints: w=${constraints.maxWidth} h=${constraints.maxHeight}',
+                          );
+                          return const MushafTasmiView();
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -84,7 +91,78 @@ class TasmiPage extends ConsumerWidget {
               onStop: () => controller.stopSession(),
               onRestart: () => controller.startSession(surahNumber: surahNumber, fromAya: fromAya, toAya: toAya),
               onShowResults: () {
-                // TODO: Implement results view
+                debugPrint('✅ Show Results button clicked!');
+                try {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    ),
+                    builder: (sheetContext) => Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'نتائج التسميع',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ListTile(
+                              leading: const Icon(Icons.check_circle, color: Colors.green, size: 40),
+                              title: const Text('الكلمات الصحيحة', style: TextStyle(fontSize: 18)),
+                              trailing: Text(
+                                '${state.stats.correctCount}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ),
+                            const Divider(),
+                            ListTile(
+                              leading: const Icon(Icons.error, color: Colors.red, size: 40),
+                              title: const Text('الأخطاء الإجمالية', style: TextStyle(fontSize: 18)),
+                              trailing: Text(
+                                '${state.stats.errorCount}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () => Navigator.pop(sheetContext),
+                                child: const Text('حسناً', style: TextStyle(fontSize: 18)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                } catch (e) {
+                  debugPrint('❌ Error showing bottom sheet: $e');
+                }
               },
             ),
           ],

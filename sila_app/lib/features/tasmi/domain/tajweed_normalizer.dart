@@ -4,22 +4,25 @@ import 'dart:math';
 enum WordMatchResult { correct, closeError, wrongWord }
 
 class TajweedNormalizer {
-  /// Strips Quranic annotations, diacritics (tashkeel), and tatweel from text.
   static String normalize(String text) {
     // Strip:
     // - Quran annotations (U+0610 to U+061A)
     // - Tashkeel / Diacritics (U+064B to U+065F)
     // - Tatweel (U+0640)
-    final pattern = RegExp(r'[ؐ-ًؚ-ٟـ]');
+    // - Dagger Alif (U+0670)
+    // - Quranic stop signs & rub el hizb, etc (U+06D6 to U+06ED)
+    final pattern = RegExp(r'[\u0610-\u061A\u064B-\u065F\u0640\u0670\u06D6-\u06ED]');
     String normalized = text.replaceAll(pattern, '');
 
     // Replace specific Arabic letters with their base form for broader matching.
-    // Replace أ, إ, آ with ا
-    normalized = normalized.replaceAll(RegExp(r'[أإآ]'), 'ا');
+    // Replace أ, إ, آ, ٱ with ا
+    normalized = normalized.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
     // Replace ة with ه
     normalized = normalized.replaceAll('ة', 'ه');
-    // Replace ى with ي
-    normalized = normalized.replaceAll('ى', 'ي');
+    // Replace ى and ئ with ي
+    normalized = normalized.replaceAll(RegExp(r'[ىئ]'), 'ي');
+    // Replace ؤ with و
+    normalized = normalized.replaceAll('ؤ', 'و');
 
     // Trim and remove extra whitespace
     return normalized.trim().replaceAll(RegExp(r'\s+'), ' ');

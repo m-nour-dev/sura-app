@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
 
-class SearchAndFilterBar extends StatelessWidget {
-  final Function(String) onSearchChanged;
+class SearchAndFilterBar extends StatefulWidget {
+  final ValueChanged<String> onSearchChanged;
 
   const SearchAndFilterBar({
     super.key,
@@ -10,24 +10,47 @@ class SearchAndFilterBar extends StatelessWidget {
   });
 
   @override
+  State<SearchAndFilterBar> createState() => _SearchAndFilterBarState();
+}
+
+class _SearchAndFilterBarState extends State<SearchAndFilterBar> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    _searchController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final _searchController = TextEditingController();
     return Container(
       padding: const EdgeInsets.all(16),
       color: Theme.of(context).scaffoldBackgroundColor,
       child: TextField(
         controller: _searchController,
-        onChanged: onSearchChanged,
+        onChanged: widget.onSearchChanged,
         textDirection: TextDirection.rtl,
         decoration: InputDecoration(
-          hintText: 'ابحث بالاسم أو رقم السورة',
+          hintText: 'ابحث بالاسم أو رقم السورة أو رقمها',
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     _searchController.clear();
-                    onSearchChanged('');
+                    widget.onSearchChanged('');
                   },
                 )
               : null,
