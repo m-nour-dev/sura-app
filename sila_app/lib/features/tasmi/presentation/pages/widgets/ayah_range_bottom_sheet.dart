@@ -1,7 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_page.dart';
+
+String _toArabicNumber(String input) {
+  const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  for (int i = 0; i < english.length; i++) {
+    input = input.replaceAll(english[i], arabic[i]);
+  }
+  return input;
+}
 
 class AyahRangeBottomSheet extends StatefulWidget {
   final int surahNumber;
@@ -40,110 +48,235 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = const Color(0xFF064E3B);
+    final accentColor = const Color(0xFFD97706);
+    final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        padding: EdgeInsets.only(
+          top: 24,
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).padding.bottom + 20,
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header
-          Text(
-            'سورة ${quran.getSurahNameArabic(widget.surahNumber)}',
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            '${quran.getVerseCount(widget.surahNumber)} آية',
-            style: TextStyle(color: theme.textTheme.bodySmall?.color),
-          ),
-          const Divider(height: 24),
-
-          // Option 1: Full Surah
-          _buildOptionCard(
-            context: context,
-            icon: Icons.menu_book,
-            title: 'السورة كاملة',
-            subtitle: 'من الآية ١ إلى نهاية السورة',
-            onTap: () => _navigateToTasmi(1, _maxAyah),
-          ),
-          const SizedBox(height: 12),
-
-          // Option 2: Custom Range
-          _buildOptionCard(
-            context: context,
-            icon: Icons.cut,
-            title: 'نطاق مخصص',
-            subtitle: 'اختر من أي آية إلى أي آية',
-            onTap: () {
-              setState(() {
-                _isCustomRangeExpanded = !_isCustomRangeExpanded;
-              });
-            },
-          ),
-
-          // Custom Range Sliders (Animated)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            height: _isCustomRangeExpanded ? 200 : 0,
-            curve: Curves.easeInOut,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  Text('من الآية: ${_fromAyah.round()}'),
-                  Slider(
-                    value: _fromAyah,
-                    min: 1,
-                    max: _maxAyah.toDouble(),
-                    divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
-                    label: _fromAyah.round().toString(),
-                    onChanged: (value) {
-                      setState(() {
-                        _fromAyah = value;
-                        if (_toAyah < _fromAyah) {
-                          _toAyah = _fromAyah;
-                        }
-                      });
-                    },
-                  ),
-                  Text('إلى الآية: ${_toAyah.round()}'),
-                  Slider(
-                    value: _toAyah,
-                    min: 1,
-                    max: _maxAyah.toDouble(),
-                    divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
-                    label: _toAyah.round().toString(),
-                    onChanged: (value) {
-                      setState(() {
-                        if (value >= _fromAyah) {
-                          _toAyah = value;
-                        }
-                      });
-                    },
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _navigateToTasmi(_fromAyah.round(), _toAyah.round()),
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('ابدأ التسميع'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  )
-                ],
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 48,
+              height: 6,
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black12,
+                borderRadius: BorderRadius.circular(3),
               ),
             ),
-          ),
-        ],
+            
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.menu_book_rounded, color: primaryColor),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'سورة ${quran.getSurahNameArabic(widget.surahNumber)}',
+                      style: TextStyle(
+                        fontSize: 22, 
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Cairo',
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    Text(
+                      '${_toArabicNumber(quran.getVerseCount(widget.surahNumber).toString())} آية',
+                      style: TextStyle(
+                        color: isDark ? Colors.white70 : Colors.black54,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Divider(color: isDark ? Colors.white10 : Colors.grey[200]),
+            const SizedBox(height: 16),
+
+            // Option 1: Full Surah
+            _buildOptionCard(
+              context: context,
+              icon: Icons.done_all_rounded,
+              title: 'السورة كاملة',
+              subtitle: 'من الآية ١ إلى نهاية السورة',
+              isDark: isDark,
+              primaryColor: primaryColor,
+              onTap: () => _navigateToTasmi(1, _maxAyah),
+            ),
+            const SizedBox(height: 12),
+
+            // Option 2: Custom Range
+            _buildOptionCard(
+              context: context,
+              icon: Icons.tune_rounded,
+              title: 'نطاق مخصص',
+              subtitle: 'اختر من أي آية إلى أي آية',
+              isDark: isDark,
+              primaryColor: primaryColor,
+              isSelected: _isCustomRangeExpanded,
+              onTap: () {
+                setState(() {
+                  _isCustomRangeExpanded = !_isCustomRangeExpanded;
+                });
+              },
+            ),
+
+            // Custom Range Sliders (Animated)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: _isCustomRangeExpanded ? 260 : 0,
+              curve: Curves.easeInOut,
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Container(
+                  margin: const EdgeInsets.only(top: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('من الآية:', style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _toArabicNumber(_fromAyah.round().toString()), 
+                              style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
+                            ),
+                          ),
+                        ],
+                      ),
+                      SliderTheme(
+                        data: SliderThemeData(
+                          activeTrackColor: primaryColor,
+                          inactiveTrackColor: primaryColor.withOpacity(0.2),
+                          thumbColor: accentColor,
+                          overlayColor: accentColor.withOpacity(0.2),
+                          valueIndicatorColor: accentColor,
+                        ),
+                        child: Slider(
+                          value: _fromAyah,
+                          min: 1,
+                          max: _maxAyah.toDouble(),
+                          divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
+                          label: _toArabicNumber(_fromAyah.round().toString()),
+                          onChanged: (value) {
+                            setState(() {
+                              _fromAyah = value;
+                              if (_toAyah < _fromAyah) {
+                                _toAyah = _fromAyah;
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('إلى الآية:', style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: primaryColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _toArabicNumber(_toAyah.round().toString()), 
+                              style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
+                            ),
+                          ),
+                        ],
+                      ),
+                      SliderTheme(
+                        data: SliderThemeData(
+                          activeTrackColor: primaryColor,
+                          inactiveTrackColor: primaryColor.withOpacity(0.2),
+                          thumbColor: accentColor,
+                          overlayColor: accentColor.withOpacity(0.2),
+                          valueIndicatorColor: accentColor,
+                        ),
+                        child: Slider(
+                          value: _toAyah,
+                          min: 1,
+                          max: _maxAyah.toDouble(),
+                          divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
+                          label: _toArabicNumber(_toAyah.round().toString()),
+                          onChanged: (value) {
+                            setState(() {
+                              if (value >= _fromAyah) {
+                                _toAyah = value;
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _navigateToTasmi(_fromAyah.round(), _toAyah.round()),
+                          icon: const Icon(Icons.mic_rounded),
+                          label: const Text('ابدأ التسميع', style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, fontSize: 16)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -153,21 +286,78 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
     required IconData icon,
     required String title,
     required String subtitle,
+    required bool isDark,
+    required Color primaryColor,
     required VoidCallback onTap,
+    bool isSelected = false,
   }) {
-    final theme = Theme.of(context);
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.dividerColor),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Icon(icon, color: theme.primaryColor, size: 30),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? primaryColor.withOpacity(isDark ? 0.2 : 0.05) 
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected 
+                ? primaryColor 
+                : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isSelected 
+                    ? primaryColor 
+                    : (isDark ? Colors.white10 : Colors.grey[100]),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon, 
+                color: isSelected 
+                    ? Colors.white 
+                    : (isDark ? Colors.white70 : primaryColor),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title, 
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                      fontSize: 16,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: isDark ? Colors.white60 : Colors.black54,
+                      fontFamily: 'Cairo',
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              isSelected ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_left_rounded,
+              color: isDark ? Colors.white54 : Colors.black38,
+            ),
+          ],
+        ),
       ),
     );
   }

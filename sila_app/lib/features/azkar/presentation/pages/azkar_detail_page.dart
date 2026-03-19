@@ -1,10 +1,11 @@
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
 import 'package:sila_app/features/azkar/data/models/azkar_model.dart';
 import 'package:sila_app/features/azkar/presentation/riverpod/azkar_controller.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
 class AzkarDetailPage extends ConsumerStatefulWidget {
   final String categoryId;
@@ -22,7 +23,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
 
   void _checkCompletion(List items) {
     if (items.isEmpty) return;
-    
+
     // Check if all items are completed
     bool allCompleted = true;
     for (int i = 0; i < items.length; i++) {
@@ -43,27 +44,62 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
   }
 
   void _showVefaDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = const Color(0xFF064E3B);
+    final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('vefa_reminder_title'.tr()),
-        content: Text('vefa_reminder_body'.tr()),
+        backgroundColor: surfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'vefa_reminder_title'.tr(),
+          style: TextStyle(
+            fontFamily: 'Cairo',
+            fontWeight: FontWeight.w700,
+            color: textColor,
+          ),
+        ),
+        content: Text(
+          'vefa_reminder_body'.tr(),
+          style: TextStyle(
+            fontFamily: 'Cairo',
+            color: textColor,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('cancel'.tr()), // We need to ensure logic handles key or default close
+            child: Text(
+              'cancel'.tr(),
+              style: TextStyle(
+                fontFamily: 'Cairo',
+                color: textColor.withOpacity(0.7),
+              ),
+            ),
           ),
           FilledButton.icon(
-             icon: const Icon(Icons.diversity_1),
+            style: FilledButton.styleFrom(
+              backgroundColor: primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: const Icon(Icons.diversity_1, color: Colors.white),
             onPressed: () {
-               Navigator.pop(context);
-               // Navigate to Vefa Page or show simplified sheet
-               // For now navigate to Vefa Page which shows the list
-               // Ideally we should open a selection sheet here directly, but VefaPage serves the purpose
-               // Or better: Show BottomSheet with Vefa List
-                _showVefaSelectionSheet();
+              Navigator.pop(context);
+              _showVefaSelectionSheet();
             },
-            label: Text('gift_thawab'.tr()),
+            label: Text(
+              'gift_thawab'.tr(),
+              style: const TextStyle(
+                fontFamily: 'Cairo',
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -71,33 +107,48 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
   }
 
   void _showVefaSelectionSheet() {
-     Navigator.of(context).push(
-       MaterialPageRoute(
-         builder: (context) => const VefaPage(isSelectionMode: true),
-         fullscreenDialog: true, // Make it look like a modal
-       )
-     );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const VefaPage(isSelectionMode: true),
+        fullscreenDialog: true, // Make it look like a modal
+      ),
+    );
   }
 
-  // REPLACING WITH BETTER IMPLEMENTATION BELOW
   @override
   Widget build(BuildContext context) {
     final azkarAsync = ref.watch(azkarDataProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+    final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final primaryColor = const Color(0xFF064E3B);
+    final accentColor = const Color(0xFFD97706);
+    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
+    final subtitleColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: true,
+      backgroundColor: backgroundColor,
+      appBar: SilaAppBar(
+        title: widget.title,
       ),
       body: azkarAsync.when(
         data: (data) {
           final items = data[widget.categoryId] ?? [];
           if (items.isEmpty) {
-            return const Center(child: Text("Start soon..."));
+            return Center(
+              child: Text(
+                "Coming soon...",
+                style: TextStyle(
+                  fontFamily: 'Cairo',
+                  color: subtitleColor,
+                  fontSize: 16,
+                ),
+              ),
+            );
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             itemCount: items.length,
             separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
@@ -108,98 +159,131 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
 
               return AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
-                opacity: isCompleted ? 0.5 : 1.0,
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: InkWell(
+                opacity: isCompleted ? 0.6 : 1.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: surfaceColor,
                     borderRadius: BorderRadius.circular(16),
-                    onTap: isCompleted
-                        ? null
-                        : () {
-                            setState(() {
-                              _counts[index] = currentCount + 1;
-                            });
-                             // Use local variable for check as state update is scheduled
-                             if (_counts[index]! >= item.count) {
-                               // Check complete list
-                               _checkCompletion(items);
-                             }
-                          },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          // Header: Count Badges
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+                    boxShadow: [
+                      if (!isDark)
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: isCompleted
+                          ? null
+                          : () {
+                              setState(() {
+                                _counts[index] = currentCount + 1;
+                              });
+                              if (_counts[index]! >= item.count) {
+                                _checkCompletion(items);
+                              }
+                            },
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            // Top Row: Count Badge & Info
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: primaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    "${item.count}",
+                                    style: TextStyle(
+                                      fontFamily: 'Cairo',
+                                      fontWeight: FontWeight.w700,
+                                      color: primaryColor,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                if (item.fadilah.isNotEmpty)
+                                  Icon(Icons.info_outline, color: accentColor, size: 24),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            // Azkar Text
+                            Text(
+                              item.text,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: "Amiri", // Use Arabic font for Zikr
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                height: 1.8,
+                                color: textColor,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            // Fadilah
+                            if (item.fadilah.isNotEmpty) ...[
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.secondaryContainer,
-                                  borderRadius: BorderRadius.circular(20),
+                                  color: backgroundColor,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  "${item.count}",
+                                  item.fadilah,
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                    fontFamily: 'Cairo',
+                                    fontSize: 14,
+                                    color: subtitleColor,
+                                    fontStyle: FontStyle.italic,
+                                    height: 1.5,
                                   ),
                                 ),
                               ),
-                              if (item.fadilah.isNotEmpty)
-                                Icon(Icons.info_outline, color: Theme.of(context).primaryColor, size: 20),
+                              const SizedBox(height: 24),
                             ],
-                          ),
-                          const SizedBox(height: 16),
-                          // Content
-                          Text(
-                            item.text,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              height: 1.5,
-                              fontFamily: "Uthmanic", // Ensure font is used if available, or fallback
+                            Divider(color: subtitleColor.withOpacity(0.2)),
+                            const SizedBox(height: 16),
+                            // Progress Ring
+                            CircularPercentIndicator(
+                              radius: 36.0,
+                              lineWidth: 6.0,
+                              percent: progress > 1.0 ? 1.0 : progress,
+                              center: Text(
+                                "${item.count - currentCount}",
+                                style: TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 20,
+                                  color: textColor,
+                                ),
+                              ),
+                              progressColor: primaryColor,
+                              backgroundColor: primaryColor.withOpacity(0.1),
+                              circularStrokeCap: CircularStrokeCap.round,
+                              animation: true,
+                              animateFromLastPercent: true,
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          if (item.fadilah.isNotEmpty) ...[
+                            const SizedBox(height: 12),
                             Text(
-                              item.fadilah,
-                              textAlign: TextAlign.center,
+                              "tap_to_count".tr(),
                               style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontStyle: FontStyle.italic,
+                                fontFamily: 'Cairo',
+                                fontSize: 12,
+                                color: subtitleColor,
                               ),
                             ),
-                            const SizedBox(height: 16),
                           ],
-                          const Divider(),
-                          const SizedBox(height: 8),
-                          // Footer: Progress
-                           CircularPercentIndicator(
-                            radius: 30.0,
-                            lineWidth: 5.0,
-                            percent: progress > 1.0 ? 1.0 : progress,
-                            center: Text(
-                              "${item.count - currentCount}",
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            progressColor: Theme.of(context).primaryColor,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            circularStrokeCap: CircularStrokeCap.round,
-                            animation: true,
-                            animateFromLastPercent: true,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "tap_to_count".tr(),
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -208,8 +292,15 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
             },
           );
         },
-        error: (e, st) => Center(child: Text("Error: $e")),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => Center(
+          child: Text(
+            "Error: $e",
+            style: TextStyle(color: Colors.redAccent, fontFamily: 'Cairo'),
+          ),
+        ),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: primaryColor),
+        ),
       ),
     );
   }

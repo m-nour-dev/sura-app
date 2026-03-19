@@ -7,8 +7,10 @@ class WirdSettings {
   Id id = Isar.autoIncrement;
 
   // Current page the user is at (Last read page)
-  // Default starts at page 0 (before Fatiha) or 1
   int currentPage = 1;
+
+  // The bookmarked page
+  int? bookmarkPage;
 
   // How many pages per day the user wants to read
   int pagesPerDay = 2;

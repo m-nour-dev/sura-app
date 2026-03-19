@@ -1,70 +1,107 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:quran/quran.dart' as quran;
 
-class LastReadCard extends StatelessWidget {
+import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart';
+import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+
+class LastReadCard extends ConsumerWidget {
   const LastReadCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.menu_book_rounded,
-              color: Theme.of(context).colorScheme.onSecondaryContainer,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'last_read'.tr(),
-                  style: Theme.of(context).textTheme.bodySmall,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surface = isDark ? AppTheme.darkSurfaceColor : Colors.white;
+    final border = isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05);
+    final txtP = isDark ? Colors.white : AppTheme.primaryColor;
+    final txtS = isDark ? Colors.white60 : Colors.grey[600];
+
+    final wirdStateAsync = ref.watch(wirdControllerProvider);
+
+    return wirdStateAsync.when(
+      data: (wirdState) {
+        final currentPage = wirdState.currentPage;
+        final pageData = quran.getPageData(currentPage);
+        final surahNumber = pageData.isNotEmpty ? pageData[0]['surah'] as int : 1;
+        final surahName = quran.getSurahNameArabic(surahNumber);
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => WirdReaderPage(
+                  startPage: currentPage,
+                  endPage: 604, 
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  "Al-Baqarah", // Mock Data
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: border, width: 1),
+              boxShadow: [
+                if (!isDark)
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.menu_book_rounded, color: AppTheme.primaryColor, size: 22),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'أكمل قراءتك',
+                        style: GoogleFonts.cairo(
+                          fontSize: 12, 
+                          color: txtS,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'سورة $surahName',
+                        style: GoogleFonts.cairo(
+                            fontSize: 16, fontWeight: FontWeight.w700, color: txtP),
+                      ),
+                      Text(
+                        'صفحة $currentPage',
+                        style: GoogleFonts.cairo(
+                          fontSize: 12, 
+                          color: txtS,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  "${'ayah_label'.tr()} 255", // Mock Data
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                Icon(Icons.arrow_forward_ios_rounded, color: txtS, size: 14),
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: Text('continue_reading'.tr()),
-          ),
-        ],
-      ),
+        );
+      },
+      loading: () => const SizedBox(), // Hide or show skeleton while loading
+      error: (_, __) => const SizedBox(),
     );
   }
 }

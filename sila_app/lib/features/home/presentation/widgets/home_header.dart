@@ -1,85 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:hijri/hijri_calendar.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'صباح الخير';
+    } else if (hour < 18) {
+      return 'مساء الخير';
+    } else {
+      return 'مساء النور';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final hijriDate = HijriCalendar.now();
 
     return Container(
-      width: double.infinity,
-      // Research: generous padding (40% rule). Top 60 for status bar,
-      // bottom 60 to allow WirdCard overlap.
-      padding: const EdgeInsets.fromLTRB(28, 60, 28, 60),
       decoration: const BoxDecoration(
-        color: AppTheme.primaryColor,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF064E3B), Color(0xFF0a6b52), Color(0xFF1a3a5c)],
+          stops: [0.0, 0.5, 1.0],
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Top bar: Logo + Hijri date ──
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Logo cluster (icon + name)
-              Text(
-                'صلة',
-                style: GoogleFonts.amiri(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFFECA638),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getGreeting(),
+                        style: GoogleFonts.getFont(
+                          'Cairo',
+                          fontSize: 13,
+                          color: Colors.white60,
+                        ),
+                      ),
+                      Text(
+                        'أهلاً بك في صِلة',
+                        style: GoogleFonts.getFont(
+                          'Cairo',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Bell Icon
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    ),
+                    child: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                  ),
+                ],
               ),
-              // Hijri date pill
+              const SizedBox(height: 16),
+              // Hijri Date
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.10),
+                  color: Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
                 child: Text(
                   hijriDate.toFormat('dd MMMM yyyy'),
-                  style: GoogleFonts.outfit(
-                    color: Colors.white.withOpacity(0.85),
+                  style: GoogleFonts.getFont(
+                    'Cairo',
                     fontSize: 12,
+                    color: Colors.white.withOpacity(0.8),
                   ),
                 ),
               ),
             ],
           ),
-
-          // Research: 40-48px vertical breathing room between sections
-          const SizedBox(height: 40),
-
-          // ── Greeting ──
-          // Research: Arabic text needs 1.4-1.6 line-height, min 16px
-          Text(
-            'السلام عليكم ورحمة الله',
-            style: GoogleFonts.amiri(
-              fontSize: 18,
-              height: 1.6,
-              color: Colors.white.withOpacity(0.75),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'أهلاً بك في وِردك اليومي',
-            style: GoogleFonts.outfit(
-              fontSize: 24,
-              height: 1.4,
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class TasmiCorrectionBubble extends StatelessWidget {
@@ -10,45 +9,72 @@ class TasmiCorrectionBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     if (word == null) return const SizedBox.shrink();
 
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = const Color(0xFFD97706);
+    
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(isDark ? 0.15 : 0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
+          ),
+        ],
         border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.3),
-          width: 0.5,
+          color: accentColor.withOpacity(0.5),
+          width: 2,
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'الكلمة الصحيحة',
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.colorScheme.onErrorContainer.withValues(alpha: 0.6),
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.lightbulb_outline_rounded, size: 16, color: accentColor),
+              const SizedBox(width: 6),
+              Text(
+                'الكلمة الصحيحة',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontFamily: 'Cairo',
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             word!,
             style: TextStyle(
-              fontSize: 30,
+              fontSize: 36,
               fontFamily: 'Amiri',
               fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onErrorContainer,
+              color: accentColor,
             ),
             textDirection: TextDirection.rtl,
           ),
-          const SizedBox(height: 6),
-          Text(
-            'جار المتابعة...',
-            style: TextStyle(
-              fontSize: 11,
-              color: theme.colorScheme.onErrorContainer.withValues(alpha: 0.5),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: accentColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              'جار المتابعة...',
+              style: TextStyle(
+                fontSize: 11,
+                fontFamily: 'Cairo',
+                fontWeight: FontWeight.bold,
+                color: accentColor,
+              ),
             ),
           ),
         ],

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
@@ -21,21 +20,23 @@ class TasmiActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: _buildButton(context, state.status),
     );
   }
 
   Widget _buildButton(BuildContext context, TasmiStatus status) {
-    final theme = Theme.of(context);
+    final primaryColor = const Color(0xFF064E3B);
+    final accentColor = const Color(0xFFD97706);
+    
     switch (status) {
       case TasmiStatus.listening:
         return _buildFullWidthButton(
           context: context,
-          label: 'إيقاف',
-          icon: Icons.stop,
+          label: 'إيقاف التسميع',
+          icon: Icons.stop_rounded,
           onPressed: onStop,
-          color: Colors.red,
+          color: Colors.red[700],
         );
       case TasmiStatus.finished:
         return Row(
@@ -44,19 +45,20 @@ class TasmiActionButton extends StatelessWidget {
               child: _buildFullWidthButton(
                 context: context,
                 label: 'عرض النتائج',
-                icon: Icons.analytics, // Fixed: Added missing icon to prevent crash
+                icon: Icons.analytics_rounded,
                 onPressed: onShowResults,
-                color: theme.primaryColor,
+                color: primaryColor,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: _buildFullWidthButton(
                 context: context,
                 label: 'إعادة',
-                icon: Icons.refresh,
+                icon: Icons.refresh_rounded,
                 onPressed: onRestart,
                 isOutlined: true,
+                color: primaryColor,
               ),
             ),
           ],
@@ -67,9 +69,9 @@ class TasmiActionButton extends StatelessWidget {
         return _buildFullWidthButton(
           context: context,
           label: 'ابدأ التسميع',
-          icon: Icons.play_arrow,
+          icon: Icons.mic_rounded,
           onPressed: onStart,
-          color: Colors.green,
+          color: primaryColor,
         );
     }
   }
@@ -82,27 +84,40 @@ class TasmiActionButton extends StatelessWidget {
     Color? color,
     bool isOutlined = false,
   }) {
-    final theme = Theme.of(context);
-    return SizedBox(
-      height: 52,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Container(
+      height: 56,
+      decoration: isOutlined ? null : BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: (color ?? Colors.transparent).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: isOutlined
           ? OutlinedButton.icon(
               onPressed: onPressed,
-              icon: Icon(icon),
-              label: Text(label),
+              icon: Icon(icon, color: color, size: 24),
+              label: Text(label, style: TextStyle(fontFamily: 'Cairo', fontSize: 16, fontWeight: FontWeight.bold, color: color)),
               style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                side: BorderSide(color: theme.primaryColor),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                side: BorderSide(color: color ?? Colors.transparent, width: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
               ),
             )
           : ElevatedButton.icon(
               onPressed: onPressed,
-              icon: Icon(icon),
-              label: Text(label),
+              icon: Icon(icon, color: Colors.white, size: 24),
+              label: Text(label, style: const TextStyle(fontFamily: 'Cairo', fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: color,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
     );

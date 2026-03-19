@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,126 +21,202 @@ class SurahDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final surahState = ref.watch(surahDetailControllerProvider(surahNumber));
     final settingsState = ref.watch(quranSettingsControllerProvider);
+    final playingAyahId = ref.watch(playingAyahIdProvider);
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF0F172A) : const Color(0xFFFDFBF7);
+    final surface = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final border = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
+    final txtP = isDark ? Colors.white : const Color(0xFF0F172A);
+    final txtS = isDark ? Colors.white60 : const Color(0xFF64748B);
+    const primaryColor = Color(0xFF064E3B);
 
     return settingsState.when(
       data: (settings) => Scaffold(
-        backgroundColor: _getBackgroundColor(settings.themeMode),
-        appBar: AppBar(
-          title: Text(
-            surahName,
-            style: TextStyle(color: _getTextColor(settings.themeMode)),
-          ),
-          backgroundColor: _getBackgroundColor(settings.themeMode),
-          iconTheme: IconThemeData(color: _getTextColor(settings.themeMode)),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () => _showSettingsDialog(context, ref, settings),
-            ),
-          ],
-        ),
-        body: surahState.when(
-          data: (surah) {
-            if (surah.ayahs == null || surah.ayahs!.isEmpty) {
-              return Center(
-                child: Text(
-                  "Coming Soon (Verses data pending)",
-                  style: TextStyle(color: _getTextColor(settings.themeMode)),
+        backgroundColor: bg,
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF064E3B),
+              iconTheme: const IconThemeData(color: Colors.white),
+              title: Text(
+                surahName,
+                style: GoogleFonts.getFont(
+                  'Amiri',
+                  fontSize: 18,
+                  color: Colors.white,
                 ),
-              );
-            }
-            return PageView.builder(
-              reverse: true, // RTL Swipe
-              itemCount: surah.ayahs!.length,
-              itemBuilder: (context, index) {
-                final ayah = surah.ayahs![index];
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 40),
-                      // Ayah Number
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _getAccentColor(settings.themeMode).withOpacity(0.2),
-                        ),
-                        child: Text(
-                          '${ayah.number}',
-                          style: TextStyle(
-                            color: _getAccentColor(settings.themeMode),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.tune_rounded, color: Colors.white),
+                  onPressed: () => _showSettingsDialog(context, ref, settings, isDark, surface, txtP, primaryColor),
+                ),
+              ],
+            ),
+
+            // Bismillah
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text(
+                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.getFont(
+                    'Amiri',
+                    fontSize: 24,
+                    color: primaryColor,
+                    height: 2.0,
+                  ),
+                ),
+              ),
+            ),
+
+            // Ayahs
+            surahState.when(
+              data: (surah) {
+                if (surah.ayahs == null || surah.ayahs!.isEmpty) {
+                  return SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        "جاري التحميل...",
+                        style: TextStyle(color: txtP),
                       ),
-                      const SizedBox(height: 32),
-                      // Arabic Text
-                      GestureDetector(
-                        onTap: () async {
-                          if (ayah.audioUrl != null) {
-                            try {
-                              ref.read(playingAyahIdProvider.notifier).setPlaying(ayah.number);
-                              final audioController = ref.read(audioControllerProvider.notifier);
-                              await audioController.playAudio(ayah.audioUrl!);
-                            } catch (e) {
-                              ref.read(playingAyahIdProvider.notifier).setPlaying(null);
-                              if (!context.mounted) return;
-                              _showErrorDialog(context);
-                            }
-                          }
-                        },
-                        child: Container(
+                    ),
+                  );
+                }
+
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (ctx, i) {
+                        final ayah = surah.ayahs![i];
+                        final isPlaying = playingAyahId == ayah.number;
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: ref.watch(playingAyahIdProvider) == ayah.number
-                                ? _getAccentColor(settings.themeMode).withOpacity(0.1)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            ayah.text,
-                            textAlign: TextAlign.center,
-                            textDirection: ui.TextDirection.rtl,
-                            style: GoogleFonts.getFont(
-                              settings.fontFamily,
-                              fontSize: settings.fontSize,
-                              height: 2.2,
-                              color: _getTextColor(settings.themeMode),
+                            color: surface,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: isPlaying ? primaryColor.withOpacity(0.3) : border,
+                              width: isPlaying ? 1 : 0.5,
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      const Divider(indent: 40, endIndent: 40, color: Colors.grey),
-                      const SizedBox(height: 32),
-                      // Translation
-                      Text(
-                        ayah.translation,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: _getTextColor(settings.themeMode).withOpacity(0.7),
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      if (ayah.audioUrl != null)
-                        Icon(
-                          Icons.volume_up_rounded,
-                          color: _getAccentColor(settings.themeMode),
-                          size: 32,
-                        ),
-                    ],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              // نص الآية
+                              Text(
+                                ayah.text,
+                                textAlign: TextAlign.right,
+                                textDirection: ui.TextDirection.rtl,
+                                style: GoogleFonts.getFont(
+                                  settings.fontFamily,
+                                  fontSize: settings.fontSize,
+                                  height: 2.2,
+                                  color: txtP,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              // Translation if available
+                              if (ayah.translation.isNotEmpty) ...[
+                                Text(
+                                  ayah.translation,
+                                  textAlign: TextAlign.right,
+                                  textDirection: ui.TextDirection.rtl,
+                                  style: GoogleFonts.getFont(
+                                    'Cairo',
+                                    fontSize: 14,
+                                    height: 1.6,
+                                    color: txtS,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                              ],
+                              // Row: رقم الآية + زر الصوت
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // زر الصوت
+                                  GestureDetector(
+                                    onTap: () async {
+                                      if (ayah.audioUrl != null) {
+                                        try {
+                                          if (isPlaying) {
+                                            ref.read(playingAyahIdProvider.notifier).setPlaying(null);
+                                            // Handle pause if audioController supports it
+                                          } else {
+                                            ref.read(playingAyahIdProvider.notifier).setPlaying(ayah.number);
+                                            final audioController = ref.read(audioControllerProvider.notifier);
+                                            await audioController.playAudio(ayah.audioUrl!);
+                                          }
+                                        } catch (e) {
+                                          ref.read(playingAyahIdProvider.notifier).setPlaying(null);
+                                          if (!context.mounted) return;
+                                          _showErrorDialog(context, txtP, surface, primaryColor);
+                                        }
+                                      }
+                                    },
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                        color: isPlaying
+                                            ? primaryColor.withOpacity(0.15)
+                                            : Colors.transparent,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: border),
+                                      ),
+                                      child: Icon(
+                                        isPlaying ? Icons.pause : Icons.play_arrow,
+                                        size: 14,
+                                        color: primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                  // رقم الآية
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: primaryColor.withOpacity(0.08),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${ayah.number}',
+                                        style: GoogleFonts.getFont(
+                                          'Cairo',
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      childCount: surah.ayahs!.length,
+                    ),
                   ),
                 );
               },
-            );
-          },
-          error: (error, _) => Center(child: Text('Error: $error')),
-          loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => SliverFillRemaining(
+                child: Center(child: Text('Error: $error', style: TextStyle(color: txtP))),
+              ),
+              loading: () => const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator(color: primaryColor)),
+              ),
+            ),
+          ],
         ),
       ),
       error: (error, _) => Scaffold(body: Center(child: Text('Error loading settings: $error'))),
@@ -149,43 +224,18 @@ class SurahDetailPage extends ConsumerWidget {
     );
   }
 
-  Color _getBackgroundColor(QuranThemeMode mode) {
-    switch (mode) {
-      case QuranThemeMode.light:
-        return Colors.white;
-      case QuranThemeMode.dark:
-        return const Color(0xFF121212);
-      case QuranThemeMode.sepia:
-        return const Color(0xFFF4ECD8);
-    }
-  }
-
-  Color _getTextColor(QuranThemeMode mode) {
-    switch (mode) {
-      case QuranThemeMode.light:
-        return Colors.black87;
-      case QuranThemeMode.dark:
-        return Colors.white70;
-      case QuranThemeMode.sepia:
-        return const Color(0xFF5B4636);
-    }
-  }
-
-  Color _getAccentColor(QuranThemeMode mode) {
-    switch (mode) {
-      case QuranThemeMode.light:
-        return const Color(0xFF0F766E);
-      case QuranThemeMode.dark:
-        return const Color(0xFFCA8A04);
-      case QuranThemeMode.sepia:
-        return const Color(0xFF8D6E63);
-    }
-  }
-
-  void _showSettingsDialog(BuildContext context, WidgetRef ref, QuranSettings settings) {
+  void _showSettingsDialog(
+    BuildContext context,
+    WidgetRef ref,
+    QuranSettings settings,
+    bool isDark,
+    Color surface,
+    Color txtP,
+    Color primaryColor,
+  ) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: _getBackgroundColor(settings.themeMode),
+      backgroundColor: surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -198,37 +248,27 @@ class SurahDetailPage extends ConsumerWidget {
             Text(
               "إعدادات القراءة",
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: GoogleFonts.getFont(
+                'Cairo',
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: _getTextColor(settings.themeMode),
+                color: txtP,
               ),
-            ),
-            const SizedBox(height: 24),
-            // Theme Selection
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildThemeOption(ref, QuranThemeMode.light, "فاتح", settings),
-                _buildThemeOption(ref, QuranThemeMode.sepia, "كتابي", settings),
-                _buildThemeOption(ref, QuranThemeMode.dark, "داكن", settings),
-              ],
             ),
             const SizedBox(height: 32),
             // Font Selection
             DropdownButtonFormField<String>(
               value: settings.fontFamily,
-              dropdownColor: _getBackgroundColor(settings.themeMode),
-              style: TextStyle(color: _getTextColor(settings.themeMode)),
+              dropdownColor: surface,
+              style: GoogleFonts.getFont('Cairo', color: txtP),
               decoration: InputDecoration(
                 labelText: "نوع الخط",
-                labelStyle: TextStyle(color: _getTextColor(settings.themeMode)),
+                labelStyle: GoogleFonts.getFont('Cairo', color: txtP),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
               items: [
-                const DropdownMenuItem(value: "Amiri", child: Text("Amiri (ميري)")),
-                const DropdownMenuItem(value: "Noto Naskh Arabic", child: Text("Noto Naskh")),
-                const DropdownMenuItem(value: "Scheherazade New", child: Text("Scheherazade")),
+                DropdownMenuItem(value: "Amiri", child: Text("Amiri (ميري)", style: GoogleFonts.getFont('Amiri'))),
+                DropdownMenuItem(value: "Noto Naskh Arabic", child: Text("Noto Naskh", style: GoogleFonts.getFont('Noto Naskh Arabic'))),
               ],
               onChanged: (val) {
                 if (val != null) {
@@ -240,14 +280,14 @@ class SurahDetailPage extends ConsumerWidget {
             // Font Size
             Row(
               children: [
-                Icon(Icons.format_size, color: _getTextColor(settings.themeMode)),
+                Icon(Icons.format_size, color: txtP),
                 Expanded(
                   child: Slider(
                     value: settings.fontSize,
-                    min: 20,
-                    max: 40,
+                    min: 16,
+                    max: 48,
                     divisions: 10,
-                    activeColor: _getAccentColor(settings.themeMode),
+                    activeColor: primaryColor,
                     onChanged: (val) {
                       ref.read(quranSettingsControllerProvider.notifier).updateFontSize(val);
                     },
@@ -261,47 +301,17 @@ class SurahDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildThemeOption(WidgetRef ref, QuranThemeMode mode, String label, QuranSettings settings) {
-    final isSelected = settings.themeMode == mode;
-    return GestureDetector(
-      onTap: () => ref.read(quranSettingsControllerProvider.notifier).updateThemeMode(mode),
-      child: Column(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: _getBackgroundColor(mode),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isSelected ? _getAccentColor(settings.themeMode) : Colors.grey,
-                width: isSelected ? 3 : 1,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: _getTextColor(settings.themeMode),
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showErrorDialog(BuildContext context) {
+  void _showErrorDialog(BuildContext context, Color txtP, Color surface, Color primaryColor) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text("خطأ في تشغيل الصوت"),
-        content: const Text("عذراً، لا يمكن تشغيل الصوت حالياً."),
+        backgroundColor: surface,
+        title: Text("خطأ في تشغيل الصوت", style: GoogleFonts.getFont('Cairo', color: txtP)),
+        content: Text("عذراً، لا يمكن تشغيل الصوت حالياً.", style: GoogleFonts.getFont('Cairo', color: txtP)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text("حسناً"),
+            child: Text("حسناً", style: GoogleFonts.getFont('Cairo', color: primaryColor)),
           ),
         ],
       ),

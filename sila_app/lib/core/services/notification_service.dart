@@ -134,6 +134,52 @@ class NotificationService {
     }
   }
 
+  Future<void> scheduleDaily({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime dateTime,
+  }) async {
+    if (!_initialized) await initialize();
+
+    final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
+
+    const androidDetails = AndroidNotificationDetails(
+      'adhan_channel',
+      'أذان الصلاة',
+      channelDescription: 'إشعارات أذان الصلاة',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      enableLights: true,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _notifications.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledTime,
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+  }
+
   /// Play Adhan sound directly in-app
   Future<void> playAdhan(String soundFile) async {
     try {

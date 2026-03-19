@@ -49,50 +49,73 @@ class _TasmiListeningIndicatorState extends State<TasmiListeningIndicator>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       child: widget.isListening
-          ? Row(
+          ? Container(
               key: const ValueKey('listening'),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ...List.generate(
-                  3,
-                  (i) => AnimatedBuilder(
-                    animation: _animations[i],
-                    builder: (_, __) => Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: _animations[i].value),
-                        shape: BoxShape.circle,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.green.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...List.generate(
+                    3,
+                    (i) => AnimatedBuilder(
+                      animation: _animations[i],
+                      builder: (_, __) => Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: _animations[i].value),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'أستمع...',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.green[700],
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(width: 8),
+                  Text(
+                    'أستمع إليك...',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontFamily: 'Cairo',
+                      color: isDark ? Colors.green[300] : Colors.green[700],
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             )
-          : Row(
+          : Container(
               key: const ValueKey('paused'),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.mic_off_rounded, size: 14, color: Colors.grey[400]),
-                const SizedBox(width: 4),
-                Text(
-                  'متوقف مؤقتا',
-                  style: TextStyle(fontSize: 13, color: Colors.grey[400]),
-                ),
-              ],
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white10 : Colors.grey[200],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.mic_off_rounded, size: 16, color: isDark ? Colors.white54 : Colors.grey[600]),
+                  const SizedBox(width: 6),
+                  Text(
+                    'متوقف مؤقتا',
+                    style: TextStyle(
+                      fontSize: 13, 
+                      fontFamily: 'Cairo',
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white54 : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }

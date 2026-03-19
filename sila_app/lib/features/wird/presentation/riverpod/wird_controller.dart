@@ -23,6 +23,7 @@ class WirdState {
   final List<WirdHistory> history;
   final int completedWirdsCount;
   final int remainingWirdsCount;
+  final int? bookmarkPage;
 
   WirdState({
     required this.currentPage,
@@ -35,6 +36,7 @@ class WirdState {
     required this.history,
     required this.completedWirdsCount,
     required this.remainingWirdsCount,
+    this.bookmarkPage,
   });
 
   // Helper to calculate progress text
@@ -99,6 +101,7 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
         history: history,
         completedWirdsCount: completedWirds,
         remainingWirdsCount: remainingWirds,
+        bookmarkPage: settings.bookmarkPage,
       ));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -115,6 +118,11 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       await _service.updateCurrentPage(page);
       await _loadSettings();
     }
+  }
+
+  Future<void> updateBookmark(int page) async {
+    await _service.updateBookmark(page);
+    await _loadSettings();
   }
 
   Future<void> completeWird(int startPage, int endPage) async {

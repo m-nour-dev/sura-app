@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 String _toArabicNumber(String input) {
@@ -26,63 +25,124 @@ class TasmiPageHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = const Color(0xFF064E3B);
+    final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subtitleColor = isDark ? Colors.white70 : Colors.black54;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: MediaQuery.of(context).padding.top + 10),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16,
+        bottom: 24,
+        left: 20,
+        right: 20,
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Directionality(
             textDirection: TextDirection.rtl,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  textDirection: TextDirection.rtl,
-                  children: [
-                    Text(
-                      surahName,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'الآيات ${_toArabicNumber(fromAya.toString())} - ${_toArabicNumber(toAya.toString())}',
-                      style: TextStyle(color: theme.textTheme.bodySmall?.color, fontSize: 15),
-                    ),
-                  ],
+                Container(
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: primaryColor, size: 20),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios),
-                  onPressed: () => Navigator.of(context).pop(),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        surahName,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'الآيات ${_toArabicNumber(fromAya.toString())} - ${_toArabicNumber(toAya.toString())}',
+                        style: TextStyle(
+                          color: subtitleColor,
+                          fontSize: 14,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isListening 
+                        ? Colors.red.withOpacity(0.1) 
+                        : primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isListening ? Colors.red.withOpacity(0.5) : Colors.transparent,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isListening) ...[
+                        const SizedBox(
+                          width: 8,
+                          height: 8,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ] else ...[
+                        Icon(Icons.mic_none_rounded, 
+                          size: 14, 
+                          color: primaryColor,
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        isListening ? 'يستمع...' : 'جاهز',
+                        style: TextStyle(
+                          color: isListening ? Colors.red : primaryColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isListening ? Colors.red : Colors.grey,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                isListening ? 'يستمع...' : 'في انتظار البدء',
-                style: TextStyle(color: theme.textTheme.bodySmall?.color),
-              ),
-            ],
-          )
         ],
       ),
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(120);
+  Size get preferredSize => const Size.fromHeight(130);
 }

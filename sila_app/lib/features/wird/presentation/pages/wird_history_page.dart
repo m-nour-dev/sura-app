@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdHistoryPage extends ConsumerWidget {
@@ -11,25 +11,33 @@ class WirdHistoryPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final wirdStateAsync = ref.watch(wirdControllerProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Global Sila Colors
+    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+    final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final primaryColor = const Color(0xFF064E3B);
+    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
+    final subtitleColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text(
-          'الأوراد السابقة',
-          style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppTheme.primaryColor),
+      backgroundColor: backgroundColor,
+      appBar: const SilaAppBar(
+        title: 'الأوراد السابقة',
       ),
       body: SafeArea(
         child: wirdStateAsync.when(
           data: (wirdState) {
             if (wirdState.history.isEmpty) {
-              return const Center(
-                child: Text('لا توجد أوراد سابقة مسجلة بعد', style: TextStyle(color: Colors.grey)),
+              return Center(
+                child: Text(
+                  'لا توجد أوراد سابقة مسجلة بعد', 
+                  style: TextStyle(
+                    fontFamily: 'Cairo',
+                    color: subtitleColor,
+                    fontSize: 16,
+                  ),
+                ),
               );
             }
             
@@ -41,17 +49,18 @@ class WirdHistoryPage extends ConsumerWidget {
                 final formattedDate = DateFormat('yyyy/MM/dd').format(historyItem.date);
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: surfaceColor,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      )
+                      if (!isDark)
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        )
                     ],
                   ),
                   child: Row(
@@ -59,29 +68,58 @@ class WirdHistoryPage extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          const Text(
+                          Text(
                             'من صفحة ',
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              fontFamily: 'Cairo',
+                              color: textColor,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
                           ),
                           Text(
                             '${historyItem.startPage} ',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontFamily: 'Cairo',
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
-                          const Text(
+                          Text(
                             'إلى ',
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              fontFamily: 'Cairo',
+                              color: textColor,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
                           ),
                           Text(
                             '${historyItem.endPage}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontFamily: 'Cairo',
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
-                      Text(
-                        formattedDate,
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 13,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          formattedDate,
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            color: subtitleColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -90,8 +128,8 @@ class WirdHistoryPage extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Error: $err')),
+          loading: () => Center(child: CircularProgressIndicator(color: primaryColor)),
+          error: (err, stack) => Center(child: Text('Error: $err', style: TextStyle(fontFamily: 'Cairo', color: Colors.redAccent))),
         ),
       ),
     );
