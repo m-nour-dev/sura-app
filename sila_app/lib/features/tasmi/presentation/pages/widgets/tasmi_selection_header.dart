@@ -1,22 +1,27 @@
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/core/theme/app_theme.dart';
 
 class TasmiSelectionHeader extends StatelessWidget {
   const TasmiSelectionHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
-      padding: const EdgeInsets.only(top: 40, bottom: 16),
+      padding: const EdgeInsets.only(top: 60, bottom: 20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: isDark ? AppTheme.darkSurfaceColor : AppTheme.surfaceColor,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          )
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            )
         ],
       ),
       child: Column(
@@ -26,21 +31,32 @@ class TasmiSelectionHeader extends StatelessWidget {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new),
-                  onPressed: () => Navigator.of(context).pop(),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back_ios_new, color: isDark ? Colors.white : AppTheme.primaryColor),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
               ),
-              const Text(
+              Text(
                 'التسميع',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: GoogleFonts.cairo(
+                  fontSize: 24, 
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : AppTheme.primaryColor,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             'اختر السورة التي تريد تسميعها',
-            style: TextStyle(color: theme.textTheme.bodySmall?.color, fontSize: 15),
+            style: GoogleFonts.cairo(
+              color: isDark ? Colors.white70 : Colors.grey[700], 
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

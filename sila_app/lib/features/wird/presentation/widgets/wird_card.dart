@@ -7,6 +7,8 @@ import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart'
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
 import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class WirdCard extends ConsumerWidget {
   const WirdCard({super.key});
@@ -253,8 +255,8 @@ class WirdCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => WirdReaderPage(
@@ -263,6 +265,13 @@ class WirdCard extends ConsumerWidget {
                     ),
                   ),
                 );
+
+                if (result == true) {
+                   // User clicked finish in reader
+                   if (context.mounted) {
+                      _showCompletionDialog(context, ref, state);
+                   }
+                }
               },
               child: Text(
                 'تابع القراءة',
@@ -314,10 +323,60 @@ class WirdCard extends ConsumerWidget {
               } else {
                 ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, state.targetPage);
               }
-              Navigator.pop(context);
+              Navigator.pop(context); // Close completion dialog
+              
+              if (context.mounted) {
+                _showDedicateRewardDialog(context);
+              }
             },
             child: Text(
               isKhatmaComplete ? 'بدء ختمة جديدة' : 'تم بحمد الله',
+              style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDedicateRewardDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'wird_completed_title'.tr(),
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          'wird_completed_body'.tr(),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.outfit(fontSize: 15),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('لاحقاً', style: GoogleFonts.outfit(color: Colors.grey)),
+          ),
+          const SizedBox(width: 8),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VefaPage(isSelectionMode: true),
+                ),
+              );
+            },
+            child: Text(
+              'نعم، بالتأكيد',
               style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
             ),
           ),

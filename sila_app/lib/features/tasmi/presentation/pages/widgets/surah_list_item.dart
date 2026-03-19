@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/theme/app_theme.dart';
 
 String _toArabicNumber(String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -25,19 +27,20 @@ class SurahListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: theme.dividerColor.withOpacity(0.5)),
+        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
       ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0),
           child: Row(
             textDirection: TextDirection.rtl,
             children: [
@@ -47,13 +50,13 @@ class SurahListItem extends StatelessWidget {
                 height: 45,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(0.1),
+                  color: isDark ? AppTheme.accentColor.withValues(alpha: 0.2) : AppTheme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   _toArabicNumber(surahNumber.toString()),
-                  style: TextStyle(
-                    color: theme.primaryColor,
+                  style: GoogleFonts.cairo(
+                    color: isDark ? AppTheme.accentColor : AppTheme.primaryColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -68,17 +71,18 @@ class SurahListItem extends StatelessWidget {
                   children: [
                     Text(
                       'سورة ${quran.getSurahNameArabic(surahNumber)}',
-                      style: const TextStyle(
+                      style: GoogleFonts.cairo(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
+                        color: isDark ? Colors.white : AppTheme.primaryColor,
                       ),
                     ),
-                    const SizedBox(height: 4),
                     Text(
                       '${_toArabicNumber(quran.getVerseCount(surahNumber).toString())} آية',
-                      style: TextStyle(
-                        color: theme.textTheme.bodySmall?.color,
+                      style: GoogleFonts.cairo(
+                        color: isDark ? Colors.white70 : Colors.grey[600],
                         fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -89,20 +93,20 @@ class SurahListItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: (isMakki ? Colors.amber[100] : Colors.blue[100])?.withOpacity(0.5),
+                  color: isDark ? Colors.white10 : (isMakki ? Colors.amber[50] : Colors.blue[50]),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   isMakki ? 'مكية' : 'مدنية',
-                  style: TextStyle(
-                    color: isMakki ? Colors.amber[800] : Colors.blue[800],
+                  style: GoogleFonts.cairo(
+                    color: isDark ? Colors.white70 : (isMakki ? Colors.amber[800] : Colors.blue[800]),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-              Icon(Icons.chevron_right, color: theme.dividerColor),
+              Icon(Icons.chevron_left, color: isDark ? Colors.white30 : Colors.grey[400]),
             ],
           ),
         ),

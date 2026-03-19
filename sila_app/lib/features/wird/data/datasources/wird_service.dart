@@ -39,6 +39,15 @@ class WirdService {
     });
   }
 
+  Future<void> updateBookmark(int page) async {
+    final settings = await getSettings();
+    settings.bookmarkPage = page;
+    
+    await _isar.writeTxn(() async {
+      await _isar.wirdSettings.put(settings);
+    });
+  }
+
   Future<void> updatePagesPerDay(int pages) async {
     final settings = await getSettings();
     settings.pagesPerDay = pages;

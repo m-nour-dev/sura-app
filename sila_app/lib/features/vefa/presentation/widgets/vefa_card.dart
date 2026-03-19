@@ -1,10 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
 
 class VefaCard extends StatelessWidget {
   final VefaPerson person;
-  final VoidCallback? onTap; // Changed from onGift to generic onTap
+  final VoidCallback? onTap; 
   final VoidCallback onDelete;
   final bool isSelectionMode;
 
@@ -18,104 +20,122 @@ class VefaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        side: isSelectionMode 
-          ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
-          : BorderSide.none,
+        border: Border.all(
+          color: isSelectionMode 
+              ? AppTheme.accentColor 
+              : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
+          width: isSelectionMode ? 2 : 1,
+        ),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+        ],
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: isSelectionMode 
-                      ? Theme.of(context).primaryColor.withOpacity(0.2)
-                      : Theme.of(context).primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    person.name.isNotEmpty ? person.name[0].toUpperCase() : '?',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: isSelectionMode 
+                        ? AppTheme.accentColor.withValues(alpha: 0.2)
+                        : AppTheme.primaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      person.name.isNotEmpty ? person.name[0].toUpperCase() : '?',
+                      style: GoogleFonts.cairo(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isSelectionMode ? AppTheme.accentColor : AppTheme.primaryColor,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      person.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (person.relation != null)
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        person.relation!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
+                        person.name,
+                        style: GoogleFonts.cairo(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppTheme.primaryColor,
                         ),
                       ),
-                  ],
-                ),
-              ),
-              // Stats / Actions
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (!isSelectionMode)
-                     IconButton(
-                      onPressed: onDelete,
-                      icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  if (!isSelectionMode)
-                     const SizedBox(height: 8),
-                  
-                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.favorite, color: Colors.red[300], size: 14),
-                        const SizedBox(width: 4),
+                      if (person.relation != null)
                         Text(
-                          '${person.giftCount}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.red[300],
-                            fontWeight: FontWeight.bold,
+                          person.relation!,
+                          style: GoogleFonts.cairo(
+                            fontSize: 14,
+                            color: isDark ? Colors.white70 : Colors.grey[600],
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+                // Stats / Actions
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (!isSelectionMode)
+                       IconButton(
+                        onPressed: onDelete,
+                        icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 22),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    if (!isSelectionMode)
+                       const SizedBox(height: 8),
+                    
+                     Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.red.withValues(alpha: 0.1) : Colors.red[50],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.favorite, color: Colors.red[400], size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${person.giftCount}',
+                            style: GoogleFonts.cairo(
+                              fontSize: 14,
+                              color: Colors.red[400],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

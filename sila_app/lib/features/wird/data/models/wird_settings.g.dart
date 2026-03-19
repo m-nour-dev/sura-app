@@ -17,28 +17,33 @@ const WirdSettingsSchema = CollectionSchema(
   name: r'WirdSettings',
   id: 5980852363758198336,
   properties: {
-    r'currentPage': PropertySchema(
+    r'bookmarkPage': PropertySchema(
       id: 0,
+      name: r'bookmarkPage',
+      type: IsarType.long,
+    ),
+    r'currentPage': PropertySchema(
+      id: 1,
       name: r'currentPage',
       type: IsarType.long,
     ),
     r'khatmaStartDate': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'khatmaStartDate',
       type: IsarType.dateTime,
     ),
     r'lastCompletionDate': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'lastCompletionDate',
       type: IsarType.dateTime,
     ),
     r'pagesPerDay': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'pagesPerDay',
       type: IsarType.long,
     ),
     r'targetPageForToday': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'targetPageForToday',
       type: IsarType.long,
     )
@@ -72,11 +77,12 @@ void _wirdSettingsSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.currentPage);
-  writer.writeDateTime(offsets[1], object.khatmaStartDate);
-  writer.writeDateTime(offsets[2], object.lastCompletionDate);
-  writer.writeLong(offsets[3], object.pagesPerDay);
-  writer.writeLong(offsets[4], object.targetPageForToday);
+  writer.writeLong(offsets[0], object.bookmarkPage);
+  writer.writeLong(offsets[1], object.currentPage);
+  writer.writeDateTime(offsets[2], object.khatmaStartDate);
+  writer.writeDateTime(offsets[3], object.lastCompletionDate);
+  writer.writeLong(offsets[4], object.pagesPerDay);
+  writer.writeLong(offsets[5], object.targetPageForToday);
 }
 
 WirdSettings _wirdSettingsDeserialize(
@@ -86,11 +92,12 @@ WirdSettings _wirdSettingsDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = WirdSettings();
-  object.currentPage = reader.readLong(offsets[0]);
+  object.bookmarkPage = reader.readLongOrNull(offsets[0]);
+  object.currentPage = reader.readLong(offsets[1]);
   object.id = id;
-  object.khatmaStartDate = reader.readDateTimeOrNull(offsets[1]);
-  object.lastCompletionDate = reader.readDateTimeOrNull(offsets[2]);
-  object.pagesPerDay = reader.readLong(offsets[3]);
+  object.khatmaStartDate = reader.readDateTimeOrNull(offsets[2]);
+  object.lastCompletionDate = reader.readDateTimeOrNull(offsets[3]);
+  object.pagesPerDay = reader.readLong(offsets[4]);
   return object;
 }
 
@@ -102,14 +109,16 @@ P _wirdSettingsDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 2:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 4:
+      return (reader.readLong(offset)) as P;
+    case 5:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -210,6 +219,80 @@ extension WirdSettingsQueryWhere
 
 extension WirdSettingsQueryFilter
     on QueryBuilder<WirdSettings, WirdSettings, QFilterCondition> {
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      bookmarkPageIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'bookmarkPage',
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      bookmarkPageIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'bookmarkPage',
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      bookmarkPageEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'bookmarkPage',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      bookmarkPageGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'bookmarkPage',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      bookmarkPageLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'bookmarkPage',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      bookmarkPageBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'bookmarkPage',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
       currentPageEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
@@ -588,6 +671,19 @@ extension WirdSettingsQueryLinks
 
 extension WirdSettingsQuerySortBy
     on QueryBuilder<WirdSettings, WirdSettings, QSortBy> {
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> sortByBookmarkPage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'bookmarkPage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
+      sortByBookmarkPageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'bookmarkPage', Sort.desc);
+    });
+  }
+
   QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> sortByCurrentPage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentPage', Sort.asc);
@@ -659,6 +755,19 @@ extension WirdSettingsQuerySortBy
 
 extension WirdSettingsQuerySortThenBy
     on QueryBuilder<WirdSettings, WirdSettings, QSortThenBy> {
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> thenByBookmarkPage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'bookmarkPage', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
+      thenByBookmarkPageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'bookmarkPage', Sort.desc);
+    });
+  }
+
   QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> thenByCurrentPage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentPage', Sort.asc);
@@ -742,6 +851,12 @@ extension WirdSettingsQuerySortThenBy
 
 extension WirdSettingsQueryWhereDistinct
     on QueryBuilder<WirdSettings, WirdSettings, QDistinct> {
+  QueryBuilder<WirdSettings, WirdSettings, QDistinct> distinctByBookmarkPage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'bookmarkPage');
+    });
+  }
+
   QueryBuilder<WirdSettings, WirdSettings, QDistinct> distinctByCurrentPage() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'currentPage');
@@ -781,6 +896,12 @@ extension WirdSettingsQueryProperty
   QueryBuilder<WirdSettings, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<WirdSettings, int?, QQueryOperations> bookmarkPageProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'bookmarkPage');
     });
   }
 

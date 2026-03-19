@@ -4,9 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
 import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
-// Placeholder for your actual Quran Settings Provider
-// import 'package:sila_app/features/settings/presentation/controllers/quran_settings_controller.dart';
-
 String _toArabicNumber(String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -18,45 +15,44 @@ String _toArabicNumber(String input) {
 }
 
 class MushafTasmiView extends ConsumerWidget {
-  const MushafTasmiView({super.key});
+  final List<TasmiWordEntry>? wordsOverride;
+  final int? currentIndexOverride;
+  final bool showAsBlank;
+
+  const MushafTasmiView({
+    super.key,
+    this.wordsOverride,
+    this.currentIndexOverride,
+    this.showAsBlank = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Optimization: Select only words and currentIndex to prevent rebuilding on other state changes
-    final words = ref.watch(tasmiControllerProvider.select((state) => state.words));
-    final currentIndex = ref.watch(tasmiControllerProvider.select((state) => state.currentIndex));
+    final List<TasmiWordEntry> words =
+        wordsOverride ?? ref.watch(tasmiControllerProvider.select((state) => state.words));
+    final int currentIndex =
+        currentIndexOverride ?? ref.watch(tasmiControllerProvider.select((state) => state.currentIndex));
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    // Mushaf specific typography
     const fontFamily = 'Amiri';
-    const fontSize = 28.0;
+    const fontSize = 32.0;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ],
-      ),
-      child: SingleChildScrollView(
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: RichText(
-            textAlign: TextAlign.justify,
-            text: TextSpan(
-              style: GoogleFonts.getFont(
-                fontFamily,
-                fontSize: fontSize,
-                height: 2.2, // Generous line height for Mushaf aesthetics
-                color: theme.textTheme.bodyLarge?.color,
-              ),
-              children: _buildTextSpans(words, currentIndex, theme, fontFamily, fontSize),
+    return SingleChildScrollView(
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: RichText(
+          textAlign: TextAlign.justify,
+          text: TextSpan(
+            style: GoogleFonts.getFont(
+              fontFamily,
+              fontSize: fontSize,
+              height: 2.2, // Generous line height for Mushaf aesthetics
+              color: isDark ? Colors.white : Colors.black87,
             ),
+            children: _buildTextSpans(words, currentIndex, isDark, fontFamily, fontSize),
           ),
         ),
       ),
@@ -66,7 +62,7 @@ class MushafTasmiView extends ConsumerWidget {
   List<InlineSpan> _buildTextSpans(
     List<TasmiWordEntry> words,
     int currentIndex,
-    ThemeData theme,
+    bool isDark,
     String fontFamily,
     double fontSize,
   ) {
@@ -77,24 +73,21 @@ class MushafTasmiView extends ConsumerWidget {
       final entry = words[i];
       final isCurrent = i == currentIndex;
 
-      spans.add(
-        TextSpan(
-          text: '${entry.word} ',
-          style: _getWordStyle(entry.status, isCurrent, theme),
-        ),
-      );
+      final renderBlank = showAsBlank && entry.status == WordEntryStatus.hidden;
+      final renderedText = renderBlank ? _blankFor(entry.word) : entry.word;
+
+      spans.add(TextSpan(text: '$renderedText ', style: _getWordStyle(entry.status, isCurrent, isDark, renderBlank)));
 
       bool isLastWordOfAyah = (i + 1 == words.length) || (words[i + 1].verseNumber != entry.verseNumber);
 
       if (isLastWordOfAyah) {
+        final ayahColor = isDark ? const Color(0xFFD97706) : const Color(0xFF064E3B);
         spans.add(
           TextSpan(
             text: ' ﴿${_toArabicNumber(entry.verseNumber.toString())}﴾ ',
             style: TextStyle(
-              color: theme.brightness == Brightness.dark
-                  ? const Color(0xFF81C784)
-                  : const Color(0xFF1B5E20),
-              fontSize: fontSize * 0.60,
+              color: ayahColor,
+              fontSize: fontSize * 0.65,
               fontFamily: 'Amiri',
               fontWeight: FontWeight.bold,
               height: 1.2,
@@ -106,12 +99,17 @@ class MushafTasmiView extends ConsumerWidget {
     return spans;
   }
 
-  TextStyle _getWordStyle(WordEntryStatus status, bool isCurrent, ThemeData theme) {
+  TextStyle _getWordStyle(WordEntryStatus status, bool isCurrent, bool isDark, bool isBlank) {
+    final primaryColor = const Color(0xFF064E3B);
+    final accentColor = const Color(0xFFD97706);
+
     // Current word being recited gets a distinct highlight
     if (isCurrent) {
       return TextStyle(
-        color: theme.colorScheme.primary, // Highlight color
-        backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        color: isDark ? accentColor : primaryColor, // Highlight color
+        backgroundColor: isDark 
+            ? accentColor.withOpacity(0.2) 
+            : primaryColor.withOpacity(0.15),
         fontWeight: FontWeight.bold,
       );
     }
@@ -119,20 +117,30 @@ class MushafTasmiView extends ConsumerWidget {
     switch (status) {
       case WordEntryStatus.correct:
         // Proper green for Mushaf success
-        return const TextStyle(color: Color(0xFF2E7D32));
+        return TextStyle(color: isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32));
       case WordEntryStatus.closeError:
-        return const TextStyle(color: Colors.amber);
+        return TextStyle(color: isDark ? Colors.amber[300] : Colors.amber[800]);
       case WordEntryStatus.wrongWord:
         return TextStyle(
-          color: const Color(0xFFA32D2D),
-          backgroundColor: const Color(0xFFA32D2D).withOpacity(0.15),
+          color: isDark ? const Color(0xFFE57373) : const Color(0xFFA32D2D),
+          backgroundColor: isDark ? const Color(0xFFE57373).withOpacity(0.15) : const Color(0xFFA32D2D).withOpacity(0.1),
         );
       case WordEntryStatus.skipped:
-        return const TextStyle(color: Colors.grey);
+        return TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]);
       case WordEntryStatus.hidden:
-        // Completely invisible but retains perfect text shaping boundaries
+        if (isBlank) {
+          return TextStyle(
+            color: isDark ? Colors.white30 : Colors.black26,
+            fontWeight: FontWeight.w600,
+          );
+        }
         return const TextStyle(color: Colors.transparent);
     }
   }
 
+  String _blankFor(String word) {
+    final clean = word.replaceAll(RegExp(r'[^\u0600-\u06FF]'), '');
+    final length = clean.isEmpty ? 3 : clean.length;
+    return List<String>.filled(length, 'ـ').join();
+  }
 }
