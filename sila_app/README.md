@@ -66,3 +66,23 @@ git push origin v2.0.0
 ```
 
 بعدها GitHub Actions سيتولى كل شيء تلقائيا.
+
+### Local gate قبل أي push
+
+تمت إضافة hook محلي يمنع أي push لو فشلت checks.
+
+- السكريبت: `scripts/pre_push_ci.sh`
+- التثبيت:
+
+```bash
+bash scripts/setup_git_hooks.sh
+```
+
+بعد التثبيت، كل `git push` سيشغل تلقائيا:
+
+- `flutter pub get`
+- `dart format --set-exit-if-changed`
+- `flutter analyze`
+- `flutter test` (لو فيه اختبارات)
+
+ولو أي خطوة فشلت، push يتوقف تلقائيا.
