@@ -9,11 +9,6 @@ if [ ! -d "$APP_DIR" ]; then
   exit 1
 fi
 
-cd "$APP_DIR"
-
-echo "[pre-push] Running local CI checks..."
-flutter pub get
-
 UPSTREAM_REF="$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream} 2>/dev/null || true)"
 if [ -n "$UPSTREAM_REF" ]; then
   BASE_SHA="$(git merge-base HEAD "$UPSTREAM_REF")"
@@ -22,7 +17,19 @@ else
   DIFF_RANGE="HEAD"
 fi
 
-mapfile -t CHANGED_DART_FILES < <(git diff --name-only --diff-filter=ACMRT $DIFF_RANGE -- '*.dart')
+mapfile -t RAW_CHANGED_DART_FILES < <(git -C "$REPO_ROOT" diff --name-only --diff-filter=ACMRT $DIFF_RANGE -- '*.dart')
+
+CHANGED_DART_FILES=()
+for file in "${RAW_CHANGED_DART_FILES[@]}"; do
+  if [[ "$file" == sila_app/* ]]; then
+    CHANGED_DART_FILES+=("${file#sila_app/}")
+  fi
+done
+
+cd "$APP_DIR"
+
+echo "[pre-push] Running local CI checks..."
+flutter pub get
 
 if [ ${#CHANGED_DART_FILES[@]} -gt 0 ]; then
   echo "[pre-push] Checking formatting for changed Dart files..."
