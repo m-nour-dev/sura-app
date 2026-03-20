@@ -1,26 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'tasmi_controller.dart';
+part of 'remote_config_service.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tasmiControllerHash() => r'85faa13f43b52fa46a3f49a88a5f95dca0b2bcb5';
+String _$remoteConfigServiceHash() =>
+    r'83df353c42c2c7853c64784e53be2d76581f3d3c';
 
-/// See also [TasmiController].
-@ProviderFor(TasmiController)
-final tasmiControllerProvider =
-    AutoDisposeNotifierProvider<TasmiController, TasmiState>.internal(
-  TasmiController.new,
-  name: r'tasmiControllerProvider',
+/// See also [remoteConfigService].
+@ProviderFor(remoteConfigService)
+final remoteConfigServiceProvider =
+    AutoDisposeProvider<RemoteConfigService>.internal(
+  remoteConfigService,
+  name: r'remoteConfigServiceProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$tasmiControllerHash,
+      : _$remoteConfigServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$TasmiController = AutoDisposeNotifier<TasmiState>;
+typedef RemoteConfigServiceRef = AutoDisposeProviderRef<RemoteConfigService>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

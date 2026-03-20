@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayer_settings_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
@@ -18,6 +19,7 @@ class PrayersPage extends ConsumerStatefulWidget {
 
 class _PrayersPageState extends ConsumerState<PrayersPage> {
   Timer? _timer;
+  bool _screenLogged = false;
 
   static const _prayerMeta = [
     {'key': 'fajr',    'icon': Icons.wb_twilight_rounded, 'name': 'الفجر'},
@@ -32,6 +34,11 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
   void initState() {
     super.initState();
     _startTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_screenLogged) return;
+      _screenLogged = true;
+      ref.read(analyticsServiceProvider).logScreenPrayers();
+    });
   }
 
   @override
@@ -295,10 +302,13 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                     const SizedBox(height: 16),
                     // Qiblah Button
                     GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const QiblahPage()),
-                      ),
+                      onTap: () {
+                        ref.read(analyticsServiceProvider).logQiblahOpen();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const QiblahPage()),
+                        );
+                      },
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(

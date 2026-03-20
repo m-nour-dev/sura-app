@@ -1,13 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
+import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/services/timezone_service.dart';
 // Adhan services temporarily disabled
 // import 'package:sila_app/core/services/notification_service.dart';
 // import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 // import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +20,11 @@ void main() async {
   // Initialize timezone service for prayer time calculations
   final timezoneService = TimezoneService();
   await timezoneService.initialize();
+
+  await Firebase.initializeApp();
+
+  NotificationService().setNavigatorKey(appNavigatorKey);
+  await NotificationService().initialize();
   
   // Adhan notification initialization temporarily disabled
   // final notificationService = NotificationService();
@@ -53,6 +62,7 @@ class SilaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: appNavigatorKey,
       title: 'Sıla',
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,

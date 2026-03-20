@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
 import 'package:sila_app/features/hifz/domain/plan_generator.dart';
@@ -155,6 +156,8 @@ class HifzOnboardingController extends _$HifzOnboardingController {
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_onboardingDoneKey, true);
+
+      await ref.read(analyticsServiceProvider).logHifzOnboardingComplete();
 
       state = state.copyWith(isSaving: false, onboardingDone: true);
     } catch (_) {

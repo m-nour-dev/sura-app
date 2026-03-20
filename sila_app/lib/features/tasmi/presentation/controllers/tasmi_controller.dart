@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
@@ -124,6 +125,10 @@ class TasmiController extends _$TasmiController {
     required int toAya,
   }) async {
     _surahNumber = surahNumber;
+    final surahName = quran.getSurahNameArabic(surahNumber);
+    await ref.read(analyticsServiceProvider).logTasmiSessionStart(
+          surahName: surahName,
+        );
 
     await _stopServicesOnly();
     _isProcessingWord = false;
@@ -390,6 +395,13 @@ class TasmiController extends _$TasmiController {
         errorList: List<TasmiWordError>.from(_sessionErrors),
       ),
     );
+
+    final total = correct + close + wrong + skipped;
+    final accuracy = total == 0 ? 0.0 : correct / total;
+    ref.read(analyticsServiceProvider).logTasmiSessionComplete(
+          accuracy: accuracy,
+          errorsCount: _sessionErrors.length,
+        );
   }
 
   Future<void> _stopServicesOnly() async {

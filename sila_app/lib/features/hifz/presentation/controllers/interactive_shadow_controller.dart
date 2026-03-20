@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
@@ -183,6 +184,11 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     required int fromVerse,
     required int toVerse,
   }) async {
+    await ref.read(analyticsServiceProvider).logHifzSessionStart(
+          surahName: quran.getSurahNameArabic(surahNumber),
+          method: 'interactive_shadow',
+        );
+
     state = state.copyWith(
       surahNumber: surahNumber,
       fromVerse: fromVerse,
@@ -424,7 +430,11 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     final url = 'https://everyayah.com/data/Husary_128kbps/$surahStr$ayahStr.mp3';
 
     state = state.copyWith(isPlaying: true);
-    await ref.read(audioControllerProvider.notifier).playAudio(url);
+    await ref.read(audioControllerProvider.notifier).playAudio(
+      url,
+      surahName: quran.getSurahNameArabic(state.surahNumber),
+      ayahNumber: ayah,
+    );
     await Future<void>.delayed(const Duration(seconds: 4));
     state = state.copyWith(isPlaying: false);
   }
@@ -552,6 +562,12 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       isPlaying: false,
       accuracy: accuracy,
     );
+
+    await ref.read(analyticsServiceProvider).logHifzSessionComplete(
+          ayahsCount: _sessionRows.length,
+          accuracy: accuracy,
+          hasanat: state.sessionHashanat,
+        );
   }
 
   bool _isParticle(String word) {

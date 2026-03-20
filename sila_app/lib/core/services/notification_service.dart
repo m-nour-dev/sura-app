@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
+import 'package:sila_app/core/services/remote_config_service.dart';
+import 'package:sila_app/core/services/update_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -12,6 +17,7 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
   final AudioPlayer _audioPlayer = AudioPlayer();
+  GlobalKey<NavigatorState>? _navigatorKey;
 
   bool _initialized = false;
 
@@ -33,9 +39,30 @@ class NotificationService {
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
+
+    await FirebaseMessaging.instance.requestPermission();
+    await FirebaseMessaging.instance.subscribeToTopic('all_users');
+    await FirebaseMessaging.instance.subscribeToTopic('updates');
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.data['type'] == 'update') {
+        _showUpdateNotification(message);
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      if (message.data['type'] == 'update') {
+        _showUpdateNotification(message);
+      }
+    });
+
     await _createNotificationChannel();
     _initialized = true;
     print('NotificationService: Initialized');
+  }
+
+  void setNavigatorKey(GlobalKey<NavigatorState> navigatorKey) {
+    _navigatorKey = navigatorKey;
   }
 
   Future<void> _createNotificationChannel() async {
@@ -233,5 +260,42 @@ class NotificationService {
   static int getNotificationId(String prayerName) {
     const map = {'fajr': 1, 'dhuhr': 2, 'asr': 3, 'maghrib': 4, 'isha': 5};
     return map[prayerName.toLowerCase()] ?? 0;
+  }
+
+  Future<void> _showUpdateNotification(RemoteMessage message) async {
+    final context = _navigatorKey?.currentContext;
+    if (context == null) return;
+
+    final analytics = AnalyticsService();
+    final updateService = UpdateService(analytics: analytics);
+    final remoteConfig = RemoteConfigService();
+    await remoteConfig.initialize();
+
+    final version = int.tryParse(message.data['version']?.toString() ?? '') ?? 0;
+    final apkUrl = (message.data['apk_url']?.toString() ?? '').isNotEmpty
+        ? message.data['apk_url']!.toString()
+        : remoteConfig.apkUrl;
+
+    final result = UpdateCheckResult(
+      hasUpdate: true,
+      isForced: false,
+      latestVersion: version,
+      apkUrl: apkUrl,
+      title: message.notification?.title ?? 'تحديث جديد متاح',
+      message: message.notification?.body ?? 'يوجد إصدار جديد من التطبيق',
+      releaseNotes: message.data['release_notes']?.toString() ?? '',
+    );
+
+    await analytics.logUpdateDialogShown(newVersion: version);
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => UpdateDialog(
+        updateResult: result,
+        updateService: updateService,
+        analyticsService: analytics,
+      ),
+    );
   }
 }

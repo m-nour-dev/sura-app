@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
@@ -691,7 +692,11 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     final url = 'https://everyayah.com/data/Husary_128kbps/$surahStr$ayahStr.mp3';
     
     try {
-      await ref.read(audioControllerProvider.notifier).playAudio(url);
+      await ref.read(audioControllerProvider.notifier).playAudio(
+        url,
+        surahName: quran.getSurahNameArabic(surahNum),
+        ayahNumber: ayahNum,
+      );
     } catch (e) {
        debugPrint('Error playing ayah audio: $e');
     }

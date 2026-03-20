@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/azkar/data/models/azkar_model.dart';
 import 'package:sila_app/features/azkar/presentation/riverpod/azkar_controller.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
@@ -36,6 +37,9 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
     }
 
     if (allCompleted) {
+      ref.read(analyticsServiceProvider).logAzkarComplete(
+            categoryName: widget.categoryId,
+          );
       // Small delay to let the UI update last count
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) _showVefaDialog();
