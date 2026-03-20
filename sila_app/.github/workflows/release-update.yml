@@ -1,0 +1,224 @@
+name: Android Release + Firebase Update
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing tag to release (example: v2.0.0)'
+        required: true
+        default: 'v1.0.0'
+      force_update:
+        description: Force update dialog (true/false)
+        required: false
+        default: 'false'
+      update_title:
+        description: Update dialog title
+        required: false
+        default: 'تحديث جديد متاح'
+      update_message:
+        description: Update dialog message
+        required: false
+        default: 'يوجد إصدار جديد من التطبيق'
+      update_release_notes:
+        description: Release notes shown in dialog
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    env:
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      UPDATE_FUNCTION_URL: ${{ secrets.UPDATE_FUNCTION_URL }}
+      UPDATE_FUNCTION_TOKEN: ${{ secrets.UPDATE_FUNCTION_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Read app version from pubspec
+        id: app_version
+        run: |
+          VERSION_LINE=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | sed -n '1p')
+          if [ -z "$VERSION_LINE" ]; then
+            echo "Invalid pubspec.yaml: missing version field"
+            exit 1
+          fi
+
+          VERSION_NAME=${VERSION_LINE%%+*}
+          VERSION_CODE=${VERSION_LINE##*+}
+
+          if [ "$VERSION_CODE" = "$VERSION_LINE" ] || ! printf '%s' "$VERSION_CODE" | grep -Eq '^[0-9]+$'; then
+            echo "Invalid pubspec.yaml version: expected x.y.z+N with numeric build number, got '$VERSION_LINE'"
+            exit 1
+          fi
+
+          echo "version_name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "version_code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
+
+      - name: Build Android release APK
+        run: flutter build apk --release
+
+      - name: Prepare release file and metadata
+        id: release_meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+          INPUT_FORCE_UPDATE: ${{ github.event.inputs.force_update || 'false' }}
+          INPUT_UPDATE_TITLE: ${{ github.event.inputs.update_title || 'تحديث جديد متاح' }}
+          INPUT_UPDATE_MESSAGE: ${{ github.event.inputs.update_message || 'يوجد إصدار جديد من التطبيق' }}
+          INPUT_UPDATE_NOTES: ${{ github.event.inputs.update_release_notes || '' }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG_NAME="$INPUT_RELEASE_TAG"
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          if ! printf '%s' "$TAG_NAME" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$'; then
+            echo "Invalid release tag: $TAG_NAME"
+            exit 1
+          fi
+
+          APK_NAME="sila-${TAG_NAME}.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "$APK_NAME"
+
+          FORCE_UPDATE="$INPUT_FORCE_UPDATE"
+          UPDATE_TITLE="$INPUT_UPDATE_TITLE"
+          UPDATE_MESSAGE="$INPUT_UPDATE_MESSAGE"
+          UPDATE_NOTES="$INPUT_UPDATE_NOTES"
+
+          APK_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${APK_NAME}"
+
+          echo "apk_name=${APK_NAME}" >> "$GITHUB_OUTPUT"
+          echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "apk_url=${APK_URL}" >> "$GITHUB_OUTPUT"
+          echo "force_update=${FORCE_UPDATE}" >> "$GITHUB_OUTPUT"
+          echo "update_title=${UPDATE_TITLE}" >> "$GITHUB_OUTPUT"
+          echo "update_message=${UPDATE_MESSAGE}" >> "$GITHUB_OUTPUT"
+          echo "update_notes=${UPDATE_NOTES}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk
+          path: ${{ steps.release_meta.outputs.apk_name }}
+
+      - name: Create GitHub release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.tag_name || github.ref_name }}
+          name: Sila ${{ steps.release_meta.outputs.tag_name || github.ref_name }}
+          generate_release_notes: true
+          files: ${{ steps.release_meta.outputs.apk_name }}
+
+      - name: Auth with Google Cloud
+        if: ${{ env.FIREBASE_PROJECT_ID != '' && secrets.FIREBASE_SERVICE_ACCOUNT_JSON != '' }}
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          token_format: access_token
+
+      - name: Update Firebase Remote Config
+        if: ${{ env.FIREBASE_PROJECT_ID != '' && secrets.FIREBASE_SERVICE_ACCOUNT_JSON != '' }}
+        env:
+          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          VERSION_CODE: ${{ steps.app_version.outputs.version_code }}
+          FORCE_UPDATE: ${{ steps.release_meta.outputs.force_update }}
+          APK_URL: ${{ steps.release_meta.outputs.apk_url }}
+          UPDATE_TITLE: ${{ steps.release_meta.outputs.update_title }}
+          UPDATE_MESSAGE: ${{ steps.release_meta.outputs.update_message }}
+          UPDATE_NOTES: ${{ steps.release_meta.outputs.update_notes }}
+        run: |
+          set -euo pipefail
+
+          RC_ENDPOINT="https://firebaseremoteconfig.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/remoteConfig"
+
+          curl -sS --fail-with-body -D rc_headers.txt \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            "$RC_ENDPOINT" -o rc_template.json
+
+          ETAG=$(grep -i '^etag:' rc_headers.txt | awk '{print $2}' | tr -d '\r')
+          if [ -z "$ETAG" ]; then
+            ETAG="*"
+          fi
+
+          jq \
+            --arg version "$VERSION_CODE" \
+            --arg force "$FORCE_UPDATE" \
+            --arg apk "$APK_URL" \
+            --arg title "$UPDATE_TITLE" \
+            --arg message "$UPDATE_MESSAGE" \
+            --arg notes "$UPDATE_NOTES" \
+            '
+            .parameters = (.parameters // {}) |
+            .parameters.latest_version = ((.parameters.latest_version // {}) + {defaultValue: {value: $version}}) |
+            .parameters.force_update = ((.parameters.force_update // {}) + {defaultValue: {value: $force}}) |
+            .parameters.apk_url = ((.parameters.apk_url // {}) + {defaultValue: {value: $apk}}) |
+            .parameters.update_title = ((.parameters.update_title // {}) + {defaultValue: {value: $title}}) |
+            .parameters.update_message = ((.parameters.update_message // {}) + {defaultValue: {value: $message}}) |
+            .parameters.update_release_notes = ((.parameters.update_release_notes // {}) + {defaultValue: {value: $notes}})
+            ' rc_template.json > rc_updated.json
+
+          curl -sS -X PUT "$RC_ENDPOINT" \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            -H "Content-Type: application/json; charset=UTF-8" \
+            -H "If-Match: ${ETAG}" \
+            --data-binary @rc_updated.json
+
+      - name: Send update notification
+        if: ${{ env.UPDATE_FUNCTION_URL != '' }}
+        env:
+          VERSION_CODE: ${{ steps.app_version.outputs.version_code }}
+          UPDATE_TITLE: ${{ steps.release_meta.outputs.update_title }}
+          UPDATE_MESSAGE: ${{ steps.release_meta.outputs.update_message }}
+          APK_URL: ${{ steps.release_meta.outputs.apk_url }}
+          UPDATE_NOTES: ${{ steps.release_meta.outputs.update_notes }}
+        run: |
+          set -euo pipefail
+
+          jq -n \
+            --arg version "$VERSION_CODE" \
+            --arg title "$UPDATE_TITLE" \
+            --arg message "$UPDATE_MESSAGE" \
+            --arg apk_url "$APK_URL" \
+            --arg release_notes "$UPDATE_NOTES" \
+            '{version: ($version|tonumber), title: $title, message: $message, apk_url: $apk_url, release_notes: $release_notes}' \
+            > notification_payload.json
+
+          if [ -n "${UPDATE_FUNCTION_TOKEN}" ]; then
+            curl -sS -X POST "$UPDATE_FUNCTION_URL" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${UPDATE_FUNCTION_TOKEN}" \
+              --data-binary @notification_payload.json
+          else
+            curl -sS -X POST "$UPDATE_FUNCTION_URL" \
+              -H "Content-Type: application/json" \
+              --data-binary @notification_payload.json
+          fi

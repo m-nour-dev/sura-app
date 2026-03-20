@@ -45,3 +45,7 @@ app.*.map.json
 /android/app/release
 android/build/
 android/app/build/
+
+# Firebase config (keep local / CI secret only)
+android/app/google-services*.json
+!android/app/google-services.example.json
