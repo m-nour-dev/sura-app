@@ -168,6 +168,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
 
   Future<void> _startDownload() async {
     await widget.analyticsService.logUpdateAccepted();
+    if (!mounted) return;
 
     setState(() {
       _isDownloading = true;
