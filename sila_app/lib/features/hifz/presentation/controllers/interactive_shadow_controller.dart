@@ -565,11 +565,13 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       accuracy: accuracy,
     );
 
-    await ref.read(analyticsServiceProvider).logHifzSessionComplete(
-          ayahsCount: _sessionRows.length,
-          accuracy: accuracy,
-          hasanat: state.sessionHashanat,
-        );
+    unawaited(
+      ref.read(analyticsServiceProvider).logHifzSessionComplete(
+            ayahsCount: _sessionRows.length,
+            accuracy: accuracy,
+            hasanat: state.sessionHashanat,
+          ).catchError((_) {}),
+    );
   }
 
   bool _isParticle(String word) {
