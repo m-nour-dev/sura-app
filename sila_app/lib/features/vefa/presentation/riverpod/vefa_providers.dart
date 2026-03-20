@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/features/vefa/data/datasources/vefa_local_data_source.dart';
 import 'package:sila_app/features/vefa/data/repositories/vefa_repository_impl.dart';
@@ -55,16 +56,19 @@ class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
   final AddVefaPersonUseCase _addVefaPerson;
   final DeleteVefaPersonUseCase _deleteVefaPerson;
   final GiftThawabUseCase _giftThawab;
+  final Ref _ref;
 
   VefaListController({
     required GetVefaListUseCase getVefaList,
     required AddVefaPersonUseCase addVefaPerson,
     required DeleteVefaPersonUseCase deleteVefaPerson,
     required GiftThawabUseCase giftThawab,
+    required Ref ref,
   })  : _getVefaList = getVefaList,
         _addVefaPerson = addVefaPerson,
         _deleteVefaPerson = deleteVefaPerson,
         _giftThawab = giftThawab,
+        _ref = ref,
         super(const AsyncValue.loading()) {
     loadVefaList();
   }
@@ -82,7 +86,10 @@ class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
     final result = await _addVefaPerson(person);
     result.fold(
       (failure) => null, // Handle error
-      (id) => loadVefaList(),
+      (id) {
+        _ref.read(analyticsServiceProvider).logVefaPersonAdd();
+        loadVefaList();
+      },
     );
   }
 
@@ -98,7 +105,10 @@ class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
     final result = await _giftThawab(id);
     result.fold(
       (failure) => null,
-      (_) => loadVefaList(),
+      (_) {
+        _ref.read(analyticsServiceProvider).logVefaDuaSend(personCount: 1);
+        loadVefaList();
+      },
     );
   }
 }
@@ -109,16 +119,17 @@ final vefaListControllerProvider =
   
   // Wait for Isar to be ready
   if (isarAsync.isLoading) {
-    return VefaListController(
-       getVefaList: ref.watch(getVefaListUseCaseProvider), // This will fail if simple provider, but we need to handle dependency properly. 
+     return VefaListController(
+        getVefaList: ref.watch(getVefaListUseCaseProvider), // This will fail if simple provider, but we need to handle dependency properly. 
        // Actually simpler approach: Check Isar state in UI or use `AsyncNotifier`.
        // For now, let's keep it simple. If isar is loading, we can't create the controller properly if dataSource throws.
        // Better approach: have the repository return Left(Failure) if DB not ready?
        // Or just let Riverpod handle the async dependency.
-       addVefaPerson: ref.watch(addVefaPersonUseCaseProvider),
-       deleteVefaPerson: ref.watch(deleteVefaPersonUseCaseProvider),
-       giftThawab: ref.watch(giftThawabUseCaseProvider),
-    );
+        addVefaPerson: ref.watch(addVefaPersonUseCaseProvider),
+        deleteVefaPerson: ref.watch(deleteVefaPersonUseCaseProvider),
+        giftThawab: ref.watch(giftThawabUseCaseProvider),
+        ref: ref,
+     );
   }
   
   return VefaListController(
@@ -126,5 +137,6 @@ final vefaListControllerProvider =
     addVefaPerson: ref.watch(addVefaPersonUseCaseProvider),
     deleteVefaPerson: ref.watch(deleteVefaPersonUseCaseProvider),
     giftThawab: ref.watch(giftThawabUseCaseProvider),
+    ref: ref,
   );
 });

@@ -152,7 +152,11 @@ class SurahDetailPage extends ConsumerWidget {
                                           } else {
                                             ref.read(playingAyahIdProvider.notifier).setPlaying(ayah.number);
                                             final audioController = ref.read(audioControllerProvider.notifier);
-                                            await audioController.playAudio(ayah.audioUrl!);
+                                            await audioController.playAudio(
+                                              ayah.audioUrl!,
+                                              surahName: surahName,
+                                              ayahNumber: ayah.number,
+                                            );
                                           }
                                         } catch (e) {
                                           ref.read(playingAyahIdProvider.notifier).setPlaying(null);

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 import 'package:sila_app/features/wird/data/datasources/wird_service.dart';
 import 'package:sila_app/features/wird/data/models/wird_settings.dart';
@@ -46,8 +47,9 @@ class WirdState {
 // Controller
 class WirdController extends StateNotifier<AsyncValue<WirdState>> {
   final WirdService _service;
+  final Ref _ref;
 
-  WirdController(this._service) : super(const AsyncValue.loading()) {
+  WirdController(this._service, this._ref) : super(const AsyncValue.loading()) {
     _loadSettings();
   }
 
@@ -116,6 +118,7 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
   Future<void> updateCurrentPage(int page) async {
     if (state.value?.currentPage != page) {
       await _service.updateCurrentPage(page);
+      _ref.read(analyticsServiceProvider).logWirdPageRead(pageNumber: page);
       await _loadSettings();
     }
   }
@@ -127,6 +130,9 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
 
   Future<void> completeWird(int startPage, int endPage) async {
     await _service.completeDailyWird(startPage, endPage);
+    if (endPage >= 604) {
+      _ref.read(analyticsServiceProvider).logWirdKhatmaComplete();
+    }
     await _loadSettings();
   }
 
@@ -144,5 +150,5 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
 // Global Provider
 final wirdControllerProvider = StateNotifierProvider<WirdController, AsyncValue<WirdState>>((ref) {
   final service = ref.watch(wirdServiceProvider);
-  return WirdController(service);
+  return WirdController(service, ref);
 });

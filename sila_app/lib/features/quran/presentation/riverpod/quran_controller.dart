@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/quran/data/datasources/quran_local_data_source.dart';
 import 'package:sila_app/features/quran/data/repositories/quran_repository_impl.dart';
 import 'package:sila_app/features/quran/domain/entities/surah.dart';
@@ -58,10 +59,16 @@ class SurahDetailController extends _$SurahDetailController {
   FutureOr<Surah> build(int surahNumber) async {
     final getSurahDetailUseCase = ref.watch(getSurahDetailProvider);
     final result = await getSurahDetailUseCase(surahNumber);
-    
+
     return result.fold(
       (failure) => throw failure,
-      (surah) => surah,
+      (surah) {
+        ref.read(analyticsServiceProvider).logQuranSurahOpen(
+              surahName: surah.nameArabic,
+              surahNumber: surah.number,
+            );
+        return surah;
+      },
     );
   }
 }

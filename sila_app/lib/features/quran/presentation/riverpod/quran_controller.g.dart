@@ -84,7 +84,7 @@ final quranControllerProvider =
 
 typedef _$QuranController = AutoDisposeAsyncNotifier<List<Surah>>;
 String _$surahDetailControllerHash() =>
-    r'a36aa33378aed1c967dbcbb4708b20daa30c9701';
+    r'dc732759c8f7fde80d02715fe4f0e93687c293ee';
 
 /// Copied from Dart SDK
 class _SystemHash {

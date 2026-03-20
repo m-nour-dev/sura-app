@@ -1,5 +1,6 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sila_app/core/services/analytics_service.dart';
 
 part 'audio_controller.g.dart';
 
@@ -25,7 +26,11 @@ class AudioController extends _$AudioController {
     return _singleton.player;
   }
 
-  Future<void> playAudio(String url) async {
+  Future<void> playAudio(
+    String url, {
+    String? surahName,
+    int? ayahNumber,
+  }) async {
     // THIS is the critical fix - use singleton's isLoading flag
     // This ensures that even if riverpod creates multiple controller instances,
     // they all share the same loading state
@@ -56,7 +61,14 @@ class AudioController extends _$AudioController {
       await _singleton.player.setUrl(url);
       
       print("✅ Audio loaded successfully");
-      
+
+      if (surahName != null && ayahNumber != null) {
+        await ref.read(analyticsServiceProvider).logPlayAudio(
+              surahName: surahName,
+              ayahNumber: ayahNumber,
+            );
+      }
+
       // Start playback
       await _singleton.player.play();
       
