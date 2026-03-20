@@ -24,41 +24,51 @@ class NotificationService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+    try {
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const iosSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
-    await _notifications.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: _onNotificationTap,
-    );
+      await _notifications.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: _onNotificationTap,
+      );
 
-    await FirebaseMessaging.instance.requestPermission();
-    await FirebaseMessaging.instance.subscribeToTopic('all_users');
-    await FirebaseMessaging.instance.subscribeToTopic('updates');
+      await FirebaseMessaging.instance.requestPermission();
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.data['type'] == 'update') {
-        _showUpdateNotification(message);
+      try {
+        await FirebaseMessaging.instance.subscribeToTopic('all_users');
+        await FirebaseMessaging.instance.subscribeToTopic('updates');
+      } catch (e) {
+        debugPrint('FCM topic subscription failed: $e');
       }
-    });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      if (message.data['type'] == 'update') {
-        _showUpdateNotification(message);
-      }
-    });
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        if (message.data['type'] == 'update') {
+          _showUpdateNotification(message);
+        }
+      });
 
-    await _createNotificationChannel();
-    _initialized = true;
-    print('NotificationService: Initialized');
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        if (message.data['type'] == 'update') {
+          _showUpdateNotification(message);
+        }
+      });
+
+      await _createNotificationChannel();
+      _initialized = true;
+      debugPrint('NotificationService: Initialized');
+    } catch (e) {
+      debugPrint('NotificationService initialization error: $e');
+      _initialized = true;
+    }
   }
 
   void setNavigatorKey(GlobalKey<NavigatorState> navigatorKey) {
