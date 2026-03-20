@@ -73,20 +73,32 @@ jobs:
 
       - name: Prepare release file and metadata
         id: release_meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+          INPUT_FORCE_UPDATE: ${{ github.event.inputs.force_update || 'false' }}
+          INPUT_UPDATE_TITLE: ${{ github.event.inputs.update_title || 'تحديث جديد متاح' }}
+          INPUT_UPDATE_MESSAGE: ${{ github.event.inputs.update_message || 'يوجد إصدار جديد من التطبيق' }}
+          INPUT_UPDATE_NOTES: ${{ github.event.inputs.update_release_notes || '' }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            TAG_NAME="${{ github.event.inputs.release_tag }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG_NAME="$INPUT_RELEASE_TAG"
           else
             TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          if ! printf '%s' "$TAG_NAME" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$'; then
+            echo "Invalid release tag: $TAG_NAME"
+            exit 1
           fi
 
           APK_NAME="sila-${TAG_NAME}.apk"
           cp build/app/outputs/flutter-apk/app-release.apk "$APK_NAME"
 
-          FORCE_UPDATE="${{ github.event.inputs.force_update || 'false' }}"
-          UPDATE_TITLE="${{ github.event.inputs.update_title || 'تحديث جديد متاح' }}"
-          UPDATE_MESSAGE="${{ github.event.inputs.update_message || 'يوجد إصدار جديد من التطبيق' }}"
-          UPDATE_NOTES="${{ github.event.inputs.update_release_notes || '' }}"
+          FORCE_UPDATE="$INPUT_FORCE_UPDATE"
+          UPDATE_TITLE="$INPUT_UPDATE_TITLE"
+          UPDATE_MESSAGE="$INPUT_UPDATE_MESSAGE"
+          UPDATE_NOTES="$INPUT_UPDATE_NOTES"
 
           APK_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG_NAME}/${APK_NAME}"
 
@@ -163,7 +175,7 @@ jobs:
 
           curl -sS -X PUT "$RC_ENDPOINT" \
             -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-            -H "Content-Type: application/json; UTF-8" \
+            -H "Content-Type: application/json; charset=UTF-8" \
             -H "If-Match: ${ETAG}" \
             --data-binary @rc_updated.json
 
