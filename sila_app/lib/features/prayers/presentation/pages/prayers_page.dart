@@ -35,7 +35,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
     super.initState();
     _startTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_screenLogged) return;
+      if (!mounted || _screenLogged) return;
       _screenLogged = true;
       ref.read(analyticsServiceProvider).logScreenPrayers();
     });
