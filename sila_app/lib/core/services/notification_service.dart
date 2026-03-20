@@ -278,7 +278,7 @@ class NotificationService {
 
     final result = UpdateCheckResult(
       hasUpdate: true,
-      isForced: false,
+      isForced: remoteConfig.forceUpdate,
       latestVersion: version,
       apkUrl: apkUrl,
       title: message.notification?.title ?? 'تحديث جديد متاح',
