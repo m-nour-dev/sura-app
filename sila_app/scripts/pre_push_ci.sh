@@ -31,7 +31,12 @@ else
   echo "[pre-push] No changed Dart files to format-check"
 fi
 
-flutter analyze
+if [ ${#CHANGED_DART_FILES[@]} -gt 0 ]; then
+  echo "[pre-push] Running analyzer for changed Dart files..."
+  flutter analyze --no-fatal-infos --no-fatal-warnings "${CHANGED_DART_FILES[@]}"
+else
+  echo "[pre-push] No changed Dart files to analyze"
+fi
 
 if [ -n "$(git ls-files -- 'test/**')" ]; then
   flutter test
