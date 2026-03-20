@@ -33,7 +33,11 @@ flutter pub get
 
 if [ ${#CHANGED_DART_FILES[@]} -gt 0 ]; then
   echo "[pre-push] Checking formatting for changed Dart files..."
-  dart format --output=none --set-exit-if-changed "${CHANGED_DART_FILES[@]}"
+  dart format --output=none "${CHANGED_DART_FILES[@]}"
+  if ! git diff --quiet -- "${CHANGED_DART_FILES[@]}"; then
+    echo "[pre-push] Formatting changes were applied. Commit them before pushing."
+    exit 1
+  fi
 else
   echo "[pre-push] No changed Dart files to format-check"
 fi
