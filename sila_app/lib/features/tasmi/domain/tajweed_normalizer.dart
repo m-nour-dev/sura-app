@@ -8,19 +8,11 @@ class TajweedNormalizer {
   static String normalize(String text) {
     String result = text;
 
-    result = result.replaceAll(RegExp(r'[\u064B-\u065F\u0670]'), '');
+    result = result.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0640]'), '');
     result = result.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
     result = result.replaceAll('ة', 'ه');
-    result = result.replaceAll('ى', 'ي');
     result = result.replaceAll('ؤ', 'و');
     result = result.replaceAll('ئ', 'ي');
-
-    result = result.replaceAll('ص', 'س');
-    result = result.replaceAll('ض', 'د');
-    result = result.replaceAll('ط', 'ت');
-    result = result.replaceAll('ظ', 'ز');
-    result = result.replaceAll('ث', 'س');
-    result = result.replaceAll('ذ', 'ز');
 
     result = result.replaceAll('اا', 'ا');
 
@@ -46,15 +38,15 @@ class TajweedNormalizer {
     final similarityScore = _similarity(normalizedSpoken, normalizedExpected);
 
     final correctThreshold = switch (strictness) {
-      StrictnessLevel.easy => 0.65,
-      StrictnessLevel.medium => 0.75,
-      StrictnessLevel.strict => 0.90,
+      StrictnessLevel.easy => 0.90,
+      StrictnessLevel.medium => 0.95,
+      StrictnessLevel.strict => 0.98,
     };
 
     final closeThreshold = switch (strictness) {
-      StrictnessLevel.easy => 0.45,
-      StrictnessLevel.medium => 0.55,
-      StrictnessLevel.strict => 0.70,
+      StrictnessLevel.easy => 0.70,
+      StrictnessLevel.medium => 0.75,
+      StrictnessLevel.strict => 0.85,
     };
 
     if (strictness == StrictnessLevel.easy && similarityScore >= closeThreshold) {
