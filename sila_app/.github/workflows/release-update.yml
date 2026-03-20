@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: Existing tag to release (example: v2.0.0)
+        description: 'Existing tag to release (example: v2.0.0)'
         required: true
         default: 'v1.0.0'
       force_update:
@@ -43,6 +43,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -63,8 +65,19 @@ jobs:
         id: app_version
         run: |
           VERSION_LINE=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | sed -n '1p')
+          if [ -z "$VERSION_LINE" ]; then
+            echo "Invalid pubspec.yaml: missing version field"
+            exit 1
+          fi
+
           VERSION_NAME=${VERSION_LINE%%+*}
           VERSION_CODE=${VERSION_LINE##*+}
+
+          if [ "$VERSION_CODE" = "$VERSION_LINE" ] || ! printf '%s' "$VERSION_CODE" | grep -Eq '^[0-9]+$'; then
+            echo "Invalid pubspec.yaml version: expected x.y.z+N with numeric build number, got '$VERSION_LINE'"
+            exit 1
+          fi
+
           echo "version_name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
           echo "version_code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
 
@@ -147,7 +160,7 @@ jobs:
 
           RC_ENDPOINT="https://firebaseremoteconfig.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/remoteConfig"
 
-          curl -sS -D rc_headers.txt \
+          curl -sS --fail-with-body -D rc_headers.txt \
             -H "Authorization: Bearer ${ACCESS_TOKEN}" \
             "$RC_ENDPOINT" -o rc_template.json
 

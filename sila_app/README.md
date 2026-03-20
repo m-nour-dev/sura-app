@@ -33,20 +33,20 @@ flutter test
 
 قد تظهر نتائج `analyze` على شكل ملاحظات lint/deprecations في بعض الملفات. هذه لا تمنع تشغيل التطبيق لكنها تحتاج تحسين تدريجي.
 
-## GitHub Actions (تحديثات أوتوماتيك)
+## GitHub Actions (تحديثات تلقائيًا)
 
 تمت إضافة workflowين:
 
 - `.github/workflows/ci.yml`
   - يعمل على `push` و `pull_request`
-  - يشغل: `flutter pub get` + `dart format` + `flutter analyze` + `flutter test` (لو مجلد `test` موجود)
+  - يشغل: `flutter pub get` + `dart format` + `flutter analyze`؛ يشغل `flutter test` فقط إذا كان هناك ملفات اختبار في `test/**` (CI uses `hashFiles('test/**') != ''`)
 
 - `.github/workflows/release-update.yml`
-  - يعمل تلقائيا عند عمل tag مثل `v2.0.0`
+  - يعمل تلقائيًا عند عمل tag مثل `v2.0.0`
   - يبني `APK` release
   - ينشئ GitHub Release ويرفع ملف APK
-  - يحدث Firebase Remote Config تلقائيا (`latest_version`, `apk_url`, `force_update`, `update_title`, `update_message`, `update_release_notes`)
-  - يرسل notification للتحديث (اختياري) عبر Cloud Function
+  - يحدث Firebase Remote Config تلقائيًا (`latest_version`, `apk_url`, `force_update`, `update_title`, `update_message`, `update_release_notes`)
+  - يرسل إشعارًا للتحديث (اختياري) عبر Cloud Function
 
 ### Secrets المطلوبة في GitHub
 
@@ -65,7 +65,7 @@ git tag v2.0.0
 git push origin v2.0.0
 ```
 
-بعدها GitHub Actions سيتولى كل شيء تلقائيا.
+بعدها GitHub Actions سيتولى كل شيء تلقائيًا.
 
 ### Local gate قبل أي push
 
@@ -78,11 +78,11 @@ git push origin v2.0.0
 bash scripts/setup_git_hooks.sh
 ```
 
-بعد التثبيت، كل `git push` سيشغل تلقائيا:
+بعد التثبيت، كل `git push` سيشغل تلقائيًا:
 
 - `flutter pub get`
 - `dart format --set-exit-if-changed`
 - `flutter analyze`
 - `flutter test` (لو فيه اختبارات)
 
-ولو أي خطوة فشلت، push يتوقف تلقائيا.
+ولو أي خطوة فشلت، push يتوقف تلقائيًا.
