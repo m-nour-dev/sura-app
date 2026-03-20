@@ -14,10 +14,21 @@ cd "$APP_DIR"
 echo "[pre-push] Running local CI checks..."
 flutter pub get
 
-if [ -d test ]; then
-  dart format --output=none --set-exit-if-changed lib test
+UPSTREAM_REF="$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream} 2>/dev/null || true)"
+if [ -n "$UPSTREAM_REF" ]; then
+  BASE_SHA="$(git merge-base HEAD "$UPSTREAM_REF")"
+  DIFF_RANGE="$BASE_SHA..HEAD"
 else
-  dart format --output=none --set-exit-if-changed lib
+  DIFF_RANGE="HEAD"
+fi
+
+mapfile -t CHANGED_DART_FILES < <(git diff --name-only --diff-filter=ACMRT $DIFF_RANGE -- '*.dart')
+
+if [ ${#CHANGED_DART_FILES[@]} -gt 0 ]; then
+  echo "[pre-push] Checking formatting for changed Dart files..."
+  dart format --output=none --set-exit-if-changed "${CHANGED_DART_FILES[@]}"
+else
+  echo "[pre-push] No changed Dart files to format-check"
 fi
 
 flutter analyze
