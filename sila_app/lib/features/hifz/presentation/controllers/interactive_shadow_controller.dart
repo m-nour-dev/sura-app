@@ -184,10 +184,12 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     required int fromVerse,
     required int toVerse,
   }) async {
-    await ref.read(analyticsServiceProvider).logHifzSessionStart(
-          surahName: quran.getSurahNameArabic(surahNumber),
-          method: 'interactive_shadow',
-        );
+    unawaited(
+      ref.read(analyticsServiceProvider).logHifzSessionStart(
+            surahName: quran.getSurahNameArabic(surahNumber),
+            method: 'interactive_shadow',
+          ).catchError((_) {}),
+    );
 
     state = state.copyWith(
       surahNumber: surahNumber,
