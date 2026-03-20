@@ -157,7 +157,7 @@ class HifzOnboardingController extends _$HifzOnboardingController {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_onboardingDoneKey, true);
 
-      await ref.read(analyticsServiceProvider).logHifzOnboardingComplete();
+      unawaited(ref.read(analyticsServiceProvider).logHifzOnboardingComplete());
 
       state = state.copyWith(isSaving: false, onboardingDone: true);
     } catch (_) {
