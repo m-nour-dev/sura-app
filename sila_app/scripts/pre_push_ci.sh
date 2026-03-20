@@ -14,7 +14,14 @@ if [ -n "$UPSTREAM_REF" ]; then
   BASE_SHA="$(git merge-base HEAD "$UPSTREAM_REF")"
   DIFF_RANGE="$BASE_SHA..HEAD"
 else
-  DIFF_RANGE="HEAD"
+  DEFAULT_REMOTE_BASE="$(git -C "$REPO_ROOT" symbolic-ref -q --short refs/remotes/origin/HEAD || true)"
+  if [ -n "$DEFAULT_REMOTE_BASE" ]; then
+    BASE_SHA="$(git merge-base HEAD "$DEFAULT_REMOTE_BASE")"
+    DIFF_RANGE="$BASE_SHA..HEAD"
+  else
+    EMPTY_TREE_SHA="$(git hash-object -t tree /dev/null)"
+    DIFF_RANGE="$EMPTY_TREE_SHA..HEAD"
+  fi
 fi
 
 mapfile -t RAW_CHANGED_DART_FILES < <(git -C "$REPO_ROOT" diff --name-only --diff-filter=ACMRT $DIFF_RANGE -- '*.dart')
