@@ -27,4 +27,5 @@ class NotificationIds {
   static const int fridaySalawatA = 117;
   static const int fridaySalawatB = 118;
   static const int fridayResponseHour = 119;
+  static const int dailyReport = 120;
 }

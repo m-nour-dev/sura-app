@@ -24,6 +24,22 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hijriDate = HijriCalendar.now();
+    const months = [
+      'محرم',
+      'صفر',
+      'ربيع الأول',
+      'ربيع الآخر',
+      'جمادى الأولى',
+      'جمادى الآخرة',
+      'رجب',
+      'شعبان',
+      'رمضان',
+      'شوال',
+      'ذو القعدة',
+      'ذو الحجة',
+    ];
+    final month = months[(hijriDate.hMonth - 1).clamp(0, 11)];
+    final arabicHijri = '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
 
     return Container(
       decoration: const BoxDecoration(
@@ -99,7 +115,7 @@ class HomeHeader extends StatelessWidget {
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
                 child: Text(
-                  hijriDate.toFormat('dd MMMM yyyy'),
+                  arabicHijri,
                   style: GoogleFonts.getFont(
                     'Cairo',
                     fontSize: 12,

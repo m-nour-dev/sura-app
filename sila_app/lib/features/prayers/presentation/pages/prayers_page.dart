@@ -5,14 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
+import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/features/ibadah_tracker/presentation/pages/ibadah_tracker_tab.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayer_settings_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
+import 'package:sila_app/features/notifications/presentation/pages/settings/salah_notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 
 class PrayersPage extends ConsumerStatefulWidget {
-  const PrayersPage({super.key});
+  const PrayersPage({super.key, this.initialTabIndex = 0});
+
+  final int initialTabIndex;
 
   @override
   ConsumerState<PrayersPage> createState() => _PrayersPageState();
@@ -71,9 +76,27 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFFD97706);
 
-    return Scaffold(
-      backgroundColor: bg,
-      body: prayerState.when(
+    return DefaultTabController(
+      initialIndex: widget.initialTabIndex.clamp(0, 1),
+      length: 2,
+      child: Scaffold(
+        backgroundColor: bg,
+        appBar: AppBar(
+          toolbarHeight: 0,
+          bottom: TabBar(
+            tabs: const [
+              Tab(text: 'مواقيت الصلاة'),
+              Tab(text: 'متابعتي'),
+            ],
+            labelStyle: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700),
+            indicatorColor: const Color(0xFFD97706),
+            labelColor: const Color(0xFF064E3B),
+            unselectedLabelColor: txtS,
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            prayerState.when(
         data: (entity) {
           final now = DateTime.now();
 
@@ -159,12 +182,41 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                 Row(
                                   children: [
                                     const StreakBadge(featureKey: 'salah'),
-                                    const SizedBox(width: 8),
-                                    GestureDetector(
-                                      onTap: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (_) => const PrayerSettingsPage()),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => Navigator.push(
+                                  context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const SalahNotificationSettings(),
+                                        ),
                                       ),
+                                      child: Container(
+                                        width: 38,
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.notifications_active_rounded,
+                                          color: Colors.white70,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                              GestureDetector(
+                                onLongPress: () async {
+                                  final pending = await NotificationService().getPendingNotifications();
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Pending: ${pending.length}')),
+                                  );
+                                },
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const PrayerSettingsPage()),
+                                ),
                                       child: Container(
                                         width: 38,
                                         height: 38,
@@ -374,11 +426,13 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
               ),
             ],
           );
-        },
-        error: (e, _) => Center(
-          child: Text('Error: $e', style: TextStyle(color: txtP)),
+            },
+            error: (e, _) => Center(child: Text('Error: $e', style: TextStyle(color: txtP))),
+            loading: () => const Center(child: CircularProgressIndicator(color: primaryColor)),
+            ),
+            const IbadahTrackerTab(),
+          ],
         ),
-        loading: () => const Center(child: CircularProgressIndicator(color: primaryColor)),
       ),
     );
   }
