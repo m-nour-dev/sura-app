@@ -832,7 +832,7 @@ class _SessionResultsViewState extends State<_SessionResultsView> {
     final ayahCount = _toArabicIndic(widget.state.toVerse - widget.state.fromVerse + 1);
     final minutes = _toArabicIndic((widget.state.stageResults.values.fold<int>(0, (sum, e) => sum + e.totalWords) / 12).ceil());
     return switch (1) {
-      0 => ('✦', 'أداء مميز', 'حفظت $ayahCount آيات في جلسة واحدة'),
+      0 => ('🔥', 'أنت وحش!', 'حفظت $ayahCount آيات في جلسة واحدة'),
       1 => ('🌟', 'أداء ممتاز', 'أنت في أفضل ١٥٪ من الحفاظ اليوم'),
       2 => ('✨', 'أحسنت', '$minutes دقيقة أوصلتك لهدفك اليوم'),
       3 => ('🤲', 'بارك الله فيك', 'كل حرف حفظته نور في الدنيا والآخرة'),

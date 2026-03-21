@@ -7,9 +7,8 @@ import 'package:sila_app/features/home/presentation/widgets/next_prayer_card.dar
 import 'package:sila_app/features/home/presentation/widgets/last_read_card.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
-import 'package:sila_app/features/notifications/presentation/pages/notification_hub_page.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_summary_card.dart';
 import 'package:sila_app/features/wird/presentation/widgets/wird_card.dart';
+import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends ConsumerWidget {
@@ -48,14 +47,8 @@ class HomePage extends ConsumerWidget {
             pinned: true,
             elevation: 0,
             backgroundColor: const Color(0xFF064E3B),
-            flexibleSpace: FlexibleSpaceBar(
-              background: HomeHeader(
-                onNotificationTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const NotificationHubPage()),
-                  );
-                },
-              ),
+            flexibleSpace: const FlexibleSpaceBar(
+              background: HomeHeader(),
             ),
           ),
 
@@ -145,11 +138,6 @@ class HomePage extends ConsumerWidget {
 
                 // ── Daily Content Card ──
                 const DailyContentCard(),
-
-                const SizedBox(height: 12),
-
-                // ── Streak Summary ──
-                const StreakSummaryCard(),
 
                 const SizedBox(height: 32),
               ]),

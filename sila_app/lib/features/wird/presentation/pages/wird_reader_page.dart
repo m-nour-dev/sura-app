@@ -10,9 +10,6 @@ import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/wird_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdReaderPage extends ConsumerStatefulWidget {
@@ -38,10 +35,6 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     super.initState();
     _currentPage = widget.startPage;
     _pageController = PageController(initialPage: widget.startPage - 1);
-    Future<void>.microtask(() async {
-      final tracker = await ref.read(streakTrackerProvider.future);
-      await tracker.logActivity('wird');
-    });
   }
 
   @override
@@ -164,18 +157,6 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                   )
                 );
               },
-            );
-          },
-        ),
-        IconButton(
-          icon: const StreakBadge(featureKey: 'wird'),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: Icon(Icons.notifications_active_rounded, color: iconColor),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const WirdNotificationSettings()),
             );
           },
         ),

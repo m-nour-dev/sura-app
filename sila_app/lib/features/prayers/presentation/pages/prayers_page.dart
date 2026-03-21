@@ -8,8 +8,7 @@ import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayer_settings_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
 
 class PrayersPage extends ConsumerStatefulWidget {
   const PrayersPage({super.key});
@@ -35,10 +34,6 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
   void initState() {
     super.initState();
     _startTimer();
-    Future<void>.microtask(() async {
-      final tracker = await ref.read(streakTrackerProvider.future);
-      await tracker.logActivity('salah');
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _screenLogged) return;
       _screenLogged = true;
@@ -156,30 +151,24 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                   ],
                                 ),
                                 // Settings icon
-                                Row(
-                                  children: [
-                                    const StreakBadge(featureKey: 'salah'),
-                                    const SizedBox(width: 8),
-                                    GestureDetector(
-                                      onTap: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (_) => const PrayerSettingsPage()),
-                                      ),
-                                      child: Container(
-                                        width: 38,
-                                        height: 38,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.settings_rounded,
-                                          color: Colors.white70,
-                                          size: 18,
-                                        ),
-                                      ),
+                                GestureDetector(
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const PrayerSettingsPage()),
+                                  ),
+                                  child: Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      shape: BoxShape.circle,
                                     ),
-                                  ],
+                                    child: const Icon(
+                                      Icons.settings_rounded,
+                                      color: Colors.white70,
+                                      size: 18,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
