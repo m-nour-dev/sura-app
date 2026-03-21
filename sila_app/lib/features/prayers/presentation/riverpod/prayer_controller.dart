@@ -1,8 +1,10 @@
 import 'package:adhan/adhan.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
+import 'package:sila_app/core/services/notification_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 
 part 'prayer_controller.g.dart';
 
@@ -16,7 +18,12 @@ class PrayerTimesController extends _$PrayerTimesController {
   @override
   FutureOr<PrayerTimesEntity> build() async {
     final repository = ref.watch(prayerRepositoryProvider);
+    await NotificationService().initialize();
+    await NotificationService().requestPermissions();
     final times = await repository.getPrayerTimes();
+
+    final repo = await ref.read(notificationRepositoryProvider.future);
+    await repo.seedInitialContentIfNeeded();
     
     // Automatically schedule adhans whenever times are refreshed
     try {

@@ -14,7 +14,12 @@ final isarServiceProvider = Provider<IsarService>((ref) {
 
 final isarInstanceProvider = FutureProvider<Isar>((ref) async {
   final service = ref.watch(isarServiceProvider);
-  return await service.db;
+  try {
+    return await service.db;
+  } catch (_) {
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    return await service.db;
+  }
 });
 
 // DataSource

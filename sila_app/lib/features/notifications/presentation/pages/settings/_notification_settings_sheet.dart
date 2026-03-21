@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/core/services/adhan_scheduler_service.dart';
+import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_settings_controller.dart';
 
 class NotificationSettingsSheet extends ConsumerWidget {
@@ -10,6 +15,23 @@ class NotificationSettingsSheet extends ConsumerWidget {
     super.key,
     required this.featureKey,
   });
+
+  Set<int> _featureNotificationIds(String key) {
+    switch (key) {
+      case 'salah':
+        return {1, 2, 3, 4, 5};
+      case 'azkar':
+        return {100, 101, 102, 103};
+      case 'wird':
+        return {104};
+      case 'hifz':
+        return {105, 106};
+      case 'tasbih':
+        return {107};
+      default:
+        return <int>{};
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -195,6 +217,100 @@ class NotificationSettingsSheet extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          try {
+                            await NotificationService().initialize();
+                            await NotificationService().requestPermissions();
+                            final settingsRepo = await ref.read(notificationRepositoryProvider.future);
+                            await settingsRepo.seedInitialContentIfNeeded();
+                            final repo = PrayerRepositoryImpl();
+                            final times = await repo.getPrayerTimes();
+                            await AdhanSchedulerService().scheduleAllPrayers(times);
+                            final pending = await NotificationService().getPendingNotifications();
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('تمت إعادة الجدولة بنجاح: ${pending.length} إشعار')), 
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('فشل إعادة الجدولة: $e')),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text('إعادة تفعيل الإشعارات الآن', style: GoogleFonts.getFont('Cairo')), 
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          try {
+                            await NotificationService().initialize();
+                            await NotificationService().requestPermissions();
+                            await NotificationService().scheduleDebugNotificationInSeconds(seconds: 15);
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('يجب أن يظهر إشعار فوري الآن، ثم إشعار بعد 15 ثانية')),
+                            );
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('فشل إشعار الاختبار: $e')),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.bug_report_rounded),
+                        label: Text('اختبار إشعار بعد 15 ثانية', style: GoogleFonts.getFont('Cairo')),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    FutureBuilder(
+                      future: NotificationService().getPendingNotifications(),
+                      builder: (context, snapshot) {
+                        final all = snapshot.data ?? const <PendingNotificationRequest>[];
+                        final ids = _featureNotificationIds(featureKey);
+                        final list = all.where((n) {
+                          if (ids.contains(n.id)) return true;
+                          final payload = n.payload ?? '';
+                          return payload.contains(featureKey);
+                        }).toList();
+                        final count = list.length;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'الإشعارات المجدولة لهذه العبادة: $count',
+                              style: GoogleFonts.getFont('Cairo', fontSize: 11, color: subtitle),
+                            ),
+                            const SizedBox(height: 4),
+                            if (list.isEmpty)
+                              Text(
+                                'لا توجد إشعارات مجدولة لهذه العبادة حاليًا',
+                                style: GoogleFonts.getFont('Cairo', fontSize: 10, color: subtitle),
+                              )
+                            else
+                              ...list.take(5).map(
+                                    (n) => Text(
+                                      '• ${n.id}: ${n.title}',
+                                      style: GoogleFonts.getFont('Cairo', fontSize: 10, color: subtitle),
+                                    ),
+                                  ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'الإجمالي على الجهاز: ${all.length}',
+                              style: GoogleFonts.getFont('Cairo', fontSize: 10, color: subtitle),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ]
                 ],
               ),
@@ -203,7 +319,29 @@ class NotificationSettingsSheet extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('تعذر تحميل الإعدادات')),
+      error: (e, __) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('تعذر تحميل الإعدادات'),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () => ref.invalidate(notificationSettingsProvider(featureKey)),
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text('إعادة المحاولة', style: GoogleFonts.getFont('Cairo')),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '$e',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.getFont('Cairo', fontSize: 10, color: const Color(0xFF94A3B8)),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

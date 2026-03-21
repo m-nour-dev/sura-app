@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 import 'package:sila_app/features/wird/data/datasources/wird_service.dart';
@@ -6,10 +7,9 @@ import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 import 'package:sila_app/features/wird/data/models/wird_history.dart';
 
 // Provider for WirdService
-final wirdServiceProvider = Provider<WirdService>((ref) {
-  final isarService = ref.watch(isarInstanceProvider).valueOrNull;
-  if (isarService == null) throw Exception('Isar not initialized');
-  return WirdService(isarService);
+final wirdServiceProvider = FutureProvider<WirdService>((ref) async {
+  final isar = await ref.watch(isarInstanceProvider.future);
+  return WirdService(isar);
 });
 
 // State class for the Wird
@@ -149,6 +149,32 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
 
 // Global Provider
 final wirdControllerProvider = StateNotifierProvider<WirdController, AsyncValue<WirdState>>((ref) {
-  final service = ref.watch(wirdServiceProvider);
-  return WirdController(service, ref);
+  final asyncService = ref.watch(wirdServiceProvider);
+  return asyncService.maybeWhen(
+    data: (service) => WirdController(service, ref),
+    orElse: () => WirdController(_FallbackWirdService(), ref),
+  );
 });
+
+class _FallbackWirdService implements WirdService {
+  @override
+  Future<void> completeDailyWird(int startPage, int endPage) async {}
+
+  @override
+  Future<List<WirdHistory>> getHistory() async => <WirdHistory>[];
+
+  @override
+  Future<WirdSettings> getSettings() async => WirdSettings();
+
+  @override
+  Future<void> updateBookmark(int page) async {}
+
+  @override
+  Future<void> updateCurrentPage(int page) async {}
+
+  @override
+  Future<void> updatePagesPerDay(int pagesPerDay) async {}
+
+  @override
+  Future<void> resetKhatma() async {}
+}

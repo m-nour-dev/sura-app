@@ -82,8 +82,7 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
 
   Future<void> _testAdhan() async {
     await _adhanSvc.testAdhan(_selectedSound);
-    _snack('جاري تشغيل الأذان...');
-    Future.delayed(const Duration(seconds: 30), _adhanSvc.stopAdhan);
+    _snack('جاري تشغيل الأذان... أوقفه من زر "إيقاف الأذان" في الإشعار');
   }
 
   void _snack(String msg) {

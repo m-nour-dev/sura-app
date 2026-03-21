@@ -275,36 +275,6 @@ class _Header extends StatelessWidget {
                       child: const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 16),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Center(
-                          child: Icon(Icons.notifications_none_rounded, color: Colors.white, size: 18),
-                        ),
-                        if (state.reviewDueCount > 0)
-                          Positioned(
-                            top: 3,
-                            left: 3,
-                            child: Container(
-                              width: 7,
-                              height: 7,
-                              decoration: const BoxDecoration(
-                                color: _errorColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
                   const Spacer(),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -329,24 +299,7 @@ class _Header extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withValues(alpha: 0.25),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: AppTheme.accentColor.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Text(
-                  '✦ ${_toArabicIndic(state.streakDays)} يوم متواصل',
-                  style: GoogleFonts.cairo(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFFCD34D),
-                  ),
-                ),
-              ),
+              const SizedBox.shrink(),
             ],
           ),
         ),

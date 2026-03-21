@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 
@@ -20,12 +21,29 @@ class NotificationSettingsController
   }
 
   Future<void> _load() async {
+    Object? lastError;
+    StackTrace? lastStack;
+
+    for (var i = 0; i < 3; i++) {
+      try {
+        final repo = await _ref.read(notificationRepositoryProvider.future);
+        final settings = await repo.getSettings(_featureKey);
+        state = AsyncValue.data(settings);
+        return;
+      } catch (e, st) {
+        lastError = e;
+        lastStack = st;
+        await Future<void>.delayed(Duration(milliseconds: 150 * (i + 1)));
+      }
+    }
+
+    debugPrint('Notification settings load failed for $_featureKey: $lastError');
+
     try {
-      final repo = await _ref.read(notificationRepositoryProvider.future);
-      final settings = await repo.getSettings(_featureKey);
-      state = AsyncValue.data(settings);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      final fallback = NotificationSettings()..featureKey = _featureKey;
+      state = AsyncValue.data(fallback);
+    } catch (_) {
+      state = AsyncValue.error(lastError ?? Exception('Settings load failed'), lastStack ?? StackTrace.current);
     }
   }
 

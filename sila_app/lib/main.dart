@@ -8,15 +8,20 @@ import 'package:sila_app/core/presentation/main_layout.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/services/timezone_service.dart';
-// Adhan services temporarily disabled
-// import 'package:sila_app/core/services/notification_service.dart';
-// import 'package:sila_app/core/services/adhan_scheduler_service.dart';
-// import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterError.onError = (FlutterErrorDetails details) {
+    final text = details.exceptionAsString();
+    if (text.contains('MdbxError (11)')) {
+      debugPrint('Ignored transient Isar lock: $text');
+      return;
+    }
+    FlutterError.presentError(details);
+  };
   await EasyLocalization.ensureInitialized();
   
   // Initialize timezone service for prayer time calculations
@@ -26,30 +31,19 @@ void main() async {
   await Firebase.initializeApp();
 
   NotificationService().setNavigatorKey(appNavigatorKey);
+  final notificationService = NotificationService();
+  try {
+    await notificationService.initialize();
+    await notificationService.requestPermissions();
+  } catch (error) {
+    debugPrint('NotificationService init/permission failed: $error');
+  }
+
   unawaited(
-    NotificationService().initialize().catchError((error, stackTrace) {
-      debugPrint('NotificationService init failed: $error');
-    }),
-  );
-  unawaited(
-    NotificationService().rescheduleAllOnBoot().catchError((error, stackTrace) {
+    notificationService.rescheduleAllOnBoot().catchError((error, stackTrace) {
       debugPrint('NotificationService reschedule failed: $error');
     }),
   );
-  
-  // Adhan notification initialization temporarily disabled
-  // final notificationService = NotificationService();
-  // await notificationService.initialize();
-  // await notificationService.requestPermissions();
-  // try {
-  //   final prayerRepo = PrayerRepositoryImpl();
-  //   final adhanScheduler = AdhanSchedulerService();
-  //   final prayerTimes = await prayerRepo.getPrayerTimes();
-  //   await adhanScheduler.scheduleAllPrayers(prayerTimes);
-  //   print('Initial Adhan scheduling completed');
-  // } catch (e) {
-  //   print('Error scheduling initial Adhan: $e');
-  // }
 
   runApp(
     ProviderScope(

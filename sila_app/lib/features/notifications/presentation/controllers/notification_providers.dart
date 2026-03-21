@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
 import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
@@ -11,7 +12,11 @@ final notificationRepositoryProvider = FutureProvider<INotificationRepository>((
 ) async {
   final isar = await ref.watch(isarInstanceProvider.future);
   final repo = IsarNotificationRepository(isar);
-  await repo.seedInitialContentIfNeeded();
+  try {
+    await repo.seedInitialContentIfNeeded();
+  } catch (e) {
+    debugPrint('Notification seed failed, continue without seed: $e');
+  }
   return repo;
 });
 
