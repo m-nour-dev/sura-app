@@ -3,12 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
 
 class HomeHeader extends StatelessWidget {
-  final VoidCallback? onNotificationTap;
-
-  const HomeHeader({
-    super.key,
-    this.onNotificationTap,
-  });
+  const HomeHeader({super.key});
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -66,25 +61,18 @@ class HomeHeader extends StatelessWidget {
                     ],
                   ),
                   // Bell Icon
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: onNotificationTap,
-                      borderRadius: BorderRadius.circular(999),
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.14),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
-                        ),
-                        child: const Icon(
-                          Icons.notifications_active_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    ),
+                    child: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Colors.white70,
+                      size: 20,
                     ),
                   ),
                 ],

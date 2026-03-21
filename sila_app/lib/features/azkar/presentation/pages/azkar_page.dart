@@ -6,30 +6,13 @@ import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/azkar/presentation/pages/tasbih_page.dart';
 import 'package:sila_app/features/azkar/presentation/pages/azkar_detail_page.dart';
 import 'package:sila_app/features/azkar/presentation/widgets/azkar_category_card.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/azkar_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/sunan_mahjoura/presentation/pages/sunan_list_page.dart';
 
-class AzkarPage extends ConsumerStatefulWidget {
+class AzkarPage extends ConsumerWidget {
   const AzkarPage({super.key});
 
   @override
-  ConsumerState<AzkarPage> createState() => _AzkarPageState();
-}
-
-class _AzkarPageState extends ConsumerState<AzkarPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future<void>.microtask(() async {
-      final tracker = await ref.read(streakTrackerProvider.future);
-      await tracker.logActivity('azkar');
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
 
@@ -37,20 +20,6 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
       backgroundColor: backgroundColor,
       appBar: SilaAppBar(
         title: 'azkar'.tr(),
-        actions: [
-          const Padding(
-            padding: EdgeInsets.only(top: 12, bottom: 12),
-            child: StreakBadge(featureKey: 'azkar'),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AzkarNotificationSettings()),
-              );
-            },
-            icon: const Icon(Icons.notifications_active_rounded, color: Colors.white),
-          ),
-        ],
       ),
       body: GridView.count(
         padding: const EdgeInsets.all(20),
