@@ -11,9 +11,11 @@ import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_correct
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_listening_indicator.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_page_header.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_stats_row.dart';
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
-class TasmiPage extends ConsumerWidget {
+class TasmiPage extends ConsumerStatefulWidget {
   final int surahNumber;
   final int fromAya;
   final int toAya;
@@ -26,15 +28,29 @@ class TasmiPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TasmiPage> createState() => _TasmiPageState();
+}
+
+class _TasmiPageState extends ConsumerState<TasmiPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.microtask(() async {
+      final tracker = await ref.read(streakTrackerProvider.future);
+      await tracker.logActivity('tasmi');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final prefs = ref.watch(tasmiPreferencesNotifierProvider);
     if (!prefs.isOnboardingDone) {
       return TasmiOnboardingPage(
         onDone: () {
           ref.read(tasmiControllerProvider.notifier).startSession(
-                surahNumber: surahNumber,
-                fromAya: fromAya,
-                toAya: toAya,
+                surahNumber: widget.surahNumber,
+                fromAya: widget.fromAya,
+                toAya: widget.toAya,
               );
         },
       );
@@ -53,14 +69,18 @@ class TasmiPage extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: bgColor,
         appBar: TasmiPageHeader(
-          surahName: 'سورة ${quran.getSurahNameArabic(surahNumber)}',
-          fromAya: fromAya,
-          toAya: toAya,
+          surahName: 'سورة ${quran.getSurahNameArabic(widget.surahNumber)}',
+          fromAya: widget.fromAya,
+          toAya: widget.toAya,
           isListening: state.status == TasmiStatus.listening,
         ),
         body: Column(
           children: [
             TasmiStatsRow(state: state),
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: StreakBadge(featureKey: 'tasmi'),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Row(
@@ -216,9 +236,9 @@ class TasmiPage extends ConsumerWidget {
             else
               TasmiActionButton(
                 state: state,
-                onStart: () => controller.startSession(surahNumber: surahNumber, fromAya: fromAya, toAya: toAya),
+                onStart: () => controller.startSession(surahNumber: widget.surahNumber, fromAya: widget.fromAya, toAya: widget.toAya),
                 onStop: controller.stopSession,
-                onRestart: () => controller.startSession(surahNumber: surahNumber, fromAya: fromAya, toAya: toAya),
+                onRestart: () => controller.startSession(surahNumber: widget.surahNumber, fromAya: widget.fromAya, toAya: widget.toAya),
                 onShowResults: () {
                   _showResultsBottomSheet(context, state, primaryColor, accentColor, isDark);
                 },

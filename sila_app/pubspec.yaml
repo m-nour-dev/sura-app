@@ -46,6 +46,7 @@ dependencies:
   flutter_compass: ^0.8.1
   hijri: ^3.0.0
   permission_handler: ^12.0.1
+  http: ^1.6.0
 
   speech_to_text: ^7.3.0
   flutter_tts: ^4.0.2
@@ -65,7 +66,6 @@ dev_dependencies:
   riverpod_generator: ^2.3.9
   json_serializable: ^6.7.1
   mocktail: ^1.0.0
-  http: ^1.6.0
   isar_generator: ^3.1.0+1
   flutter_launcher_icons: ^0.14.4
 
@@ -74,6 +74,7 @@ flutter:
   assets:
     - assets/translations/
     - assets/data/
+    - assets/banks/
     - assets/audio/
     - assets/icon/
     - assets/images/
