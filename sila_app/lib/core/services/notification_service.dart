@@ -46,7 +46,8 @@ class NotificationService {
     if (_initialized) return;
 
     try {
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -63,7 +64,8 @@ class NotificationService {
         onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
       );
 
-      final launchDetails = await _notifications.getNotificationAppLaunchDetails();
+      final launchDetails =
+          await _notifications.getNotificationAppLaunchDetails();
       final launchPayload = launchDetails?.notificationResponse?.payload;
       if (launchPayload != null && launchPayload.trim().isNotEmpty) {
         handleNotificationPayload(launchPayload);
@@ -131,7 +133,8 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    if (await Permission.notification.isDenied || await Permission.notification.isRestricted) {
+    if (await Permission.notification.isDenied ||
+        await Permission.notification.isRestricted) {
       await Permission.notification.request();
     }
 
@@ -139,15 +142,13 @@ class NotificationService {
       await Permission.scheduleExactAlarm.request();
     }
 
-    final android = _notifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final android = _notifications.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
     if (android != null) {
       return await android.requestNotificationsPermission() ?? false;
     }
-    final ios = _notifications
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>();
+    final ios = _notifications.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
     if (ios != null) {
       return await ios.requestPermissions(
             alert: true,
@@ -173,7 +174,7 @@ class NotificationService {
     final scheduledTime = tz.TZDateTime.from(prayerTime, tz.local);
 
     final soundName = soundFile?.split('.').first;
-    
+
     final androidDetails = AndroidNotificationDetails(
       'adhan_channel',
       'أذان الصلاة',
@@ -181,7 +182,9 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
-      sound: soundName != null ? RawResourceAndroidNotificationSound(soundName) : null,
+      sound: soundName != null
+          ? RawResourceAndroidNotificationSound(soundName)
+          : null,
       enableVibration: true,
       enableLights: true,
       color: const Color(0xFF43A047),
@@ -323,18 +326,23 @@ class NotificationService {
             UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload,
       );
-    } catch (_) {
-      await _notifications.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledTime,
-        notificationDetails,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        payload: payload,
-      );
+    } catch (e) {
+      try {
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduledTime,
+          notificationDetails,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          payload: payload,
+        );
+      } catch (fallbackError) {
+        debugPrint(
+            'Error scheduling one-shot notification: $e / fallback: $fallbackError');
+      }
     }
   }
 
@@ -369,7 +377,8 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _notifications.show(id, title, body, notificationDetails, payload: payload);
+    await _notifications.show(id, title, body, notificationDetails,
+        payload: payload);
   }
 
   Future<void> rescheduleAllOnBoot() async {
@@ -503,7 +512,8 @@ class NotificationService {
       presentSound: false,
     );
 
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    const details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _notifications.show(
       _adhanPlaybackNotificationId,
       'الأذان يعمل الآن',
@@ -588,13 +598,16 @@ class NotificationService {
         return;
       }
 
-      if (decoded is Map<String, dynamic> && decoded['route'] == 'daily_report') {
+      if (decoded is Map<String, dynamic> &&
+          decoded['route'] == 'daily_report') {
         nav.push(MaterialPageRoute(builder: (_) => const DailyReportPage()));
         return;
       }
 
-      if (decoded is Map<String, dynamic> && decoded['route'] == 'ibadah_signal') {
-        nav.push(MaterialPageRoute(builder: (_) => const PrayersPage(initialTabIndex: 1)));
+      if (decoded is Map<String, dynamic> &&
+          decoded['route'] == 'ibadah_signal') {
+        nav.push(MaterialPageRoute(
+            builder: (_) => const PrayersPage(initialTabIndex: 1)));
         return;
       }
     } catch (_) {
@@ -627,7 +640,8 @@ class NotificationService {
     final remoteConfig = RemoteConfigService();
     await remoteConfig.initialize();
 
-    final version = int.tryParse(message.data['version']?.toString() ?? '') ?? 0;
+    final version =
+        int.tryParse(message.data['version']?.toString() ?? '') ?? 0;
     final apkUrl = (message.data['apk_url']?.toString() ?? '').isNotEmpty
         ? message.data['apk_url']!.toString()
         : remoteConfig.apkUrl;

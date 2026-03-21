@@ -9,7 +9,7 @@ class UserActivityLog {
   late String featureKey;
   DateTime lastOpened = DateTime.now();
   DateTime lastCompleted = DateTime.now();
-  int streakDays = 1;
+  int streakDays = 0;
   DateTime streakStartDate = DateTime.now();
   int totalSessions = 0;
 }

@@ -24,11 +24,15 @@ class NotificationDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? const Color(0xFF0B1220) : const Color(0xFFF7FAFC);
+    final backgroundColor =
+        isDark ? const Color(0xFF0B1220) : const Color(0xFFF7FAFC);
     final surfaceColor = isDark ? const Color(0xFF111827) : Colors.white;
-    final lineColor = isDark ? const Color(0xFF243041) : const Color(0xFFE2E8F0);
-    final titleColor = isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A);
-    final metaColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final lineColor =
+        isDark ? const Color(0xFF243041) : const Color(0xFFE2E8F0);
+    final titleColor =
+        isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A);
+    final metaColor =
+        isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     final detailAsync = ref.watch(notificationDetailProvider(contentId));
     return Scaffold(
@@ -121,19 +125,26 @@ class NotificationDetailPage extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                          color: isDark
+                              ? const Color(0xFF0F172A)
+                              : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: lineColor),
                         ),
                         child: Text(
                           content.shortExplanation,
-                          style: GoogleFonts.getFont('Cairo', fontSize: 13, color: titleColor),
+                          style: GoogleFonts.getFont('Cairo',
+                              fontSize: 13, color: titleColor),
                         ),
                       ),
                     ],
-                    if (content.type == 'ayah' && content.surahNumber > 0 && content.ayahNumber > 0) ...[
+                    if (content.type == 'ayah' &&
+                        content.surahNumber > 0 &&
+                        content.ayahNumber > 0) ...[
                       const SizedBox(height: 12),
                       _TafsirCard(
+                        key: ValueKey(
+                            'tafsir_${content.surahNumber}_${content.ayahNumber}'),
                         surahNumber: content.surahNumber,
                         ayahNumber: content.ayahNumber,
                       ),
@@ -147,7 +158,8 @@ class NotificationDetailPage extends ConsumerWidget {
                             icon: const Icon(Icons.share_rounded, size: 18),
                             label: Text(
                               'شارك',
-                              style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700),
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontWeight: FontWeight.w700),
                             ),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size.fromHeight(48),
@@ -160,10 +172,12 @@ class NotificationDetailPage extends ConsumerWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () {},
-                            icon: const Icon(Icons.bookmark_outline_rounded, size: 18),
+                            icon: const Icon(Icons.bookmark_outline_rounded,
+                                size: 18),
                             label: Text(
                               'احفظ',
-                              style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700),
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontWeight: FontWeight.w700),
                             ),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size.fromHeight(48),
@@ -179,10 +193,13 @@ class NotificationDetailPage extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF064E3B),
                         minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                       ),
-                      onPressed: () => _navigateToFeature(context, content.category),
-                      icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+                      onPressed: () =>
+                          _navigateToFeature(context, content.category),
+                      icon: const Icon(Icons.arrow_forward_rounded,
+                          color: Colors.white),
                       label: Text(
                         'اذهب إلى ${_getCategoryName(content.category)}',
                         style: GoogleFonts.getFont(
@@ -199,7 +216,8 @@ class NotificationDetailPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Center(child: Text('حدث خطأ أثناء تحميل المحتوى')),
+        error: (_, __) =>
+            const Center(child: Text('حدث خطأ أثناء تحميل المحتوى')),
       ),
     );
   }
@@ -269,18 +287,34 @@ class NotificationDetailPage extends ConsumerWidget {
   }
 }
 
-class _TafsirCard extends StatelessWidget {
+class _TafsirCard extends StatefulWidget {
   final int surahNumber;
   final int ayahNumber;
 
   const _TafsirCard({
+    required super.key,
     required this.surahNumber,
     required this.ayahNumber,
   });
 
+  @override
+  State<_TafsirCard> createState() => _TafsirCardState();
+}
+
+class _TafsirCardState extends State<_TafsirCard> {
+  late Future<String?> _tafsirFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _tafsirFuture = _fetchTafsir();
+  }
+
   Future<String?> _fetchTafsir() async {
     try {
-      final url = Uri.parse('https://api.quran-tafseer.com/tafseer/3/$surahNumber/$ayahNumber');
+      final url = Uri.parse(
+        'https://api.quran-tafseer.com/tafseer/3/${widget.surahNumber}/${widget.ayahNumber}',
+      );
       final res = await http.get(url).timeout(const Duration(seconds: 8));
       if (res.statusCode != 200) return null;
       final data = jsonDecode(res.body);
@@ -311,7 +345,7 @@ class _TafsirCard extends StatelessWidget {
         border: Border.all(color: border),
       ),
       child: FutureBuilder<String?>(
-        future: _fetchTafsir(),
+        future: _tafsirFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Row(
@@ -322,7 +356,8 @@ class _TafsirCard extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
                 const SizedBox(width: 8),
-                Text('جاري تحميل تفسير السعدي...', style: GoogleFonts.getFont('Cairo', color: subtitle)),
+                Text('جاري تحميل تفسير السعدي...',
+                    style: GoogleFonts.getFont('Cairo', color: subtitle)),
               ],
             );
           }
@@ -331,7 +366,8 @@ class _TafsirCard extends StatelessWidget {
           if (tafsir == null || tafsir.isEmpty) {
             return Text(
               'تعذر تحميل التفسير الآن. سيبقى النص القرآني متاحًا بالكامل دون إنترنت.',
-              style: GoogleFonts.getFont('Cairo', fontSize: 12, color: subtitle),
+              style:
+                  GoogleFonts.getFont('Cairo', fontSize: 12, color: subtitle),
             );
           }
 
@@ -340,13 +376,15 @@ class _TafsirCard extends StatelessWidget {
             children: [
               Text(
                 'تفسير السعدي',
-                style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700, color: title),
+                style: GoogleFonts.getFont('Cairo',
+                    fontWeight: FontWeight.w700, color: title),
               ),
               const SizedBox(height: 8),
               Text(
                 tafsir,
                 textDirection: TextDirection.rtl,
-                style: GoogleFonts.getFont('Cairo', fontSize: 13, height: 1.8, color: title),
+                style: GoogleFonts.getFont('Cairo',
+                    fontSize: 13, height: 1.8, color: title),
               ),
             ],
           );

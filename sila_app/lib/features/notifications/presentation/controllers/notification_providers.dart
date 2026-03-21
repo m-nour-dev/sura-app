@@ -20,7 +20,8 @@ final notificationRepositoryProvider = FutureProvider<INotificationRepository>((
   return repo;
 });
 
-final smartNotificationEngineProvider = FutureProvider<SmartNotificationEngine>((
+final smartNotificationEngineProvider =
+    FutureProvider<SmartNotificationEngine>((
   ref,
 ) async {
   final repo = await ref.watch(notificationRepositoryProvider.future);
@@ -33,4 +34,20 @@ final streakTrackerProvider = FutureProvider<StreakTracker>((ref) async {
     repository: repo,
     notificationService: NotificationService(),
   );
+});
+
+final featureStreakProvider =
+    FutureProvider.family<int, String>((ref, featureKey) async {
+  final repo = await ref.watch(notificationRepositoryProvider.future);
+  return (await repo.getActivityLog(featureKey)).streakDays;
+});
+
+final streakSummaryProvider = FutureProvider<Map<String, int>>((ref) async {
+  final repo = await ref.watch(notificationRepositoryProvider.future);
+  const keys = ['azkar', 'wird', 'hifz', 'tasmi', 'tasbih'];
+  final map = <String, int>{};
+  for (final key in keys) {
+    map[key] = (await repo.getActivityLog(key)).streakDays;
+  }
+  return map;
 });

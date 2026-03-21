@@ -5,10 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_settings_controller.dart';
 
-class NotificationSettingsSheet extends ConsumerWidget {
+class NotificationSettingsSheet extends ConsumerStatefulWidget {
   final String featureKey;
 
   const NotificationSettingsSheet({
@@ -16,25 +17,60 @@ class NotificationSettingsSheet extends ConsumerWidget {
     required this.featureKey,
   });
 
+  @override
+  ConsumerState<NotificationSettingsSheet> createState() =>
+      _NotificationSettingsSheetState();
+}
+
+class _NotificationSettingsSheetState
+    extends ConsumerState<NotificationSettingsSheet> {
+  late Future<List<PendingNotificationRequest>> _pendingNotificationsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingNotificationsFuture =
+        NotificationService().getPendingNotifications();
+  }
+
   Set<int> _featureNotificationIds(String key) {
     switch (key) {
       case 'salah':
-        return {1, 2, 3, 4, 5};
+        return {
+          NotificationIds.fajr,
+          NotificationIds.dhuhr,
+          NotificationIds.asr,
+          NotificationIds.maghrib,
+          NotificationIds.isha,
+        };
       case 'azkar':
-        return {100, 101, 102, 103};
+        return {
+          NotificationIds.azkarSabah,
+          NotificationIds.azkarSabahUrgent,
+          NotificationIds.azkarMasa,
+          NotificationIds.azkarMasaUrgent,
+        };
       case 'wird':
-        return {104};
+        return {NotificationIds.wird};
       case 'hifz':
-        return {105, 106};
+        return {NotificationIds.hifz, NotificationIds.tasmi};
       case 'tasbih':
-        return {107};
+        return {NotificationIds.tasbih};
       default:
         return <int>{};
     }
   }
 
+  void _refreshPendingNotifications() {
+    setState(() {
+      _pendingNotificationsFuture =
+          NotificationService().getPendingNotifications();
+    });
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final featureKey = widget.featureKey;
     final state = ref.watch(notificationSettingsProvider(featureKey));
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF0F172A) : const Color(0xFFF5F7FB);
@@ -74,8 +110,10 @@ class NotificationSettingsSheet extends ConsumerWidget {
                                 color: const Color(0xFFE6FFFA),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.notifications_active_rounded,
-                                  size: 18, color: Color(0xFF0F766E)),
+                              child: const Icon(
+                                  Icons.notifications_active_rounded,
+                                  size: 18,
+                                  color: Color(0xFF0F766E)),
                             ),
                             const SizedBox(width: 10),
                             Column(
@@ -109,14 +147,19 @@ class NotificationSettingsSheet extends ConsumerWidget {
                           activeThumbColor: const Color(0xFF064E3B),
                           title: Text(
                             'تفعيل التذكير',
-                            style: GoogleFonts.getFont('Cairo', color: title, fontWeight: FontWeight.w700),
+                            style: GoogleFonts.getFont('Cairo',
+                                color: title, fontWeight: FontWeight.w700),
                           ),
                           subtitle: Text(
-                            settings.isEnabled ? 'الإشعارات فعالة الآن' : 'الإشعارات متوقفة',
-                            style: GoogleFonts.getFont('Cairo', color: subtitle, fontSize: 11),
+                            settings.isEnabled
+                                ? 'الإشعارات فعالة الآن'
+                                : 'الإشعارات متوقفة',
+                            style: GoogleFonts.getFont('Cairo',
+                                color: subtitle, fontSize: 11),
                           ),
                           onChanged: (v) => ref
-                              .read(notificationSettingsProvider(featureKey).notifier)
+                              .read(notificationSettingsProvider(featureKey)
+                                  .notifier)
                               .toggleEnabled(v),
                         ),
                       ],
@@ -146,7 +189,9 @@ class NotificationSettingsSheet extends ConsumerWidget {
                             initialValue: settings.frequency,
                             decoration: InputDecoration(
                               filled: true,
-                              fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF7FAFC),
+                              fillColor: isDark
+                                  ? const Color(0xFF0F172A)
+                                  : const Color(0xFFF7FAFC),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(color: border),
@@ -158,21 +203,26 @@ class NotificationSettingsSheet extends ConsumerWidget {
                             items: [
                               DropdownMenuItem(
                                 value: 'daily',
-                                child: Text('يومي', style: GoogleFonts.getFont('Cairo')),
+                                child: Text('يومي',
+                                    style: GoogleFonts.getFont('Cairo')),
                               ),
                               DropdownMenuItem(
                                 value: 'weekly',
-                                child: Text('أسبوعي', style: GoogleFonts.getFont('Cairo')),
+                                child: Text('أسبوعي',
+                                    style: GoogleFonts.getFont('Cairo')),
                               ),
                               DropdownMenuItem(
                                 value: 'smart',
-                                child: Text('ذكي', style: GoogleFonts.getFont('Cairo')),
+                                child: Text('ذكي',
+                                    style: GoogleFonts.getFont('Cairo')),
                               ),
                             ],
                             onChanged: (v) {
                               if (v != null) {
                                 ref
-                                    .read(notificationSettingsProvider(featureKey).notifier)
+                                    .read(
+                                        notificationSettingsProvider(featureKey)
+                                            .notifier)
                                     .setFrequency(v);
                               }
                             },
@@ -189,10 +239,22 @@ class NotificationSettingsSheet extends ConsumerWidget {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _TypeChip(featureKey: featureKey, type: 'hadith', label: 'حديث'),
-                              _TypeChip(featureKey: featureKey, type: 'ayah', label: 'آية'),
-                              _TypeChip(featureKey: featureKey, type: 'dhikr', label: 'ذكر'),
-                              _TypeChip(featureKey: featureKey, type: 'hikma', label: 'حكمة'),
+                              _TypeChip(
+                                  featureKey: featureKey,
+                                  type: 'hadith',
+                                  label: 'حديث'),
+                              _TypeChip(
+                                  featureKey: featureKey,
+                                  type: 'ayah',
+                                  label: 'آية'),
+                              _TypeChip(
+                                  featureKey: featureKey,
+                                  type: 'dhikr',
+                                  label: 'ذكر'),
+                              _TypeChip(
+                                  featureKey: featureKey,
+                                  type: 'hikma',
+                                  label: 'حكمة'),
                             ],
                           ),
                           if (featureKey == 'azkar') ...[
@@ -203,14 +265,17 @@ class NotificationSettingsSheet extends ConsumerWidget {
                               activeThumbColor: const Color(0xFF064E3B),
                               title: Text(
                                 'تذكير قبل نهاية الوقت',
-                                style: GoogleFonts.getFont('Cairo', color: title, fontWeight: FontWeight.w700),
+                                style: GoogleFonts.getFont('Cairo',
+                                    color: title, fontWeight: FontWeight.w700),
                               ),
                               subtitle: Text(
                                 'تنبيه إضافي قبل ساعة من انتهاء الوقت',
-                                style: GoogleFonts.getFont('Cairo', color: subtitle, fontSize: 11),
+                                style: GoogleFonts.getFont('Cairo',
+                                    color: subtitle, fontSize: 11),
                               ),
                               onChanged: (v) => ref
-                                  .read(notificationSettingsProvider(featureKey).notifier)
+                                  .read(notificationSettingsProvider(featureKey)
+                                      .notifier)
                                   .toggleEndTimeReminder(v),
                             ),
                           ],
@@ -225,15 +290,21 @@ class NotificationSettingsSheet extends ConsumerWidget {
                           try {
                             await NotificationService().initialize();
                             await NotificationService().requestPermissions();
-                            final settingsRepo = await ref.read(notificationRepositoryProvider.future);
+                            final settingsRepo = await ref
+                                .read(notificationRepositoryProvider.future);
                             await settingsRepo.seedInitialContentIfNeeded();
                             final repo = PrayerRepositoryImpl();
                             final times = await repo.getPrayerTimes();
-                            await AdhanSchedulerService().scheduleAllPrayers(times);
-                            final pending = await NotificationService().getPendingNotifications();
+                            await AdhanSchedulerService()
+                                .scheduleAllPrayers(times);
+                            final pending = await NotificationService()
+                                .getPendingNotifications();
+                            _refreshPendingNotifications();
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('تمت إعادة الجدولة بنجاح: ${pending.length} إشعار')), 
+                              SnackBar(
+                                  content: Text(
+                                      'تمت إعادة الجدولة بنجاح: ${pending.length} إشعار')),
                             );
                           } catch (e) {
                             if (!context.mounted) return;
@@ -243,7 +314,8 @@ class NotificationSettingsSheet extends ConsumerWidget {
                           }
                         },
                         icon: const Icon(Icons.refresh_rounded),
-                        label: Text('إعادة تفعيل الإشعارات الآن', style: GoogleFonts.getFont('Cairo')), 
+                        label: Text('إعادة تفعيل الإشعارات الآن',
+                            style: GoogleFonts.getFont('Cairo')),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -254,10 +326,15 @@ class NotificationSettingsSheet extends ConsumerWidget {
                           try {
                             await NotificationService().initialize();
                             await NotificationService().requestPermissions();
-                            await NotificationService().scheduleDebugNotificationInSeconds(seconds: 15);
+                            await NotificationService()
+                                .scheduleDebugNotificationInSeconds(
+                                    seconds: 15);
+                            _refreshPendingNotifications();
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('يجب أن يظهر إشعار فوري الآن، ثم إشعار بعد 15 ثانية')),
+                              const SnackBar(
+                                  content: Text(
+                                      'يجب أن يظهر إشعار فوري الآن، ثم إشعار بعد 15 ثانية')),
                             );
                           } catch (e) {
                             if (!context.mounted) return;
@@ -267,14 +344,16 @@ class NotificationSettingsSheet extends ConsumerWidget {
                           }
                         },
                         icon: const Icon(Icons.bug_report_rounded),
-                        label: Text('اختبار إشعار بعد 15 ثانية', style: GoogleFonts.getFont('Cairo')),
+                        label: Text('اختبار إشعار بعد 15 ثانية',
+                            style: GoogleFonts.getFont('Cairo')),
                       ),
                     ),
                     const SizedBox(height: 8),
                     FutureBuilder(
-                      future: NotificationService().getPendingNotifications(),
+                      future: _pendingNotificationsFuture,
                       builder: (context, snapshot) {
-                        final all = snapshot.data ?? const <PendingNotificationRequest>[];
+                        final all = snapshot.data ??
+                            const <PendingNotificationRequest>[];
                         final ids = _featureNotificationIds(featureKey);
                         final list = all.where((n) {
                           if (ids.contains(n.id)) return true;
@@ -287,25 +366,29 @@ class NotificationSettingsSheet extends ConsumerWidget {
                           children: [
                             Text(
                               'الإشعارات المجدولة لهذه العبادة: $count',
-                              style: GoogleFonts.getFont('Cairo', fontSize: 11, color: subtitle),
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontSize: 11, color: subtitle),
                             ),
                             const SizedBox(height: 4),
                             if (list.isEmpty)
                               Text(
                                 'لا توجد إشعارات مجدولة لهذه العبادة حاليًا',
-                                style: GoogleFonts.getFont('Cairo', fontSize: 10, color: subtitle),
+                                style: GoogleFonts.getFont('Cairo',
+                                    fontSize: 10, color: subtitle),
                               )
                             else
                               ...list.take(5).map(
                                     (n) => Text(
                                       '• ${n.id}: ${n.title}',
-                                      style: GoogleFonts.getFont('Cairo', fontSize: 10, color: subtitle),
+                                      style: GoogleFonts.getFont('Cairo',
+                                          fontSize: 10, color: subtitle),
                                     ),
                                   ),
                             const SizedBox(height: 2),
                             Text(
                               'الإجمالي على الجهاز: ${all.length}',
-                              style: GoogleFonts.getFont('Cairo', fontSize: 10, color: subtitle),
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontSize: 10, color: subtitle),
                             ),
                           ],
                         );
@@ -328,15 +411,18 @@ class NotificationSettingsSheet extends ConsumerWidget {
               const Text('تعذر تحميل الإعدادات'),
               const SizedBox(height: 8),
               OutlinedButton.icon(
-                onPressed: () => ref.invalidate(notificationSettingsProvider(featureKey)),
+                onPressed: () =>
+                    ref.invalidate(notificationSettingsProvider(featureKey)),
                 icon: const Icon(Icons.refresh_rounded),
-                label: Text('إعادة المحاولة', style: GoogleFonts.getFont('Cairo')),
+                label:
+                    Text('إعادة المحاولة', style: GoogleFonts.getFont('Cairo')),
               ),
               const SizedBox(height: 4),
               Text(
                 '$e',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.getFont('Cairo', fontSize: 10, color: const Color(0xFF94A3B8)),
+                style: GoogleFonts.getFont('Cairo',
+                    fontSize: 10, color: const Color(0xFF94A3B8)),
               ),
             ],
           ),
@@ -362,12 +448,17 @@ class _TypeChip extends ConsumerWidget {
     final state = ref.watch(notificationSettingsProvider(featureKey));
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final chipBg = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
-    final chipSelected = isDark ? const Color(0xFF134E4A) : const Color(0xFFCCFBF1);
-    final chipBorder = isDark ? const Color(0xFF334155) : const Color(0xFFDCE3EE);
-    final textColor = isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A);
+    final chipSelected =
+        isDark ? const Color(0xFF134E4A) : const Color(0xFFCCFBF1);
+    final chipBorder =
+        isDark ? const Color(0xFF334155) : const Color(0xFFDCE3EE);
+    final textColor =
+        isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A);
     final selected = state.value?.preferredTypes.contains(type) ?? false;
     return ChoiceChip(
-      label: Text(label, style: GoogleFonts.getFont('Cairo', color: textColor, fontWeight: FontWeight.w700)),
+      label: Text(label,
+          style: GoogleFonts.getFont('Cairo',
+              color: textColor, fontWeight: FontWeight.w700)),
       selected: selected,
       backgroundColor: chipBg,
       selectedColor: chipSelected,

@@ -23,7 +23,7 @@ void main() async {
     FlutterError.presentError(details);
   };
   await EasyLocalization.ensureInitialized();
-  
+
   // Initialize timezone service for prayer time calculations
   final timezoneService = TimezoneService();
   await timezoneService.initialize();
@@ -34,7 +34,6 @@ void main() async {
   final notificationService = NotificationService();
   try {
     await notificationService.initialize();
-    await notificationService.requestPermissions();
   } catch (error) {
     debugPrint('NotificationService init/permission failed: $error');
   }

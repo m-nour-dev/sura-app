@@ -26,7 +26,7 @@ class IsarService {
   Future<Isar> get db {
     _dbFuture ??= _openWithRetry().catchError((Object e, StackTrace st) {
       _dbFuture = null;
-      throw e;
+      Error.throwWithStackTrace(e, st);
     });
     return _dbFuture!;
   }
@@ -60,7 +60,8 @@ class IsarService {
       } catch (e) {
         final msg = e.toString();
         if (msg.contains('MdbxError (11)')) {
-          await Future<void>.delayed(Duration(milliseconds: 150 * (attempt + 1)));
+          await Future<void>.delayed(
+              Duration(milliseconds: 150 * (attempt + 1)));
           continue;
         }
         rethrow;
@@ -71,6 +72,12 @@ class IsarService {
   }
 
   Future<void> closeDB() async {
+    if (_dbFuture != null) {
+      try {
+        await _dbFuture;
+      } catch (_) {}
+    }
+
     final db = Isar.getInstance();
     if (db != null) {
       await db.close();

@@ -47,6 +47,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
       if (!_dialogShown && value.onboardingNeeded) {
         _dialogShown = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
           _showGenderDialog(context);
         });
       }
@@ -57,7 +58,15 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
       body: state.when(
         data: (data) {
           final hijriDate = _hijriArabicDate();
-          final dayName = ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'][DateTime.now().weekday - 1];
+          final dayName = [
+            'الاثنين',
+            'الثلاثاء',
+            'الأربعاء',
+            'الخميس',
+            'الجمعة',
+            'السبت',
+            'الأحد'
+          ][DateTime.now().weekday - 1];
           final dailyStatusText = DailyStatusCalculator.getDailyStatusText(
             data.today,
             isMale: data.isMale,
@@ -72,54 +81,59 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                   minHeight: 198,
                   maxHeight: 198,
                   child: Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF064E3B), Color(0xFF0a6b52)],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF064E3B), Color(0xFF0a6b52)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
                       children: [
-                        Text(
-                          hijriDate,
-                          style: GoogleFonts.getFont('Cairo', fontSize: 12, color: Colors.white60),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              hijriDate,
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontSize: 12, color: Colors.white60),
+                            ),
+                            Text(
+                              dayName,
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontSize: 12, color: Colors.white60),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 12),
                         Text(
-                          dayName,
-                          style: GoogleFonts.getFont('Cairo', fontSize: 12, color: Colors.white60),
+                          dailyStatusText,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.getFont('Amiri',
+                              fontSize: 16, color: Colors.white, height: 1.8),
+                        ),
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: completionRatio,
+                            minHeight: 6,
+                            backgroundColor: Colors.white24,
+                            valueColor:
+                                const AlwaysStoppedAnimation(Color(0xFFD97706)),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${data.completedCount} من ${data.totalCount} عبادة',
+                          style: GoogleFonts.getFont('Cairo',
+                              fontSize: 11, color: Colors.white70),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      dailyStatusText,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.getFont('Amiri', fontSize: 16, color: Colors.white, height: 1.8),
-                    ),
-                    const SizedBox(height: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: completionRatio,
-                        minHeight: 6,
-                        backgroundColor: Colors.white24,
-                        valueColor: const AlwaysStoppedAnimation(Color(0xFFD97706)),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${data.completedCount} من ${data.totalCount} عبادة',
-                      style: GoogleFonts.getFont('Cairo', fontSize: 11, color: Colors.white70),
-                    ),
-                  ],
-                ),
                   ),
                 ),
               ),
@@ -129,11 +143,13 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF1E293B) : Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
+                    border:
+                        Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
                   ),
                   child: Column(
                     children: [
-                      _tableHeader(isDark, showYesterday: data.yesterday != null),
+                      _tableHeader(isDark,
+                          showYesterday: data.yesterday != null),
                       _row('fajr', '🕌', 'الفجر', data),
                       _row('dhuhr', '🕌', 'الظهر', data),
                       _row('asr', '🕌', 'العصر', data),
@@ -156,16 +172,19 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF064E3B),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       minimumSize: const Size(double.infinity, 48),
                     ),
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const DailyReportPage()),
+                      MaterialPageRoute(
+                          builder: (_) => const DailyReportPage()),
                     ),
                     child: Text(
                       'تقريري اليومي',
-                      style: GoogleFonts.getFont('Cairo', color: Colors.white, fontWeight: FontWeight.w700),
+                      style: GoogleFonts.getFont('Cairo',
+                          color: Colors.white, fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -183,21 +202,26 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF9F5EC),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : const Color(0xFFF9F5EC),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Row(
         children: [
           Expanded(
             flex: showYesterday ? 3 : 4,
-            child: Text('العبادة', style: GoogleFonts.getFont('Cairo', fontSize: 12, color: Colors.grey[500])),
+            child: Text('العبادة',
+                style: GoogleFonts.getFont('Cairo',
+                    fontSize: 12, color: Colors.grey[500])),
           ),
           if (showYesterday)
             Expanded(
               child: Text(
                 'أمس',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.getFont('Cairo', fontSize: 12, color: Colors.grey[500]),
+                style: GoogleFonts.getFont('Cairo',
+                    fontSize: 12, color: Colors.grey[500]),
               ),
             ),
           Expanded(
@@ -234,7 +258,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.5)),
+            border: Border(
+                bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.5)),
           ),
           child: Row(
             children: [
@@ -244,7 +269,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                   children: [
                     Text(icon, style: const TextStyle(fontSize: 16)),
                     const SizedBox(width: 8),
-                    Text(label, style: GoogleFonts.getFont('Cairo', fontSize: 13)),
+                    Text(label,
+                        style: GoogleFonts.getFont('Cairo', fontSize: 13)),
                   ],
                 ),
               ),
@@ -265,7 +291,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                       color: _color(ts).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(_emoji(ts), style: const TextStyle(fontSize: 18)),
+                    child:
+                        Text(_emoji(ts), style: const TextStyle(fontSize: 18)),
                   ),
                 ),
               ),
@@ -355,7 +382,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
             Text(
               'حتى نعرض لك ما يناسبك',
               textAlign: TextAlign.center,
-              style: GoogleFonts.getFont('Cairo', fontSize: 14, color: Colors.grey[600]),
+              style: GoogleFonts.getFont('Cairo',
+                  fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 20),
             Row(
@@ -391,7 +419,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
 }
 
 class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
-  _PinnedHeaderDelegate({required this.minHeight, required this.maxHeight, required this.child});
+  _PinnedHeaderDelegate(
+      {required this.minHeight, required this.maxHeight, required this.child});
 
   final double minHeight;
   final double maxHeight;
@@ -404,7 +433,8 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: child,
@@ -420,7 +450,8 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class _GenderCard extends StatelessWidget {
-  const _GenderCard({required this.label, required this.icon, required this.onTap});
+  const _GenderCard(
+      {required this.label, required this.icon, required this.onTap});
   final String label;
   final String icon;
   final VoidCallback onTap;
@@ -440,7 +471,9 @@ class _GenderCard extends StatelessWidget {
           children: [
             Text(icon, style: const TextStyle(fontSize: 26)),
             const SizedBox(height: 6),
-            Text(label, style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
+            Text(label,
+                style:
+                    GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
           ],
         ),
       ),

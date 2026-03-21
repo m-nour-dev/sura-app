@@ -58,12 +58,14 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       final settings = await _service.getSettings();
       final history = await _service.getHistory();
       final now = DateTime.now();
-      
+
       // Check if completed today
       bool completed = false;
       if (settings.lastCompletionDate != null) {
         final last = settings.lastCompletionDate!;
-        if (last.year == now.year && last.month == now.month && last.day == now.day) {
+        if (last.year == now.year &&
+            last.month == now.month &&
+            last.day == now.day) {
           completed = true;
         }
       }
@@ -73,22 +75,25 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       double progress = 0.0;
       int completedWirds = 0;
       int remainingWirds = 0;
-      
+
       if (settings.pagesPerDay > 0) {
         // Calculation logic as discussed with user:
         // Completed = pages read so far / pages per day
-        completedWirds = ((settings.currentPage - 1) / settings.pagesPerDay).floor();
-        
-        final totalWirds = (WirdSettings.totalQuranPages / settings.pagesPerDay).ceil();
+        completedWirds =
+            ((settings.currentPage - 1) / settings.pagesPerDay).floor();
+
+        final totalWirds =
+            (WirdSettings.totalQuranPages / settings.pagesPerDay).ceil();
         remainingWirds = totalWirds - completedWirds;
 
         if (settings.khatmaStartDate != null) {
-          final daysSinceStart = now.difference(settings.khatmaStartDate!).inDays; 
+          final daysSinceStart =
+              now.difference(settings.khatmaStartDate!).inDays;
           final expectedPage = (daysSinceStart + 1) * settings.pagesPerDay;
           final pageDiff = settings.currentPage - expectedPage;
           daysDifference = (pageDiff / settings.pagesPerDay).floor();
         }
-        
+
         progress = settings.currentPage / WirdSettings.totalQuranPages;
       }
 
@@ -140,15 +145,16 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
     // Save the last portion if not already saved (assuming it was)
     // Reset reading progress to page 1
     await _service.updateCurrentPage(1);
-    
+
     // Optionally, we could record a 'Khatma Completed' event in history here.
-    
+
     await _loadSettings();
   }
 }
 
 // Global Provider
-final wirdControllerProvider = StateNotifierProvider<WirdController, AsyncValue<WirdState>>((ref) {
+final wirdControllerProvider =
+    StateNotifierProvider<WirdController, AsyncValue<WirdState>>((ref) {
   final asyncService = ref.watch(wirdServiceProvider);
   return asyncService.maybeWhen(
     data: (service) => WirdController(service, ref),
@@ -158,23 +164,37 @@ final wirdControllerProvider = StateNotifierProvider<WirdController, AsyncValue<
 
 class _FallbackWirdService implements WirdService {
   @override
-  Future<void> completeDailyWird(int startPage, int endPage) async {}
+  Future<void> completeDailyWird(int startPage, int endPage) {
+    throw StateError('WirdService is not ready');
+  }
 
   @override
-  Future<List<WirdHistory>> getHistory() async => <WirdHistory>[];
+  Future<List<WirdHistory>> getHistory() {
+    throw StateError('WirdService is not ready');
+  }
 
   @override
-  Future<WirdSettings> getSettings() async => WirdSettings();
+  Future<WirdSettings> getSettings() {
+    throw StateError('WirdService is not ready');
+  }
 
   @override
-  Future<void> updateBookmark(int page) async {}
+  Future<void> updateBookmark(int page) {
+    throw StateError('WirdService is not ready');
+  }
 
   @override
-  Future<void> updateCurrentPage(int page) async {}
+  Future<void> updateCurrentPage(int page) {
+    throw StateError('WirdService is not ready');
+  }
 
   @override
-  Future<void> updatePagesPerDay(int pagesPerDay) async {}
+  Future<void> updatePagesPerDay(int pagesPerDay) {
+    throw StateError('WirdService is not ready');
+  }
 
   @override
-  Future<void> resetKhatma() async {}
+  Future<void> resetKhatma() {
+    throw StateError('WirdService is not ready');
+  }
 }

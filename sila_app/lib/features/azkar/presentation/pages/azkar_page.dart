@@ -23,15 +23,27 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
   void initState() {
     super.initState();
     Future<void>.microtask(() async {
-      final tracker = await ref.read(streakTrackerProvider.future);
-      await tracker.logActivity('azkar');
+      try {
+        final tracker = await ref.read(streakTrackerProvider.future);
+        await tracker.logActivity('azkar');
+      } catch (e, st) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: e,
+            stack: st,
+            library: 'azkar_page',
+            context: ErrorDescription('while logging azkar activity streak'),
+          ),
+        );
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+    final backgroundColor =
+        isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -45,10 +57,12 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
           IconButton(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AzkarNotificationSettings()),
+                MaterialPageRoute(
+                    builder: (_) => const AzkarNotificationSettings()),
               );
             },
-            icon: const Icon(Icons.notifications_active_rounded, color: Colors.white),
+            icon: const Icon(Icons.notifications_active_rounded,
+                color: Colors.white),
           ),
         ],
       ),
@@ -63,7 +77,9 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
             title: 'azkar_morning'.tr(),
             icon: Icons.wb_sunny_rounded,
             onTap: () {
-              ref.read(analyticsServiceProvider).logAzkarCategoryOpen(categoryName: 'morning');
+              ref
+                  .read(analyticsServiceProvider)
+                  .logAzkarCategoryOpen(categoryName: 'morning');
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -79,8 +95,10 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
             title: 'azkar_evening'.tr(),
             icon: Icons.nights_stay_rounded,
             onTap: () {
-               ref.read(analyticsServiceProvider).logAzkarCategoryOpen(categoryName: 'evening');
-               Navigator.push(
+              ref
+                  .read(analyticsServiceProvider)
+                  .logAzkarCategoryOpen(categoryName: 'evening');
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => AzkarDetailPage(
@@ -95,8 +113,10 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
             title: 'azkar_sleep'.tr(),
             icon: Icons.bedtime_rounded,
             onTap: () {
-               ref.read(analyticsServiceProvider).logAzkarCategoryOpen(categoryName: 'sleep');
-               Navigator.push(
+              ref
+                  .read(analyticsServiceProvider)
+                  .logAzkarCategoryOpen(categoryName: 'sleep');
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => AzkarDetailPage(
@@ -111,8 +131,10 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
             title: 'azkar_mosque'.tr(),
             icon: Icons.mosque_rounded,
             onTap: () {
-               ref.read(analyticsServiceProvider).logAzkarCategoryOpen(categoryName: 'mosque');
-               Navigator.push(
+              ref
+                  .read(analyticsServiceProvider)
+                  .logAzkarCategoryOpen(categoryName: 'mosque');
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => AzkarDetailPage(

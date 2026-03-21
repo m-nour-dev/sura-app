@@ -10,7 +10,16 @@ import 'package:sila_app/features/notifications/domain/smart_notification_engine
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
 import 'package:sila_app/features/prayers/domain/repositories/prayer_repository.dart';
 
-enum _IbadahSignalType { prayer, masjid, wird, azkarSabah, azkarMasa, hifz, tasbih, dhikr }
+enum _IbadahSignalType {
+  prayer,
+  masjid,
+  wird,
+  azkarSabah,
+  azkarMasa,
+  hifz,
+  tasbih,
+  dhikr
+}
 
 class _SmartMessage {
   final String title;
@@ -110,7 +119,8 @@ class AdhanSchedulerService {
             ];
             var missed = 0;
             for (var i = 0; i < 5; i++) {
-              if ((prayed[i] == 1 || prayed[i] == 2) && masjid[i] == false) missed++;
+              if ((prayed[i] == 1 || prayed[i] == 2) && masjid[i] == false)
+                missed++;
             }
             return missed;
           case _IbadahSignalType.wird:
@@ -131,7 +141,8 @@ class AdhanSchedulerService {
       Future<String?> signalPayload(_IbadahSignalType type) async {
         final s = await scoreSignal(type);
         if (s <= 0) return null;
-        return jsonEncode({'route': 'ibadah_signal', 'signal': type.name, 'score': s});
+        return jsonEncode(
+            {'route': 'ibadah_signal', 'signal': type.name, 'score': s});
       }
 
       _SmartMessage pickSignalMessage(_IbadahSignalType type, int score) {
@@ -139,124 +150,266 @@ class AdhanSchedulerService {
         final bucket = score >= 3 ? 'high' : (score == 2 ? 'mid' : 'low');
         final banks = <String, List<_SmartMessage>>{
           'prayer_low': const [
-            _SmartMessage(title: 'لا تؤخر الصلاة 🤍', body: 'صلاة واحدة في وقتها تعيد ترتيب يومك كله.'),
-            _SmartMessage(title: 'موعدك مع السكينة 🕊️', body: 'أدِّ الصلاة في وقتها لتطمئن الروح.'),
-            _SmartMessage(title: 'خطوة يسيرة عظيمة', body: 'قم للصلاة الآن، فالبركة تبدأ من هنا.'),
-            _SmartMessage(title: 'باب الفرج قريب', body: 'أقم صلاتك، واطلب من الله العون والثبات.'),
-            _SmartMessage(title: 'تكبيرة واحدة تكفي', body: 'ابدأ الآن بتكبيرة صادقة ولا تؤجل.'),
-            _SmartMessage(title: 'الصلاة أولا 🌿', body: 'قدّم الصلاة، وما بعدها يهون بإذن الله.'),
-            _SmartMessage(title: 'نداء الرحمة', body: 'إذا سمعت النداء فلبِّه بقلب حاضر.'),
-            _SmartMessage(title: 'اليوم أجمل بالصلاة', body: 'صلاتك في وقتها نورٌ ليومك.'),
-            _SmartMessage(title: 'لا تجعلها تفوتك', body: 'حافظ على وقت الصلاة لتبقى قريبًا من الله.'),
-            _SmartMessage(title: 'قربك في سجودك', body: 'السجود يخفف الهم ويقوّي القلب.'),
+            _SmartMessage(
+                title: 'لا تؤخر الصلاة 🤍',
+                body: 'صلاة واحدة في وقتها تعيد ترتيب يومك كله.'),
+            _SmartMessage(
+                title: 'موعدك مع السكينة 🕊️',
+                body: 'أدِّ الصلاة في وقتها لتطمئن الروح.'),
+            _SmartMessage(
+                title: 'خطوة يسيرة عظيمة',
+                body: 'قم للصلاة الآن، فالبركة تبدأ من هنا.'),
+            _SmartMessage(
+                title: 'باب الفرج قريب',
+                body: 'أقم صلاتك، واطلب من الله العون والثبات.'),
+            _SmartMessage(
+                title: 'تكبيرة واحدة تكفي',
+                body: 'ابدأ الآن بتكبيرة صادقة ولا تؤجل.'),
+            _SmartMessage(
+                title: 'الصلاة أولا 🌿',
+                body: 'قدّم الصلاة، وما بعدها يهون بإذن الله.'),
+            _SmartMessage(
+                title: 'نداء الرحمة',
+                body: 'إذا سمعت النداء فلبِّه بقلب حاضر.'),
+            _SmartMessage(
+                title: 'اليوم أجمل بالصلاة',
+                body: 'صلاتك في وقتها نورٌ ليومك.'),
+            _SmartMessage(
+                title: 'لا تجعلها تفوتك',
+                body: 'حافظ على وقت الصلاة لتبقى قريبًا من الله.'),
+            _SmartMessage(
+                title: 'قربك في سجودك', body: 'السجود يخفف الهم ويقوّي القلب.'),
           ],
           'prayer_mid': const [
-            _SmartMessage(title: 'تبقّى عليك صلاة أو صلاتان', body: 'ألحق ما بقي من يومك بالصلاة في وقتها.'),
-            _SmartMessage(title: 'اجمع قلبك على الصلاة', body: 'ما فات يُدرك إذا صدقت النية الآن.'),
-            _SmartMessage(title: 'لا تؤخر أكثر', body: 'المبادرة بالصلاة تحفظ يومك من التشتت.'),
-            _SmartMessage(title: 'عودة قوية اليوم', body: 'ابدأ بالصلاة التالية فورًا، واثبت حتى آخر اليوم.'),
-            _SmartMessage(title: 'قم وتوكل', body: 'أدِّ الصلاة الآن، والله يعينك على الباقي.'),
-            _SmartMessage(title: 'جدد عهدك مع الصلاة', body: 'صلاتك معيار ثباتك، فلا تتنازل عنها.'),
-            _SmartMessage(title: 'اقطع التأجيل', body: 'كلما بادرت للصلاة زادت طمأنينتك.'),
-            _SmartMessage(title: 'صحح المسار الآن', body: 'لا تنتظر وقتًا أفضل، هذا أفضل وقت.'),
-            _SmartMessage(title: 'خطوتان وتعود', body: 'وضوء وصلاة، ويهدأ قلبك بإذن الله.'),
-            _SmartMessage(title: 'اليوم ما زال فيه خير', body: 'أكمل يومك بالصلاة تنل الأجر والسكينة.'),
+            _SmartMessage(
+                title: 'تبقّى عليك صلاة أو صلاتان',
+                body: 'ألحق ما بقي من يومك بالصلاة في وقتها.'),
+            _SmartMessage(
+                title: 'اجمع قلبك على الصلاة',
+                body: 'ما فات يُدرك إذا صدقت النية الآن.'),
+            _SmartMessage(
+                title: 'لا تؤخر أكثر',
+                body: 'المبادرة بالصلاة تحفظ يومك من التشتت.'),
+            _SmartMessage(
+                title: 'عودة قوية اليوم',
+                body: 'ابدأ بالصلاة التالية فورًا، واثبت حتى آخر اليوم.'),
+            _SmartMessage(
+                title: 'قم وتوكل',
+                body: 'أدِّ الصلاة الآن، والله يعينك على الباقي.'),
+            _SmartMessage(
+                title: 'جدد عهدك مع الصلاة',
+                body: 'صلاتك معيار ثباتك، فلا تتنازل عنها.'),
+            _SmartMessage(
+                title: 'اقطع التأجيل',
+                body: 'كلما بادرت للصلاة زادت طمأنينتك.'),
+            _SmartMessage(
+                title: 'صحح المسار الآن',
+                body: 'لا تنتظر وقتًا أفضل، هذا أفضل وقت.'),
+            _SmartMessage(
+                title: 'خطوتان وتعود',
+                body: 'وضوء وصلاة، ويهدأ قلبك بإذن الله.'),
+            _SmartMessage(
+                title: 'اليوم ما زال فيه خير',
+                body: 'أكمل يومك بالصلاة تنل الأجر والسكينة.'),
           ],
           'prayer_high': const [
-            _SmartMessage(title: 'لا تترك الصلاة', body: 'اليوم يحتاج منك وقفة صادقة مع صلاتك.'),
-            _SmartMessage(title: 'الصلاة نجاة', body: 'ابدأ الآن ولا تستسلم للتأجيل.'),
-            _SmartMessage(title: 'ارجع الآن إلى الله', body: 'أول طريق الرجوع: الصلاة في وقتها.'),
-            _SmartMessage(title: 'هذا أهم تنبيه اليوم', body: 'صلاتك أولويتك الأولى، فلا تضيعها.'),
-            _SmartMessage(title: 'تدارك ما فاتك', body: 'ابدأ بالصلاة التالية واجعلها بداية ثبات.'),
-            _SmartMessage(title: 'ثبّت يومك بالصلاة', body: 'لا يوجد نجاح بلا صلاة محفوظة.'),
-            _SmartMessage(title: 'الأمان في الصلاة', body: 'إذا اضطرب يومك فالملجأ الصلاة.'),
-            _SmartMessage(title: 'استعن بالله الآن', body: 'قم للصلاة واطلب منه الثبات.'),
-            _SmartMessage(title: 'نداء مهم', body: 'لا تجعل الصلوات تمر دون حضور وعزم.'),
-            _SmartMessage(title: 'ابدأ من هذه اللحظة', body: 'الرجوع الحقيقي يبدأ بصلاة صادقة.'),
+            _SmartMessage(
+                title: 'لا تترك الصلاة',
+                body: 'اليوم يحتاج منك وقفة صادقة مع صلاتك.'),
+            _SmartMessage(
+                title: 'الصلاة نجاة', body: 'ابدأ الآن ولا تستسلم للتأجيل.'),
+            _SmartMessage(
+                title: 'ارجع الآن إلى الله',
+                body: 'أول طريق الرجوع: الصلاة في وقتها.'),
+            _SmartMessage(
+                title: 'هذا أهم تنبيه اليوم',
+                body: 'صلاتك أولويتك الأولى، فلا تضيعها.'),
+            _SmartMessage(
+                title: 'تدارك ما فاتك',
+                body: 'ابدأ بالصلاة التالية واجعلها بداية ثبات.'),
+            _SmartMessage(
+                title: 'ثبّت يومك بالصلاة',
+                body: 'لا يوجد نجاح بلا صلاة محفوظة.'),
+            _SmartMessage(
+                title: 'الأمان في الصلاة',
+                body: 'إذا اضطرب يومك فالملجأ الصلاة.'),
+            _SmartMessage(
+                title: 'استعن بالله الآن', body: 'قم للصلاة واطلب منه الثبات.'),
+            _SmartMessage(
+                title: 'نداء مهم', body: 'لا تجعل الصلوات تمر دون حضور وعزم.'),
+            _SmartMessage(
+                title: 'ابدأ من هذه اللحظة',
+                body: 'الرجوع الحقيقي يبدأ بصلاة صادقة.'),
           ],
           'masjid_low': const [
-            _SmartMessage(title: 'خطوات للمسجد 🕌', body: 'صلاة الجماعة تزيد الأجر وتحيي القلب.'),
-            _SmartMessage(title: 'لا تفوّت الجماعة', body: 'المسجد بركة يومية لا تعوض.'),
-            _SmartMessage(title: 'اجعلها جماعة', body: 'باقي اليوم فرصة لصلاةٍ في المسجد.'),
-            _SmartMessage(title: 'الأجر أكبر في الجماعة', body: 'جرّب اليوم أن تكون صلاتك القادمة في المسجد.'),
-            _SmartMessage(title: 'موعدك مع الجماعة', body: 'المسجد ينتظرك وأجرك مضاعف.'),
+            _SmartMessage(
+                title: 'خطوات للمسجد 🕌',
+                body: 'صلاة الجماعة تزيد الأجر وتحيي القلب.'),
+            _SmartMessage(
+                title: 'لا تفوّت الجماعة', body: 'المسجد بركة يومية لا تعوض.'),
+            _SmartMessage(
+                title: 'اجعلها جماعة',
+                body: 'باقي اليوم فرصة لصلاةٍ في المسجد.'),
+            _SmartMessage(
+                title: 'الأجر أكبر في الجماعة',
+                body: 'جرّب اليوم أن تكون صلاتك القادمة في المسجد.'),
+            _SmartMessage(
+                title: 'موعدك مع الجماعة', body: 'المسجد ينتظرك وأجرك مضاعف.'),
           ],
           'masjid_mid': const [
-            _SmartMessage(title: 'زد نصيب المسجد اليوم', body: 'صلاتان في المسجد تُحدث فرقًا كبيرًا.'),
-            _SmartMessage(title: 'لا تكتفِ بالبيت', body: 'في الجماعة فضل عظيم وبركة أوضح.'),
-            _SmartMessage(title: 'ألحق ما بقي', body: 'ما زال يمكن تعويض صلوات الجماعة اليوم.'),
-            _SmartMessage(title: 'اجعل العشاء جماعة', body: 'اختم يومك بصلاة في المسجد.'),
-            _SmartMessage(title: 'تذكير بالمسجد', body: 'الطريق إلى المسجد يرفع الدرجات.'),
+            _SmartMessage(
+                title: 'زد نصيب المسجد اليوم',
+                body: 'صلاتان في المسجد تُحدث فرقًا كبيرًا.'),
+            _SmartMessage(
+                title: 'لا تكتفِ بالبيت',
+                body: 'في الجماعة فضل عظيم وبركة أوضح.'),
+            _SmartMessage(
+                title: 'ألحق ما بقي',
+                body: 'ما زال يمكن تعويض صلوات الجماعة اليوم.'),
+            _SmartMessage(
+                title: 'اجعل العشاء جماعة', body: 'اختم يومك بصلاة في المسجد.'),
+            _SmartMessage(
+                title: 'تذكير بالمسجد',
+                body: 'الطريق إلى المسجد يرفع الدرجات.'),
           ],
           'masjid_high': const [
-            _SmartMessage(title: 'الجماعة أولى اليوم', body: 'اليوم يحتاج منك حضورًا أقوى للمسجد.'),
-            _SmartMessage(title: 'لا تؤجل الجماعة', body: 'اعقد نية ثابتة أن تكون الصلاة القادمة في المسجد.'),
-            _SmartMessage(title: 'أعد التوازن', body: 'كثرة الصلاة في البيت تُفوّت فضلا عظيما.'),
-            _SmartMessage(title: 'المسجد أولويتك الآن', body: 'ابدأ من الصلاة القادمة واجعلها جماعة.'),
-            _SmartMessage(title: 'فرصة كبيرة لا تضيع', body: 'الجماعة رفعة في الدرجات وغفران للخطايا.'),
+            _SmartMessage(
+                title: 'الجماعة أولى اليوم',
+                body: 'اليوم يحتاج منك حضورًا أقوى للمسجد.'),
+            _SmartMessage(
+                title: 'لا تؤجل الجماعة',
+                body: 'اعقد نية ثابتة أن تكون الصلاة القادمة في المسجد.'),
+            _SmartMessage(
+                title: 'أعد التوازن',
+                body: 'كثرة الصلاة في البيت تُفوّت فضلا عظيما.'),
+            _SmartMessage(
+                title: 'المسجد أولويتك الآن',
+                body: 'ابدأ من الصلاة القادمة واجعلها جماعة.'),
+            _SmartMessage(
+                title: 'فرصة كبيرة لا تضيع',
+                body: 'الجماعة رفعة في الدرجات وغفران للخطايا.'),
           ],
           'wird_low': const [
-            _SmartMessage(title: 'وردك ينتظرك 📖', body: 'صفحات قليلة اليوم تصنع ثباتًا كبيرًا.'),
-            _SmartMessage(title: 'افتح المصحف الآن', body: 'دقائق مع القرآن تكفي لطمأنينة قلبك.'),
-            _SmartMessage(title: 'لا تنهِ اليوم بلا ورد', body: 'اجعل لك نصيبًا من كتاب الله.'),
-            _SmartMessage(title: 'ورد يسير دائم', body: 'القليل الدائم أحب إلى الله.'),
-            _SmartMessage(title: 'نصيحة اليوم', body: 'ابدأ بآية، وسيعينك الله على المزيد.'),
+            _SmartMessage(
+                title: 'وردك ينتظرك 📖',
+                body: 'صفحات قليلة اليوم تصنع ثباتًا كبيرًا.'),
+            _SmartMessage(
+                title: 'افتح المصحف الآن',
+                body: 'دقائق مع القرآن تكفي لطمأنينة قلبك.'),
+            _SmartMessage(
+                title: 'لا تنهِ اليوم بلا ورد',
+                body: 'اجعل لك نصيبًا من كتاب الله.'),
+            _SmartMessage(
+                title: 'ورد يسير دائم', body: 'القليل الدائم أحب إلى الله.'),
+            _SmartMessage(
+                title: 'نصيحة اليوم',
+                body: 'ابدأ بآية، وسيعينك الله على المزيد.'),
           ],
           'wird_mid': const [
-            _SmartMessage(title: 'الورد اليوم مهم', body: 'إذا تأخر وردك فابدأ الآن ولا تؤجل.'),
-            _SmartMessage(title: 'القرآن شفاء', body: 'خمس دقائق تلاوة تغير صفاء يومك.'),
-            _SmartMessage(title: 'ألحق وردك', body: 'ما زال في اليوم وقت لورد مبارك.'),
-            _SmartMessage(title: 'اجعلها عادة ثابتة', body: 'الورد المنتظم يصنع قلبًا حيًا.'),
-            _SmartMessage(title: 'البركة في المداومة', body: 'ورد اليوم لا يترك.'),
+            _SmartMessage(
+                title: 'الورد اليوم مهم',
+                body: 'إذا تأخر وردك فابدأ الآن ولا تؤجل.'),
+            _SmartMessage(
+                title: 'القرآن شفاء', body: 'خمس دقائق تلاوة تغير صفاء يومك.'),
+            _SmartMessage(
+                title: 'ألحق وردك', body: 'ما زال في اليوم وقت لورد مبارك.'),
+            _SmartMessage(
+                title: 'اجعلها عادة ثابتة',
+                body: 'الورد المنتظم يصنع قلبًا حيًا.'),
+            _SmartMessage(
+                title: 'البركة في المداومة', body: 'ورد اليوم لا يترك.'),
           ],
           'wird_high': const [
-            _SmartMessage(title: 'لا تترك القرآن اليوم', body: 'ابدأ فورًا ولو بقدر يسير.'),
-            _SmartMessage(title: 'هذا أهم تذكير لك', body: 'القرآن روح يومك فلا تهجره.'),
-            _SmartMessage(title: 'ارجع للمصحف الآن', body: 'صفحة واحدة الآن خير من تأجيل طويل.'),
-            _SmartMessage(title: 'أنقذ يومك بالورد', body: 'ورد اليوم باب ثبات وطمأنينة.'),
-            _SmartMessage(title: 'استدرك قبل نهاية اليوم', body: 'افتح القرآن الآن وابدأ.'),
+            _SmartMessage(
+                title: 'لا تترك القرآن اليوم',
+                body: 'ابدأ فورًا ولو بقدر يسير.'),
+            _SmartMessage(
+                title: 'هذا أهم تذكير لك', body: 'القرآن روح يومك فلا تهجره.'),
+            _SmartMessage(
+                title: 'ارجع للمصحف الآن',
+                body: 'صفحة واحدة الآن خير من تأجيل طويل.'),
+            _SmartMessage(
+                title: 'أنقذ يومك بالورد',
+                body: 'ورد اليوم باب ثبات وطمأنينة.'),
+            _SmartMessage(
+                title: 'استدرك قبل نهاية اليوم',
+                body: 'افتح القرآن الآن وابدأ.'),
           ],
           'azkarSabah_low': const [
-            _SmartMessage(title: 'أذكار الصباح 🌅', body: 'ابدأ صباحك بذكر الله لتحفظ يومك.'),
-            _SmartMessage(title: 'حصن يومك', body: 'أذكار الصباح أمان وطمأنينة.'),
-            _SmartMessage(title: 'لا تنس أذكار الصباح', body: 'دقائق يسيرة وأجر عظيم.'),
-            _SmartMessage(title: 'صباحك بالذكر', body: 'اجعل أول يومك ذكرًا لله.'),
-            _SmartMessage(title: 'بركة البداية', body: 'ابدأ الآن بأذكار الصباح.'),
+            _SmartMessage(
+                title: 'أذكار الصباح 🌅',
+                body: 'ابدأ صباحك بذكر الله لتحفظ يومك.'),
+            _SmartMessage(
+                title: 'حصن يومك', body: 'أذكار الصباح أمان وطمأنينة.'),
+            _SmartMessage(
+                title: 'لا تنس أذكار الصباح', body: 'دقائق يسيرة وأجر عظيم.'),
+            _SmartMessage(
+                title: 'صباحك بالذكر', body: 'اجعل أول يومك ذكرًا لله.'),
+            _SmartMessage(
+                title: 'بركة البداية', body: 'ابدأ الآن بأذكار الصباح.'),
           ],
           'azkarMasa_low': const [
-            _SmartMessage(title: 'أذكار المساء 🌆', body: 'اختم يومك بذكر الله وطمأنينة القلب.'),
-            _SmartMessage(title: 'مساء مبارك', body: 'لا تنس أذكار المساء قبل النوم.'),
+            _SmartMessage(
+                title: 'أذكار المساء 🌆',
+                body: 'اختم يومك بذكر الله وطمأنينة القلب.'),
+            _SmartMessage(
+                title: 'مساء مبارك', body: 'لا تنس أذكار المساء قبل النوم.'),
             _SmartMessage(title: 'حصّن ليلك', body: 'أذكار المساء حفظ وراحة.'),
-            _SmartMessage(title: 'قبل أن ينتهي اليوم', body: 'أكمل أذكار المساء الآن.'),
-            _SmartMessage(title: 'ذكر يسير وأثر كبير', body: 'أذكار المساء بركة وخير.'),
+            _SmartMessage(
+                title: 'قبل أن ينتهي اليوم', body: 'أكمل أذكار المساء الآن.'),
+            _SmartMessage(
+                title: 'ذكر يسير وأثر كبير', body: 'أذكار المساء بركة وخير.'),
           ],
           'hifz_low': const [
-            _SmartMessage(title: 'خطوة حفظ اليوم 📚', body: 'آية واحدة بإتقان أفضل من الكثير المنقطع.'),
-            _SmartMessage(title: 'وقت الحفظ', body: 'خذ دقائق للحفظ أو التسميع اليوم.'),
-            _SmartMessage(title: 'استمر', body: 'النجاح في الحفظ مع الثبات اليومي.'),
-            _SmartMessage(title: 'لا تقطع السلسلة', body: 'المداومة سر الإتقان في الحفظ.'),
-            _SmartMessage(title: 'ابدأ بآية', body: 'ابدأ الآن وسيبارك الله في وقتك.'),
+            _SmartMessage(
+                title: 'خطوة حفظ اليوم 📚',
+                body: 'آية واحدة بإتقان أفضل من الكثير المنقطع.'),
+            _SmartMessage(
+                title: 'وقت الحفظ', body: 'خذ دقائق للحفظ أو التسميع اليوم.'),
+            _SmartMessage(
+                title: 'استمر', body: 'النجاح في الحفظ مع الثبات اليومي.'),
+            _SmartMessage(
+                title: 'لا تقطع السلسلة',
+                body: 'المداومة سر الإتقان في الحفظ.'),
+            _SmartMessage(
+                title: 'ابدأ بآية', body: 'ابدأ الآن وسيبارك الله في وقتك.'),
           ],
           'tasbih_low': const [
-            _SmartMessage(title: 'لحظة تسبيح 💎', body: 'سبحان الله وبحمده تملأ الميزان.'),
-            _SmartMessage(title: 'ذكر يسير', body: 'دقيقة تسبيح الآن تنعش القلب.'),
-            _SmartMessage(title: 'اغتنم هذه اللحظة', body: 'أكثر من التسبيح يطمئن قلبك.'),
-            _SmartMessage(title: 'التسبيح نور', body: 'ردد سبحان الله والحمد لله.'),
-            _SmartMessage(title: 'لا تفوّت الأجر', body: 'اجعل لسانك رطبًا بالتسبيح.'),
+            _SmartMessage(
+                title: 'لحظة تسبيح 💎',
+                body: 'سبحان الله وبحمده تملأ الميزان.'),
+            _SmartMessage(
+                title: 'ذكر يسير', body: 'دقيقة تسبيح الآن تنعش القلب.'),
+            _SmartMessage(
+                title: 'اغتنم هذه اللحظة', body: 'أكثر من التسبيح يطمئن قلبك.'),
+            _SmartMessage(
+                title: 'التسبيح نور', body: 'ردد سبحان الله والحمد لله.'),
+            _SmartMessage(
+                title: 'لا تفوّت الأجر', body: 'اجعل لسانك رطبًا بالتسبيح.'),
           ],
           'dhikr_low': const [
-            _SmartMessage(title: 'اذكر الله ✨', body: 'الذكر حياة القلب وسكينة النفس.'),
-            _SmartMessage(title: 'تنبيه لطيف', body: 'قل: سبحان الله، والحمد لله، والله أكبر.'),
-            _SmartMessage(title: 'دقيقة ذكر', body: 'استغفار وتسبيح يفتحان أبواب الطمأنينة.'),
-            _SmartMessage(title: 'لا تغفل', body: 'اجعل لك نصيبًا دائمًا من الذكر.'),
-            _SmartMessage(title: 'بقلب حاضر', body: 'اذكر الله الآن وستشعر بالسكينة.'),
+            _SmartMessage(
+                title: 'اذكر الله ✨', body: 'الذكر حياة القلب وسكينة النفس.'),
+            _SmartMessage(
+                title: 'تنبيه لطيف',
+                body: 'قل: سبحان الله، والحمد لله، والله أكبر.'),
+            _SmartMessage(
+                title: 'دقيقة ذكر',
+                body: 'استغفار وتسبيح يفتحان أبواب الطمأنينة.'),
+            _SmartMessage(
+                title: 'لا تغفل', body: 'اجعل لك نصيبًا دائمًا من الذكر.'),
+            _SmartMessage(
+                title: 'بقلب حاضر', body: 'اذكر الله الآن وستشعر بالسكينة.'),
           ],
         };
 
-        final key = '${type.name}_${banks.containsKey('${type.name}_$bucket') ? bucket : 'low'}';
-        final list = banks[key] ?? banks['${type.name}_low'] ?? const <_SmartMessage>[];
+        final key =
+            '${type.name}_${banks.containsKey('${type.name}_$bucket') ? bucket : 'low'}';
+        final list =
+            banks[key] ?? banks['${type.name}_low'] ?? const <_SmartMessage>[];
         if (list.isEmpty) {
-          return const _SmartMessage(title: 'تذكير', body: 'لا تتوقف، واصل قربك من الله.');
+          return const _SmartMessage(
+              title: 'تذكير', body: 'لا تتوقف، واصل قربك من الله.');
         }
         final idx = (daySeed + score + type.index) % list.length;
         return list[idx];
@@ -293,11 +446,11 @@ class AdhanSchedulerService {
             : selected?.arabicText ?? defaultBody);
         final payload = payloadOverride ??
             (selected == null
-            ? featureKey
-            : jsonEncode({
-                'content_id': selected.contentId,
-                'category': selected.category,
-              }));
+                ? featureKey
+                : jsonEncode({
+                    'content_id': selected.contentId,
+                    'category': selected.category,
+                  }));
 
         var finalTitle = title;
         var finalBody = body;
@@ -329,14 +482,9 @@ class AdhanSchedulerService {
             body: finalBody,
             payload: finalPayload,
             priority: finalPriority,
+            selectedContentId: selected?.contentId,
           ),
         );
-
-        if (selected != null) {
-          selected.shownCount = selected.shownCount + 1;
-          selected.lastShown = DateTime.now();
-          await repo.saveContent(selected);
-        }
       }
 
       await addFeaturePlan(
@@ -410,11 +558,13 @@ class AdhanSchedulerService {
       planned.add(
         _PlannedNotification(
           id: 121,
-          when: normalizeToNext(prayerTimes.isha.add(const Duration(minutes: 15))),
+          when: normalizeToNext(
+              prayerTimes.isha.add(const Duration(minutes: 15))),
           title: 'ذكر الله حياة للقلب ✨',
           body: 'دقيقة ذكر قد تغير يومك كله.',
           payload: await signalPayload(_IbadahSignalType.dhikr) ??
-              jsonEncode({'route': 'ibadah_signal', 'signal': 'dhikr', 'score': 1}),
+              jsonEncode(
+                  {'route': 'ibadah_signal', 'signal': 'dhikr', 'score': 1}),
           priority: 2,
         ),
       );
@@ -422,7 +572,8 @@ class AdhanSchedulerService {
       planned.add(
         _PlannedNotification(
           id: 122,
-          when: normalizeToNext(prayerTimes.maghrib.subtract(const Duration(minutes: 25))),
+          when: normalizeToNext(
+              prayerTimes.maghrib.subtract(const Duration(minutes: 25))),
           title: 'مكان صلاة الجماعة بانتظارك 🕌',
           body: 'الخطوات إلى المسجد ترفع الدرجات وتمحو السيئات.',
           payload: await signalPayload(_IbadahSignalType.masjid),
@@ -433,7 +584,8 @@ class AdhanSchedulerService {
       planned.add(
         _PlannedNotification(
           id: 123,
-          when: normalizeToNext(prayerTimes.isha.subtract(const Duration(minutes: 15))),
+          when: normalizeToNext(
+              prayerTimes.isha.subtract(const Duration(minutes: 15))),
           title: 'لا تنهِ يومك دون صلاة العشاء 🌙',
           body: 'أدها في وقتها ليهدأ قلبك وتكتمل بركة يومك.',
           payload: await signalPayload(_IbadahSignalType.prayer),
@@ -444,7 +596,8 @@ class AdhanSchedulerService {
       planned.add(
         _PlannedNotification(
           id: NotificationIds.dailyReport,
-          when: normalizeToNext(prayerTimes.maghrib.add(const Duration(minutes: 20))),
+          when: normalizeToNext(
+              prayerTimes.maghrib.add(const Duration(minutes: 20))),
           title: 'تقريرك اليومي جاهز 📋',
           body: 'راجع يومك الآن وخذ خطوة صادقة لغد أفضل.',
           payload: jsonEncode({'route': 'daily_report'}),
@@ -455,7 +608,8 @@ class AdhanSchedulerService {
       planned.add(
         _PlannedNotification(
           id: NotificationIds.goldenFajr,
-          when: normalizeToNext(prayerTimes.fajr.add(const Duration(minutes: 5))),
+          when:
+              normalizeToNext(prayerTimes.fajr.add(const Duration(minutes: 5))),
           title: 'صباح النور 🌅 — يومك مع الله',
           body: 'ورد: 2 صفحة | حفظ: 5 آيات | أذكار الصباح في انتظارك',
           payload: 'golden_fajr',
@@ -465,16 +619,19 @@ class AdhanSchedulerService {
 
       if (DateTime.now().weekday == DateTime.friday) {
         final base = DateTime.now();
-        planned.add(
-          _PlannedNotification(
-            id: NotificationIds.fridaySpecial,
-            when: normalizeToNext(DateTime(base.year, base.month, base.day, 8)),
-            title: 'جمعة مباركة 🌟',
-            body: 'أكثر من الصلاة على النبي صلى الله عليه وسلم.',
-            payload: 'friday_special',
-            priority: 5,
-          ),
-        );
+        final fridaySpecialTime = DateTime(base.year, base.month, base.day, 8);
+        if (fridaySpecialTime.isAfter(base)) {
+          planned.add(
+            _PlannedNotification(
+              id: NotificationIds.fridaySpecial,
+              when: fridaySpecialTime,
+              title: 'جمعة مباركة 🌟',
+              body: 'أكثر من الصلاة على النبي صلى الله عليه وسلم.',
+              payload: 'friday_special',
+              priority: 5,
+            ),
+          );
+        }
         planned.add(
           _PlannedNotification(
             id: NotificationIds.fridayKahf,
@@ -485,26 +642,34 @@ class AdhanSchedulerService {
             priority: 5,
           ),
         );
-        planned.add(
-          _PlannedNotification(
-            id: NotificationIds.fridaySalawatA,
-            when: normalizeToNext(DateTime(base.year, base.month, base.day, 10, 0)),
-            title: 'أكثر من الصلاة على النبي ﷺ',
-            body: 'اللهم صل وسلم على نبينا محمد.',
-            payload: 'friday_salawat_a',
-            priority: 3,
-          ),
-        );
-        planned.add(
-          _PlannedNotification(
-            id: NotificationIds.fridaySalawatB,
-            when: normalizeToNext(DateTime(base.year, base.month, base.day, 12, 0)),
-            title: 'ذكر الجمعة المبارك',
-            body: 'صل على النبي ﷺ واجعل لسانك رطبًا بالذكر.',
-            payload: 'friday_salawat_b',
-            priority: 3,
-          ),
-        );
+        final fridaySalawatATime =
+            DateTime(base.year, base.month, base.day, 10, 0);
+        if (fridaySalawatATime.isAfter(base)) {
+          planned.add(
+            _PlannedNotification(
+              id: NotificationIds.fridaySalawatA,
+              when: fridaySalawatATime,
+              title: 'أكثر من الصلاة على النبي ﷺ',
+              body: 'اللهم صل وسلم على نبينا محمد.',
+              payload: 'friday_salawat_a',
+              priority: 3,
+            ),
+          );
+        }
+        final fridaySalawatBTime =
+            DateTime(base.year, base.month, base.day, 12, 0);
+        if (fridaySalawatBTime.isAfter(base)) {
+          planned.add(
+            _PlannedNotification(
+              id: NotificationIds.fridaySalawatB,
+              when: fridaySalawatBTime,
+              title: 'ذكر الجمعة المبارك',
+              body: 'صل على النبي ﷺ واجعل لسانك رطبًا بالذكر.',
+              payload: 'friday_salawat_b',
+              priority: 3,
+            ),
+          );
+        }
         planned.add(
           _PlannedNotification(
             id: NotificationIds.fridayResponseHour,
@@ -549,7 +714,8 @@ class AdhanSchedulerService {
           selected.add(plan);
           continue;
         }
-        final tooClose = selected.any((s) => plan.when.difference(s.when).inMinutes.abs() < 120);
+        final tooClose = selected
+            .any((s) => plan.when.difference(s.when).inMinutes.abs() < 120);
         if (!tooClose) {
           selected.add(plan);
         }
@@ -566,6 +732,15 @@ class AdhanSchedulerService {
           dateTime: item.when,
           payload: item.payload,
         );
+        if (item.selectedContentId != null) {
+          final content =
+              await repo.getContentByContentId(item.selectedContentId!);
+          if (content != null) {
+            content.shownCount = content.shownCount + 1;
+            content.lastShown = DateTime.now();
+            await repo.saveContent(content);
+          }
+        }
       }
     } catch (e) {
       print('Error scheduling smart reminders: $e');
@@ -579,7 +754,7 @@ class AdhanSchedulerService {
     String soundFile,
   ) async {
     final isEnabled = await _prefsService.isAdhanEnabled(prayerName);
-    
+
     if (isEnabled) {
       final now = DateTime.now();
       final nextPrayerTime = prayerTime.isAfter(now)
@@ -600,7 +775,7 @@ class AdhanSchedulerService {
   /// Reschedule prayers (called daily or when app restarts)
   Future<void> rescheduleDaily(PrayerRepository repository) async {
     print('Rescheduling daily prayers...');
-    
+
     try {
       final prayerTimes = await repository.getPrayerTimes();
       await scheduleAllPrayers(prayerTimes);
@@ -632,7 +807,6 @@ class AdhanSchedulerService {
   Future<void> stopAdhan() async {
     await _notificationService.stopAdhan();
   }
-
 }
 
 class _PlannedNotification {
@@ -642,6 +816,7 @@ class _PlannedNotification {
   final String body;
   final String? payload;
   final int priority;
+  final String? selectedContentId;
 
   _PlannedNotification({
     required this.id,
@@ -650,6 +825,7 @@ class _PlannedNotification {
     required this.body,
     required this.payload,
     required this.priority,
+    this.selectedContentId,
   });
 
   _PlannedNotification copyWith({int? priority}) {
@@ -660,6 +836,7 @@ class _PlannedNotification {
       body: body,
       payload: payload,
       priority: priority ?? this.priority,
+      selectedContentId: selectedContentId,
     );
   }
 }

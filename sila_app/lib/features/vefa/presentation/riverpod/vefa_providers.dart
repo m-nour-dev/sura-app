@@ -14,19 +14,14 @@ final isarServiceProvider = Provider<IsarService>((ref) {
 
 final isarInstanceProvider = FutureProvider<Isar>((ref) async {
   final service = ref.watch(isarServiceProvider);
-  try {
-    return await service.db;
-  } catch (_) {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    return await service.db;
-  }
+  return service.db;
 });
 
 // DataSource
 final vefaLocalDataSourceProvider = Provider<VefaLocalDataSource>((ref) {
   final isarAsync = ref.watch(isarInstanceProvider);
   if (isarAsync.asData == null) {
-      throw Exception('Isar not initialized');
+    throw Exception('Isar not initialized');
   }
   return VefaLocalDataSourceImpl(isarAsync.asData!.value);
 });
@@ -46,14 +41,14 @@ final addVefaPersonUseCaseProvider = Provider<AddVefaPersonUseCase>((ref) {
   return AddVefaPersonUseCase(ref.watch(vefaRepositoryProvider));
 });
 
-final deleteVefaPersonUseCaseProvider = Provider<DeleteVefaPersonUseCase>((ref) {
+final deleteVefaPersonUseCaseProvider =
+    Provider<DeleteVefaPersonUseCase>((ref) {
   return DeleteVefaPersonUseCase(ref.watch(vefaRepositoryProvider));
 });
 
 final giftThawabUseCaseProvider = Provider<GiftThawabUseCase>((ref) {
   return GiftThawabUseCase(ref.watch(vefaRepositoryProvider));
 });
-
 
 // Controller / State Management
 class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
@@ -119,24 +114,26 @@ class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
 }
 
 final vefaListControllerProvider =
-    StateNotifierProvider<VefaListController, AsyncValue<List<VefaPerson>>>((ref) {
+    StateNotifierProvider<VefaListController, AsyncValue<List<VefaPerson>>>(
+        (ref) {
   final isarAsync = ref.watch(isarInstanceProvider);
-  
+
   // Wait for Isar to be ready
   if (isarAsync.isLoading) {
-     return VefaListController(
-        getVefaList: ref.watch(getVefaListUseCaseProvider), // This will fail if simple provider, but we need to handle dependency properly. 
-       // Actually simpler approach: Check Isar state in UI or use `AsyncNotifier`.
-       // For now, let's keep it simple. If isar is loading, we can't create the controller properly if dataSource throws.
-       // Better approach: have the repository return Left(Failure) if DB not ready?
-       // Or just let Riverpod handle the async dependency.
-        addVefaPerson: ref.watch(addVefaPersonUseCaseProvider),
-        deleteVefaPerson: ref.watch(deleteVefaPersonUseCaseProvider),
-        giftThawab: ref.watch(giftThawabUseCaseProvider),
-        ref: ref,
-     );
+    return VefaListController(
+      getVefaList: ref.watch(
+          getVefaListUseCaseProvider), // This will fail if simple provider, but we need to handle dependency properly.
+      // Actually simpler approach: Check Isar state in UI or use `AsyncNotifier`.
+      // For now, let's keep it simple. If isar is loading, we can't create the controller properly if dataSource throws.
+      // Better approach: have the repository return Left(Failure) if DB not ready?
+      // Or just let Riverpod handle the async dependency.
+      addVefaPerson: ref.watch(addVefaPersonUseCaseProvider),
+      deleteVefaPerson: ref.watch(deleteVefaPersonUseCaseProvider),
+      giftThawab: ref.watch(giftThawabUseCaseProvider),
+      ref: ref,
+    );
   }
-  
+
   return VefaListController(
     getVefaList: ref.watch(getVefaListUseCaseProvider),
     addVefaPerson: ref.watch(addVefaPersonUseCaseProvider),

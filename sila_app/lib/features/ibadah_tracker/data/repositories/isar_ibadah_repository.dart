@@ -8,12 +8,14 @@ class IsarIbadahRepository implements IIbadahRepository {
 
   final Isar _isar;
 
-  DateTime _normalize(DateTime date) => DateTime(date.year, date.month, date.day);
+  DateTime _normalize(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
 
   @override
   Future<IbadahRecord> getOrCreateRecord(DateTime date) async {
     final normalized = _normalize(date);
-    final existing = await _isar.ibadahRecords.filter().dateEqualTo(normalized).findFirst();
+    final existing =
+        await _isar.ibadahRecords.filter().dateEqualTo(normalized).findFirst();
     if (existing != null) return existing;
 
     final record = IbadahRecord.freshFor(normalized);
@@ -64,6 +66,7 @@ class IsarIbadahRepository implements IIbadahRepository {
     required int status,
   }) async {
     final record = await getOrCreateRecord(date);
+    var handled = true;
     switch (prayer) {
       case 'fajr':
         record.fajrStatus = status;
@@ -80,6 +83,11 @@ class IsarIbadahRepository implements IIbadahRepository {
       case 'isha':
         record.ishaStatus = status;
         break;
+      default:
+        handled = false;
+    }
+    if (!handled) {
+      throw ArgumentError.value(prayer, 'prayer', 'Unknown prayer key');
     }
     await saveRecord(record);
   }
@@ -118,6 +126,7 @@ class IsarIbadahRepository implements IIbadahRepository {
     required bool value,
   }) async {
     final record = await getOrCreateRecord(date);
+    var handled = true;
     switch (key) {
       case 'wird':
         record.readWird = value;
@@ -140,12 +149,18 @@ class IsarIbadahRepository implements IIbadahRepository {
       case 'dhikr':
         record.rememberedAllah = value;
         break;
+      default:
+        handled = false;
+    }
+    if (!handled) {
+      throw ArgumentError.value(key, 'key', 'Unknown status key');
     }
     await saveRecord(record);
   }
 
   @override
-  Future<void> updatePersonalNote({required DateTime date, required String? note}) async {
+  Future<void> updatePersonalNote(
+      {required DateTime date, required String? note}) async {
     final record = await getOrCreateRecord(date);
     record.personalNote = note;
     await saveRecord(record);
@@ -159,7 +174,8 @@ class IsarIbadahRepository implements IIbadahRepository {
   @override
   Future<void> setGenderPrefs({required bool isMale}) async {
     final existing = await getGenderPrefs();
-    final value = existing ?? UserGenderPrefs()..createdAt = DateTime.now();
+    final value = existing ?? UserGenderPrefs()
+      ..createdAt = DateTime.now();
     value
       ..isMale = isMale
       ..onboardingDone = true;

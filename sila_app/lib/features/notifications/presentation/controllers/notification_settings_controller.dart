@@ -37,20 +37,22 @@ class NotificationSettingsController
       }
     }
 
-    debugPrint('Notification settings load failed for $_featureKey: $lastError');
+    debugPrint(
+        'Notification settings load failed for $_featureKey: $lastError');
 
     try {
       final fallback = NotificationSettings()..featureKey = _featureKey;
       state = AsyncValue.data(fallback);
     } catch (_) {
-      state = AsyncValue.error(lastError ?? Exception('Settings load failed'), lastStack ?? StackTrace.current);
+      state = AsyncValue.error(lastError ?? Exception('Settings load failed'),
+          lastStack ?? StackTrace.current);
     }
   }
 
   Future<void> toggleEnabled(bool value) => _update((s) => s.isEnabled = value);
-  Future<void> setFrequency(String value) => _update((s) => s.frequency = value);
-  Future<void> setFixedTime(int hour, int minute) =>
-      _update((s) {
+  Future<void> setFrequency(String value) =>
+      _update((s) => s.frequency = value);
+  Future<void> setFixedTime(int hour, int minute) => _update((s) {
         s.timingType = 'fixed';
         s.fixedHour = hour;
         s.fixedMinute = minute;
@@ -74,12 +76,26 @@ class NotificationSettingsController
   Future<void> toggleEndTimeReminder(bool value) =>
       _update((s) => s.endTimeReminderEnabled = value);
 
-  Future<void> _update(void Function(NotificationSettings settings) change) async {
+  Future<void> _update(
+      void Function(NotificationSettings settings) change) async {
     final current = state.value;
     if (current == null) return;
-    change(current);
-    state = AsyncValue.data(current);
+    final next = NotificationSettings()
+      ..id = current.id
+      ..featureKey = current.featureKey
+      ..isEnabled = current.isEnabled
+      ..timingType = current.timingType
+      ..fixedHour = current.fixedHour
+      ..fixedMinute = current.fixedMinute
+      ..prayerName = current.prayerName
+      ..minutesAfterPrayer = current.minutesAfterPrayer
+      ..frequency = current.frequency
+      ..weekDays = List<int>.from(current.weekDays)
+      ..preferredTypes = List<String>.from(current.preferredTypes)
+      ..endTimeReminderEnabled = current.endTimeReminderEnabled;
+    change(next);
+    state = AsyncValue.data(next);
     final repo = await _ref.read(notificationRepositoryProvider.future);
-    await repo.saveSettings(current);
+    await repo.saveSettings(next);
   }
 }

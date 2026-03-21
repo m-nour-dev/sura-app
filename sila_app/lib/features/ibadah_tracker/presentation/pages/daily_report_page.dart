@@ -53,7 +53,8 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
     final report = ref.watch(dailyReportProvider);
     final firstRecordDateAsync = ref.watch(firstRecordDateProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFFDFBF7);
+    final backgroundColor =
+        isDark ? const Color(0xFF0F172A) : const Color(0xFFFDFBF7);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -63,25 +64,34 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
           final yesterday = data.yesterday;
           final hasYesterday = yesterday != null;
           final engine = ComparisonEngine();
-          final dailyStatusText = DailyStatusCalculator.getDailyStatusText(today, isMale: data.isMale);
-          final ratioToday = DailyStatusCalculator.completionRatio(today, isMale: data.isMale);
+          final dailyStatusText = DailyStatusCalculator.getDailyStatusText(
+              today,
+              isMale: data.isMale);
+          final ratioToday =
+              DailyStatusCalculator.completionRatio(today, isMale: data.isMale);
           final ratioYesterday = hasYesterday
-              ? DailyStatusCalculator.completionRatio(yesterday, isMale: data.isMale)
+              ? DailyStatusCalculator.completionRatio(yesterday,
+                  isMale: data.isMale)
               : 0.0;
           final todayBetter = hasYesterday
-              ? engine.isTodayBetter(today: today, yesterday: yesterday, isMale: data.isMale)
+              ? engine.isTodayBetter(
+                  today: today, yesterday: yesterday, isMale: data.isMale)
               : false;
           final comparisonText = hasYesterday
-              ? engine.comparisonText(today: today, yesterday: yesterday, isMale: data.isMale)
+              ? engine.comparisonText(
+                  today: today, yesterday: yesterday, isMale: data.isMale)
               : 'هذا يومك الأول — بداية مباركة بإذن الله 🌱';
           final hijriDate = _hijriArabicDate();
 
           final completedItems = _completedItems(today, isMale: data.isMale);
           final incompleteItems = _incompleteItems(today, isMale: data.isMale);
-          final todayCount = DailyStatusCalculator.completedCount(today, isMale: data.isMale);
-          final todayTotal = DailyStatusCalculator.totalCount(isMale: data.isMale);
+          final todayCount =
+              DailyStatusCalculator.completedCount(today, isMale: data.isMale);
+          final todayTotal =
+              DailyStatusCalculator.totalCount(isMale: data.isMale);
           final yesterdayCount = hasYesterday
-              ? DailyStatusCalculator.completedCount(yesterday, isMale: data.isMale)
+              ? DailyStatusCalculator.completedCount(yesterday,
+                  isMale: data.isMale)
               : 0;
           final yesterdayTotal = hasYesterday ? todayTotal : 0;
 
@@ -108,9 +118,10 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
           final ageDays = firstRecordDate == null
               ? 1
               : DateTime(_anchorDay.year, _anchorDay.month, _anchorDay.day)
-                    .difference(DateTime(firstRecordDate.year, firstRecordDate.month, firstRecordDate.day))
-                    .inDays +
-                1;
+                      .difference(DateTime(firstRecordDate.year,
+                          firstRecordDate.month, firstRecordDate.day))
+                      .inDays +
+                  1;
           final requiredDays = _customRange == null
               ? _selectedDays
               : range.end.difference(range.start).inDays + 1;
@@ -125,7 +136,8 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
                     decoration: const BoxDecoration(
-                      gradient: LinearGradient(colors: [Color(0xFF064E3B), Color(0xFF0a6b52)]),
+                      gradient: LinearGradient(
+                          colors: [Color(0xFF064E3B), Color(0xFF0a6b52)]),
                     ),
                     child: Center(
                       child: Column(
@@ -142,7 +154,8 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                           ),
                           Text(
                             hijriDate,
-                            style: GoogleFonts.getFont('Cairo', fontSize: 12, color: Colors.white60),
+                            style: GoogleFonts.getFont('Cairo',
+                                fontSize: 12, color: Colors.white60),
                           ),
                         ],
                       ),
@@ -200,6 +213,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                         if (picked != null) {
                           setState(() {
                             _customRange = picked;
+                            _selectedDays = -1;
                           });
                         }
                       },
@@ -213,18 +227,20 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border:
+                                  Border.all(color: const Color(0xFFE2E8F0)),
                             ),
                             child: Text(
                               _selectedDays == 7
                                   ? 'المقارنة الأسبوعية غير متوفرة بعد — ننتظرك حتى يكتمل الأسبوع 🌿'
                                   : _selectedDays == 30
-                                  ? 'المقارنة الشهرية غير متوفرة بعد — ننتظرك حتى يكتمل الشهر 🌿'
-                                  : _customRange != null
-                                  ? 'هذا النطاق غير متوفر بعد — اختر نطاقًا أقرب 🌿'
-                                  : 'المقارنة لثلاثة أشهر غير متوفرة بعد — ننتظرك حتى يكتمل النطاق 🌿',
+                                      ? 'المقارنة الشهرية غير متوفرة بعد — ننتظرك حتى يكتمل الشهر 🌿'
+                                      : _customRange != null
+                                          ? 'هذا النطاق غير متوفر بعد — اختر نطاقًا أقرب 🌿'
+                                          : 'المقارنة لثلاثة أشهر غير متوفرة بعد — ننتظرك حتى يكتمل النطاق 🌿',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.getFont('Cairo', fontSize: 12, color: const Color(0xFF64748B)),
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontSize: 12, color: const Color(0xFF64748B)),
                             ),
                           );
                         }
@@ -232,21 +248,23 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                         return _CalendarHeatmap(
                           records: records,
                           isMale: data.isMale,
-                          days: _selectedDays,
+                          days: requiredDays,
                           endDate: _anchorDay,
                           firstDayMode: !hasYesterday,
                         );
                       },
                       loading: () => const SizedBox(
                         height: 80,
-                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        child: Center(
+                            child: CircularProgressIndicator(strokeWidth: 2)),
                       ),
                       error: (_, __) => const SizedBox.shrink(),
                     ),
                     if (incompleteItems.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       _SectionTitle('تذكير من السنة 📿'),
-                      _ReminderCards(items: incompleteItems, isMale: data.isMale),
+                      _ReminderCards(
+                          items: incompleteItems, isMale: data.isMale),
                     ],
                     const SizedBox(height: 30),
                   ]),
@@ -298,7 +316,8 @@ class _SectionTitle extends StatelessWidget {
         alignment: Alignment.centerRight,
         child: Text(
           text,
-          style: GoogleFonts.getFont('Cairo', fontSize: 15, fontWeight: FontWeight.w700),
+          style: GoogleFonts.getFont('Cairo',
+              fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -328,7 +347,8 @@ class _PillList extends StatelessWidget {
               child: Text(
                 e.label,
                 textAlign: TextAlign.right,
-                style: GoogleFonts.getFont('Cairo', fontSize: 13, fontWeight: FontWeight.w600),
+                style: GoogleFonts.getFont('Cairo',
+                    fontSize: 13, fontWeight: FontWeight.w600),
               ),
             ),
           )
@@ -367,7 +387,9 @@ class _StatsStrip extends StatelessWidget {
         Expanded(
           child: _MiniStatCard(
             title: 'إنجاز أمس',
-            value: hasYesterday ? '$yesterdayCount / $yesterdayTotal' : 'غير متوفر',
+            value: hasYesterday
+                ? '$yesterdayCount / $yesterdayTotal'
+                : 'غير متوفر',
             accent: const Color(0xFFD97706),
           ),
         ),
@@ -377,7 +399,8 @@ class _StatsStrip extends StatelessWidget {
 }
 
 class _MiniStatCard extends StatelessWidget {
-  const _MiniStatCard({required this.title, required this.value, required this.accent});
+  const _MiniStatCard(
+      {required this.title, required this.value, required this.accent});
   final String title;
   final String value;
   final Color accent;
@@ -395,12 +418,14 @@ class _MiniStatCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.getFont('Cairo', fontSize: 11, color: const Color(0xFF64748B)),
+            style: GoogleFonts.getFont('Cairo',
+                fontSize: 11, color: const Color(0xFF64748B)),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w800, color: accent),
+            style: GoogleFonts.getFont('Cairo',
+                fontWeight: FontWeight.w800, color: accent),
           ),
         ],
       ),
@@ -433,16 +458,19 @@ class _ComparisonCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text('مقارنة مع أمس', style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
+          Text('مقارنة مع أمس',
+              style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: _RatioBox(label: 'أمس', ratio: ratioYesterday, active: false),
+                child: _RatioBox(
+                    label: 'أمس', ratio: ratioYesterday, active: false),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _RatioBox(label: 'اليوم', ratio: ratioToday, active: true),
+                child:
+                    _RatioBox(label: 'اليوم', ratio: ratioToday, active: true),
               ),
             ],
           ),
@@ -451,13 +479,17 @@ class _ComparisonCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
             decoration: BoxDecoration(
-              color: (todayBetter ? const Color(0xFF064E3B) : const Color(0xFFD97706)).withValues(alpha: 0.12),
+              color: (todayBetter
+                      ? const Color(0xFF064E3B)
+                      : const Color(0xFFD97706))
+                  .withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.getFont('Cairo', fontSize: 12, fontWeight: FontWeight.w600),
+              style: GoogleFonts.getFont('Cairo',
+                  fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -467,7 +499,8 @@ class _ComparisonCard extends StatelessWidget {
 }
 
 class _RatioBox extends StatelessWidget {
-  const _RatioBox({required this.label, required this.ratio, required this.active});
+  const _RatioBox(
+      {required this.label, required this.ratio, required this.active});
 
   final String label;
   final double ratio;
@@ -484,11 +517,13 @@ class _RatioBox extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(label, style: GoogleFonts.getFont('Cairo', fontSize: 12, color: color)),
+          Text(label,
+              style: GoogleFonts.getFont('Cairo', fontSize: 12, color: color)),
           const SizedBox(height: 6),
           Text(
             '${(ratio * 100).toStringAsFixed(0)}٪',
-            style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700, color: color),
+            style: GoogleFonts.getFont('Cairo',
+                fontWeight: FontWeight.w700, color: color),
           ),
         ],
       ),
@@ -524,7 +559,8 @@ class _CalendarHeatmap extends StatelessWidget {
     var empty = 0;
 
     for (var i = 0; i < days; i++) {
-      final d = DateTime(endDate.year, endDate.month, endDate.day).subtract(Duration(days: i));
+      final d = DateTime(endDate.year, endDate.month, endDate.day)
+          .subtract(Duration(days: i));
       final key = d.year * 10000 + d.month * 100 + d.day;
       final rec = map[key];
 
@@ -533,7 +569,8 @@ class _CalendarHeatmap extends StatelessWidget {
         color = const Color(0xFFE2E8F0);
         empty++;
       } else {
-        final ratio = DailyStatusCalculator.completionRatio(rec, isMale: isMale);
+        final ratio =
+            DailyStatusCalculator.completionRatio(rec, isMale: isMale);
         if (ratio >= 0.8) {
           color = const Color(0xFF064E3B);
           completed++;
@@ -550,7 +587,8 @@ class _CalendarHeatmap extends StatelessWidget {
         Container(
           width: 14,
           height: 14,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
+          decoration: BoxDecoration(
+              color: color, borderRadius: BorderRadius.circular(3)),
         ),
       );
     }
@@ -566,7 +604,8 @@ class _CalendarHeatmap extends StatelessWidget {
         child: Text(
           'غير متوفر اليوم — ننتظرك غدًا لنبدأ المقارنة الزمنية 🌿',
           textAlign: TextAlign.center,
-          style: GoogleFonts.getFont('Cairo', fontSize: 12, color: const Color(0xFF64748B)),
+          style: GoogleFonts.getFont('Cairo',
+              fontSize: 12, color: const Color(0xFF64748B)),
         ),
       );
     }
@@ -577,7 +616,8 @@ class _CalendarHeatmap extends StatelessWidget {
         Text(
           'آخر $days يوم: مكتمل $completed | جزئي $partial | بلا تسجيل $empty',
           textAlign: TextAlign.center,
-          style: GoogleFonts.getFont('Cairo', fontSize: 11, color: const Color(0xFF64748B)),
+          style: GoogleFonts.getFont('Cairo',
+              fontSize: 11, color: const Color(0xFF64748B)),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -614,10 +654,13 @@ class _LegendDot extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+          decoration: BoxDecoration(
+              color: color, borderRadius: BorderRadius.circular(2)),
         ),
         const SizedBox(width: 4),
-        Text(label, style: GoogleFonts.getFont('Cairo', fontSize: 11, color: const Color(0xFF64748B))),
+        Text(label,
+            style: GoogleFonts.getFont('Cairo',
+                fontSize: 11, color: const Color(0xFF64748B))),
       ],
     );
   }
@@ -641,19 +684,37 @@ class _RangeSelector extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        _RangeChip(label: 'أسبوع', days: 7, selected: selectedDays == 7, onTap: onSelect),
-        _RangeChip(label: 'شهر', days: 30, selected: selectedDays == 30, onTap: onSelect),
-        _RangeChip(label: '3 أشهر', days: 90, selected: selectedDays == 90, onTap: onSelect),
+        _RangeChip(
+            label: 'أسبوع',
+            days: 7,
+            selected: selectedDays == 7,
+            onTap: onSelect),
+        _RangeChip(
+            label: 'شهر',
+            days: 30,
+            selected: selectedDays == 30,
+            onTap: onSelect),
+        _RangeChip(
+            label: '3 أشهر',
+            days: 90,
+            selected: selectedDays == 90,
+            onTap: onSelect),
         InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: onCustomTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
-              color: (customSelected ? const Color(0xFF064E3B) : const Color(0xFF64748B)).withValues(alpha: 0.1),
+              color: (customSelected
+                      ? const Color(0xFF064E3B)
+                      : const Color(0xFF64748B))
+                  .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: (customSelected ? const Color(0xFF064E3B) : const Color(0xFF64748B)).withValues(alpha: 0.25),
+                color: (customSelected
+                        ? const Color(0xFF064E3B)
+                        : const Color(0xFF64748B))
+                    .withValues(alpha: 0.25),
               ),
             ),
             child: Text(
@@ -662,7 +723,9 @@ class _RangeSelector extends StatelessWidget {
                 'Cairo',
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: customSelected ? const Color(0xFF064E3B) : const Color(0xFF64748B),
+                color: customSelected
+                    ? const Color(0xFF064E3B)
+                    : const Color(0xFF64748B),
               ),
             ),
           ),
@@ -673,7 +736,11 @@ class _RangeSelector extends StatelessWidget {
 }
 
 class _RangeChip extends StatelessWidget {
-  const _RangeChip({required this.label, required this.days, required this.selected, required this.onTap});
+  const _RangeChip(
+      {required this.label,
+      required this.days,
+      required this.selected,
+      required this.onTap});
   final String label;
   final int days;
   final bool selected;
@@ -694,7 +761,8 @@ class _RangeChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.getFont('Cairo', fontSize: 12, fontWeight: FontWeight.w700, color: color),
+          style: GoogleFonts.getFont('Cairo',
+              fontSize: 12, fontWeight: FontWeight.w700, color: color),
         ),
       ),
     );
@@ -703,46 +771,75 @@ class _RangeChip extends StatelessWidget {
 
 List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale}) {
   final out = <_IbadahItem>[];
-  if (r.fajrStatus > 0) out.add(const _IbadahItem(key: 'fajr', label: 'صلاة الفجر'));
-  if (r.dhuhrStatus > 0) out.add(const _IbadahItem(key: 'dhuhr', label: 'صلاة الظهر'));
-  if (r.asrStatus > 0) out.add(const _IbadahItem(key: 'asr', label: 'صلاة العصر'));
-  if (r.maghribStatus > 0) out.add(const _IbadahItem(key: 'maghrib', label: 'صلاة المغرب'));
-  if (r.ishaStatus > 0) out.add(const _IbadahItem(key: 'isha', label: 'صلاة العشاء'));
+  if (r.fajrStatus > 0)
+    out.add(const _IbadahItem(key: 'fajr', label: 'صلاة الفجر'));
+  if (r.dhuhrStatus > 0)
+    out.add(const _IbadahItem(key: 'dhuhr', label: 'صلاة الظهر'));
+  if (r.asrStatus > 0)
+    out.add(const _IbadahItem(key: 'asr', label: 'صلاة العصر'));
+  if (r.maghribStatus > 0)
+    out.add(const _IbadahItem(key: 'maghrib', label: 'صلاة المغرب'));
+  if (r.ishaStatus > 0)
+    out.add(const _IbadahItem(key: 'isha', label: 'صلاة العشاء'));
   if (r.readWird) out.add(const _IbadahItem(key: 'wird', label: 'الورد'));
-  if (r.readAzkarSabah) out.add(const _IbadahItem(key: 'azkar_sabah', label: 'أذكار الصباح'));
-  if (r.readAzkarMasa) out.add(const _IbadahItem(key: 'azkar_masa', label: 'أذكار المساء'));
+  if (r.readAzkarSabah)
+    out.add(const _IbadahItem(key: 'azkar_sabah', label: 'أذكار الصباح'));
+  if (r.readAzkarMasa)
+    out.add(const _IbadahItem(key: 'azkar_masa', label: 'أذكار المساء'));
   if (r.didTasbih) out.add(const _IbadahItem(key: 'tasbih', label: 'التسبيح'));
-  if (r.didHifz || r.didTasmi) out.add(const _IbadahItem(key: 'hifz', label: 'الحفظ/التسميع'));
-  if (r.rememberedAllah) out.add(const _IbadahItem(key: 'dhikr', label: 'ذكر الله'));
+  if (r.didHifz || r.didTasmi)
+    out.add(const _IbadahItem(key: 'hifz', label: 'الحفظ/التسميع'));
+  if (r.rememberedAllah)
+    out.add(const _IbadahItem(key: 'dhikr', label: 'ذكر الله'));
   if (isMale) {
-    if (r.fajrInMasjid == true) out.add(const _IbadahItem(key: 'fajr', label: 'فجر جماعة'));
-    if (r.dhuhrInMasjid == true) out.add(const _IbadahItem(key: 'dhuhr', label: 'ظهر جماعة'));
-    if (r.asrInMasjid == true) out.add(const _IbadahItem(key: 'asr', label: 'عصر جماعة'));
-    if (r.maghribInMasjid == true) out.add(const _IbadahItem(key: 'maghrib', label: 'مغرب جماعة'));
-    if (r.ishaInMasjid == true) out.add(const _IbadahItem(key: 'isha', label: 'عشاء جماعة'));
+    if (r.fajrInMasjid == true)
+      out.add(const _IbadahItem(key: 'fajr', label: 'فجر جماعة'));
+    if (r.dhuhrInMasjid == true)
+      out.add(const _IbadahItem(key: 'dhuhr', label: 'ظهر جماعة'));
+    if (r.asrInMasjid == true)
+      out.add(const _IbadahItem(key: 'asr', label: 'عصر جماعة'));
+    if (r.maghribInMasjid == true)
+      out.add(const _IbadahItem(key: 'maghrib', label: 'مغرب جماعة'));
+    if (r.ishaInMasjid == true)
+      out.add(const _IbadahItem(key: 'isha', label: 'عشاء جماعة'));
   }
-  return out.isEmpty ? [const _IbadahItem(key: 'general', label: 'بداية مباركة اليوم')] : out;
+  return out.isEmpty
+      ? [const _IbadahItem(key: 'general', label: 'بداية مباركة اليوم')]
+      : out;
 }
 
 List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale}) {
   final out = <_IbadahItem>[];
-  if (r.fajrStatus == 0) out.add(const _IbadahItem(key: 'fajr', label: 'الفجر'));
-  if (r.dhuhrStatus == 0) out.add(const _IbadahItem(key: 'dhuhr', label: 'الظهر'));
+  if (r.fajrStatus == 0)
+    out.add(const _IbadahItem(key: 'fajr', label: 'الفجر'));
+  if (r.dhuhrStatus == 0)
+    out.add(const _IbadahItem(key: 'dhuhr', label: 'الظهر'));
   if (r.asrStatus == 0) out.add(const _IbadahItem(key: 'asr', label: 'العصر'));
-  if (r.maghribStatus == 0) out.add(const _IbadahItem(key: 'maghrib', label: 'المغرب'));
-  if (r.ishaStatus == 0) out.add(const _IbadahItem(key: 'isha', label: 'العشاء'));
+  if (r.maghribStatus == 0)
+    out.add(const _IbadahItem(key: 'maghrib', label: 'المغرب'));
+  if (r.ishaStatus == 0)
+    out.add(const _IbadahItem(key: 'isha', label: 'العشاء'));
   if (!r.readWird) out.add(const _IbadahItem(key: 'wird', label: 'الورد'));
-  if (!r.readAzkarSabah) out.add(const _IbadahItem(key: 'azkar_sabah', label: 'أذكار الصباح'));
-  if (!r.readAzkarMasa) out.add(const _IbadahItem(key: 'azkar_masa', label: 'أذكار المساء'));
+  if (!r.readAzkarSabah)
+    out.add(const _IbadahItem(key: 'azkar_sabah', label: 'أذكار الصباح'));
+  if (!r.readAzkarMasa)
+    out.add(const _IbadahItem(key: 'azkar_masa', label: 'أذكار المساء'));
   if (!r.didTasbih) out.add(const _IbadahItem(key: 'tasbih', label: 'التسبيح'));
-  if (!(r.didHifz || r.didTasmi)) out.add(const _IbadahItem(key: 'hifz', label: 'الحفظ/التسميع'));
-  if (!r.rememberedAllah) out.add(const _IbadahItem(key: 'dhikr', label: 'ذكر الله'));
+  if (!(r.didHifz || r.didTasmi))
+    out.add(const _IbadahItem(key: 'hifz', label: 'الحفظ/التسميع'));
+  if (!r.rememberedAllah)
+    out.add(const _IbadahItem(key: 'dhikr', label: 'ذكر الله'));
   if (isMale) {
-    if (r.fajrStatus > 0 && r.fajrInMasjid == false) out.add(const _IbadahItem(key: 'fajr', label: 'فجر جماعة'));
-    if (r.dhuhrStatus > 0 && r.dhuhrInMasjid == false) out.add(const _IbadahItem(key: 'dhuhr', label: 'ظهر جماعة'));
-    if (r.asrStatus > 0 && r.asrInMasjid == false) out.add(const _IbadahItem(key: 'asr', label: 'عصر جماعة'));
-    if (r.maghribStatus > 0 && r.maghribInMasjid == false) out.add(const _IbadahItem(key: 'maghrib', label: 'مغرب جماعة'));
-    if (r.ishaStatus > 0 && r.ishaInMasjid == false) out.add(const _IbadahItem(key: 'isha', label: 'عشاء جماعة'));
+    if (r.fajrStatus > 0 && r.fajrInMasjid == false)
+      out.add(const _IbadahItem(key: 'fajr', label: 'فجر جماعة'));
+    if (r.dhuhrStatus > 0 && r.dhuhrInMasjid == false)
+      out.add(const _IbadahItem(key: 'dhuhr', label: 'ظهر جماعة'));
+    if (r.asrStatus > 0 && r.asrInMasjid == false)
+      out.add(const _IbadahItem(key: 'asr', label: 'عصر جماعة'));
+    if (r.maghribStatus > 0 && r.maghribInMasjid == false)
+      out.add(const _IbadahItem(key: 'maghrib', label: 'مغرب جماعة'));
+    if (r.ishaStatus > 0 && r.ishaInMasjid == false)
+      out.add(const _IbadahItem(key: 'isha', label: 'عشاء جماعة'));
   }
   return out;
 }
@@ -777,7 +874,8 @@ class _ReminderCards extends ConsumerWidget {
                   ),
                   builder: (context, snapshot) {
                     final content = snapshot.data;
-                    final text = ((content?.type == 'hadith' || content?.type == 'ayah') &&
+                    final text = ((content?.type == 'hadith' ||
+                                content?.type == 'ayah') &&
                             (content?.arabicText.trim().isNotEmpty ?? false))
                         ? content!.arabicText
                         : (content?.shortText ?? '...');
@@ -785,13 +883,16 @@ class _ReminderCards extends ConsumerWidget {
                       content?.source ?? '',
                       content?.grade ?? '',
                     ].where((e) => e.trim().isNotEmpty).join(' • ');
-                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    final isDark =
+                        Theme.of(context).brightness == Brightness.dark;
                     return Container(
                       width: double.infinity,
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9F5EC),
+                        color: isDark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF9F5EC),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
@@ -800,21 +901,34 @@ class _ReminderCards extends ConsumerWidget {
                         children: [
                           Text(
                             item.label,
-                            style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700, color: const Color(0xFF064E3B)),
+                            style: GoogleFonts.getFont('Cairo',
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF064E3B)),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             text,
                             style: GoogleFonts.getFont(
-                              content?.type == 'ayah' || content?.type == 'hadith' ? 'Amiri' : 'Cairo',
-                              fontSize: content?.type == 'ayah' || content?.type == 'hadith' ? 17 : 12,
+                              content?.type == 'ayah' ||
+                                      content?.type == 'hadith'
+                                  ? 'Amiri'
+                                  : 'Cairo',
+                              fontSize: content?.type == 'ayah' ||
+                                      content?.type == 'hadith'
+                                  ? 17
+                                  : 12,
                               height: 1.8,
-                              color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1F2937),
+                              color: isDark
+                                  ? const Color(0xFFE2E8F0)
+                                  : const Color(0xFF1F2937),
                             ),
                           ),
                           if (source.isNotEmpty) ...[
                             const SizedBox(height: 4),
-                            Text(source, style: GoogleFonts.getFont('Cairo', fontSize: 10, color: const Color(0xFF64748B))),
+                            Text(source,
+                                style: GoogleFonts.getFont('Cairo',
+                                    fontSize: 10,
+                                    color: const Color(0xFF64748B))),
                           ],
                         ],
                       ),

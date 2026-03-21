@@ -65,11 +65,19 @@ class IsarNotificationRepository implements INotificationRepository {
   }
 
   @override
-  Future<List<NotificationContent>> getContentByCategory(String category) {
-    return _isar.notificationContents
+  Future<List<NotificationContent>> getContentByCategory(
+      String category) async {
+    final direct = await _isar.notificationContents
         .filter()
         .categoryEqualTo(category)
         .findAll();
+    if (category == 'scholars') return direct;
+    final scholars = await _isar.notificationContents
+        .filter()
+        .categoryEqualTo('scholars')
+        .findAll();
+    if (scholars.isEmpty) return direct;
+    return [...direct, ...scholars];
   }
 
   @override
@@ -125,7 +133,7 @@ class IsarNotificationRepository implements INotificationRepository {
       ..featureKey = featureKey
       ..lastOpened = now
       ..lastCompleted = now
-      ..streakDays = 1
+      ..streakDays = 0
       ..streakStartDate = now
       ..totalSessions = 0;
     await saveActivityLog(log);

@@ -7,7 +7,7 @@ class ComparisonEngine {
     required IbadahRecord yesterday,
     required bool isMale,
   }) {
-    return DailyStatusCalculator.completionRatio(today, isMale: isMale) >=
+    return DailyStatusCalculator.completionRatio(today, isMale: isMale) >
         DailyStatusCalculator.completionRatio(yesterday, isMale: isMale);
   }
 
@@ -16,10 +16,14 @@ class ComparisonEngine {
     required IbadahRecord yesterday,
     required bool isMale,
   }) {
-    final todayRatio = DailyStatusCalculator.completionRatio(today, isMale: isMale);
-    final yesterdayRatio = DailyStatusCalculator.completionRatio(yesterday, isMale: isMale);
-    if (todayRatio > yesterdayRatio) return 'أنت أفضل من أمس — بارك الله فيك 🌟';
-    if (todayRatio == yesterdayRatio) return 'ثبات جميل — الاستمرار هو سر التميز 🌿';
+    final todayRatio =
+        DailyStatusCalculator.completionRatio(today, isMale: isMale);
+    final yesterdayRatio =
+        DailyStatusCalculator.completionRatio(yesterday, isMale: isMale);
+    if (todayRatio > yesterdayRatio)
+      return 'أنت أفضل من أمس — بارك الله فيك 🌟';
+    if (todayRatio == yesterdayRatio)
+      return 'ثبات جميل — الاستمرار هو سر التميز 🌿';
     return 'فرصة جديدة غدًا — والله يعينك على الأحسن 🌅';
   }
 }

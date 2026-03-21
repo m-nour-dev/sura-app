@@ -20,21 +20,27 @@ class StreakTracker {
     );
     final today = DateTime(now.year, now.month, now.day);
     final daysDiff = today.difference(lastOpenedDate).inDays;
+    var streakAdvanced = false;
 
     if (daysDiff == 1) {
       log.streakDays++;
+      streakAdvanced = true;
     } else if (daysDiff > 1) {
       log.streakDays = 1;
       log.streakStartDate = now;
+      streakAdvanced = true;
     } else if (log.streakDays == 0) {
       log.streakDays = 1;
       log.streakStartDate = now;
+      streakAdvanced = true;
     }
 
     log.lastOpened = now;
     log.totalSessions++;
     await repository.saveActivityLog(log);
-    await _checkStreakMilestone(featureKey, log.streakDays);
+    if (streakAdvanced) {
+      await _checkStreakMilestone(featureKey, log.streakDays);
+    }
   }
 
   Future<int> getStreak(String featureKey) async {

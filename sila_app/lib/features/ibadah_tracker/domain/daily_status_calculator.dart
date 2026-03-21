@@ -6,7 +6,7 @@ class DailyStatusCalculator {
   static final Random _random = Random();
   static final Map<int, String> _dailyTextCache = {};
 
-  static int totalCount({required bool isMale}) => isMale ? 17 : 12;
+  static int totalCount({required bool isMale}) => isMale ? 16 : 11;
 
   static int completedCount(IbadahRecord record, {required bool isMale}) {
     var done = 0;
@@ -40,7 +40,7 @@ class DailyStatusCalculator {
       !isMale,
     ];
 
-    done += bools.where((v) => v).length - (isMale ? 1 : 0);
+    done += bools.where((v) => v).length;
     return done;
   }
 
@@ -50,7 +50,8 @@ class DailyStatusCalculator {
     return min(1, completedCount(record, isMale: isMale) / total);
   }
 
-  static String getDailyStatusText(IbadahRecord record, {required bool isMale}) {
+  static String getDailyStatusText(IbadahRecord record,
+      {required bool isMale}) {
     final ratio = completionRatio(record, isMale: isMale);
     final missedPrayers = [
       record.fajrStatus,
@@ -235,11 +236,13 @@ class DailyStatusCalculator {
         'تفاءل، فالله يقبل التوبة ويحب التوابين',
       ];
     }
-    final dayKey = record.date.year * 10000 + record.date.month * 100 + record.date.day;
+    final dayKey =
+        record.date.year * 10000 + record.date.month * 100 + record.date.day;
     final cached = _dailyTextCache[dayKey];
     if (cached != null && texts.contains(cached)) return cached;
 
-    final baseSeed = record.date.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
+    final baseSeed =
+        record.date.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
     final idx = (baseSeed + _random.nextInt(texts.length)) % texts.length;
     final selected = texts[idx];
     _dailyTextCache[dayKey] = selected;
