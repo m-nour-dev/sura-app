@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sila_app/features/notifications/presentation/pages/settings/tasbih_notification_settings.dart';
+import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 // Simple StateProvider for the counter
@@ -22,6 +25,10 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    Future<void>.microtask(() async {
+      final tracker = await ref.read(streakTrackerProvider.future);
+      await tracker.logActivity('tasbih');
+    });
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -67,6 +74,19 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
       appBar: SilaAppBar(
         title: 'azkar_tasbih'.tr(),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(top: 12, bottom: 12),
+            child: StreakBadge(featureKey: 'tasbih'),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const TasbihNotificationSettings()),
+              );
+            },
+            icon: Icon(Icons.notifications_active_rounded, color: primaryColor),
+            tooltip: 'إعدادات التذكير',
+          ),
           IconButton(
             onPressed: () {
               ref.read(tasbihCounterProvider.notifier).state = 0;

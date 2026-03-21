@@ -31,6 +31,11 @@ void main() async {
       debugPrint('NotificationService init failed: $error');
     }),
   );
+  unawaited(
+    NotificationService().rescheduleAllOnBoot().catchError((error, stackTrace) {
+      debugPrint('NotificationService reschedule failed: $error');
+    }),
+  );
   
   // Adhan notification initialization temporarily disabled
   // final notificationService = NotificationService();
