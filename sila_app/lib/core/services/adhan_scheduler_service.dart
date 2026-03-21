@@ -482,7 +482,7 @@ class AdhanSchedulerService {
             body: finalBody,
             payload: finalPayload,
             priority: finalPriority,
-            selectedContentId: selected?.contentId,
+            selectedContentId: finalPayload == payload ? selected?.contentId : null,
           ),
         );
       }
