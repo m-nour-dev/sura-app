@@ -75,7 +75,9 @@ class IsarService {
     if (_dbFuture != null) {
       try {
         await _dbFuture;
-      } catch (_) {}
+      } catch (e, st) {
+        Zone.current.handleUncaughtError(e, st);
+      }
     }
 
     final db = Isar.getInstance();
