@@ -40,7 +40,7 @@ class DailyStatusCalculator {
       !isMale,
     ];
 
-    done += bools.where((v) => v).length;
+    done += bools.where((v) => v).length - (!isMale ? 1 : 0);
     return done;
   }
 
