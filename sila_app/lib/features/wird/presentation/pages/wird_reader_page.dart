@@ -10,11 +10,14 @@ import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sila_app/features/notifications/presentation/pages/settings/wird_notification_settings.dart';
+import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdReaderPage extends ConsumerStatefulWidget {
   final int startPage;
-  final int endPage; 
+  final int endPage;
 
   const WirdReaderPage({
     super.key,
@@ -35,6 +38,10 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     super.initState();
     _currentPage = widget.startPage;
     _pageController = PageController(initialPage: widget.startPage - 1);
+    Future<void>.microtask(() async {
+      final tracker = await ref.read(streakTrackerProvider.future);
+      await tracker.logActivity('wird');
+    });
   }
 
   @override
@@ -59,8 +66,10 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     return settingsState.when(
       data: (settings) {
         final surahData = quran.getPageData(_currentPage);
-        final currentSurah = surahData.isNotEmpty ? surahData[0]['surah'] as int : 1;
-        final firstAyah = surahData.isNotEmpty ? surahData[0]['start'] as int : 1;
+        final currentSurah =
+            surahData.isNotEmpty ? surahData[0]['surah'] as int : 1;
+        final firstAyah =
+            surahData.isNotEmpty ? surahData[0]['start'] as int : 1;
         final currentJuz = quran.getJuzNumber(currentSurah, firstAyah);
         final surahName = quran.getSurahNameArabic(currentSurah);
 
@@ -92,13 +101,15 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
         );
       },
       error: (e, s) => Scaffold(body: Center(child: Text("Error: $e"))),
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
 
-  PreferredSizeWidget _buildCustomAppBar(QuranSettings settings, String surahName, int juz, bool isDone) {
+  PreferredSizeWidget _buildCustomAppBar(
+      QuranSettings settings, String surahName, int juz, bool isDone) {
     final isDarkSettings = settings.themeMode == QuranThemeMode.dark;
-    final appBarBg = _getBackgroundColor(settings.themeMode); 
+    final appBarBg = _getBackgroundColor(settings.themeMode);
     final iconColor = _getTextColor(settings.themeMode);
 
     return AppBar(
@@ -133,30 +144,48 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       ),
       actions: [
         if (isDone)
-           IconButton(
-             icon: Icon(Icons.check_circle_outline, color: AppTheme.accentColor),
-             onPressed: () => Navigator.pop(context, true),
-             tooltip: 'أتممت الورد',
-           ),
+          IconButton(
+            icon: Icon(Icons.check_circle_outline, color: AppTheme.accentColor),
+            onPressed: () => Navigator.pop(context, true),
+            tooltip: 'أتممت الورد',
+          ),
         Consumer(
           builder: (context, ref, child) {
             final wirdState = ref.watch(wirdControllerProvider).valueOrNull;
             final isBookmarked = wirdState?.bookmarkPage == _currentPage;
             return IconButton(
-              icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border, color: isBookmarked ? AppTheme.accentColor : iconColor),
+              icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                  color: isBookmarked ? AppTheme.accentColor : iconColor),
               onPressed: () {
-                ref.read(wirdControllerProvider.notifier).updateBookmark(_currentPage);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: AppTheme.surfaceColor,
-                    content: Text(
-                      isBookmarked ? 'تم إزالة العلامة المرجعية' : 'تم الحفظ في العلامات المرجعية',
-                      style: GoogleFonts.cairo(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
-                    ),
-                    duration: const Duration(seconds: 1),
-                  )
-                );
+                ref
+                    .read(wirdControllerProvider.notifier)
+                    .updateBookmark(_currentPage);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  backgroundColor: AppTheme.surfaceColor,
+                  content: Text(
+                    isBookmarked
+                        ? 'تم إزالة العلامة المرجعية'
+                        : 'تم الحفظ في العلامات المرجعية',
+                    style: GoogleFonts.cairo(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  duration: const Duration(seconds: 1),
+                ));
               },
+            );
+          },
+        ),
+        IconButton(
+          icon: const StreakBadge(featureKey: 'wird'),
+          onPressed: null,
+        ),
+        IconButton(
+          icon: Icon(Icons.notifications_active_rounded, color: iconColor),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (_) => const WirdNotificationSettings()),
             );
           },
         ),
@@ -176,21 +205,25 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
         children: [
           Text(
             '604',
-            style: GoogleFonts.cairo(color: _getTextColor(settings.themeMode), fontSize: 12),
+            style: GoogleFonts.cairo(
+                color: _getTextColor(settings.themeMode), fontSize: 12),
           ),
           Expanded(
             child: SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 2.0,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.0),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14.0),
+                thumbShape:
+                    const RoundSliderThumbShape(enabledThumbRadius: 6.0),
+                overlayShape:
+                    const RoundSliderOverlayShape(overlayRadius: 14.0),
               ),
               child: Slider(
                 value: _currentPage.toDouble(),
                 min: 1,
                 max: 604,
                 activeColor: _getAccentColor(settings.themeMode),
-                inactiveColor: _getTextColor(settings.themeMode).withValues(alpha: 0.2),
+                inactiveColor:
+                    _getTextColor(settings.themeMode).withValues(alpha: 0.2),
                 onChanged: (val) {
                   final newPage = val.toInt();
                   if (newPage != _currentPage) {
@@ -202,7 +235,8 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
           ),
           Text(
             '1',
-            style: GoogleFonts.cairo(color: _getTextColor(settings.themeMode), fontSize: 12),
+            style: GoogleFonts.cairo(
+                color: _getTextColor(settings.themeMode), fontSize: 12),
           ),
         ],
       ),
@@ -211,65 +245,70 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
   Widget _buildQuranPage(int pageNumber, QuranSettings settings) {
     final pageData = quran.getPageData(pageNumber);
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Column(
         children: [
-             for (var data in pageData) ...[
-                _buildSurahSegment(data['surah'], data['start'], data['end'], settings),
-             ]
+          for (var data in pageData) ...[
+            _buildSurahSegment(
+                data['surah'], data['start'], data['end'], settings),
+          ]
         ],
       ),
     );
   }
 
-  Widget _buildSurahSegment(int surahNum, int startAyah, int endAyah, QuranSettings settings) {
+  Widget _buildSurahSegment(
+      int surahNum, int startAyah, int endAyah, QuranSettings settings) {
     List<TextSpan> allSpans = [];
     List<Map<String, dynamic>> ayahPositions = [];
     int currentLength = 0;
-    
+
     for (int i = startAyah; i <= endAyah; i++) {
       final key = '${surahNum}_$i';
-      
+
       // Fallback to plain quran data if Tajweed fails or isn't loaded
-      String rawVerse = (_isQuranDataLoaded && _tajweedData.containsKey(key)) 
-          ? _tajweedData[key] 
+      String rawVerse = (_isQuranDataLoaded && _tajweedData.containsKey(key))
+          ? _tajweedData[key]
           : quran.getVerse(surahNum, i);
-          
+
       // Ensure we add the ayah number and a space
       rawVerse = "$rawVerse ﴿${_arabicNumber(i)}﴾ ";
-      
+
       // Parse spans and calculate true plain text length
       final spansResult = _buildTajweedSpans(rawVerse, settings);
       final spans = spansResult['spans'] as List<TextSpan>;
       final plainLength = spansResult['length'] as int;
-      
+
       ayahPositions.add({
         'ayahNum': i,
         'start': currentLength,
         'end': currentLength + plainLength,
       });
-      
+
       currentLength += plainLength;
       allSpans.addAll(spans);
     }
-    
+
     return Column(
       children: [
-        if (startAyah == 1) ...[ 
-           _buildBismillahFrame(surahNum, settings),
-           if (surahNum != 1 && surahNum != 9) 
-             Padding(
-               padding: const EdgeInsets.symmetric(vertical: 16.0),
-               child: Text(
-                 "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", 
-                 style: TextStyle(fontFamily: 'Amiri', fontSize: 24, color: _getTextColor(settings.themeMode)),
-               ),
-             ), 
+        if (startAyah == 1) ...[
+          _buildBismillahFrame(surahNum, settings),
+          if (surahNum != 1 && surahNum != 9)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+                style: TextStyle(
+                    fontFamily: 'Amiri',
+                    fontSize: 24,
+                    color: _getTextColor(settings.themeMode)),
+              ),
+            ),
         ],
-        
-        _buildSelectableVerse(surahNum, startAyah, endAyah, allSpans, ayahPositions, settings),
+        _buildSelectableVerse(
+            surahNum, startAyah, endAyah, allSpans, ayahPositions, settings),
         const SizedBox(height: 16),
       ],
     );
@@ -278,45 +317,48 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   Map<String, dynamic> _buildTajweedSpans(String text, QuranSettings settings) {
     List<TextSpan> spans = [];
     int plainLength = 0;
-    
+
     // Pattern to match [ruleCode[content]
     final RegExp exp = RegExp(r'\[([a-zA-Z0-9:]+)\[([^\]]+)\]');
     int lastIndex = 0;
-    
+
     for (final Match m in exp.allMatches(text)) {
       if (m.start > lastIndex) {
         final substring = text.substring(lastIndex, m.start);
         spans.add(TextSpan(text: substring));
         plainLength += substring.length;
       }
-      
+
       String rule = m.group(1)!;
       String tajweedText = m.group(2)!;
       Color textColor = _getTajweedColor(rule, settings);
-      
+
       spans.add(TextSpan(
         text: tajweedText,
         style: TextStyle(color: textColor),
       ));
       plainLength += tajweedText.length;
-      
+
       lastIndex = m.end;
     }
-    
+
     if (lastIndex < text.length) {
       final substring = text.substring(lastIndex);
       spans.add(TextSpan(text: substring));
       plainLength += substring.length;
     }
-    
+
     return {'spans': spans, 'length': plainLength};
   }
 
   Color _getTajweedColor(String rule, QuranSettings settings) {
     final baseColor = _getTextColor(settings.themeMode);
     final isDark = settings.themeMode == QuranThemeMode.dark;
-    
-    if (rule.startsWith('h') || rule.startsWith('s') || rule.startsWith('l') || rule.startsWith('w')) {
+
+    if (rule.startsWith('h') ||
+        rule.startsWith('s') ||
+        rule.startsWith('l') ||
+        rule.startsWith('w')) {
       return isDark ? Colors.grey[600]! : Colors.grey[400]!;
     } else if (rule.startsWith('g') || rule.startsWith('f')) {
       return Colors.green;
@@ -336,7 +378,13 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     return baseColor;
   }
 
-  Widget _buildSelectableVerse(int surahNum, int startAyah, int endAyah, List<TextSpan> spans, List<Map<String, dynamic>> ayahPositions, QuranSettings settings) {
+  Widget _buildSelectableVerse(
+      int surahNum,
+      int startAyah,
+      int endAyah,
+      List<TextSpan> spans,
+      List<Map<String, dynamic>> ayahPositions,
+      QuranSettings settings) {
     return SelectableText.rich(
       TextSpan(children: spans),
       textAlign: TextAlign.justify,
@@ -354,20 +402,20 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
             label: '🔊 استماع / Dinle',
             onPressed: () {
               ContextMenuController.removeAny();
-              
+
               final selection = editableTextState.textEditingValue.selection;
               int selectedAyahNum = startAyah;
-              
+
               if (selection.isValid) {
-                 final selStart = selection.start;
-                 for (var pos in ayahPositions) {
-                    if (selStart >= pos['start'] && selStart < pos['end']) {
-                       selectedAyahNum = pos['ayahNum'];
-                       break;
-                    }
-                 }
+                final selStart = selection.start;
+                for (var pos in ayahPositions) {
+                  if (selStart >= pos['start'] && selStart < pos['end']) {
+                    selectedAyahNum = pos['ayahNum'];
+                    break;
+                  }
+                }
               }
-              
+
               _playAyahAudio(surahNum, selectedAyahNum);
             },
           ),
@@ -375,42 +423,46 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
             label: '📖 تفسير',
             onPressed: () {
               ContextMenuController.removeAny();
-              
+
               final selection = editableTextState.textEditingValue.selection;
               int selectedAyahNum = startAyah;
-              
+
               if (selection.isValid) {
-                 final selStart = selection.start;
-                 for (var pos in ayahPositions) {
-                    if (selStart >= pos['start'] && selStart < pos['end']) {
-                       selectedAyahNum = pos['ayahNum'];
-                       break;
-                    }
-                 }
+                final selStart = selection.start;
+                for (var pos in ayahPositions) {
+                  if (selStart >= pos['start'] && selStart < pos['end']) {
+                    selectedAyahNum = pos['ayahNum'];
+                    break;
+                  }
+                }
               }
-              
-              _showDetailsSheet(context, surahNum, selectedAyahNum, selectedAyahNum, settings, showTafsir: true);
+
+              _showDetailsSheet(
+                  context, surahNum, selectedAyahNum, selectedAyahNum, settings,
+                  showTafsir: true);
             },
           ),
           ContextMenuButtonItem(
             label: '🇹🇷 Türkçe Çeviri',
             onPressed: () {
               ContextMenuController.removeAny();
-              
+
               final selection = editableTextState.textEditingValue.selection;
               int selectedAyahNum = startAyah;
-              
+
               if (selection.isValid) {
-                 final selStart = selection.start;
-                 for (var pos in ayahPositions) {
-                    if (selStart >= pos['start'] && selStart < pos['end']) {
-                       selectedAyahNum = pos['ayahNum'];
-                       break;
-                    }
-                 }
+                final selStart = selection.start;
+                for (var pos in ayahPositions) {
+                  if (selStart >= pos['start'] && selStart < pos['end']) {
+                    selectedAyahNum = pos['ayahNum'];
+                    break;
+                  }
+                }
               }
-              
-              _showDetailsSheet(context, surahNum, selectedAyahNum, selectedAyahNum, settings, showTafsir: false);
+
+              _showDetailsSheet(
+                  context, surahNum, selectedAyahNum, selectedAyahNum, settings,
+                  showTafsir: false);
             },
           ),
         ];
@@ -422,7 +474,9 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     );
   }
 
-  void _showDetailsSheet(BuildContext context, int surahNum, int startAyah, int endAyah, QuranSettings settings, {required bool showTafsir}) {
+  void _showDetailsSheet(BuildContext context, int surahNum, int startAyah,
+      int endAyah, QuranSettings settings,
+      {required bool showTafsir}) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -431,12 +485,14 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       builder: (context) {
         int activeSurah = surahNum;
         int activeAyah = startAyah;
-        
+
         return StatefulBuilder(
           builder: (context, setModalState) {
             final isDark = settings.themeMode == QuranThemeMode.dark;
             final title = showTafsir ? 'التفسير الميسّر' : 'Türkçe Çeviri';
-            final content = showTafsir ? _getTafsir(activeSurah, activeAyah, activeAyah) : _getTranslation(activeSurah, activeAyah, activeAyah);
+            final content = showTafsir
+                ? _getTafsir(activeSurah, activeAyah, activeAyah)
+                : _getTranslation(activeSurah, activeAyah, activeAyah);
             final surahName = quran.getSurahNameArabic(activeSurah);
             final verseText = quran.getVerse(activeSurah, activeAyah);
 
@@ -449,23 +505,28 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                 expand: false,
                 builder: (context, scrollController) => Container(
                   decoration: BoxDecoration(
-                    color: _getBackgroundColor(settings.themeMode).withOpacity(isDark ? 0.85 : 0.95),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+                    color: _getBackgroundColor(settings.themeMode)
+                        .withOpacity(isDark ? 0.85 : 0.95),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(40)),
                     boxShadow: [
-                       BoxShadow(
-                         color: _getAccentColor(settings.themeMode).withOpacity(0.15),
-                         blurRadius: 30,
-                         spreadRadius: 5,
-                       )
+                      BoxShadow(
+                        color: _getAccentColor(settings.themeMode)
+                            .withOpacity(0.15),
+                        blurRadius: 30,
+                        spreadRadius: 5,
+                      )
                     ],
                     border: Border.all(
-                      color: _getAccentColor(settings.themeMode).withOpacity(isDark ? 0.2 : 0.4),
+                      color: _getAccentColor(settings.themeMode)
+                          .withOpacity(isDark ? 0.2 : 0.4),
                       width: 1.0,
                     ),
                   ),
                   child: SingleChildScrollView(
                     controller: scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 28, vertical: 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -480,7 +541,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                           ),
                         ),
                         const SizedBox(height: 32),
-                        
+
                         // Header with Navigation
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -488,19 +549,22 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                             // Previous Ayah Button
                             _buildNavButton(
                               icon: Icons.arrow_back_ios_rounded,
-                              onPressed: (activeSurah == 1 && activeAyah == 1) ? null : () {
-                                setModalState(() {
-                                  if (activeAyah > 1) {
-                                    activeAyah--;
-                                  } else if (activeSurah > 1) {
-                                    activeSurah--;
-                                    activeAyah = quran.getVerseCount(activeSurah);
-                                  }
-                                });
-                              },
+                              onPressed: (activeSurah == 1 && activeAyah == 1)
+                                  ? null
+                                  : () {
+                                      setModalState(() {
+                                        if (activeAyah > 1) {
+                                          activeAyah--;
+                                        } else if (activeSurah > 1) {
+                                          activeSurah--;
+                                          activeAyah =
+                                              quran.getVerseCount(activeSurah);
+                                        }
+                                      });
+                                    },
                               settings: settings,
                             ),
-                            
+
                             Expanded(
                               child: Column(
                                 children: [
@@ -517,65 +581,77 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                                     style: GoogleFonts.cairo(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: _getAccentColor(settings.themeMode),
+                                      color:
+                                          _getAccentColor(settings.themeMode),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            
+
                             // Next Ayah Button
                             _buildNavButton(
                               icon: Icons.arrow_forward_ios_rounded,
-                              onPressed: (activeSurah == 114 && activeAyah == quran.getVerseCount(114)) ? null : () {
-                                setModalState(() {
-                                  if (activeAyah < quran.getVerseCount(activeSurah)) {
-                                    activeAyah++;
-                                  } else if (activeSurah < 114) {
-                                    activeSurah++;
-                                    activeAyah = 1;
-                                  }
-                                });
-                              },
+                              onPressed: (activeSurah == 114 &&
+                                      activeAyah == quran.getVerseCount(114))
+                                  ? null
+                                  : () {
+                                      setModalState(() {
+                                        if (activeAyah <
+                                            quran.getVerseCount(activeSurah)) {
+                                          activeAyah++;
+                                        } else if (activeSurah < 114) {
+                                          activeSurah++;
+                                          activeAyah = 1;
+                                        }
+                                      });
+                                    },
                               settings: settings,
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 32),
-                        
+
                         // Audio Player & Verse Text
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: _getAccentColor(settings.themeMode).withOpacity(0.05),
+                            color: _getAccentColor(settings.themeMode)
+                                .withOpacity(0.05),
                             borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: _getAccentColor(settings.themeMode).withOpacity(0.15)),
+                            border: Border.all(
+                                color: _getAccentColor(settings.themeMode)
+                                    .withOpacity(0.15)),
                           ),
                           child: Column(
                             children: [
                               GestureDetector(
-                                onTap: () => _playAyahAudio(activeSurah, activeAyah),
+                                onTap: () =>
+                                    _playAyahAudio(activeSurah, activeAyah),
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                     gradient: LinearGradient(
-                                       colors: [
+                                      gradient: LinearGradient(
+                                        colors: [
                                           _getAccentColor(settings.themeMode),
-                                          _getAccentColor(settings.themeMode).withOpacity(0.7)
-                                       ],
-                                       begin: Alignment.topLeft,
-                                       end: Alignment.bottomRight,
-                                     ),
-                                     shape: BoxShape.circle,
-                                     boxShadow: [
-                                       BoxShadow(
-                                         color: _getAccentColor(settings.themeMode).withOpacity(0.4),
-                                         blurRadius: 15, offset: const Offset(0, 6)
-                                       )
-                                     ]
-                                  ),
-                                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 32),
+                                          _getAccentColor(settings.themeMode)
+                                              .withOpacity(0.7)
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: _getAccentColor(
+                                                    settings.themeMode)
+                                                .withOpacity(0.4),
+                                            blurRadius: 15,
+                                            offset: const Offset(0, 6))
+                                      ]),
+                                  child: const Icon(Icons.play_arrow_rounded,
+                                      color: Colors.white, size: 32),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -594,9 +670,9 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 32),
-                        
+
                         // Main Content Title
                         Text(
                           showTafsir ? 'التفسير:' : 'Meali:',
@@ -607,33 +683,43 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        
+
                         // Main Content
                         Text(
                           content.replaceAll('\n', '\n\n'),
-                          textAlign: showTafsir ? TextAlign.justify : TextAlign.left,
-                          textDirection: showTafsir ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+                          textAlign:
+                              showTafsir ? TextAlign.justify : TextAlign.left,
+                          textDirection: showTafsir
+                              ? ui.TextDirection.rtl
+                              : ui.TextDirection.ltr,
                           style: TextStyle(
-                            fontFamily: showTafsir ? settings.fontFamily : 'Roboto',
-                            fontSize: settings.fontSize * 0.9, 
+                            fontFamily:
+                                showTafsir ? settings.fontFamily : 'Roboto',
+                            fontSize: settings.fontSize * 0.9,
                             height: showTafsir ? 2.2 : 1.6,
-                            color: _getTextColor(settings.themeMode).withOpacity(0.9),
+                            color: _getTextColor(settings.themeMode)
+                                .withOpacity(0.9),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 48),
-                        
+
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _getAccentColor(settings.themeMode),
+                            backgroundColor:
+                                _getAccentColor(settings.themeMode),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 18),
                             elevation: 4,
-                            shadowColor: _getAccentColor(settings.themeMode).withOpacity(0.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            shadowColor: _getAccentColor(settings.themeMode)
+                                .withOpacity(0.5),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
                           ),
                           onPressed: () => Navigator.pop(context),
-                          child: Text(showTafsir ? 'إغلاق' : 'Kapat', style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold)),
+                          child: Text(showTafsir ? 'إغلاق' : 'Kapat',
+                              style: GoogleFonts.cairo(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(height: 24),
                       ],
@@ -663,10 +749,13 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
   Future<void> _loadQuranData() async {
     try {
-      final String tafsirStr = await DefaultAssetBundle.of(context).loadString('assets/data/tafseer.json');
-      final String tajweedStr = await DefaultAssetBundle.of(context).loadString('assets/data/tajweed.json');
-      final String trStr = await DefaultAssetBundle.of(context).loadString('assets/data/quran_tr.json');
-      
+      final String tafsirStr = await DefaultAssetBundle.of(context)
+          .loadString('assets/data/tafseer.json');
+      final String tajweedStr = await DefaultAssetBundle.of(context)
+          .loadString('assets/data/tajweed.json');
+      final String trStr = await DefaultAssetBundle.of(context)
+          .loadString('assets/data/quran_tr.json');
+
       final Map<String, dynamic> rawTr = jsonDecode(trStr);
       final List<dynamic> trList = rawTr['quran'];
       final Map<String, dynamic> processedTr = {};
@@ -682,23 +771,25 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       });
     } catch (e) {
       debugPrint('Error loading quran data: $e');
-      setState(() => _isQuranDataLoaded = true); // Proceed anyway to show plain text
+      setState(
+          () => _isQuranDataLoaded = true); // Proceed anyway to show plain text
     }
   }
 
   Future<void> _playAyahAudio(int surahNum, int ayahNum) async {
     final surahStr = surahNum.toString().padLeft(3, '0');
     final ayahStr = ayahNum.toString().padLeft(3, '0');
-    final url = 'https://everyayah.com/data/Husary_128kbps/$surahStr$ayahStr.mp3';
-    
+    final url =
+        'https://everyayah.com/data/Husary_128kbps/$surahStr$ayahStr.mp3';
+
     try {
       await ref.read(audioControllerProvider.notifier).playAudio(
-        url,
-        surahName: quran.getSurahNameArabic(surahNum),
-        ayahNumber: ayahNum,
-      );
+            url,
+            surahName: quran.getSurahNameArabic(surahNum),
+            ayahNumber: ayahNum,
+          );
     } catch (e) {
-       debugPrint('Error playing ayah audio: $e');
+      debugPrint('Error playing ayah audio: $e');
     }
   }
 
@@ -706,21 +797,21 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     if (!_isQuranDataLoaded || _tafsirData.isEmpty) {
       return 'جاري تحميل التفسير...';
     }
-    
+
     // In many Tafsir JSONs, keys are exactly "Surah_Ayah" (e.g., "1_1")
     String fullTafsir = '';
-    for(int i = startAyah; i <= endAyah; i++) {
-       final key = '${surahNum}_$i';
-       final text = _tafsirData[key];
-       if (text != null) {
-          fullTafsir += '$text\\n\\n';
-       }
+    for (int i = startAyah; i <= endAyah; i++) {
+      final key = '${surahNum}_$i';
+      final text = _tafsirData[key];
+      if (text != null) {
+        fullTafsir += '$text\\n\\n';
+      }
     }
-    
+
     if (fullTafsir.trim().isEmpty) {
-       return 'للأسف، التفسير لهذه الآيات غير متوفر في النسخة الحالية.';
+      return 'للأسف، التفسير لهذه الآيات غير متوفر في النسخة الحالية.';
     }
-    
+
     return fullTafsir.trim();
   }
 
@@ -728,20 +819,20 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     if (!_isQuranDataLoaded || _trData.isEmpty) {
       return 'جاري تحميل الترجمة...';
     }
-    
+
     String fullTr = '';
-    for(int i = startAyah; i <= endAyah; i++) {
-       final key = '${surahNum}_$i';
-       final text = _trData[key];
-       if (text != null) {
-          fullTr += '$text\n\n';
-       }
+    for (int i = startAyah; i <= endAyah; i++) {
+      final key = '${surahNum}_$i';
+      final text = _trData[key];
+      if (text != null) {
+        fullTr += '$text\n\n';
+      }
     }
-    
+
     if (fullTr.trim().isEmpty) {
-       return 'Maalesef, bu ayetler için Türkçe çeviri şu an mevcut değil.';
+      return 'Maalesef, bu ayetler için Türkçe çeviri şu an mevcut değil.';
     }
-    
+
     return fullTr.trim();
   }
 
@@ -772,20 +863,21 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-           Icon(Icons.spa_outlined, color: _getAccentColor(settings.themeMode), size: 18),
-           const SizedBox(width: 8),
-           Text(
-             "سورة ${quran.getSurahNameArabic(surahNum)}",
-             textAlign: TextAlign.center,
-             style: TextStyle(
-               fontFamily: 'Amiri', 
-               fontSize: 24, 
-               fontWeight: FontWeight.bold,
-               color: _getTextColor(settings.themeMode)
-             ),
-           ),
-           const SizedBox(width: 8),
-           Icon(Icons.spa_outlined, color: _getAccentColor(settings.themeMode), size: 18),
+          Icon(Icons.spa_outlined,
+              color: _getAccentColor(settings.themeMode), size: 18),
+          const SizedBox(width: 8),
+          Text(
+            "سورة ${quran.getSurahNameArabic(surahNum)}",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontFamily: 'Amiri',
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: _getTextColor(settings.themeMode)),
+          ),
+          const SizedBox(width: 8),
+          Icon(Icons.spa_outlined,
+              color: _getAccentColor(settings.themeMode), size: 18),
         ],
       ),
     );
@@ -825,7 +917,8 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     }
   }
 
-  void _showSettingsDialog(BuildContext context, WidgetRef ref, QuranSettings settings) {
+  void _showSettingsDialog(
+      BuildContext context, WidgetRef ref, QuranSettings settings) {
     showModalBottomSheet(
       context: context,
       backgroundColor: _getBackgroundColor(settings.themeMode),
@@ -863,24 +956,35 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
               style: TextStyle(color: _getTextColor(settings.themeMode)),
               decoration: InputDecoration(
                 labelText: "نوع الخط",
-                labelStyle: GoogleFonts.cairo(color: _getTextColor(settings.themeMode)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                labelStyle:
+                    GoogleFonts.cairo(color: _getTextColor(settings.themeMode)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               ),
               items: [
-                DropdownMenuItem(value: "Amiri", child: Text("Amiri (أميري)", style: GoogleFonts.cairo())),
-                DropdownMenuItem(value: "Noto Naskh Arabic", child: Text("Noto Naskh", style: GoogleFonts.cairo())),
-                DropdownMenuItem(value: "Scheherazade New", child: Text("Scheherazade", style: GoogleFonts.cairo())),
+                DropdownMenuItem(
+                    value: "Amiri",
+                    child: Text("Amiri (أميري)", style: GoogleFonts.cairo())),
+                DropdownMenuItem(
+                    value: "Noto Naskh Arabic",
+                    child: Text("Noto Naskh", style: GoogleFonts.cairo())),
+                DropdownMenuItem(
+                    value: "Scheherazade New",
+                    child: Text("Scheherazade", style: GoogleFonts.cairo())),
               ],
               onChanged: (val) {
                 if (val != null) {
-                  ref.read(quranSettingsControllerProvider.notifier).updateFontFamily(val);
+                  ref
+                      .read(quranSettingsControllerProvider.notifier)
+                      .updateFontFamily(val);
                 }
               },
             ),
             const SizedBox(height: 24),
             Row(
               children: [
-                Icon(Icons.format_size, color: _getTextColor(settings.themeMode)),
+                Icon(Icons.format_size,
+                    color: _getTextColor(settings.themeMode)),
                 Expanded(
                   child: Slider(
                     value: settings.fontSize,
@@ -889,7 +993,9 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                     divisions: 12,
                     activeColor: _getAccentColor(settings.themeMode),
                     onChanged: (val) {
-                      ref.read(quranSettingsControllerProvider.notifier).updateFontSize(val);
+                      ref
+                          .read(quranSettingsControllerProvider.notifier)
+                          .updateFontSize(val);
                     },
                   ),
                 ),
@@ -901,10 +1007,13 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     );
   }
 
-  Widget _buildThemeOption(WidgetRef ref, QuranThemeMode mode, String label, QuranSettings settings) {
+  Widget _buildThemeOption(WidgetRef ref, QuranThemeMode mode, String label,
+      QuranSettings settings) {
     final isSelected = settings.themeMode == mode;
     return GestureDetector(
-      onTap: () => ref.read(quranSettingsControllerProvider.notifier).updateThemeMode(mode),
+      onTap: () => ref
+          .read(quranSettingsControllerProvider.notifier)
+          .updateThemeMode(mode),
       child: Column(
         children: [
           Container(
@@ -914,7 +1023,9 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
               color: _getBackgroundColor(mode),
               shape: BoxShape.circle,
               border: Border.all(
-                color: isSelected ? _getAccentColor(settings.themeMode) : Colors.grey,
+                color: isSelected
+                    ? _getAccentColor(settings.themeMode)
+                    : Colors.grey,
                 width: isSelected ? 3 : 1,
               ),
             ),
@@ -932,7 +1043,10 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     );
   }
 
-  Widget _buildNavButton({required IconData icon, required VoidCallback? onPressed, required QuranSettings settings}) {
+  Widget _buildNavButton(
+      {required IconData icon,
+      required VoidCallback? onPressed,
+      required QuranSettings settings}) {
     return Container(
       decoration: BoxDecoration(
         color: _getAccentColor(settings.themeMode).withOpacity(0.1),

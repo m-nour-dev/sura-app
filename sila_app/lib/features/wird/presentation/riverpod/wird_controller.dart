@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 import 'package:sila_app/features/wird/data/datasources/wird_service.dart';
@@ -6,10 +7,9 @@ import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 import 'package:sila_app/features/wird/data/models/wird_history.dart';
 
 // Provider for WirdService
-final wirdServiceProvider = Provider<WirdService>((ref) {
-  final isarService = ref.watch(isarInstanceProvider).valueOrNull;
-  if (isarService == null) throw Exception('Isar not initialized');
-  return WirdService(isarService);
+final wirdServiceProvider = FutureProvider<WirdService>((ref) async {
+  final isar = await ref.watch(isarInstanceProvider.future);
+  return WirdService(isar);
 });
 
 // State class for the Wird
@@ -58,12 +58,14 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       final settings = await _service.getSettings();
       final history = await _service.getHistory();
       final now = DateTime.now();
-      
+
       // Check if completed today
       bool completed = false;
       if (settings.lastCompletionDate != null) {
         final last = settings.lastCompletionDate!;
-        if (last.year == now.year && last.month == now.month && last.day == now.day) {
+        if (last.year == now.year &&
+            last.month == now.month &&
+            last.day == now.day) {
           completed = true;
         }
       }
@@ -73,22 +75,25 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       double progress = 0.0;
       int completedWirds = 0;
       int remainingWirds = 0;
-      
+
       if (settings.pagesPerDay > 0) {
         // Calculation logic as discussed with user:
         // Completed = pages read so far / pages per day
-        completedWirds = ((settings.currentPage - 1) / settings.pagesPerDay).floor();
-        
-        final totalWirds = (WirdSettings.totalQuranPages / settings.pagesPerDay).ceil();
+        completedWirds =
+            ((settings.currentPage - 1) / settings.pagesPerDay).floor();
+
+        final totalWirds =
+            (WirdSettings.totalQuranPages / settings.pagesPerDay).ceil();
         remainingWirds = totalWirds - completedWirds;
 
         if (settings.khatmaStartDate != null) {
-          final daysSinceStart = now.difference(settings.khatmaStartDate!).inDays; 
+          final daysSinceStart =
+              now.difference(settings.khatmaStartDate!).inDays;
           final expectedPage = (daysSinceStart + 1) * settings.pagesPerDay;
           final pageDiff = settings.currentPage - expectedPage;
           daysDifference = (pageDiff / settings.pagesPerDay).floor();
         }
-        
+
         progress = settings.currentPage / WirdSettings.totalQuranPages;
       }
 
@@ -140,15 +145,56 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
     // Save the last portion if not already saved (assuming it was)
     // Reset reading progress to page 1
     await _service.updateCurrentPage(1);
-    
+
     // Optionally, we could record a 'Khatma Completed' event in history here.
-    
+
     await _loadSettings();
   }
 }
 
 // Global Provider
-final wirdControllerProvider = StateNotifierProvider<WirdController, AsyncValue<WirdState>>((ref) {
-  final service = ref.watch(wirdServiceProvider);
-  return WirdController(service, ref);
+final wirdControllerProvider =
+    StateNotifierProvider<WirdController, AsyncValue<WirdState>>((ref) {
+  final asyncService = ref.watch(wirdServiceProvider);
+  return asyncService.maybeWhen(
+    data: (service) => WirdController(service, ref),
+    orElse: () => WirdController(_FallbackWirdService(), ref),
+  );
 });
+
+class _FallbackWirdService implements WirdService {
+  @override
+  Future<void> completeDailyWird(int startPage, int endPage) {
+    throw StateError('WirdService is not ready');
+  }
+
+  @override
+  Future<List<WirdHistory>> getHistory() {
+    throw StateError('WirdService is not ready');
+  }
+
+  @override
+  Future<WirdSettings> getSettings() {
+    throw StateError('WirdService is not ready');
+  }
+
+  @override
+  Future<void> updateBookmark(int page) {
+    throw StateError('WirdService is not ready');
+  }
+
+  @override
+  Future<void> updateCurrentPage(int page) {
+    throw StateError('WirdService is not ready');
+  }
+
+  @override
+  Future<void> updatePagesPerDay(int pagesPerDay) {
+    throw StateError('WirdService is not ready');
+  }
+
+  @override
+  Future<void> resetKhatma() {
+    throw StateError('WirdService is not ready');
+  }
+}

@@ -3,7 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final VoidCallback? onNotificationTap;
+
+  const HomeHeader({
+    super.key,
+    this.onNotificationTap,
+  });
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -19,6 +24,22 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hijriDate = HijriCalendar.now();
+    const months = [
+      'محرم',
+      'صفر',
+      'ربيع الأول',
+      'ربيع الآخر',
+      'جمادى الأولى',
+      'جمادى الآخرة',
+      'رجب',
+      'شعبان',
+      'رمضان',
+      'شوال',
+      'ذو القعدة',
+      'ذو الحجة',
+    ];
+    final month = months[(hijriDate.hMonth - 1).clamp(0, 11)];
+    final arabicHijri = '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
 
     return Container(
       decoration: const BoxDecoration(
@@ -61,18 +82,25 @@ class HomeHeader extends StatelessWidget {
                     ],
                   ),
                   // Bell Icon
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none_rounded,
-                      color: Colors.white70,
-                      size: 20,
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: onNotificationTap,
+                      borderRadius: BorderRadius.circular(999),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.14),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
+                        ),
+                        child: const Icon(
+                          Icons.notifications_active_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -87,7 +115,7 @@ class HomeHeader extends StatelessWidget {
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
                 child: Text(
-                  hijriDate.toFormat('dd MMMM yyyy'),
+                  arabicHijri,
                   style: GoogleFonts.getFont(
                     'Cairo',
                     fontSize: 12,

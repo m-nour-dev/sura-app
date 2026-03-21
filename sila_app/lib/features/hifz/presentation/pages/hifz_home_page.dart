@@ -5,6 +5,9 @@ import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
 import 'package:sila_app/features/hifz/presentation/pages/methods/interactive_shadow_page.dart';
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sila_app/features/notifications/presentation/pages/settings/hifz_notification_settings.dart';
+import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart' as import_tasmi;
 
 const Color _hasanatGold = Color(0xFFFCD34D);
@@ -36,6 +39,10 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
       c.loadTodayStats();
       c.loadRecentMoments();
       c.loadDueReviews();
+    });
+    Future<void>.microtask(() async {
+      final tracker = await ref.read(streakTrackerProvider.future);
+      await tracker.logActivity('hifz');
     });
   }
 
@@ -250,33 +257,22 @@ class _Header extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const Center(
-                          child: Icon(Icons.notifications_none_rounded, color: Colors.white, size: 18),
-                        ),
-                        if (state.reviewDueCount > 0)
-                          Positioned(
-                            top: 3,
-                            left: 3,
-                            child: Container(
-                              width: 7,
-                              height: 7,
-                              decoration: const BoxDecoration(
-                                color: _errorColor,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                      ],
+                  const StreakBadge(featureKey: 'hifz'),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const HifzNotificationSettings()),
+                      );
+                    },
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 16),
                     ),
                   ),
                   const Spacer(),
@@ -303,24 +299,7 @@ class _Header extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withValues(alpha: 0.25),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: AppTheme.accentColor.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: Text(
-                  '🔥 ${_toArabicIndic(state.streakDays)} يوم متواصل',
-                  style: GoogleFonts.cairo(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFFCD34D),
-                  ),
-                ),
-              ),
+              const SizedBox.shrink(),
             ],
           ),
         ),
