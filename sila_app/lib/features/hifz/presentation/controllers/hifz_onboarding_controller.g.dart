@@ -7,7 +7,7 @@ part of 'hifz_onboarding_controller.dart';
 // **************************************************************************
 
 String _$hifzOnboardingControllerHash() =>
-    r'23d222a2398187fc8f7e2c24de8b1f220e7d6159';
+    r'febcad5048d5563609ddf9ff36ce976e1f03efdf';
 
 /// See also [HifzOnboardingController].
 @ProviderFor(HifzOnboardingController)
