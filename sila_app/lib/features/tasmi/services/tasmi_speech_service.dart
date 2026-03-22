@@ -5,10 +5,17 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 
+enum MicHealthStatus { active, reconnecting, stalled }
+
 class TasmiSpeechService {
+  static TasmiSpeechService? _instance;
+  factory TasmiSpeechService() => _instance ??= TasmiSpeechService._internal();
+  TasmiSpeechService._internal();
+
   final stt.SpeechToText _speech = stt.SpeechToText();
   final _wordController = StreamController<String>.broadcast();
   final _textController = StreamController<String>.broadcast();
+  final _micHealthController = StreamController<MicHealthStatus>.broadcast();
 
   String _lastRecognizedWords = '';
   bool _isManuallyStopped = false;
@@ -16,9 +23,15 @@ class TasmiSpeechService {
   bool _isPausedForTts = false;
   bool _autoRestartEnabled = true;
   Timer? _restartTimer;
+  Timer? _watchdogTimer;
+  DateTime? _lastWordReceivedAt;
+
+  static const _watchdogInterval = Duration(seconds: 8);
+  static const _silenceThreshold = Duration(seconds: 8);
 
   Stream<String> get wordStream => _wordController.stream;
   Stream<String> get textStream => _textController.stream;
+  Stream<MicHealthStatus> get micHealthStream => _micHealthController.stream;
 
   bool get isListening => _speech.isListening;
 
@@ -54,7 +67,12 @@ class TasmiSpeechService {
     _isRestarting = false;
     _autoRestartEnabled = autoRestart;
     _restartTimer?.cancel();
-    return _startInternal();
+    _startWatchdog();
+    final started = await _startInternal();
+    if (started && !_micHealthController.isClosed) {
+      _micHealthController.add(MicHealthStatus.active);
+    }
+    return started;
   }
 
   Future<bool> _startInternal() async {
@@ -85,11 +103,15 @@ class TasmiSpeechService {
     _isManuallyStopped = true;
     _isRestarting = false;
     _restartTimer?.cancel();
+    _watchdogTimer?.cancel();
+    _watchdogTimer = null;
     await _speech.stop();
   }
 
   Future<void> pauseForTts() async {
     _restartTimer?.cancel();
+    _watchdogTimer?.cancel();
+    _watchdogTimer = null;
     _isRestarting = false;
     _isPausedForTts = true;
     if (_speech.isListening) {
@@ -102,15 +124,29 @@ class TasmiSpeechService {
     if (_isManuallyStopped || _wordController.isClosed) return;
     _isPausedForTts = false;
     await Future.delayed(const Duration(milliseconds: 500));
-    await _startInternal();
+    final started = await _startInternal();
+    if (started) {
+      _startWatchdog();
+      if (!_micHealthController.isClosed) {
+        _micHealthController.add(MicHealthStatus.active);
+      }
+    } else if (!_micHealthController.isClosed) {
+      _micHealthController.add(MicHealthStatus.stalled);
+    }
     debugPrint('STT resumed after TTS');
   }
 
   void _onResult(SpeechRecognitionResult result) {
     if (_wordController.isClosed) return;
 
+    _lastWordReceivedAt = DateTime.now();
+
     final currentWords = result.recognizedWords.trim();
     if (currentWords.isEmpty) return;
+
+    if (!_micHealthController.isClosed) {
+      _micHealthController.add(MicHealthStatus.active);
+    }
 
     if (!_textController.isClosed) {
       _textController.add(currentWords);
@@ -219,10 +255,93 @@ class TasmiSpeechService {
     });
   }
 
+  void _startWatchdog() {
+    _watchdogTimer?.cancel();
+    _lastWordReceivedAt = DateTime.now();
+    _watchdogTimer = Timer.periodic(
+      _watchdogInterval,
+      (_) => _checkAndHeal(),
+    );
+  }
+
+  Future<void> _checkAndHeal() async {
+    if (_isManuallyStopped || _isPausedForTts || _wordController.isClosed) {
+      return;
+    }
+
+    final sinceLastWord = _lastWordReceivedAt == null
+        ? _silenceThreshold
+        : DateTime.now().difference(_lastWordReceivedAt!);
+
+    final isActuallyListening = _speech.isListening;
+    final silenceTooLong = sinceLastWord >= _silenceThreshold;
+
+    if (!isActuallyListening || silenceTooLong) {
+      debugPrint(
+        '🔧 Watchdog: healing STT — '
+        'isListening=$isActuallyListening '
+        'silence=${sinceLastWord.inSeconds}s',
+      );
+
+      if (!_micHealthController.isClosed) {
+        _micHealthController.add(MicHealthStatus.reconnecting);
+      }
+
+      final healed = await _hardReset();
+      if (!_micHealthController.isClosed) {
+        _micHealthController.add(
+          healed ? MicHealthStatus.active : MicHealthStatus.stalled,
+        );
+      }
+    }
+  }
+
+  Future<bool> _hardReset() async {
+    _restartTimer?.cancel();
+    _isRestarting = false;
+
+    try {
+      await _speech.cancel();
+      await Future.delayed(const Duration(milliseconds: 400));
+      await _speech.stop();
+      await Future.delayed(const Duration(milliseconds: 300));
+    } catch (_) {}
+
+    if (!_isManuallyStopped && !_isPausedForTts && !_wordController.isClosed) {
+      _lastRecognizedWords = '';
+      _lastWordReceivedAt = DateTime.now();
+      final restarted = await _startInternal();
+      if (restarted) {
+        debugPrint('🔧 Watchdog: STT restarted');
+      }
+      return restarted;
+    }
+
+    return false;
+  }
+
+  Future<void> forceRestart() async {
+    debugPrint('🔧 Manual restart requested');
+    _lastWordReceivedAt = null;
+    if (!_micHealthController.isClosed) {
+      _micHealthController.add(MicHealthStatus.reconnecting);
+    }
+    final restarted = await _hardReset();
+    if (!_micHealthController.isClosed) {
+      _micHealthController.add(
+        restarted ? MicHealthStatus.active : MicHealthStatus.stalled,
+      );
+    }
+  }
+
   void dispose() {
     _restartTimer?.cancel();
+    _watchdogTimer?.cancel();
+    _watchdogTimer = null;
     _speech.cancel();
     _textController.close();
     _wordController.close();
+    _micHealthController.close();
+    _instance = null;
   }
 }

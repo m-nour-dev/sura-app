@@ -47,8 +47,8 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 16,
-        bottom: 24,
+        top: MediaQuery.of(context).padding.top + 12,
+        bottom: 18,
         left: 20,
         right: 20,
       ),
@@ -181,5 +181,5 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(130);
+  Size get preferredSize => const Size.fromHeight(146);
 }

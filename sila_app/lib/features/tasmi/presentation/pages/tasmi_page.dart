@@ -8,9 +8,9 @@ import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/mushaf_tasmi_view.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_action_button.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_correction_bubble.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_listening_indicator.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_page_header.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_stats_row.dart';
+import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
@@ -32,6 +32,8 @@ class TasmiPage extends ConsumerStatefulWidget {
 }
 
 class _TasmiPageState extends ConsumerState<TasmiPage> {
+  final TasmiSpeechService _speechService = TasmiSpeechService();
+
   @override
   void initState() {
     super.initState();
@@ -87,7 +89,47 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (state.status == TasmiStatus.listening)
-                    TasmiListeningIndicator(isListening: state.isMicListening)
+                    StreamBuilder<MicHealthStatus>(
+                      stream: _speechService.micHealthStream,
+                      initialData: MicHealthStatus.active,
+                      builder: (context, snapshot) {
+                        final status = snapshot.data ?? MicHealthStatus.active;
+                        final color = switch (status) {
+                          MicHealthStatus.active => const Color(0xFF1D9E75),
+                          MicHealthStatus.reconnecting => Colors.orange,
+                          MicHealthStatus.stalled => Colors.red,
+                        };
+                        final label = switch (status) {
+                          MicHealthStatus.active => 'يستمع...',
+                          MicHealthStatus.reconnecting => 'يعيد الاتصال...',
+                          MicHealthStatus.stalled => 'توقف - اضغط للاعادة',
+                        };
+
+                        return Row(
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: color,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              label,
+                              style: const TextStyle(fontSize: 12, fontFamily: 'Cairo'),
+                            ),
+                            if (status == MicHealthStatus.stalled)
+                              IconButton(
+                                icon: const Icon(Icons.refresh, size: 16),
+                                onPressed: () => _speechService.forceRestart(),
+                              ),
+                          ],
+                        );
+                      },
+                    )
                   else
                     const SizedBox.shrink(),
                   
