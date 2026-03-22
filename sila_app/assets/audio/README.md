@@ -14,7 +14,7 @@ Only one local adhan file is kept now:
 1. Visit the source above
 2. Download MP3 file
 3. Rename it to `adhan_egypt.mp3`
-4. Place it in: `C:\Users\Hp\OneDrive\Desktop\2026 plan\Sila\sila_app\assets\audio\`
+4. Place it in: `assets/audio/`
 5. Run `flutter pub get` to refresh assets
 
 ## Temporary Placeholder
