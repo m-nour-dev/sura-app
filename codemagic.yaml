@@ -1,0 +1,36 @@
+workflows:
+  ios-release:
+    name: iOS Release
+    max_build_duration: 120
+    instance_type: mac_mini_m1
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store  # or ad_hoc for direct distribution
+        bundle_identifier: com.yourname.silaapp  # ← غير هذا لـ Bundle ID الخاص بك
+
+    scripts:
+      - name: Set Flutter version
+        script: flutter --version
+
+      - name: Get dependencies
+        script: |
+          cd sila_app
+          flutter pub get
+
+      - name: Build iOS
+        script: |
+          cd sila_app
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - sila_app/build/ios/ipa/*.ipa
+
+    publishing:
+      app_store_connect:
+        auth: integration  # يحتاج App Store Connect API Key في إعدادات Codemagic
+        submit_to_testflight: true
