@@ -463,7 +463,7 @@ class NotificationService {
     try {
       await _audioPlayer.stop();
       await _audioPlayer.setReleaseMode(ReleaseMode.stop);
-      if (soundFile.startsWith('https://')) {
+      if (soundFile.startsWith('http://') || soundFile.startsWith('https://')) {
         await _audioPlayer.play(UrlSource(soundFile));
       } else {
         await _audioPlayer.play(AssetSource('audio/$soundFile'));
