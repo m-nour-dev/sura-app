@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sila_app/core/providers/reciter_provider.dart';
 
 String _toArabicNumber(String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -9,7 +12,7 @@ String _toArabicNumber(String input) {
   return input;
 }
 
-class TasmiPageHeader extends StatelessWidget implements PreferredSizeWidget {
+class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
   final String surahName;
   final int fromAya;
   final int toAya;
@@ -24,7 +27,7 @@ class TasmiPageHeader extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = const Color(0xFF064E3B);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
@@ -133,6 +136,40 @@ class TasmiPageHeader extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () => showReciterPickerSheet(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.mic_rounded, color: primaryColor, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          ref
+                                  .watch(reciterControllerProvider)
+                                  .valueOrNull
+                                  ?.nameArabic
+                                  .split(' ')
+                                  .last ??
+                              'الحصري',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF064E3B),
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
+                        Icon(Icons.arrow_drop_down, color: primaryColor, size: 16),
+                      ],
+                    ),
                   ),
                 ),
               ],

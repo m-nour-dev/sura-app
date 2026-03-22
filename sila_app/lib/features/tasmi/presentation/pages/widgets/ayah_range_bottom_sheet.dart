@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_page.dart';
 
 String _toArabicNumber(String input) {
@@ -13,7 +14,12 @@ String _toArabicNumber(String input) {
 
 class AyahRangeBottomSheet extends StatefulWidget {
   final int surahNumber;
-  const AyahRangeBottomSheet({super.key, required this.surahNumber});
+  final bool returnSelectionOnly;
+  const AyahRangeBottomSheet({
+    super.key,
+    required this.surahNumber,
+    this.returnSelectionOnly = false,
+  });
 
   @override
   State<AyahRangeBottomSheet> createState() => _AyahRangeBottomSheetState();
@@ -34,6 +40,20 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
 
   void _navigateToTasmi(int from, int to) {
     Navigator.pop(context); // Close bottom sheet
+    if (widget.returnSelectionOnly) {
+      Navigator.pop(
+        context,
+        HifzSelection(
+          surahNumber: widget.surahNumber,
+          fromVerse: from,
+          toVerse: to,
+          type: from == 1 && to == _maxAyah
+              ? HifzSelectionType.fullSurah
+              : HifzSelectionType.ayahRange,
+        ),
+      );
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
