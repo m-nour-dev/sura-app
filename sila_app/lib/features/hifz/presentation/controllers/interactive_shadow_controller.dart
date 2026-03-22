@@ -3,15 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
+import 'package:sila_app/features/hifz/presentation/controllers/hifz_settings_controller.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
 import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
 import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
+import 'package:sila_app/features/hifz/domain/smart_word_matcher.dart';
 import 'package:sila_app/features/hifz/domain/spaced_repetition_engine.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:sila_app/features/hifz/services/hifz_audio_session_manager.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
 
@@ -75,6 +80,7 @@ class InteractiveShadowState {
   final double accuracy;
   final String? errorMessage;
   final String reflectionText;
+  final List<HifzMoment> sessionMoments;
 
   const InteractiveShadowState({
     required this.surahNumber,
@@ -94,6 +100,7 @@ class InteractiveShadowState {
     required this.accuracy,
     required this.errorMessage,
     required this.reflectionText,
+    required this.sessionMoments,
   });
 
   factory InteractiveShadowState.initial() {
@@ -115,6 +122,7 @@ class InteractiveShadowState {
       accuracy: 0,
       errorMessage: null,
       reflectionText: '',
+      sessionMoments: [],
     );
   }
 
@@ -137,6 +145,7 @@ class InteractiveShadowState {
     String? errorMessage,
     bool clearErrorMessage = false,
     String? reflectionText,
+    List<HifzMoment>? sessionMoments,
   }) {
     return InteractiveShadowState(
       surahNumber: surahNumber ?? this.surahNumber,
@@ -156,6 +165,7 @@ class InteractiveShadowState {
       accuracy: accuracy ?? this.accuracy,
       errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
       reflectionText: reflectionText ?? this.reflectionText,
+      sessionMoments: sessionMoments ?? this.sessionMoments,
     );
   }
 }
@@ -164,16 +174,23 @@ class InteractiveShadowState {
 class InteractiveShadowController extends _$InteractiveShadowController {
   TasmiSpeechService? _speechService;
   StreamSubscription<String>? _speechSubscription;
+  HifzAudioSessionManager? _audioSessionManager;
   final List<HifzSession> _sessionRows = [];
   final List<int> _alreadyHidden = [];
+  HifzSettings _settings = HifzSettings.defaults();
   int _stageCorrect = 0;
   int _stageWrong = 0;
   DateTime? _stageStartedAt;
+  bool _isAdvancing = false;
+  bool _isEvaluatingRecitation = false;
+  final Map<int, bool?> _inlineValidation = {};
+  final Map<int, int> _wordAttempts = {};
 
   @override
   InteractiveShadowState build() {
     ref.onDispose(() async {
       await _speechSubscription?.cancel();
+      await _audioSessionManager?.dispose();
       _speechService?.dispose();
     });
     return InteractiveShadowState.initial();
@@ -205,34 +222,31 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       finished: false,
       accuracy: 0,
       clearErrorMessage: true,
+      sessionMoments: const [],
     );
     _sessionRows.clear();
     _alreadyHidden.clear();
+    _inlineValidation.clear();
+    _wordAttempts.clear();
+
+    final repository = await ref.read(hifzRepositoryProvider.future);
+    _settings = await repository.getSettings();
+    _settings = ref.read(hifzSettingsControllerProvider).valueOrNull ?? _settings;
+
     await _loadCurrentVerseWords();
     await _runCurrentStage();
   }
 
   Future<void> nextStageOrVerse() async {
+    if (_isAdvancing) return;
+    _isAdvancing = true;
+    try {
     _captureStageStats();
     if (state.currentStage < 5) {
       state = state.copyWith(currentStage: state.currentStage + 1);
       await _applyHidingForStage();
       await _runCurrentStage();
       return;
-    }
-    state = state.copyWith(showMomentPrompt: true, isMicListening: false, isPlaying: false);
-  }
-
-  Future<void> saveMoment([String? reflection]) async {
-    final effectiveReflection = (reflection ?? state.reflectionText).trim();
-    if (effectiveReflection.isNotEmpty) {
-      final repository = await ref.read(hifzRepositoryProvider.future);
-      final moment = HifzMoment()
-        ..surahIndex = state.surahNumber
-        ..verseNumber = state.fromVerse + state.currentVerseIndex
-        ..reflection = effectiveReflection
-        ..createdAt = DateTime.now();
-      await repository.saveMoment(moment);
     }
 
     final lastVerseIndex = state.toVerse - state.fromVerse;
@@ -246,10 +260,34 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       currentStage: 1,
       showMomentPrompt: false,
       reflectionText: '',
+      isMicListening: false,
+      isPlaying: false,
     );
     _alreadyHidden.clear();
     await _loadCurrentVerseWords();
     await _runCurrentStage();
+    } finally {
+      _isAdvancing = false;
+    }
+  }
+
+  Future<void> saveMoment({String? reflection, String? feeling}) async {
+    final effectiveReflection = (reflection ?? state.reflectionText).trim();
+    final effectiveFeeling = (feeling ?? '').trim();
+    final didSave = effectiveReflection.isNotEmpty || effectiveFeeling.isNotEmpty;
+    if (effectiveReflection.isNotEmpty || effectiveFeeling.isNotEmpty) {
+      final repository = await ref.read(hifzRepositoryProvider.future);
+      final moment = HifzMoment()
+        ..surahIndex = state.surahNumber
+        ..verseNumber = state.fromVerse + state.currentVerseIndex
+        ..reflection = effectiveReflection
+        ..feeling = effectiveFeeling
+        ..createdAt = DateTime.now();
+      await repository.saveMoment(moment);
+      state = state.copyWith(sessionMoments: [...state.sessionMoments, moment]);
+    }
+
+    state = state.copyWith(showMomentPrompt: !didSave, reflectionText: '');
   }
 
   void setReflectionText(String text) {
@@ -257,17 +295,18 @@ class InteractiveShadowController extends _$InteractiveShadowController {
   }
 
   Future<void> skipMoment() async {
-    await saveMoment(null);
+    await saveMoment();
   }
 
   Future<void> saveMomentFromState() async {
-    await saveMoment(state.reflectionText);
+    await saveMoment(reflection: state.reflectionText);
     state = state.copyWith(reflectionText: '');
   }
 
   Future<void> toggleAudio() async {
     if (state.isPlaying) {
-      await ref.read(audioControllerProvider.notifier).stopAudio();
+      await _ensureAudioSessionManager();
+      await _audioSessionManager!.stopAudio();
       state = state.copyWith(isPlaying: false);
       return;
     }
@@ -275,15 +314,13 @@ class InteractiveShadowController extends _$InteractiveShadowController {
   }
 
   Future<void> toggleMic() async {
+    await _ensureAudioSessionManager();
+
     if (state.isMicListening) {
       await _stopMic();
       return;
     }
-    if (state.currentStage >= 3) {
-      await _startMicDetailed();
-    } else {
-      await _startMicLight();
-    }
+    await _startMicDetailed();
   }
 
   Future<void> nextStage() async {
@@ -297,21 +334,42 @@ class InteractiveShadowController extends _$InteractiveShadowController {
   }
 
   Future<void> onUserRecited(String recitedText) async {
-    final tokens = recitedText.split(RegExp(r'\s+')).where((e) => e.trim().isNotEmpty).toList();
+    if (recitedText.trim().isEmpty) {
+      state = state.copyWith(errorMessage: 'لم يتم التقاط تلاوة واضحة. حاول مرة أخرى.');
+      return;
+    }
+
+    if (_isEvaluatingRecitation) return;
+    _isEvaluatingRecitation = true;
+    try {
     final words = List<ShadowWordEntry>.from(state.words);
-    var correct = 0;
-    var wrong = 0;
-    var tokenIndex = 0;
+    final hiddenIndexes = <int>[];
+    final hiddenWords = <String>[];
 
     for (int i = 0; i < words.length; i++) {
       if (!words[i].isHidden || words[i].isAyahMarker) {
         continue;
       }
-      final spoken = tokenIndex < tokens.length ? tokens[tokenIndex] : '';
-      tokenIndex++;
-      final result = TajweedNormalizer.compareWord(spoken: spoken, expected: words[i].word);
-      if (result == WordMatchResult.correct) {
-        words[i] = words[i].copyWith(isHidden: false, revealedCorrectly: true);
+      hiddenIndexes.add(i);
+      hiddenWords.add(words[i].word);
+    }
+
+    final match = SmartWordMatcher.matchHiddenWords(
+      spokenText: recitedText,
+      hiddenWords: hiddenWords,
+      mode: _settings.readVerificationMode(),
+      ignoreDiacritics: _settings.hideVisibleDiacritics,
+    );
+
+    var correct = 0;
+    var wrong = 0;
+
+    for (int i = 0; i < hiddenIndexes.length; i++) {
+      final result = match.wordResults[i];
+      final isCorrect = result != HifzWordMatchResult.incorrect;
+      if (isCorrect) {
+        final idx = hiddenIndexes[i];
+        words[idx] = words[idx].copyWith(isHidden: false, revealedCorrectly: true);
         correct++;
       } else {
         wrong++;
@@ -327,9 +385,115 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       sessionHashanat: state.sessionHashanat + hasanat,
       correctWords: state.correctWords + correct,
       wrongWords: state.wrongWords + wrong,
+      clearErrorMessage: true,
     );
 
+    if (_settings.playCorrectOnError && wrong > 0) {
+      await _playVerseAudio();
+    }
+
     await nextStageOrVerse();
+    } finally {
+      _isEvaluatingRecitation = false;
+    }
+  }
+
+  bool? inlineWordValidation(int index) => _inlineValidation[index];
+
+  Future<void> onWordTyped(int wordIndex, String typedText) async {
+    if (wordIndex < 0 || wordIndex >= state.words.length) {
+      return;
+    }
+
+    final entry = state.words[wordIndex];
+    if (!entry.isHidden || entry.isAyahMarker || entry.revealedCorrectly) {
+      return;
+    }
+
+    final value = typedText.trim();
+    if (value.isEmpty) {
+      _inlineValidation[wordIndex] = null;
+      _wordAttempts.remove(wordIndex);
+      state = state.copyWith(
+        words: List<ShadowWordEntry>.from(state.words),
+        clearErrorMessage: true,
+      );
+      return;
+    }
+
+    final targetWord = entry.word;
+    final isCorrect = TajweedNormalizer.compareIgnoringDiacritics(value, targetWord);
+
+    if (isCorrect) {
+      final updatedWords = List<ShadowWordEntry>.from(state.words);
+      updatedWords[wordIndex] = updatedWords[wordIndex].copyWith(
+        isHidden: false,
+        revealedCorrectly: true,
+      );
+      _inlineValidation[wordIndex] = true;
+      _wordAttempts.remove(wordIndex);
+
+      state = state.copyWith(
+        words: updatedWords,
+        correctWords: state.correctWords + 1,
+        clearErrorMessage: true,
+      );
+
+      _stageCorrect += 1;
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+
+      if (state.currentStage >= 3 && !_hasPendingHiddenWords()) {
+        await nextStageOrVerse();
+      }
+      return;
+    }
+
+    final targetLength = TajweedNormalizer.stripDiacritics(targetWord).length;
+    final typedLength = TajweedNormalizer.stripDiacritics(value).length;
+
+    if (_inlineValidation[wordIndex] == false && typedLength >= targetLength) {
+      return;
+    }
+
+    if (typedLength >= targetLength) {
+      final currentAttempts = (_wordAttempts[wordIndex] ?? 0) + 1;
+      _wordAttempts[wordIndex] = currentAttempts;
+
+      final attemptsBeforeHint = _settings.attemptsBeforeHint.clamp(1, 4);
+      if (currentAttempts >= attemptsBeforeHint) {
+        _inlineValidation[wordIndex] = false;
+        _stageWrong += 1;
+        final normalizedTarget = TajweedNormalizer.stripDiacritics(targetWord);
+        final hint = normalizedTarget.length >= 2
+            ? '${normalizedTarget[0]}...${normalizedTarget[normalizedTarget.length - 1]}'
+            : normalizedTarget;
+
+        state = state.copyWith(
+          wrongWords: state.wrongWords + 1,
+          errorMessage: 'غير صحيحة. تلميح: $hint',
+        );
+        if (_settings.playCorrectOnError) {
+          await _playVerseAudio();
+        }
+      } else {
+        final left = attemptsBeforeHint - currentAttempts;
+        state = state.copyWith(errorMessage: 'حاول مرة أخرى (${left} متبقية)');
+      }
+      return;
+    }
+
+    _inlineValidation[wordIndex] = null;
+    state = state.copyWith(words: List<ShadowWordEntry>.from(state.words));
+  }
+
+  bool _hasPendingHiddenWords() {
+    for (final word in state.words) {
+      if (word.isAyahMarker) continue;
+      if (word.isHidden && !word.revealedCorrectly) {
+        return true;
+      }
+    }
+    return false;
   }
 
   List<int> selectWordsToHide(
@@ -379,66 +543,105 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     _stageStartedAt = DateTime.now();
 
     if (state.currentStage <= 2) {
-      await _playVerseAudio();
-      if (state.currentStage == 2) {
-        await _startMicLight();
+      final repeats = _settings.listenRepeats.clamp(1, 3);
+      for (int i = 0; i < repeats; i++) {
+        await _playVerseAudio();
       }
-      await Future<void>.delayed(const Duration(seconds: 2));
-      await _stopMic();
-      await nextStageOrVerse();
+      if (state.currentStage == 2) {
+        state = state.copyWith(
+          isMicListening: false,
+          errorMessage: 'اضغط المايك لتختبر نفسك بالصوت أو تابع للمرحلة التالية.',
+        );
+      } else {
+        await nextStageOrVerse();
+      }
       return;
     }
-
-    await _startMicDetailed();
-  }
-
-  Future<void> _startMicLight() async {
-    _speechService ??= TasmiSpeechService();
-    await _speechService!.initialize();
-    await _speechSubscription?.cancel();
-    _speechSubscription = _speechService!.wordStream.listen((_) {});
-    final started = await _speechService!.startListening();
-    state = state.copyWith(isMicListening: started);
   }
 
   Future<void> _startMicDetailed() async {
-    _speechService ??= TasmiSpeechService();
-    await _speechService!.initialize();
+    await _ensureAudioSessionManager();
+    state = state.copyWith(clearErrorMessage: true);
+
+    final available = await _speechService!.initialize();
+    if (!available) {
+      state = state.copyWith(
+        isMicListening: false,
+        errorMessage: 'تعذر تشغيل الميكروفون الآن',
+      );
+      return;
+    }
+
     await _speechSubscription?.cancel();
-    final buffer = StringBuffer();
-    _speechSubscription = _speechService!.wordStream.listen((token) {
-      if (buffer.isNotEmpty) {
-        buffer.write(' ');
+    var latestText = '';
+    _speechSubscription = _speechService!.textStream.listen((text) {
+      if (text.trim().isNotEmpty) {
+        latestText = text.trim();
+        state = state.copyWith(clearErrorMessage: true);
       }
-      buffer.write(token);
     });
 
-    final started = await _speechService!.startListening();
-    state = state.copyWith(isMicListening: started);
-    await Future<void>.delayed(const Duration(seconds: 6));
-    await _stopMic();
-    await onUserRecited(buffer.toString());
+    final attempts = state.currentStage <= 2 ? 2 : 3;
+    final listenPerAttempt = (_settings.hintDelaySeconds + 4).clamp(5, 12);
+
+    for (int attempt = 1; attempt <= attempts; attempt++) {
+      final started = await _audioSessionManager!.startMic(autoRestart: true);
+      state = state.copyWith(isMicListening: started);
+      if (!started) {
+        state = state.copyWith(errorMessage: 'تعذر تشغيل الميكروفون الآن');
+        return;
+      }
+
+      final startedAt = DateTime.now();
+      while (DateTime.now().difference(startedAt).inSeconds < listenPerAttempt) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+        if (!_speechService!.isListening) {
+          break;
+        }
+      }
+
+      await _stopMic();
+
+      if (latestText.isNotEmpty) {
+        await onUserRecited(latestText);
+        return;
+      }
+
+      if (attempt < attempts) {
+        state = state.copyWith(errorMessage: 'لم يلتقط الصوت بوضوح. سنحاول مرة أخرى...');
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      }
+    }
+
+    state = state.copyWith(errorMessage: 'لم يتم التقاط التلاوة. قرّب الهاتف وتحدث بوضوح ثم أعد المحاولة.');
   }
 
   Future<void> _stopMic() async {
-    await _speechService?.stopListening();
+    await _audioSessionManager?.stopMic();
     state = state.copyWith(isMicListening: false);
   }
 
   Future<void> _playVerseAudio() async {
-    final surahStr = state.surahNumber.toString().padLeft(3, '0');
+    await _ensureAudioSessionManager();
     final ayah = state.fromVerse + state.currentVerseIndex;
-    final ayahStr = ayah.toString().padLeft(3, '0');
-    final url = 'https://everyayah.com/data/Husary_128kbps/$surahStr$ayahStr.mp3';
-
+    final url = ref.read(reciterControllerProvider.notifier).buildAyahUrl(state.surahNumber, ayah);
     state = state.copyWith(isPlaying: true);
-    await ref.read(audioControllerProvider.notifier).playAudio(
-      url,
-      surahName: quran.getSurahNameArabic(state.surahNumber),
-      ayahNumber: ayah,
-    );
-    await Future<void>.delayed(const Duration(seconds: 4));
-    state = state.copyWith(isPlaying: false);
+
+    try {
+      await _audioSessionManager!.playAudioThenWait(
+        url: url,
+        surahName: quran.getSurahNameArabic(state.surahNumber),
+        surahNumber: state.surahNumber,
+        ayahNumber: ayah,
+      );
+    } finally {
+      state = state.copyWith(isPlaying: false);
+    }
+  }
+
+  Future<void> _ensureAudioSessionManager() async {
+    _speechService ??= TasmiSpeechService();
+    _audioSessionManager ??= HifzAudioSessionManager(ref, _speechService!);
   }
 
   Future<void> _loadCurrentVerseWords() async {
@@ -457,6 +660,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
         )
         .toList();
     state = state.copyWith(words: words);
+    _inlineValidation.clear();
+    _wordAttempts.clear();
     await _applyHidingForStage();
   }
 
@@ -474,6 +679,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     _alreadyHidden
       ..clear()
       ..addAll(hidden);
+    _inlineValidation.clear();
+    _wordAttempts.clear();
 
     final next = <ShadowWordEntry>[];
     for (int i = 0; i < base.length; i++) {
@@ -572,6 +779,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
             hasanat: state.sessionHashanat,
           ).catchError((_) {}),
     );
+
+    await ref.read(audioControllerProvider.notifier).disposeSession();
   }
 
   bool _isParticle(String word) {

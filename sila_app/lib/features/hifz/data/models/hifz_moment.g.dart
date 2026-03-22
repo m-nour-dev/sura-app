@@ -22,18 +22,23 @@ const HifzMomentSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'reflection': PropertySchema(
+    r'feeling': PropertySchema(
       id: 1,
+      name: r'feeling',
+      type: IsarType.string,
+    ),
+    r'reflection': PropertySchema(
+      id: 2,
       name: r'reflection',
       type: IsarType.string,
     ),
     r'surahIndex': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'surahIndex',
       type: IsarType.long,
     ),
     r'verseNumber': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'verseNumber',
       type: IsarType.long,
     )
@@ -58,6 +63,7 @@ int _hifzMomentEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.feeling.length * 3;
   bytesCount += 3 + object.reflection.length * 3;
   return bytesCount;
 }
@@ -69,9 +75,10 @@ void _hifzMomentSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
-  writer.writeString(offsets[1], object.reflection);
-  writer.writeLong(offsets[2], object.surahIndex);
-  writer.writeLong(offsets[3], object.verseNumber);
+  writer.writeString(offsets[1], object.feeling);
+  writer.writeString(offsets[2], object.reflection);
+  writer.writeLong(offsets[3], object.surahIndex);
+  writer.writeLong(offsets[4], object.verseNumber);
 }
 
 HifzMoment _hifzMomentDeserialize(
@@ -82,10 +89,11 @@ HifzMoment _hifzMomentDeserialize(
 ) {
   final object = HifzMoment();
   object.createdAt = reader.readDateTime(offsets[0]);
+  object.feeling = reader.readString(offsets[1]);
   object.id = id;
-  object.reflection = reader.readString(offsets[1]);
-  object.surahIndex = reader.readLong(offsets[2]);
-  object.verseNumber = reader.readLong(offsets[3]);
+  object.reflection = reader.readString(offsets[2]);
+  object.surahIndex = reader.readLong(offsets[3]);
+  object.verseNumber = reader.readLong(offsets[4]);
   return object;
 }
 
@@ -101,8 +109,10 @@ P _hifzMomentDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 3:
+      return (reader.readLong(offset)) as P;
+    case 4:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -250,6 +260,138 @@ extension HifzMomentQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'feeling',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition>
+      feelingGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'feeling',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'feeling',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'feeling',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'feeling',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'feeling',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'feeling',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'feeling',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition> feelingIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'feeling',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterFilterCondition>
+      feelingIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'feeling',
+        value: '',
       ));
     });
   }
@@ -574,6 +716,18 @@ extension HifzMomentQuerySortBy
     });
   }
 
+  QueryBuilder<HifzMoment, HifzMoment, QAfterSortBy> sortByFeeling() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feeling', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterSortBy> sortByFeelingDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feeling', Sort.desc);
+    });
+  }
+
   QueryBuilder<HifzMoment, HifzMoment, QAfterSortBy> sortByReflection() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'reflection', Sort.asc);
@@ -622,6 +776,18 @@ extension HifzMomentQuerySortThenBy
   QueryBuilder<HifzMoment, HifzMoment, QAfterSortBy> thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterSortBy> thenByFeeling() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feeling', Sort.asc);
+    });
+  }
+
+  QueryBuilder<HifzMoment, HifzMoment, QAfterSortBy> thenByFeelingDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feeling', Sort.desc);
     });
   }
 
@@ -682,6 +848,13 @@ extension HifzMomentQueryWhereDistinct
     });
   }
 
+  QueryBuilder<HifzMoment, HifzMoment, QDistinct> distinctByFeeling(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'feeling', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<HifzMoment, HifzMoment, QDistinct> distinctByReflection(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -713,6 +886,12 @@ extension HifzMomentQueryProperty
   QueryBuilder<HifzMoment, DateTime, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
+    });
+  }
+
+  QueryBuilder<HifzMoment, String, QQueryOperations> feelingProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'feeling');
     });
   }
 

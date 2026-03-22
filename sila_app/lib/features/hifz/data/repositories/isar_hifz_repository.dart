@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
@@ -75,6 +76,26 @@ class IsarHifzRepository implements IHifzRepository {
   @override
   Future<List<HifzMoment>> getRecentMoments(int limit) async {
     return await _isar.hifzMoments.where().sortByCreatedAtDesc().limit(limit).findAll();
+  }
+
+  @override
+  Future<HifzSettings> getSettings() async {
+    final settings = await _isar.hifzSettings.get(1);
+    if (settings != null) {
+      return settings;
+    }
+
+    final defaults = HifzSettings.defaults();
+    await saveSettings(defaults);
+    return defaults;
+  }
+
+  @override
+  Future<void> saveSettings(HifzSettings settings) async {
+    await _isar.writeTxn(() async {
+      settings.id = 1;
+      await _isar.hifzSettings.put(settings);
+    });
   }
 
   // TODO[phase-2: CloudSync]:
