@@ -26,6 +26,7 @@ class TasmiSpeechService {
   Timer? _watchdogTimer;
   DateTime? _lastWordReceivedAt;
   bool _isWatchdogHealing = false;
+  bool _disposed = false;
 
   static const _watchdogInterval = Duration(seconds: 8);
   static const _silenceThreshold = Duration(seconds: 8);
@@ -37,6 +38,11 @@ class TasmiSpeechService {
   bool get isListening => _speech.isListening;
 
   Future<bool> initialize() async {
+    if (_disposed) {
+      debugPrint('TasmiSpeechService: Cannot initialize after disposal');
+      return false;
+    }
+    
     try {
       final status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
@@ -56,6 +62,11 @@ class TasmiSpeechService {
   }
 
   Future<bool> startListening({bool autoRestart = true}) async {
+    if (_disposed) {
+      debugPrint('TasmiSpeechService: Cannot start listening after disposal');
+      return false;
+    }
+    
     if (!_speech.isAvailable) {
       final available = await initialize();
       if (!available) {
@@ -72,6 +83,8 @@ class TasmiSpeechService {
     final started = await _startInternal();
     if (started && !_micHealthController.isClosed) {
       _micHealthController.add(MicHealthStatus.active);
+    } else if (!started && !_micHealthController.isClosed) {
+      _micHealthController.add(MicHealthStatus.stalled);
     }
     return started;
   }
@@ -317,11 +330,13 @@ class TasmiSpeechService {
     _isRestarting = false;
 
     try {
+      // Use cancel() to discard any in-progress recognition results
+      // since we're doing a hard reset and don't need to finalize anything
       await _speech.cancel();
       await Future.delayed(const Duration(milliseconds: 400));
-      await _speech.stop();
-      await Future.delayed(const Duration(milliseconds: 300));
-    } catch (_) {}
+    } catch (e, st) {
+      debugPrint('tasmi_speech_service _hardReset failed during cancel: $e\n$st');
+    }
 
     if (!_isManuallyStopped && !_isPausedForTts && !_wordController.isClosed) {
       _lastRecognizedWords = '';
@@ -351,14 +366,27 @@ class TasmiSpeechService {
   }
 
   void dispose() {
+    if (_disposed) {
+      return;
+    }
+    
     _restartTimer?.cancel();
     _watchdogTimer?.cancel();
     _watchdogTimer = null;
     _isWatchdogHealing = false;
     _speech.cancel();
-    _textController.close();
-    _wordController.close();
-    _micHealthController.close();
+    
+    if (!_wordController.isClosed) {
+      _wordController.close();
+    }
+    if (!_textController.isClosed) {
+      _textController.close();
+    }
+    if (!_micHealthController.isClosed) {
+      _micHealthController.close();
+    }
+    
+    _disposed = true;
     _instance = null;
   }
 }
