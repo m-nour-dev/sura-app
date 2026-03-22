@@ -23,7 +23,7 @@ final prayerRepositoryProvider =
 
 typedef PrayerRepositoryRef = AutoDisposeProviderRef<PrayerRepositoryImpl>;
 String _$prayerTimesControllerHash() =>
-    r'9ec2fac4ca4ac9c7d5eb9a8c2c1e830a78d5b5c5';
+    r'606e421c00e33c57181595215532680a183b511f';
 
 /// See also [PrayerTimesController].
 @ProviderFor(PrayerTimesController)

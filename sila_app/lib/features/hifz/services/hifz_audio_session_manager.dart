@@ -1,0 +1,110 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
+
+class HifzAudioSessionManager {
+  HifzAudioSessionManager(this._ref, this._speechService);
+
+  final Ref _ref;
+  final TasmiSpeechService _speechService;
+
+  bool _audioActive = false;
+  bool _micActive = false;
+  bool _switching = false;
+
+  bool get isAudioActive => _audioActive;
+  bool get isMicActive => _micActive;
+  bool get isSwitching => _switching;
+
+  Future<void> playAudioThenWait({
+    required String url,
+    required String surahName,
+    required int surahNumber,
+    required int ayahNumber,
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
+    _switching = true;
+    try {
+      await ensureMicStopped();
+      _audioActive = true;
+      final completer = Completer<void>();
+      late final StreamSubscription<void> sub;
+      sub = _ref.read(audioControllerProvider.notifier).onPlayerComplete.listen((_) {
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      });
+
+      try {
+        await _ref.read(audioControllerProvider.notifier).playAudio(
+              url,
+              surahName: surahName,
+              surahNumber: surahNumber,
+              ayahNumber: ayahNumber,
+            );
+        try {
+          await completer.future.timeout(timeout);
+        } on TimeoutException {
+          await stopAudio();
+        }
+      } finally {
+        await sub.cancel();
+      }
+    } finally {
+      _audioActive = false;
+      _switching = false;
+    }
+  }
+
+  Future<void> stopAudio() async {
+    await _ref.read(audioControllerProvider.notifier).stopAudio();
+    _audioActive = false;
+  }
+
+  Future<bool> startMic({bool autoRestart = false}) async {
+    _switching = true;
+    try {
+      await stopAudio();
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      final started = await _speechService.startListening(autoRestart: autoRestart);
+      _micActive = started;
+      return started;
+    } finally {
+      _switching = false;
+    }
+  }
+
+  Future<void> stopMic() async {
+    await _speechService.stopListening();
+    _micActive = false;
+  }
+
+  Future<void> ensureAudioStopped() async {
+    if (_audioActive) {
+      await stopAudio();
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      return;
+    }
+    await _ref.read(audioControllerProvider.notifier).stopAudio();
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+  }
+
+  Future<void> ensureMicStopped() async {
+    if (_micActive || _speechService.isListening) {
+      await stopMic();
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+    }
+  }
+
+  Future<void> dispose() async {
+    try {
+      await ensureMicStopped();
+      await ensureAudioStopped();
+    } catch (e) {
+      debugPrint('HifzAudioSessionManager dispose error: $e');
+    }
+  }
+}

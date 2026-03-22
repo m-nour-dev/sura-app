@@ -5,10 +5,57 @@ import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
 enum WordMatchResult { correct, closeError, wrongWord }
 
 class TajweedNormalizer {
+  static String stripDiacritics(String text) {
+    return text.replaceAll(
+      RegExp(
+        r'[\u064B-\u065F'
+        r'\u0610-\u061A'
+        r'\u06D6-\u06DC'
+        r'\u06DF-\u06E4'
+        r'\u06E7\u06E8'
+        r'\u06EA-\u06ED'
+        r'\u0670\u0640]',
+      ),
+      '',
+    );
+  }
+
+  static String normalizeWithoutDiacritics(String text) {
+    final stripped = stripDiacritics(text.trim());
+    return normalize(stripped);
+  }
+
+  static bool compareIgnoringDiacritics(String input, String target) {
+    final normalizedInput = normalizeWithoutDiacritics(input);
+    final normalizedTarget = normalizeWithoutDiacritics(target);
+    return normalizedInput == normalizedTarget;
+  }
+
+  static double similarityIgnoringDiacritics(String input, String target) {
+    final a = normalizeWithoutDiacritics(input);
+    final b = normalizeWithoutDiacritics(target);
+
+    if (a == b) return 1.0;
+    if (a.isEmpty || b.isEmpty) return 0.0;
+
+    final maxLen = max(a.length, b.length);
+    final distance = _levenshteinDistance(a, b);
+    return 1.0 - (distance / maxLen);
+  }
+
   static String normalize(String text) {
+    return normalizeForComparison(text, ignoreDiacritics: true);
+  }
+
+  static String normalizeForComparison(
+    String text, {
+    bool ignoreDiacritics = true,
+  }) {
     String result = text;
 
-    result = result.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0640]'), '');
+    if (ignoreDiacritics) {
+      result = stripDiacritics(result);
+    }
     result = result.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
     result = result.replaceAll('ة', 'ه');
     result = result.replaceAll('ؤ', 'و');
@@ -20,6 +67,28 @@ class TajweedNormalizer {
     result = result.replaceAll(RegExp(r'\s+'), ' ');
 
     return result.trim();
+  }
+
+  static bool compareWithMode({
+    required String spoken,
+    required String expected,
+    bool ignoreDiacritics = true,
+    double minSimilarity = 0.85,
+  }) {
+    final normalizedSpoken = normalizeForComparison(
+      spoken,
+      ignoreDiacritics: ignoreDiacritics,
+    );
+    final normalizedExpected = normalizeForComparison(
+      expected,
+      ignoreDiacritics: ignoreDiacritics,
+    );
+
+    if (normalizedSpoken == normalizedExpected) {
+      return true;
+    }
+
+    return similarity(normalizedSpoken, normalizedExpected) >= minSimilarity;
   }
 
   /// Compares a spoken word against the expected Quranic word.
@@ -35,7 +104,7 @@ class TajweedNormalizer {
       return WordMatchResult.correct;
     }
 
-    final similarityScore = _similarity(normalizedSpoken, normalizedExpected);
+    final similarityScore = similarity(normalizedSpoken, normalizedExpected);
 
     final correctThreshold = switch (strictness) {
       StrictnessLevel.easy => 0.90,
@@ -65,7 +134,7 @@ class TajweedNormalizer {
   }
 
   /// Calculates the Levenshtein similarity between two strings, from 0.0 to 1.0.
-  static double _similarity(String a, String b) {
+  static double similarity(String a, String b) {
     if (a.isEmpty && b.isEmpty) return 1.0;
     if (a.isEmpty || b.isEmpty) return 0.0;
 

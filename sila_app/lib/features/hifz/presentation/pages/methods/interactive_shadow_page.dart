@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/interactive_shadow_controller.dart';
+import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 
 const Color _successColor = Color(0xFF10B981);
 const Color _hasanatGold = Color(0xFFFCD34D);
@@ -30,9 +33,12 @@ class InteractiveShadowPage extends ConsumerStatefulWidget {
 class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
     with TickerProviderStateMixin {
   final TextEditingController _reflectionController = TextEditingController();
-  final TextEditingController _manualReciteController = TextEditingController();
+  final Map<int, TextEditingController> _inlineControllers = {};
+  final Map<int, FocusNode> _inlineFocusNodes = {};
   late final AnimationController _flashController;
   late final AnimationController _waveController;
+  bool _isNextBusy = false;
+  int _lastInputsStateHash = 0;
 
   @override
   void initState() {
@@ -53,48 +59,63 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
   @override
   void dispose() {
     _reflectionController.dispose();
-    _manualReciteController.dispose();
+    for (final c in _inlineControllers.values) {
+      c.dispose();
+    }
+    for (final f in _inlineFocusNodes.values) {
+      f.dispose();
+    }
     _flashController.dispose();
     _waveController.dispose();
     super.dispose();
+  }
+
+  void _syncInlineInputs(List<ShadowWordEntry> words) {
+    final currentHash = Object.hashAll(
+      words.asMap().entries.map(
+        (entry) => Object.hash(entry.key, entry.value.word),
+      ),
+    );
+    final verseChanged = currentHash != _lastInputsStateHash;
+    _lastInputsStateHash = currentHash;
+
+    final validIndexes = <int>{};
+    for (int i = 0; i < words.length; i++) {
+      final w = words[i];
+      if (!w.isHidden || w.isAyahMarker) {
+        continue;
+      }
+      validIndexes.add(i);
+      if (!_inlineControllers.containsKey(i) || verseChanged) {
+        _inlineControllers.remove(i)?.dispose();
+        _inlineControllers[i] = TextEditingController();
+      }
+      _inlineFocusNodes.putIfAbsent(i, () => FocusNode());
+    }
+
+    final stale = _inlineControllers.keys.where((k) => !validIndexes.contains(k)).toList();
+    for (final key in stale) {
+      _inlineControllers.remove(key)?.dispose();
+      _inlineFocusNodes.remove(key)?.dispose();
+    }
+  }
+
+  int? _findNextHiddenIndex(List<ShadowWordEntry> words, int fromIndex) {
+    for (int i = fromIndex + 1; i < words.length; i++) {
+      final w = words[i];
+      if (w.isHidden && !w.isAyahMarker && !w.revealedCorrectly) {
+        return i;
+      }
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(interactiveShadowControllerProvider);
     final controller = ref.read(interactiveShadowControllerProvider.notifier);
-
-    if (state.showMomentPrompt) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        showModalBottomSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (ctx) => Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-            child: _MomentSheet(
-              verseText: quran.getVerse(
-                state.surahNumber,
-                state.fromVerse + state.currentVerseIndex,
-                verseEndSymbol: false,
-              ),
-              surahName: quran.getSurahNameArabic(state.surahNumber),
-              textController: _reflectionController,
-              onTextChanged: controller.setReflectionText,
-              onSkip: () async {
-                await controller.skipMoment();
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-              onSave: () async {
-                await controller.saveMoment();
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-            ),
-          ),
-        );
-      });
-    }
+    final reciter = ref.watch(reciterControllerProvider).valueOrNull;
+    _syncInlineInputs(state.words);
 
     return Theme(
       data: ThemeData.dark().copyWith(
@@ -110,17 +131,33 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
         child: Scaffold(
           backgroundColor: AppTheme.darkBackgroundColor,
           body: SafeArea(
-            child: state.finished
-                ? _SessionResultsView(
-                    state: state,
-                    onHome: () => Navigator.popUntil(context, (r) => r.isFirst),
-                    onDedicate: () => controller.openThawaabDedication(context),
-                  )
-                : Column(
-                    children: [
+            child: Stack(
+              children: [
+                state.finished
+                    ? _SessionResultsView(
+                        state: state,
+                        onHome: () => Navigator.popUntil(context, (r) => r.isFirst),
+                        onDedicate: () => controller.openThawaabDedication(context),
+                      )
+                    : Column(
+                        children: [
                       _TopHeader(
                         surahName: quran.getSurahNameArabic(state.surahNumber),
                         stage: state.currentStage,
+                        reciterLabel: reciter?.nameArabic.split(' ').last ?? 'الحصري',
+                        onReciterTap: () => showReciterPickerSheet(context),
+                        onMomentTap: () {
+                          final verseIndex = state.fromVerse + state.currentVerseIndex;
+                          _showMomentCapture(
+                            context,
+                            quran.getVerse(
+                              state.surahNumber,
+                              verseIndex,
+                              verseEndSymbol: false,
+                            ),
+                            quran.getSurahNameArabic(state.surahNumber),
+                          );
+                        },
                       ),
                       _StageBanner(stage: state.currentStage),
                       Expanded(
@@ -150,12 +187,21 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                           isPlaying: state.isPlaying,
                           waveController: _waveController,
                           onToggle: controller.toggleAudio,
-                        )
-                      else
-                        _MicBar(
-                          isListening: state.isMicListening,
-                          onToggle: controller.toggleMic,
+                          reciterLabel: reciter?.nameArabic.split(' ').last ?? 'الحصري',
                         ),
+                      const SizedBox(height: 8),
+                      _MicBar(
+                        isListening: state.isMicListening,
+                        onToggle: controller.toggleMic,
+                      ),
+                      if (state.errorMessage != null) ...[
+                        const SizedBox(height: 8),
+                        _InlineStatusMessage(message: state.errorMessage!),
+                      ],
+                      if (state.currentStage >= 3) ...[
+                        const SizedBox(height: 8),
+                        const _WritingModeBar(),
+                      ],
                       const SizedBox(height: 10),
                       _StatsRow(
                         correct: state.correctWords,
@@ -166,64 +212,79 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                       _InstructionCard(stage: state.currentStage),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: controller.nextStage,
+                        onPressed: _isNextBusy
+                            ? null
+                            : () async {
+                                setState(() => _isNextBusy = true);
+                                try {
+                                  await controller.nextStage();
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => _isNextBusy = false);
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        child: Text(
-                          'التالي',
-                          style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.w700),
-                        ),
+                        child: _isNextBusy
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                'التالي',
+                                style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.w700),
+                              ),
                       ),
                       const SizedBox(height: 8),
                       if (state.currentStage >= 3)
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _manualReciteController,
-                                  style: GoogleFonts.cairo(fontSize: 12, color: Colors.white70),
-                                  textDirection: TextDirection.rtl,
-                                  decoration: InputDecoration(
-                                    hintText: 'للاختبار اليدوي: اكتب التلاوة هنا',
-                                    hintStyle: GoogleFonts.cairo(fontSize: 11, color: Colors.white30),
-                                    filled: true,
-                                    fillColor: Colors.white.withValues(alpha: 0.06),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final text = _manualReciteController.text;
-                                  _manualReciteController.clear();
-                                  await controller.onUserRecited(text);
-                                  await _flashController.forward(from: 0);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.accentColor,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                                child: Text(
-                                  'تحقق',
-                                  style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            'يمكنك إكمال المخفي بالكتابة أو اختبار نفسك بالمايك',
+                            style: GoogleFonts.cairo(fontSize: 11, color: Colors.white54),
                           ),
                         ),
                       const SizedBox(height: 8),
-                    ],
-                  ),
+                        ],
+                      ),
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showMomentCapture(
+    BuildContext context,
+    String verseText,
+    String surahName,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: _MomentCaptureSheet(
+          surahName: surahName,
+          verseText: verseText,
+          onSave: (feeling, note) async {
+            await ref
+                .read(interactiveShadowControllerProvider.notifier)
+                .saveMoment(reflection: note, feeling: feeling);
+            if (ctx.mounted) {
+              Navigator.pop(ctx);
+            }
+          },
         ),
       ),
     );
@@ -233,8 +294,17 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
 class _TopHeader extends StatelessWidget {
   final String surahName;
   final int stage;
+  final String reciterLabel;
+  final VoidCallback onReciterTap;
+  final VoidCallback onMomentTap;
 
-  const _TopHeader({required this.surahName, required this.stage});
+  const _TopHeader({
+    required this.surahName,
+    required this.stage,
+    required this.reciterLabel,
+    required this.onReciterTap,
+    required this.onMomentTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -271,6 +341,44 @@ class _TopHeader extends StatelessWidget {
           Text(
             surahName,
             style: GoogleFonts.cairo(fontSize: 11, color: Colors.white.withValues(alpha: 0.5)),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: onReciterTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.mic_rounded, color: Colors.white70, size: 13),
+                  const SizedBox(width: 3),
+                  Text(
+                    reciterLabel,
+                    style: GoogleFonts.cairo(fontSize: 10, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          GestureDetector(
+            onTap: onMomentTap,
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white24),
+              ),
+              child: const Center(
+                child: Text('💎', style: TextStyle(fontSize: 14)),
+              ),
+            ),
           ),
         ],
       ),
@@ -326,6 +434,11 @@ class _StageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pageState = context.findAncestorStateOfType<_InteractiveShadowPageState>();
+    final controller = pageState == null
+        ? null
+        : pageState.ref.read(interactiveShadowControllerProvider.notifier);
+
     final color = ColorTween(
       begin: Colors.transparent,
       end: _errorColor.withValues(alpha: 0.2),
@@ -338,16 +451,47 @@ class _StageContent extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: color.value,
-          child: Directionality(
-            textDirection: TextDirection.rtl,
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: state.words.map((w) => _WordChip(entry: w)).toList(),
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: state.words.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final word = entry.value;
+
+                  if (!word.isHidden || word.isAyahMarker || pageState == null || controller == null) {
+                    return _WordChip(entry: word);
+                  }
+
+                  final textController = pageState._inlineControllers[index]!;
+                  final focusNode = pageState._inlineFocusNodes[index]!;
+                  final validation = controller.inlineWordValidation(index);
+
+                  return _InlineWordInput(
+                    index: index,
+                    hiddenWord: word.word,
+                    controller: textController,
+                    focusNode: focusNode,
+                    isCorrect: word.revealedCorrectly
+                        ? true
+                        : validation,
+                    onChanged: (value) async {
+                      await controller.onWordTyped(index, value);
+                      final updated = pageState.ref.read(interactiveShadowControllerProvider);
+                      final nextIndex = pageState._findNextHiddenIndex(updated.words, index);
+                      if (nextIndex != null &&
+                          controller.inlineWordValidation(index) == true &&
+                          pageState._inlineFocusNodes[nextIndex] != null) {
+                        pageState._inlineFocusNodes[nextIndex]!.requestFocus();
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-        );
+          );
       },
     );
   }
@@ -427,8 +571,14 @@ class _AudioBar extends StatelessWidget {
   final bool isPlaying;
   final AnimationController waveController;
   final Future<void> Function() onToggle;
+  final String reciterLabel;
 
-  const _AudioBar({required this.isPlaying, required this.waveController, required this.onToggle});
+  const _AudioBar({
+    required this.isPlaying,
+    required this.waveController,
+    required this.onToggle,
+    required this.reciterLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -458,9 +608,84 @@ class _AudioBar extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(child: _AudioWaveform(isPlaying: isPlaying, controller: waveController)),
           const SizedBox(width: 10),
-          Text('الحصري', style: GoogleFonts.cairo(fontSize: 9, color: Colors.white38)),
+          Text(reciterLabel, style: GoogleFonts.cairo(fontSize: 9, color: Colors.white38)),
         ],
       ),
+    );
+  }
+}
+
+class _InlineWordInput extends StatelessWidget {
+  const _InlineWordInput({
+    required this.index,
+    required this.hiddenWord,
+    required this.controller,
+    required this.focusNode,
+    required this.isCorrect,
+    required this.onChanged,
+  });
+
+  final int index;
+  final String hiddenWord;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final bool? isCorrect;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final wordLength = TajweedNormalizer.stripDiacritics(hiddenWord).length;
+    final boxWidth = (wordLength * 18.0).clamp(60.0, 180.0);
+
+    Color borderColor;
+    Color bgColor;
+
+    if (isCorrect == null) {
+      borderColor = Colors.white24;
+      bgColor = Colors.white.withValues(alpha: 0.08);
+    } else if (isCorrect == true) {
+      borderColor = const Color(0xFF22C55E);
+      bgColor = const Color(0xFF22C55E).withValues(alpha: 0.15);
+    } else {
+      borderColor = const Color(0xFFEF4444);
+      bgColor = const Color(0xFFEF4444).withValues(alpha: 0.15);
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: boxWidth,
+      height: 42,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 1.5),
+      ),
+      child: isCorrect == true
+          ? Center(
+              child: Text(
+                hiddenWord,
+                style: GoogleFonts.amiri(
+                  fontSize: 18,
+                  color: const Color(0xFF22C55E),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            )
+          : TextField(
+              controller: controller,
+              focusNode: focusNode,
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.amiri(fontSize: 18, color: Colors.white),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                hintText: '...',
+                hintStyle: TextStyle(color: Colors.white30, fontSize: 16),
+              ),
+              onChanged: onChanged,
+              textInputAction: TextInputAction.next,
+            ),
     );
   }
 }
@@ -501,11 +726,8 @@ class _AudioWaveform extends StatelessWidget {
   }
 }
 
-class _MicBar extends StatelessWidget {
-  final bool isListening;
-  final Future<void> Function() onToggle;
-
-  const _MicBar({required this.isListening, required this.onToggle});
+class _WritingModeBar extends StatelessWidget {
+  const _WritingModeBar();
 
   @override
   Widget build(BuildContext context) {
@@ -519,18 +741,114 @@ class _MicBar extends StatelessWidget {
       ),
       child: Row(
         children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.07),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white24, width: 1.5),
+            ),
+            child: const Icon(Icons.edit_note_rounded, color: Colors.white70, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'الوضع الكتابي مفعل',
+                  style: GoogleFonts.cairo(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF6EE7B7),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'أكمل الكلمات المخفية داخل الآية',
+                  style: GoogleFonts.cairo(fontSize: 10, color: Colors.white54),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InlineStatusMessage extends StatelessWidget {
+  const _InlineStatusMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final isError = message.contains('تعذر') ||
+        message.contains('لم يتم') ||
+        message.contains('غير صحيحة') ||
+        message.contains('حاول');
+
+    final bgColor = isError
+        ? const Color(0xFF7F1D1D).withValues(alpha: 0.28)
+        : const Color(0xFF0E4D35).withValues(alpha: 0.30);
+    final borderColor = isError
+        ? const Color(0xFFEF4444).withValues(alpha: 0.45)
+        : const Color(0xFF6EE7B7).withValues(alpha: 0.45);
+    final textColor = isError ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: borderColor, width: 0.6),
+        ),
+        child: Text(
+          message,
+          style: GoogleFonts.cairo(fontSize: 10.5, color: textColor, fontWeight: FontWeight.w600),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+class _MicBar extends StatelessWidget {
+  final bool isListening;
+  final Future<void> Function() onToggle;
+
+  const _MicBar({required this.isListening, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0B1220).withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.6),
+      ),
+      child: Row(
+        children: [
           GestureDetector(
             onTap: () => onToggle(),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 42,
-              height: 42,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: isListening ? _successColor.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.07),
+                color: isListening ? _successColor.withValues(alpha: 0.16) : Colors.white.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
-                border: Border.all(color: isListening ? _successColor : Colors.white24, width: 1.5),
+                border: Border.all(color: isListening ? _successColor : Colors.white24, width: 1.3),
               ),
-              child: Icon(isListening ? Icons.mic : Icons.mic_off, color: isListening ? _successColor : Colors.white38, size: 18),
+              child: Icon(isListening ? Icons.graphic_eq_rounded : Icons.mic_none_rounded, color: isListening ? _successColor : Colors.white54, size: 18),
             ),
           ),
           const SizedBox(width: 12),
@@ -539,23 +857,28 @@ class _MicBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (isListening)
-                  Row(
-                    children: [
-                      Container(width: 6, height: 6, decoration: const BoxDecoration(color: _successColor, shape: BoxShape.circle)),
-                      const SizedBox(width: 6),
-                      Text('يستمع...', style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.w600, color: _successColor)),
-                    ],
-                  )
-                else
-                  Text('اضغط للبدء', style: GoogleFonts.cairo(fontSize: 10, color: Colors.white38)),
-                const SizedBox(height: 6),
+                Text(
+                  isListening ? 'المايك يعمل الآن' : 'اختبر تلاوتك بالمايك',
+                  style: GoogleFonts.cairo(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: isListening ? const Color(0xFF6EE7B7) : Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isListening ? 'تحدث بوضوح...' : 'اضغط للبدء بالمقارنة الصوتية',
+                  style: GoogleFonts.cairo(fontSize: 9.5, color: Colors.white38),
+                ),
+                const SizedBox(height: 5),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(3),
                   child: LinearProgressIndicator(
-                    value: isListening ? 0.65 : 0,
+                    value: isListening ? null : 0,
                     backgroundColor: Colors.white.withValues(alpha: 0.1),
-                    valueColor: const AlwaysStoppedAnimation(_successColor),
+                    valueColor: AlwaysStoppedAnimation(
+                      isListening ? const Color(0xFF6EE7B7) : Colors.white24,
+                    ),
                     minHeight: 3,
                   ),
                 ),
@@ -647,7 +970,7 @@ class _InstructionCard extends StatelessWidget {
 
   (String, String) _instruction(int stage) {
     return switch (stage) {
-      1 => ('استمع جيداً', 'ستنتقل تلقائياً عند انتهاء التلاوة'),
+      1 => ('استمع جيداً', 'اضغط "التالي" للانتقال للمرحلة التالية'),
       2 => ('ردد مع الشيخ', 'حاول المزامنة مع الصوت'),
       3 => ('أكمل الكلمات المخفية', 'الكلمات الخضراء أجبت عنها صح'),
       4 => ('تحدٍّ أكبر — استمر', '٦٠٪ من الآية مخفي الآن'),
@@ -787,6 +1110,75 @@ class _SessionResultsViewState extends State<_SessionResultsView> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          if (widget.state.sessionMoments.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'لحظاتك مع القرآن اليوم 💎',
+                    style: GoogleFonts.cairo(
+                      fontSize: 13,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...widget.state.sessionMoments.map((moment) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        '• آية ${_toArabicIndic(moment.verseNumber)}: ${moment.feeling}${moment.reflection.isNotEmpty ? ' - ${moment.reflection}' : ''}',
+                        style: GoogleFonts.cairo(fontSize: 11, color: Colors.white70),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            )
+          else
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: Row(
+                children: [
+                  const Text('💎', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'هل لمستك آية اليوم؟',
+                          style: GoogleFonts.cairo(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'اضغط 💎 في أي وقت خلال الجلسة القادمة',
+                          style: GoogleFonts.cairo(fontSize: 11, color: Colors.white38),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 24),
           AnimatedOpacity(
             duration: const Duration(milliseconds: 300),
@@ -841,25 +1233,43 @@ class _SessionResultsViewState extends State<_SessionResultsView> {
   }
 }
 
-class _MomentSheet extends StatelessWidget {
+class _MomentCaptureSheet extends StatefulWidget {
   final String surahName;
   final String verseText;
-  final TextEditingController textController;
-  final ValueChanged<String> onTextChanged;
-  final Future<void> Function() onSkip;
-  final Future<void> Function() onSave;
+  final Future<void> Function(String feeling, String note) onSave;
 
-  const _MomentSheet({
+  const _MomentCaptureSheet({
     required this.surahName,
     required this.verseText,
-    required this.textController,
-    required this.onTextChanged,
-    required this.onSkip,
     required this.onSave,
   });
 
   @override
+  State<_MomentCaptureSheet> createState() => _MomentCaptureSheetState();
+}
+
+class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
+  String _selectedFeeling = 'أثّر فيّ';
+  String _note = '';
+
+  @override
   Widget build(BuildContext context) {
+    Widget feelingChip(String emoji, String label) {
+      final selected = _selectedFeeling == label;
+      return ChoiceChip(
+        label: Text('$emoji $label', style: GoogleFonts.cairo(fontSize: 11)),
+        selected: selected,
+        showCheckmark: false,
+        onSelected: (_) => setState(() => _selectedFeeling = label),
+        selectedColor: AppTheme.accentColor.withValues(alpha: 0.2),
+        backgroundColor: Colors.white.withValues(alpha: 0.08),
+        labelStyle: TextStyle(
+          color: selected ? Colors.white : Colors.white70,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+        ),
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.darkSurfaceColor,
@@ -882,14 +1292,14 @@ class _MomentSheet extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            surahName,
+            widget.surahName,
             style: GoogleFonts.cairo(fontSize: 10, color: Colors.white30),
           ),
           const SizedBox(height: 6),
           Directionality(
             textDirection: TextDirection.rtl,
             child: Text(
-              verseText,
+              widget.verseText,
               style: GoogleFonts.amiri(fontSize: 14, color: Colors.white60, height: 2.0),
               textAlign: TextAlign.center,
             ),
@@ -903,12 +1313,23 @@ class _MomentSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              feelingChip('🥺', 'أثّر فيّ'),
+              feelingChip('😢', 'بكيت'),
+              feelingChip('😌', 'اطمأننت'),
+              feelingChip('🤔', 'تأملت'),
+              feelingChip('🙏', 'شكرت الله'),
+            ],
+          ),
+          const SizedBox(height: 10),
           TextField(
-            controller: textController,
             style: GoogleFonts.cairo(fontSize: 13, color: Colors.white70),
             textDirection: TextDirection.rtl,
             maxLines: 2,
-            onChanged: onTextChanged,
+            onChanged: (v) => _note = v,
             decoration: InputDecoration(
               hintText: 'اكتب كلمتين عن شعورك...',
               hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.white30),
@@ -934,7 +1355,7 @@ class _MomentSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () async => onSkip(),
+                  onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.white24),
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -947,7 +1368,7 @@ class _MomentSheet extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: ElevatedButton(
-                  onPressed: () async => onSave(),
+                  onPressed: () async => widget.onSave(_selectedFeeling, _note.trim()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.accentColor,
                     padding: const EdgeInsets.symmetric(vertical: 12),

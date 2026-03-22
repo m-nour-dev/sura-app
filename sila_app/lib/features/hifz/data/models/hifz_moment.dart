@@ -9,5 +9,6 @@ class HifzMoment {
   late int surahIndex;
   late int verseNumber;
   late String reflection;
+  late String feeling;
   late DateTime createdAt;
 }

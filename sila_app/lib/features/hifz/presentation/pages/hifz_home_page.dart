@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
+import 'package:sila_app/features/hifz/presentation/pages/hifz_settings_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/methods/interactive_shadow_page.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/hifz_notification_settings.dart';
@@ -31,6 +33,191 @@ class HifzHomePage extends ConsumerStatefulWidget {
 }
 
 class _HifzHomePageState extends ConsumerState<HifzHomePage> {
+  Future<HifzSelection?> _showHifzSelectionDialog(HifzHomeState state) async {
+    final plan = state.plan;
+    return showModalBottomSheet<HifzSelection>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _selectionOption(
+                    icon: '🎯',
+                    title: 'الخطة اليومية',
+                    subtitle: plan != null
+                        ? '${plan.newAyahsTarget} آيات جديدة بحسب خطتك'
+                        : 'ابدأ بالخطة الافتراضية',
+                    recommended: true,
+                    onTap: () {
+                      const surahNumber = 1;
+                      final maxAyahs = quran.getVerseCount(surahNumber);
+                      final target = (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
+                      Navigator.pop(
+                        context,
+                        HifzSelection(
+                          surahNumber: surahNumber,
+                          fromVerse: 1,
+                          toVerse: target,
+                          type: HifzSelectionType.dailyPlan,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _selectionOption(
+                    icon: '📖',
+                    title: 'سورة كاملة',
+                    subtitle: 'اختر السورة من قائمة المصحف',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final result = await Navigator.push<HifzSelection>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
+                            forHifz: true,
+                            showAyahRange: false,
+                          ),
+                        ),
+                      );
+                      if (!mounted || result == null) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InteractiveShadowPage(
+                            surahNumber: result.surahNumber,
+                            fromVerse: result.fromVerse,
+                            toVerse: result.toVerse,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _selectionOption(
+                    icon: '✂️',
+                    title: 'نطاق آيات محدد',
+                    subtitle: 'اختر السورة ثم من آية X إلى Y',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final result = await Navigator.push<HifzSelection>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
+                            forHifz: true,
+                            showAyahRange: true,
+                          ),
+                        ),
+                      );
+                      if (!mounted || result == null) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InteractiveShadowPage(
+                            surahNumber: result.surahNumber,
+                            fromVerse: result.fromVerse,
+                            toVerse: result.toVerse,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _selectionOption({
+    required String icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool recommended = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: recommended ? const Color(0xFFF0FDF4) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: recommended ? const Color(0xFFBBF7D0) : const Color(0xFFE2E8F0),
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 20)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.cairo(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.cairo(
+                      fontSize: 11,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (recommended)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF064E3B).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'موصى به',
+                  style: GoogleFonts.cairo(
+                    fontSize: 10,
+                    color: const Color(0xFF064E3B),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -179,10 +366,18 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                     const SizedBox(height: 10),
                     _MethodsGrid(
                       dueReviewCount: state.reviewDueCount,
-                      onInteractiveShadow: () {
+                      onInteractiveShadow: () async {
+                        final selection = await _showHifzSelectionDialog(state);
+                        if (selection == null || !mounted) return;
                         controller.startSession('interactive_shadow');
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const InteractiveShadowPage()),
+                          MaterialPageRoute(
+                            builder: (_) => InteractiveShadowPage(
+                              surahNumber: selection.surahNumber,
+                              fromVerse: selection.fromVerse,
+                              toVerse: selection.toVerse,
+                            ),
+                          ),
                         );
                       },
                       onSmartReview: controller.startReviewSession,
@@ -273,6 +468,23 @@ class _Header extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 16),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const HifzSettingsPage()),
+                      );
+                    },
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: const Icon(Icons.tune_rounded, color: Colors.white, size: 16),
                     ),
                   ),
                   const Spacer(),

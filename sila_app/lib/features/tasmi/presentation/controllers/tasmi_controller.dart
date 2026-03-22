@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';

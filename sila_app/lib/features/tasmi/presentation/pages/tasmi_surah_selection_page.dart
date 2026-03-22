@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/ayah_range_bottom_sheet.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/search_and_filter_bar.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/surah_list_item.dart';
@@ -23,7 +24,14 @@ const List<bool> _isMakki = [
 ];
 
 class TasmiSurahSelectionPage extends StatefulWidget {
-  const TasmiSurahSelectionPage({super.key});
+  final bool forHifz;
+  final bool showAyahRange;
+
+  const TasmiSurahSelectionPage({
+    super.key,
+    this.forHifz = false,
+    this.showAyahRange = true,
+  });
 
   @override
   State<TasmiSurahSelectionPage> createState() => _TasmiSurahSelectionPageState();
@@ -94,11 +102,28 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
   }
 
   void _onSurahTapped(int surahNumber) {
+    if (widget.forHifz && !widget.showAyahRange) {
+      final toVerse = quran.getVerseCount(surahNumber);
+      Navigator.pop(
+        context,
+        HifzSelection(
+          surahNumber: surahNumber,
+          fromVerse: 1,
+          toVerse: toVerse,
+          type: HifzSelectionType.fullSurah,
+        ),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => AyahRangeBottomSheet(surahNumber: surahNumber),
+      builder: (_) => AyahRangeBottomSheet(
+        surahNumber: surahNumber,
+        returnSelectionOnly: widget.forHifz,
+      ),
     );
   }
 

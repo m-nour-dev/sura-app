@@ -8,14 +8,17 @@ import 'package:speech_to_text/speech_recognition_error.dart';
 class TasmiSpeechService {
   final stt.SpeechToText _speech = stt.SpeechToText();
   final _wordController = StreamController<String>.broadcast();
+  final _textController = StreamController<String>.broadcast();
 
   String _lastRecognizedWords = '';
   bool _isManuallyStopped = false;
   bool _isRestarting = false;
   bool _isPausedForTts = false;
+  bool _autoRestartEnabled = true;
   Timer? _restartTimer;
 
   Stream<String> get wordStream => _wordController.stream;
+  Stream<String> get textStream => _textController.stream;
 
   bool get isListening => _speech.isListening;
 
@@ -38,7 +41,7 @@ class TasmiSpeechService {
     }
   }
 
-  Future<bool> startListening() async {
+  Future<bool> startListening({bool autoRestart = true}) async {
     if (!_speech.isAvailable) {
       final available = await initialize();
       if (!available) {
@@ -49,6 +52,7 @@ class TasmiSpeechService {
 
     _isManuallyStopped = false;
     _isRestarting = false;
+    _autoRestartEnabled = autoRestart;
     _restartTimer?.cancel();
     return _startInternal();
   }
@@ -62,8 +66,9 @@ class TasmiSpeechService {
     try {
       await _speech.listen(
         onResult: _onResult,
-        localeId: 'ar_SA',
+        localeId: 'ar-SA',
         listenMode: stt.ListenMode.dictation,
+        listenFor: const Duration(seconds: 20),
         pauseFor: const Duration(seconds: 3),
         cancelOnError: false,
         partialResults: true,
@@ -107,6 +112,10 @@ class TasmiSpeechService {
     final currentWords = result.recognizedWords.trim();
     if (currentWords.isEmpty) return;
 
+    if (!_textController.isClosed) {
+      _textController.add(currentWords);
+    }
+
     final firstTrackedToken = _lastRecognizedWords.isNotEmpty
         ? _lastRecognizedWords.split(' ').first
         : '';
@@ -122,7 +131,7 @@ class TasmiSpeechService {
       if (newPart.isNotEmpty) {
         final newWords = newPart
             .split(RegExp(r'\s+'))
-            .where((w) => w.isNotEmpty && w.length > 1)
+            .where((w) => w.isNotEmpty)
             .toList();
 
         for (final word in newWords) {
@@ -136,7 +145,7 @@ class TasmiSpeechService {
 
   void _onStatus(String status) {
     debugPrint('STT Status: $status');
-    if (status == 'done' || status == 'notListening') {
+    if (_autoRestartEnabled && (status == 'done' || status == 'notListening')) {
       _isRestarting = false;
       _scheduleRestart();
     }
@@ -144,6 +153,21 @@ class TasmiSpeechService {
 
   void _onError(SpeechRecognitionError error) {
     debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
+
+    if (!_autoRestartEnabled && error.errorMsg == 'error_network' && !_wordController.isClosed) {
+      _wordController.addError('يرجى التحقق من الاتصال بالإنترنت');
+    }
+
+    if (error.errorMsg == 'error_no_match' && !_wordController.isClosed) {
+      _wordController.addError('لم يتم التقاط التلاوة. حاول التحدث بوضوح.');
+    }
+
+    if (!_autoRestartEnabled) {
+      if (error.permanent && error.errorMsg == 'error_permission' && !_wordController.isClosed) {
+        _wordController.addError('يرجى السماح بصلاحية الميكروفون');
+      }
+      return;
+    }
 
     if (error.errorMsg == 'error_client') {
       debugPrint('⚠️ error_client — treating as temporary, retrying in 1500ms');
@@ -177,7 +201,13 @@ class TasmiSpeechService {
   }
 
   void _scheduleRestart({Duration delay = const Duration(milliseconds: 350)}) {
-    if (_isManuallyStopped || _isPausedForTts || _isRestarting || _wordController.isClosed) return;
+    if (_isManuallyStopped ||
+        _isPausedForTts ||
+        _isRestarting ||
+        !_autoRestartEnabled ||
+        _wordController.isClosed) {
+      return;
+    }
 
     _isRestarting = true;
     _restartTimer?.cancel();
@@ -192,6 +222,7 @@ class TasmiSpeechService {
   void dispose() {
     _restartTimer?.cancel();
     _speech.cancel();
+    _textController.close();
     _wordController.close();
   }
 }

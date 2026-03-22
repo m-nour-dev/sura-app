@@ -463,15 +463,20 @@ class NotificationService {
     try {
       await _audioPlayer.stop();
       await _audioPlayer.setReleaseMode(ReleaseMode.stop);
-      await _audioPlayer.play(AssetSource('audio/$soundFile'));
+      if (soundFile.startsWith('http://') || soundFile.startsWith('https://')) {
+        await _audioPlayer.play(UrlSource(soundFile));
+      } else {
+        await _audioPlayer.play(AssetSource('audio/$soundFile'));
+      }
       await _showAdhanPlaybackNotification();
       print('Playing Adhan: $soundFile');
     } catch (e) {
       print('Error playing $soundFile, trying fallback: $e');
       // Try any available audio file as fallback
       try {
+        await _audioPlayer.stop();
         await _audioPlayer.setReleaseMode(ReleaseMode.stop);
-        await _audioPlayer.play(AssetSource('audio/adhan_mecca.mp3'));
+        await _audioPlayer.play(AssetSource('audio/adhan_egypt.mp3'));
         await _showAdhanPlaybackNotification();
       } catch (e2) {
         print('Fallback audio also failed: $e2');

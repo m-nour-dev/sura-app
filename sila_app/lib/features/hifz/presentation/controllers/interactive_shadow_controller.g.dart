@@ -7,7 +7,7 @@ part of 'interactive_shadow_controller.dart';
 // **************************************************************************
 
 String _$interactiveShadowControllerHash() =>
-    r'10962a05eeeb897f2cbf626ccdebd9c9719f71b4';
+    r'1fbd72c008f12d3b8d5451c4a3eff79fbad4769b';
 
 /// See also [InteractiveShadowController].
 @ProviderFor(InteractiveShadowController)

@@ -16,17 +16,13 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   final _adhanSvc = AdhanSchedulerService();
 
   bool _adhanEnabled = true;
-  String _selectedSound = 'adhan_mecca.mp3';
+  String _selectedSound = 'adhan_egypt.mp3';
   Map<String, bool> _prayerSettings = {
     'fajr': true, 'dhuhr': true, 'asr': true, 'maghrib': true, 'isha': true,
   };
 
   static const _sounds = {
-    'adhan_mecca.mp3': 'أذان مكة المكرمة',
-    'adhan_medina.mp3': 'أذان المدينة المنورة',
     'adhan_egypt.mp3': 'أذان مصر',
-    'adhan_mishary.mp3': 'أذان مشاري العفاسي',
-    'adhan_turkey.mp3': 'أذان تركيا',
   };
 
   static const _prayerList = [
@@ -156,7 +152,7 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // ── Per-prayer ───────────────────────────────────────────────────
           Padding(
