@@ -154,7 +154,7 @@ class TasmiSpeechService {
   void _onError(SpeechRecognitionError error) {
     debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
 
-    if (error.errorMsg == 'error_network' && !_wordController.isClosed) {
+    if (!_autoRestartEnabled && error.errorMsg == 'error_network' && !_wordController.isClosed) {
       _wordController.addError('يرجى التحقق من الاتصال بالإنترنت');
     }
 
