@@ -25,6 +25,21 @@ class SurahDetailPage extends ConsumerStatefulWidget {
 }
 
 class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
+  late PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final surahState = ref.watch(surahDetailControllerProvider(widget.surahNumber));
@@ -44,229 +59,135 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
         backgroundColor: bg,
         body: surahState.when(
           data: (surah) {
-            final totalAyahs = surah.ayahs?.length ?? 0;
-            final autoPlayState = ref.watch(surahAutoPlayControllerProvider(totalAyahs));
-
-            if (surah.ayahs == null || surah.ayahs!.isEmpty) {
+            final ayahs = surah.ayahs ?? [];
+            if (ayahs.isEmpty) {
               return Center(
                 child: Text(
-                  "جاري التحميل...",
+                  'جاري التحميل...',
                   style: TextStyle(color: txtP),
                 ),
               );
             }
 
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF064E3B),
-                  iconTheme: const IconThemeData(color: Colors.white),
-                  title: Text(
-                    widget.surahName,
-                    style: GoogleFonts.getFont(
-                      'Amiri',
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                   actions: [
-                     // Auto-play button (play/pause entire surah)
-                     IconButton(
-                       icon: Icon(
-                         autoPlayState.isPlaying
-                             ? Icons.pause_circle
-                             : Icons.play_circle_outline,
-                         color: Colors.white,
-                         size: 28,
-                       ),
-                       tooltip: autoPlayState.isPlaying
-                           ? 'إيقاف مؤقت'
-                           : 'تشغيل السورة',
-                       onPressed: () => _handleAutoPlayToggle(
-                         ref,
-                         widget.surahNumber,
-                         widget.surahName,
-                         totalAyahs,
-                         autoPlayState,
-                       ),
-                     ),
-                     const SizedBox(width: 4),
-                     // Settings (includes reciter picker)
-                     IconButton(
-                       icon: const Icon(Icons.tune_rounded, color: Colors.white),
-                       onPressed: () => _showSettingsDialog(
-                         context,
-                         ref,
-                         settings,
-                         isDark,
-                         surface,
-                         txtP,
-                         primaryColor,
-                       ),
-                       tooltip: 'الإعدادات',
-                     ),
-                   ],
+            // Group ayahs into pages (يتم حسابها بناءً على حجم الخط والمساحة المتاحة)
+            final pages = _groupAyahsIntoPages(ayahs, settings.fontSize);
+            final totalAyahs = ayahs.length;
+            final autoPlayState = ref.watch(surahAutoPlayControllerProvider(totalAyahs));
+
+            return Stack(
+              children: [
+                // PageView for pages
+                PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (page) {
+                    setState(() {
+                      _currentPage = page;
+                    });
+                  },
+                  itemCount: pages.length,
+                  itemBuilder: (context, pageIndex) {
+                    final pageAyahs = pages[pageIndex];
+                    return _buildQuranPage(
+                      pageAyahs,
+                      settings,
+                      primaryColor,
+                      txtP,
+                      txtS,
+                      surface,
+                      isDark,
+                      playingAyahId,
+                      autoPlayState,
+                      widget.surahNumber,
+                      widget.surahName,
+                    );
+                  },
                 ),
 
-                // Bismillah
-                SliverToBoxAdapter(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-                      textAlign: TextAlign.center,
+                // AppBar
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: AppBar(
+                    backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF064E3B),
+                    elevation: 0,
+                    iconTheme: const IconThemeData(color: Colors.white),
+                    title: Text(
+                      widget.surahName,
                       style: GoogleFonts.getFont(
                         'Amiri',
-                        fontSize: 24,
-                        color: primaryColor,
-                        height: 2.0,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    actions: [
+                      IconButton(
+                        icon: Icon(
+                          autoPlayState.isPlaying
+                              ? Icons.pause_circle
+                              : Icons.play_circle_outline,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        tooltip: autoPlayState.isPlaying ? 'إيقاف مؤقت' : 'تشغيل السورة',
+                        onPressed: () => _handleAutoPlayToggle(
+                          ref,
+                          widget.surahNumber,
+                          widget.surahName,
+                          totalAyahs,
+                          autoPlayState,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(Icons.tune_rounded, color: Colors.white),
+                        onPressed: () => _showSettingsDialog(
+                          context,
+                          ref,
+                          settings,
+                          isDark,
+                          surface,
+                          txtP,
+                          primaryColor,
+                        ),
+                        tooltip: 'الإعدادات',
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Page indicator at bottom
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'الصفحة ${_currentPage + 1} من ${pages.length}',
+                        style: GoogleFonts.getFont(
+                          'Cairo',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-
-                // Ayahs List
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (ctx, i) {
-                        final ayah = surah.ayahs![i];
-                        final isPlaying = playingAyahId == ayah.number;
-                        final isAutoPlayCurrent = autoPlayState.isPlaying &&
-                            autoPlayState.currentAyahNumber == ayah.number;
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isAutoPlayCurrent
-                                  ? primaryColor.withOpacity(0.5)
-                                  : (isPlaying
-                                      ? primaryColor.withOpacity(0.3)
-                                      : border),
-                              width: isAutoPlayCurrent ? 2 : (isPlaying ? 1 : 0.5),
-                            ),
-                            boxShadow: isAutoPlayCurrent
-                                ? [
-                                    BoxShadow(
-                                      color: primaryColor.withOpacity(0.2),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    )
-                                  ]
-                                : [],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              // Ayah number and play button (top row)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Play individual ayah button
-                                  _buildPlayButton(
-                                    context,
-                                    ref,
-                                    widget.surahNumber,
-                                    ayah.number,
-                                    widget.surahName,
-                                    isPlaying,
-                                    primaryColor,
-                                    border,
-                                  ),
-                                  // Ayah number badge
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: primaryColor.withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: primaryColor.withOpacity(0.3),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${ayah.number}',
-                                        style: GoogleFonts.getFont(
-                                          'Cairo',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                          color: primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              // Ayah text (Arabic)
-                              Text(
-                                ayah.text,
-                                textAlign: TextAlign.right,
-                                textDirection: ui.TextDirection.rtl,
-                                style: GoogleFonts.getFont(
-                                  settings.fontFamily,
-                                  fontSize: settings.fontSize,
-                                  height: 2.2,
-                                  fontWeight: FontWeight.w600,
-                                  color: txtP,
-                                ),
-                              ),
-
-                               // Translation (only if available)
-                               if (ayah.translation.isNotEmpty) ...[
-                                 const SizedBox(height: 16),
-                                 Container(
-                                   padding: const EdgeInsets.all(14),
-                                   decoration: BoxDecoration(
-                                     color: primaryColor.withOpacity(0.05),
-                                     borderRadius: BorderRadius.circular(12),
-                                     border: Border.all(
-                                       color: primaryColor.withOpacity(0.1),
-                                       width: 1,
-                                     ),
-                                   ),
-                                   child: Text(
-                                     ayah.translation,
-                                     textAlign: TextAlign.start,
-                                     textDirection: _getTranslationDirection(ayah.translation),
-                                     style: GoogleFonts.getFont(
-                                       'Cairo',
-                                       fontSize: 14,
-                                       height: 1.8,
-                                       color: txtS,
-                                     ),
-                                   ),
-                                 ),
-                               ],
-                            ],
-                          ),
-                        );
-                      },
-                      childCount: surah.ayahs!.length,
-                    ),
-                  ),
-                ),
-
-                // Bottom spacing
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 32),
                 ),
               ],
             );
           },
           error: (error, _) => Center(
             child: Text(
-              'Error: $error',
+              'خطأ: $error',
               style: TextStyle(color: txtP),
             ),
           ),
@@ -276,13 +197,181 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
         ),
       ),
       error: (error, _) =>
-          Scaffold(body: Center(child: Text('Error loading settings: $error'))),
+          Scaffold(body: Center(child: Text('خطأ في تحميل الإعدادات: $error'))),
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
 
-  /// Build individual ayah play button
+  /// Group ayahs into pages based on font size and screen height
+  List<List<dynamic>> _groupAyahsIntoPages(dynamic ayahs, double fontSize) {
+    final pages = <List<dynamic>>[];
+    final ayahsPerPage = _calculateAyahsPerPage(fontSize);
+
+    for (int i = 0; i < ayahs.length; i += ayahsPerPage) {
+      final end = (i + ayahsPerPage < ayahs.length) ? i + ayahsPerPage : ayahs.length;
+      pages.add(ayahs.sublist(i, end));
+    }
+
+    return pages;
+  }
+
+  /// Calculate how many ayahs fit per page based on font size
+  int _calculateAyahsPerPage(double fontSize) {
+    // الصيغة: 50 - (fontSize * 0.5)
+    // مثلاً: حجم خط 24 = 50 - 12 = 38 آية تقريباً
+    // حجم خط 32 = 50 - 16 = 34 آية تقريباً
+    return ((50 - (fontSize * 0.5)).toInt()).clamp(8, 50);
+  }
+
+  /// Build a single page of Quran
+  Widget _buildQuranPage(
+    List<dynamic> pageAyahs,
+    QuranSettings settings,
+    Color primaryColor,
+    Color txtP,
+    Color txtS,
+    Color surface,
+    bool isDark,
+    int? playingAyahId,
+    AutoPlayState autoPlayState,
+    int surahNumber,
+    String surahName,
+  ) {
+    return Container(
+      color: surface,
+      padding: const EdgeInsets.fromLTRB(16, 100, 16, 100),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Bismillah at top of first page only
+            if (_currentPage == 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 32),
+                child: Text(
+                  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.getFont(
+                    'Amiri',
+                    fontSize: 28,
+                    color: primaryColor,
+                    height: 2.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+            // Ayahs on this page
+            ...pageAyahs.map((ayah) {
+              final isPlaying = playingAyahId == ayah.number;
+              final isAutoPlayCurrent = autoPlayState.isPlaying &&
+                  autoPlayState.currentAyahNumber == ayah.number;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // Ayah text with number
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Ayah number in circle
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: primaryColor.withOpacity(0.1),
+                            border: Border.all(
+                              color: primaryColor.withOpacity(0.3),
+                              width: 1.5,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${ayah.number}',
+                            style: GoogleFonts.getFont(
+                              'Cairo',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Ayah text
+                        Expanded(
+                          child: Text(
+                            ayah.text,
+                            textAlign: TextAlign.right,
+                            textDirection: ui.TextDirection.rtl,
+                            style: GoogleFonts.getFont(
+                              settings.fontFamily,
+                              fontSize: settings.fontSize - 2,
+                              height: 2.2,
+                              fontWeight: FontWeight.w600,
+                              color: isAutoPlayCurrent
+                                  ? primaryColor
+                                  : (isPlaying ? primaryColor.withOpacity(0.8) : txtP),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Play button and translation (if available)
+                    if (ayah.translation.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, right: 44),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: primaryColor.withOpacity(0.1),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            ayah.translation,
+                            textAlign: TextAlign.start,
+                            textDirection: _getTranslationDirection(ayah.translation),
+                            style: GoogleFonts.getFont(
+                              'Cairo',
+                              fontSize: (settings.fontSize - 4).clamp(10, 48),
+                              height: 1.8,
+                              color: txtS,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    // Play button
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, right: 44),
+                      child: _buildPlayButton(
+                        context,
+                        ref,
+                        surahNumber,
+                        ayah.number,
+                        surahName,
+                        isPlaying,
+                        primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build play button for individual ayah
   Widget _buildPlayButton(
     BuildContext context,
     WidgetRef ref,
@@ -291,7 +380,6 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     String surahName,
     bool isPlaying,
     Color primaryColor,
-    Color border,
   ) {
     return GestureDetector(
       onTap: () async {
@@ -314,35 +402,29 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
           }
         } catch (e) {
           ref.read(playingAyahIdProvider.notifier).setPlaying(null);
-          if (!context.mounted) return;
-          _showErrorDialog(
-            context,
-            const Color(0xFF0F172A),
-            Colors.white,
-            primaryColor,
-          );
         }
       },
       child: Container(
-        width: 40,
-        height: 40,
+        width: 32,
+        height: 32,
         decoration: BoxDecoration(
-          color: isPlaying
-              ? primaryColor.withOpacity(0.15)
-              : Colors.transparent,
+          color: isPlaying ? primaryColor.withOpacity(0.15) : Colors.transparent,
           shape: BoxShape.circle,
-          border: Border.all(color: border),
+          border: Border.all(
+            color: primaryColor.withOpacity(0.3),
+            width: 1,
+          ),
         ),
         child: Icon(
           isPlaying ? Icons.pause : Icons.play_arrow,
-          size: 18,
+          size: 16,
           color: primaryColor,
         ),
       ),
     );
   }
 
-  /// Handle auto-play toggle (play entire surah)
+  /// Auto-play toggle handler
   Future<void> _handleAutoPlayToggle(
     WidgetRef ref,
     int surahNumber,
@@ -357,20 +439,12 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
 
       if (autoPlayState.isPlaying) {
         if (autoPlayState.isPaused) {
-          // Resume
           await controller.resumeAutoPlay(surahNumber, surahName);
         } else {
-          // Pause
           await controller.pauseAutoPlay();
         }
       } else {
-        // Start from beginning
-        await controller.startAutoPlay(
-          surahNumber,
-          1,
-          totalAyahs,
-          surahName,
-        );
+        await controller.startAutoPlay(surahNumber, 1, totalAyahs, surahName);
       }
     } catch (e) {
       if (mounted) {
@@ -381,6 +455,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     }
   }
 
+  /// Show settings dialog
   void _showSettingsDialog(
     BuildContext context,
     WidgetRef ref,
@@ -405,9 +480,8 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header
               Text(
-                "إعدادات القراءة",
+                'إعدادات القراءة',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.getFont(
                   'Cairo',
@@ -418,7 +492,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
               ),
               const SizedBox(height: 32),
 
-              // Reciter Selection Button
+              // Reciter selection
               GestureDetector(
                 onTap: () => showReciterPickerSheet(context),
                 child: Container(
@@ -439,7 +513,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                           Icon(Icons.mic_rounded, color: primaryColor, size: 24),
                           const SizedBox(width: 16),
                           Text(
-                            "اختر القارئ",
+                            'اختر القارئ',
                             style: GoogleFonts.getFont(
                               'Cairo',
                               fontSize: 16,
@@ -460,7 +534,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
               ),
               const SizedBox(height: 28),
 
-              // Font Selection
+              // Font selection
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -469,7 +543,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                       Icon(Icons.text_fields, color: primaryColor, size: 20),
                       const SizedBox(width: 12),
                       Text(
-                        "نوع الخط",
+                        'نوع الخط',
                         style: GoogleFonts.getFont(
                           'Cairo',
                           fontSize: 16,
@@ -490,7 +564,6 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                     decoration: InputDecoration(
                       isDense: true,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      labelStyle: GoogleFonts.getFont('Cairo', color: txtP),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
@@ -508,16 +581,16 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                     ),
                     items: [
                       DropdownMenuItem(
-                        value: "Amiri",
+                        value: 'Amiri',
                         child: Text(
-                          "Amiri (ميري)",
+                          'Amiri (ميري)',
                           style: GoogleFonts.getFont('Amiri'),
                         ),
                       ),
                       DropdownMenuItem(
-                        value: "Noto Naskh Arabic",
+                        value: 'Noto Naskh Arabic',
                         child: Text(
-                          "Noto Naskh",
+                          'Noto Naskh',
                           style: GoogleFonts.getFont('Noto Naskh Arabic'),
                         ),
                       ),
@@ -534,7 +607,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
               ),
               const SizedBox(height: 28),
 
-              // Font Size Slider
+              // Font size
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -546,7 +619,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                           Icon(Icons.format_size, color: primaryColor, size: 20),
                           const SizedBox(width: 12),
                           Text(
-                            "حجم الخط",
+                            'حجم الخط',
                             style: GoogleFonts.getFont(
                               'Cairo',
                               fontSize: 16,
@@ -598,51 +671,13 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     );
   }
 
-  void _showErrorDialog(
-    BuildContext context,
-    Color txtP,
-    Color surface,
-    Color primaryColor,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: surface,
-        title: Text(
-          "خطأ في تشغيل الصوت",
-          style: GoogleFonts.getFont('Cairo', color: txtP),
-        ),
-        content: Text(
-          "عذراً، لا يمكن تشغيل الصوت حالياً.",
-          style: GoogleFonts.getFont('Cairo', color: txtP),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(
-              "حسناً",
-              style: GoogleFonts.getFont('Cairo', color: primaryColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Detect translation text direction (RTL for Arabic, LTR for Turkish/English)
+  /// Detect translation text direction
   ui.TextDirection _getTranslationDirection(String text) {
     if (text.isEmpty) return ui.TextDirection.ltr;
-    
-    // Check first character for Arabic/Persian/Urdu scripts
     final firstChar = text.codeUnitAt(0);
-    
-    // Arabic Unicode range: 0x0600 - 0x06FF
-    // Persian/Urdu: 0x0600 - 0x06FF
     if (firstChar >= 0x0600 && firstChar <= 0x06FF) {
       return ui.TextDirection.rtl;
     }
-    
-    // Turkish, English, and other LTR languages
     return ui.TextDirection.ltr;
   }
 }

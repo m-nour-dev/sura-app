@@ -7,7 +7,7 @@ part of 'hifz_settings_controller.dart';
 // **************************************************************************
 
 String _$hifzSettingsControllerHash() =>
-    r'a4c06d737ca82458a8d00affe104063ed2d4b5c4';
+    r'07b759de7ab6056205b2e9b2918eb43307c1b513';
 
 /// See also [HifzSettingsController].
 @ProviderFor(HifzSettingsController)
