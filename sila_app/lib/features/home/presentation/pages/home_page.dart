@@ -10,6 +10,7 @@ import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.d
 import 'package:sila_app/features/notifications/presentation/pages/notification_hub_page.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_summary_card.dart';
 import 'package:sila_app/features/wird/presentation/widgets/wird_card.dart';
+import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends ConsumerWidget {
@@ -60,102 +61,121 @@ class HomePage extends ConsumerWidget {
           ),
 
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Next Prayer Card ──
                 const NextPrayerCard(),
-
-                const SizedBox(height: 12),
-
-                // ── Last Read Card ──
-                const LastReadCard(),
-
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
+                
+                // ── Streak Summary ──
+                const StreakSummaryCard(),
+                const SizedBox(height: 32),
 
                 // ── Wird Card ──
                 const WirdCard(),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
 
-                // ── Hifz Shortcut Card ──
-                GestureDetector(
-                  onTap: () => _openHifz(context),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF064E3B), Color(0xFFD97706)],
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
+                // ── Tools Row (Hifz & Tasmi) ──
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildToolCard(
+                        title: 'حفظ',
+                        subtitle: 'أكمل رحلتك',
+                        icon: Icons.auto_stories,
+                        color: const Color(0xFF064E3B),
+                        onTap: () => _openHifz(context),
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFD97706).withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.auto_stories, color: Colors.white, size: 22),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'حفظ',
-                                style: GoogleFonts.getFont(
-                                  'Amiri',
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'ابدأ أو أكمل رحلتك مع القرآن',
-                                style: GoogleFonts.getFont(
-                                  'Cairo',
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 14),
-                      ],
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildToolCard(
+                        title: 'تسميع',
+                        subtitle: 'اختبر حفظك',
+                        icon: Icons.mic_rounded,
+                        color: const Color(0xFF1E3A5F),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TasmiSurahSelectionPage(),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  ],
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
 
                 // ── Daily Content Card ──
                 const DailyContentCard(),
 
-                const SizedBox(height: 12),
-
-                // ── Streak Summary ──
-                const StreakSummaryCard(),
-
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
               ]),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildToolCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 160,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: Colors.white, size: 24),
+            ),
+            const Spacer(),
+            Text(
+              title,
+              style: GoogleFonts.amiri(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: GoogleFonts.cairo(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

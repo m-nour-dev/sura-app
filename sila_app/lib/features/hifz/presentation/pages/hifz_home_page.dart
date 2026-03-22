@@ -150,6 +150,35 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
     );
   }
 
+  void _showComingSoon(String featureName) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.auto_awesome, color: Color(0xFFFCD34D), size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'ميزة "$featureName" تحت الإنشاء، نسأل الله أن ييسر إتمامها لتكون عوناً لك في حفظ كتابه الكريم ✨',
+                style: GoogleFonts.cairo(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF064E3B),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
   Widget _selectionOption({
     required String icon,
     required String title,
@@ -380,9 +409,9 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                           ),
                         );
                       },
-                      onSmartReview: controller.startReviewSession,
-                      onListening: controller.startListeningSession,
-                      onRepetition: controller.startRepetitionSession,
+                      onSmartReview: () => _showComingSoon('المراجعة الذكية'),
+                      onListening: () => _showComingSoon('التلقي'),
+                      onRepetition: () => _showComingSoon('التكرار'),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -848,55 +877,68 @@ class _MomentsSection extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        reverse: true,
-        scrollDirection: Axis.horizontal,
-        itemCount: moments.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (_, index) {
-          final moment = moments[index];
-          final surahName = quran.getSurahNameArabic(moment.surahIndex);
-          return Container(
-            width: 150,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Text('💎', style: TextStyle(fontSize: 14)),
-                Text(
-                  surahName,
-                  style: GoogleFonts.cairo(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryColor,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: SizedBox(
+        height: 140,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: moments.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 12),
+          itemBuilder: (_, index) {
+            final moment = moments[index];
+            final surahName = quran.getSurahNameArabic(moment.surahIndex);
+            final reflection = moment.reflection.toString().trim();
+            
+            return Container(
+              width: 200,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-                Text(
-                  moment.reflection,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.cairo(
-                    fontSize: 11,
-                    color: const Color(0xFF475569),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        surahName,
+                        style: GoogleFonts.cairo(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                      const Text('💎', style: TextStyle(fontSize: 14)),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                  const SizedBox(height: 10),
+                  Text(
+                    reflection.isEmpty ? 'لم يتم تسجيل تأمل' : reflection,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.cairo(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF1E293B),
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

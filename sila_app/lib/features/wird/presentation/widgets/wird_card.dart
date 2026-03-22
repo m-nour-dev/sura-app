@@ -9,6 +9,9 @@ import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:sila_app/features/wird/presentation/pages/wird_setup_page.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 
 class WirdCard extends ConsumerWidget {
   const WirdCard({super.key});
@@ -19,41 +22,22 @@ class WirdCard extends ConsumerWidget {
 
     return wirdStateAsync.when(
       data: (state) {
-        return Transform.translate(
-          // Single overlap point: card floats 28px over the header
-          offset: const Offset(0, -28),
-          child: Column(
-            children: [
-              _buildMainWirdCard(context, ref, state),
-              const SizedBox(height: 16),
-              _buildActionButtons(context, ref, state),
-            ],
-          ),
-        );
+        return !state.hasConfiguredGoal 
+            ? _buildSetupTeaser(context)
+            : Column(
+                children: [
+                  _buildMainWirdCard(context, ref, state),
+                ],
+              );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) => Center(child: Text("Error: $e")),
     );
   }
 
-  // ─── Main Wird Card ───
-  Widget _buildMainWirdCard(BuildContext context, WidgetRef ref, WirdState state) {
-    final safeStartPage = state.currentPage.clamp(1, 604);
-    final safeTargetPage = state.targetPage.clamp(1, 604);
-
-    final pageData = quran.getPageData(safeStartPage);
-    final surahNum = pageData.isNotEmpty ? pageData[0]['surah'] : 1;
-    final startAyah = pageData.isNotEmpty ? pageData[0]['start'] : 1;
-    final firstVerse = quran.getVerse(surahNum, startAyah);
-    final juz = quran.getJuzNumber(surahNum, startAyah);
-
-    final targetPageData = quran.getPageData(safeTargetPage);
-    final targetSurahNum = targetPageData.isNotEmpty ? targetPageData[0]['surah'] : 1;
-    final targetStartAyah = targetPageData.isNotEmpty ? targetPageData[0]['start'] : 1;
-
+  Widget _buildSetupTeaser(BuildContext context) {
     return Container(
       width: double.infinity,
-      // Research: generous internal padding (28px) for Arabic content
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -68,74 +52,243 @@ class WirdCard extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          // ── Header row: Juz label + "من قوله تعالى" ──
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD97706).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.auto_stories_rounded, color: Color(0xFFD97706), size: 40),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'حدد وردك اليومي',
+            style: GoogleFonts.amiri(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'ابدأ رحلتك المباركة مع القرآن الكريم وحدد هدفك اليومي للختمة',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cairo(
+              fontSize: 14,
+              color: AppTheme.primaryColor.withOpacity(0.6),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const WirdSetupPage()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD97706),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
+              ),
+              child: Text(
+                'ابدأ الإعداد',
+                style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Main Wird Card ───
+  Widget _buildMainWirdCard(BuildContext context, WidgetRef ref, WirdState state) {
+    final safeStartPage = state.currentPage.clamp(1, 604);
+    final safeTargetPage = state.targetPage.clamp(1, 604);
+
+    final pageData = quran.getPageData(safeStartPage);
+    final surahNum = pageData.isNotEmpty ? pageData[0]['surah'] : 1;
+    final startAyah = pageData.isNotEmpty ? pageData[0]['start'] : 1;
+    final firstVerse = quran.getVerse(surahNum, startAyah);
+    final juz = quran.getJuzNumber(surahNum, startAyah);
+
+    // Progress calculation derived from state
+    int increment = 0;
+    if (state.goalType == WirdGoalType.page) {
+      increment = state.goalValue;
+    } else if (state.goalType == WirdGoalType.juz) {
+      increment = state.goalValue * 20;
+    } else if (state.goalType == WirdGoalType.hizb) {
+      increment = state.goalValue * 10;
+    }
+    
+    final totalPagesToRead = increment.clamp(1, 604);
+    final startOfGoal = (state.targetPage - totalPagesToRead + 1).clamp(1, 604);
+    final pagesReadSoFar = (state.currentPage - startOfGoal).clamp(0, totalPagesToRead);
+    final progress = (pagesReadSoFar / totalPagesToRead).clamp(0.0, 1.0);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = Colors.white;
+    final subtextColor = Colors.white70;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E3A5F), Color(0xFF0F172A)], // Navy Hasanat to Night Deep
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const WirdSetupPage()));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.settings_rounded, color: Color(0xFFD97706), size: 18),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'وردك اليومي',
+                    style: GoogleFonts.cairo(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFD97706).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFD97706).withOpacity(0.3)),
                 ),
                 child: Text(
-                  'الجزء $juz',
-                  style: GoogleFonts.outfit(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                  'جزء $juz',
+                  style: GoogleFonts.cairo(
+                    color: const Color(0xFFD97706),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
-                ),
-              ),
-              Text(
-                'من قوله تعالى',
-                style: GoogleFonts.amiri(
-                  color: AppTheme.primaryColor.withOpacity(0.6),
-                  fontSize: 15,
-                  height: 1.6,
                 ),
               ),
             ],
           ),
-
-          // Research: 32-40px breathing room before Quranic text
-          const SizedBox(height: 36),
-
-          // ── Quranic Verse ──
-          // Research: Amiri font, 26px min, line-height 1.8 for diacritics
-          Text(
-            firstVerse,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.amiri(
-              fontSize: 26,
-              height: 1.8,
-              color: AppTheme.primaryColor,
+          const SizedBox(height: 24),
+          
+          // Progress Section
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'أنجزت ${((progress * 100).toInt())}% من وردك اليومي',
+                    style: GoogleFonts.cairo(
+                      color: subtextColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '$pagesReadSoFar / $totalPagesToRead صفحة',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFFD97706),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 10,
+                  backgroundColor: Colors.white.withOpacity(0.05),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)), // Success Green
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Ayah Preview
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.05)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'من قوله تعالى:',
+                  style: GoogleFonts.amiri(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  firstVerse,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.amiri(
+                    fontSize: 24,
+                    height: 1.6,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'سورة ${quran.getSurahNameArabic(surahNum)} - صفحة $safeStartPage',
+                  style: GoogleFonts.cairo(
+                    color: const Color(0xFFD97706).withOpacity(0.8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
-
-          const SizedBox(height: 36),
-
-          // ── Divider ──
-          Divider(
-            color: Colors.grey.withOpacity(0.15),
-            height: 1,
-          ),
-
-          const SizedBox(height: 20),
-
-          // ── From: surah / page ──
-          _buildInfoRow(
-            'سورة ${quran.getSurahNameArabic(surahNum)} - آية $startAyah',
-            'صفحة $safeStartPage',
-            AppTheme.primaryColor.withOpacity(0.7),
-          ),
-          const SizedBox(height: 10),
-          // ── To: surah / page ──
-          _buildInfoRow(
-            'إلى سورة ${quran.getSurahNameArabic(targetSurahNum)} - آية $targetStartAyah',
-            'صفحة $safeTargetPage',
-            AppTheme.primaryColor,
-          ),
+          
+          const SizedBox(height: 24),
+          
+          // Action Buttons integrated inside
+          _buildActionButtons(context, ref, state),
         ],
       ),
     );
@@ -173,115 +326,175 @@ class WirdCard extends ConsumerWidget {
 
   // ─── Action Buttons ───
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, WirdState state) {
-    final pageData = quran.getPageData(state.currentPage.clamp(1, 604));
-    final surahNum = pageData.isNotEmpty ? pageData[0]['surah'] : 1;
-    final startAyah = pageData.isNotEmpty ? pageData[0]['start'] : 1;
+    final bool isLate = state.daysDifference < 0;
+    final int lateDays = state.daysDifference.abs();
 
-    final targetPageData = quran.getPageData(state.targetPage.clamp(1, 604));
-    final targetSurahNum = targetPageData.isNotEmpty ? targetPageData[0]['surah'] : 1;
-    // Note: This is a simplification. A proper implementation would need to get the exact end ayah.
-    final endAyah = quran.getVerseCount(targetSurahNum);
-
-
-    return Row(
+    return Column(
       children: [
-        // "I finished reading" (Gold)
-        Expanded(
-          child: SizedBox(
-            height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFECA638),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              onPressed: () => _showCompletionDialog(context, ref, state),
-              child: Text(
-                'أتممت القراءة',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // "Tasmi3" (New Button)
-        Expanded(
-          child: SizedBox(
-            height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor.withOpacity(0.8),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const TasmiSurahSelectionPage(),
+        // Buttons Row (Side-by-side)
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => WirdReaderPage(
+                        startPage: state.currentPage,
+                        endPage: state.targetPage,
+                      ),
+                    ),
+                  );
+                  if (result == true && context.mounted) {
+                    _showCompletionDialog(context, ref, state);
+                  }
+                },
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF064E3B), Color(0xFF047857)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                );
-              },
-              child: Text(
-                'تسميع',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // "Continue reading" (Green)
-        Expanded(
-          child: SizedBox(
-            height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => WirdReaderPage(
-                      startPage: state.currentPage,
-                      endPage: state.targetPage,
+                  child: Center(
+                    child: Text(
+                      'تابع قراءة الورد',
+                      style: GoogleFonts.cairo(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                );
-
-                if (result == true) {
-                   // User clicked finish in reader
-                   if (context.mounted) {
-                      _showCompletionDialog(context, ref, state);
-                   }
-                }
-              },
-              child: Text(
-                'تابع القراءة',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
                 ),
               ),
             ),
-          ),
+            const SizedBox(width: 12),
+            // Done Button (Islamic Gold)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _showCompletionDialog(context, ref, state),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFD97706), Color(0xFFB45309)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'أتممت القراءة',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        
+        const SizedBox(height: 24),
+        Divider(color: Colors.white.withOpacity(0.1), height: 1),
+        const SizedBox(height: 20),
+
+        // Statistics Section
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    if (isLate) 
+                      const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      isLate 
+                        ? 'أنت متأخر عن ختمتك بـ $lateDays أيام'
+                        : 'أنت تسير بشكل رائع في ختمتك!',
+                      style: GoogleFonts.cairo(
+                        color: isLate ? const Color(0xFFEF4444) : Colors.white.withOpacity(0.7),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  'الختمة الحالية',
+                  style: GoogleFonts.cairo(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Linear Progress
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: state.khatmaProgress,
+                backgroundColor: Colors.white.withOpacity(0.1),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4B5563)),
+                minHeight: 8,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'الأوراد القادمة : ${state.remainingWirdsCount}',
+                  style: GoogleFonts.cairo(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 11,
+                  ),
+                ),
+                Text(
+                  'الأوراد السابقة : ${state.completedWirdsCount}',
+                  style: GoogleFonts.cairo(
+                    color: Colors.white.withOpacity(0.6),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
@@ -326,7 +539,7 @@ class WirdCard extends ConsumerWidget {
               Navigator.pop(context); // Close completion dialog
               
               if (context.mounted) {
-                _showDedicateRewardDialog(context);
+                _showMubarakCelebration(context);
               }
             },
             child: Text(
@@ -337,6 +550,19 @@ class WirdCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _showMubarakCelebration(BuildContext context) {
+    OverlayEntry? overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) => _CelebrationWidget(
+        onFinished: () {
+          overlayEntry?.remove();
+          _showDedicateRewardDialog(context);
+        },
+      ),
+    );
+    Overlay.of(context).insert(overlayEntry);
   }
 
   void _showDedicateRewardDialog(BuildContext context) {
@@ -381,6 +607,110 @@ class WirdCard extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CelebrationWidget extends StatefulWidget {
+  final VoidCallback onFinished;
+  const _CelebrationWidget({required this.onFinished});
+
+  @override
+  State<_CelebrationWidget> createState() => _CelebrationWidgetState();
+}
+
+class _CelebrationWidgetState extends State<_CelebrationWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: CurveTween(curve: Curves.easeOutBack), weight: 20),
+      TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 60),
+      TweenSequenceItem(tween: CurveTween(curve: Curves.easeInBack), weight: 20),
+    ]).animate(_controller);
+
+    _opacityAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 1.0), weight: 10),
+      TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 80),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 0.0), weight: 10),
+    ]).animate(_controller);
+
+    _controller.forward().then((_) => widget.onFinished());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withOpacity(0.4),
+      child: Center(
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return FadeTransition(
+              opacity: _opacityAnimation,
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Container(
+                  padding: const EdgeInsets.all(40),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFD97706).withOpacity(0.4),
+                        blurRadius: 40,
+                        spreadRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        '🎉',
+                        style: TextStyle(fontSize: 60),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'مبارك!',
+                        style: GoogleFonts.amiri(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'أتممت وردك اليومي بنجاح',
+                        style: GoogleFonts.cairo(
+                          fontSize: 18,
+                          color: AppTheme.primaryColor.withOpacity(0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

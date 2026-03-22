@@ -15,32 +15,37 @@ final wirdServiceProvider = FutureProvider<WirdService>((ref) async {
 // State class for the Wird
 class WirdState {
   final int currentPage;
-  final int pagesPerDay;
+  final WirdGoalType goalType;
+  final int goalValue;
   final int targetPage;
   final bool isCompletedToday;
   final DateTime? khatmaStart;
-  final int daysDifference; // +ve means ahead, -ve means behind
+  final int daysDifference;
   final double khatmaProgress;
+  final double dailyProgress;
   final List<WirdHistory> history;
   final int completedWirdsCount;
   final int remainingWirdsCount;
   final int? bookmarkPage;
+  final bool hasConfiguredGoal;
 
   WirdState({
     required this.currentPage,
-    required this.pagesPerDay,
+    required this.goalType,
+    required this.goalValue,
     required this.targetPage,
     required this.isCompletedToday,
     this.khatmaStart,
     required this.daysDifference,
     required this.khatmaProgress,
+    required this.dailyProgress,
     required this.history,
     required this.completedWirdsCount,
     required this.remainingWirdsCount,
     this.bookmarkPage,
+    required this.hasConfiguredGoal,
   });
 
-  // Helper to calculate progress text
   String get progressText => 'من صفحة $currentPage إلى صفحة $targetPage';
 }
 
@@ -70,53 +75,90 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
         }
       }
 
-      // Calculate Khatma Status
+      final targetPage = settings.targetPageForToday;
+      final totalQuranPages = WirdSettings.totalQuranPages;
+
+      // Progress calculations
+      double progress = settings.currentPage / totalQuranPages;
+      
+      // Daily progress
+      double dailyProgress = 0.0;
+      if (settings.hasConfiguredGoal) {
+        if (completed) {
+          dailyProgress = 1.0;
+        } else {
+          // Calculate how many pages were already read towards the goal today
+          // Since we don't have 'startPageOfToday', we use the distance to targetPage
+          int increment = 0;
+          switch (settings.goalType) {
+            case WirdGoalType.page: increment = settings.goalValue; break;
+            case WirdGoalType.juz: increment = settings.goalValue * 20; break;
+            case WirdGoalType.hizb: increment = settings.goalValue * 10; break;
+          }
+          
+          final startOfGoal = (targetPage - increment).clamp(1, totalQuranPages);
+          final currentProgress = (settings.currentPage - startOfGoal).clamp(0, increment);
+          dailyProgress = (currentProgress / increment).clamp(0.0, 1.0);
+        }
+      }
+
+      // Calculate Khatma Stats
       int daysDifference = 0;
-      double progress = 0.0;
-      int completedWirds = 0;
-      int remainingWirds = 0;
+      int completedWirdsCount = history.length;
+      int remainingWirdsCount = 0;
+      
+      if (settings.khatmaStartDate != null) {
+        // Fix: Use normalized dates for comparison
+        final today = DateTime(now.year, now.month, now.day);
+        final start = DateTime(settings.khatmaStartDate!.year, settings.khatmaStartDate!.month, settings.khatmaStartDate!.day);
+        final elapsedDays = today.difference(start).inDays; // 0 if started today
 
-      if (settings.pagesPerDay > 0) {
-        // Calculation logic as discussed with user:
-        // Completed = pages read so far / pages per day
-        completedWirds =
-            ((settings.currentPage - 1) / settings.pagesPerDay).floor();
-
-        final totalWirds =
-            (WirdSettings.totalQuranPages / settings.pagesPerDay).ceil();
-        remainingWirds = totalWirds - completedWirds;
-
-        if (settings.khatmaStartDate != null) {
-          final daysSinceStart =
-              now.difference(settings.khatmaStartDate!).inDays;
-          final expectedPage = (daysSinceStart + 1) * settings.pagesPerDay;
-          final pageDiff = settings.currentPage - expectedPage;
-          daysDifference = (pageDiff / settings.pagesPerDay).floor();
+        // Calculate increment (pages per day)
+        int increment = 0;
+        switch (settings.goalType) {
+          case WirdGoalType.page: increment = settings.goalValue; break;
+          case WirdGoalType.juz: increment = settings.goalValue * 20; break;
+          case WirdGoalType.hizb: increment = settings.goalValue * 10; break;
         }
 
-        progress = settings.currentPage / WirdSettings.totalQuranPages;
+        if (increment > 0) {
+          // How many full daily portions have been completed based strictly on current page
+          // e.g., if increment is 20, and currentPage is 1: expectedDaysOfReading = 0
+          // if currentPage is 21: expectedDaysOfReading = 1
+          final expectedDaysOfReading = ((settings.currentPage - 1) / increment).floor();
+
+          // If elapsedDays == 0 (started today), you are expected to have 0 reading done so far to be "on track".
+          // If elapsedDays == 1 (started yesterday), you are expected to have 1 reading done.
+          daysDifference = expectedDaysOfReading - elapsedDays;
+
+          // Calculate remaining
+          remainingWirdsCount = ((604 - settings.currentPage) / increment).ceil();
+        }
       }
 
       state = AsyncValue.data(WirdState(
         currentPage: settings.currentPage,
-        pagesPerDay: settings.pagesPerDay,
-        targetPage: settings.targetPageForToday,
+        goalType: settings.goalType,
+        goalValue: settings.goalValue,
+        targetPage: targetPage,
         isCompletedToday: completed,
         khatmaStart: settings.khatmaStartDate,
         daysDifference: daysDifference,
         khatmaProgress: progress,
+        dailyProgress: dailyProgress,
         history: history,
-        completedWirdsCount: completedWirds,
-        remainingWirdsCount: remainingWirds,
+        completedWirdsCount: completedWirdsCount,
+        remainingWirdsCount: remainingWirdsCount,
         bookmarkPage: settings.bookmarkPage,
+        hasConfiguredGoal: settings.hasConfiguredGoal,
       ));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
-  Future<void> updatePagesPerDay(int pages) async {
-    await _service.updatePagesPerDay(pages);
+  Future<void> updateGoal(WirdGoalType type, int value) async {
+    await _service.updateGoal(type, value);
     await _loadSettings();
   }
 
@@ -189,7 +231,7 @@ class _FallbackWirdService implements WirdService {
   }
 
   @override
-  Future<void> updatePagesPerDay(int pagesPerDay) {
+  Future<void> updateGoal(WirdGoalType type, int value) {
     throw StateError('WirdService is not ready');
   }
 

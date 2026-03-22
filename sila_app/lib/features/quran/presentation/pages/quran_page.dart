@@ -42,7 +42,12 @@ class _QuranPageState extends ConsumerState<QuranPage> {
               SliverAppBar(
                 pinned: true,
                 backgroundColor: primaryColor,
-                expandedHeight: 120,
+                expandedHeight: 160,
+                elevation: 0,
+                centerTitle: false,
+                actions: const [
+                  SizedBox(width: 8),
+                ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
                     decoration: const BoxDecoration(
@@ -55,25 +60,24 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                     ),
                     child: SafeArea(
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const SizedBox(height: 10),
                             Text(
                               'القرآن الكريم',
-                              style: GoogleFonts.getFont(
-                                'Cairo',
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
+                              style: GoogleFonts.cairo(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
                             Text(
                               '${surahs.length} سورة',
-                              style: GoogleFonts.getFont(
-                                'Cairo',
+                              style: GoogleFonts.cairo(
                                 fontSize: 13,
-                                color: Colors.white60,
+                                color: Colors.white70,
                               ),
                             ),
                           ],
@@ -83,23 +87,24 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                   ),
                 ),
                 bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(56),
+                  preferredSize: const Size.fromHeight(60),
                   child: Container(
-                    height: 56,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: TextField(
-                      onChanged: (val) => setState(() => _searchQuery = val),
-                      style: GoogleFonts.getFont('Cairo', color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'ابحث عن سورة...',
-                        hintStyle: GoogleFonts.getFont('Cairo', color: Colors.white60, fontSize: 13),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white60, size: 20),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.15),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        onChanged: (val) => setState(() => _searchQuery = val),
+                        style: GoogleFonts.cairo(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'ابحث عن سورة...',
+                          hintStyle: GoogleFonts.cairo(color: Colors.white60, fontSize: 13),
+                          prefixIcon: const Icon(Icons.search, color: Colors.white60, size: 20),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         ),
                       ),
                     ),
@@ -128,19 +133,26 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                           );
                         },
                         child: Container(
-                          margin: const EdgeInsets.only(bottom: 6),
+                          margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
                             color: surface,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: border, width: 0.5),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: border, width: 0.8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.02),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
                           child: Row(
                             children: [
-                              // رقم السورة — دائرة
+                              // Circular number
                               Container(
-                                width: 36,
-                                height: 36,
+                                width: 38,
+                                height: 38,
                                 decoration: BoxDecoration(
                                   color: primaryColor.withOpacity(0.08),
                                   shape: BoxShape.circle,
@@ -148,34 +160,31 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                 child: Center(
                                   child: Text(
                                     '${surah.number}',
-                                    style: GoogleFonts.getFont(
-                                      'Cairo',
+                                    style: GoogleFonts.cairo(
                                       fontSize: 12,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.bold,
                                       color: primaryColor,
                                     ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-
-                              // اسم السورة
+                              const SizedBox(width: 16),
+                              // Name & info
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       surah.nameArabic,
-                                      style: GoogleFonts.getFont(
-                                        'Amiri',
-                                        fontSize: 17,
+                                      style: GoogleFonts.amiri(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                         color: txtP,
                                       ),
                                     ),
                                     Text(
                                       '${surah.numberOfAyahs} آية · ${surah.revelationType}',
-                                      style: GoogleFonts.getFont(
-                                        'Cairo',
+                                      style: GoogleFonts.cairo(
                                         fontSize: 11,
                                         color: txtS,
                                       ),
@@ -183,14 +192,12 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                   ],
                                 ),
                               ),
-
-                              // اسم السورة بالخط الكبير (يمين)
+                              // Large decorative name
                               Text(
                                 surah.nameArabic,
-                                style: GoogleFonts.getFont(
-                                  'Amiri',
-                                  fontSize: 20,
-                                  color: primaryColor.withOpacity(0.6),
+                                style: GoogleFonts.amiri(
+                                  fontSize: 22,
+                                  color: primaryColor.withOpacity(0.4),
                                 ),
                               ),
                             ],
@@ -210,6 +217,54 @@ class _QuranPageState extends ConsumerState<QuranPage> {
         ),
         loading: () => Center(
           child: CircularProgressIndicator(color: primaryColor),
+        ),
+      ),
+    );
+  }
+
+  void _showSettingsDialog(
+    BuildContext context,
+    WidgetRef ref,
+    bool isDark,
+    Color surface,
+    Color txtP,
+    Color primaryColor,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "إعدادات القرآن",
+              style: GoogleFonts.cairo(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: Icon(Icons.palette_outlined, color: primaryColor),
+              title: Text("المظهر", style: GoogleFonts.cairo()),
+              trailing: Icon(isDark ? Icons.dark_mode : Icons.light_mode, color: primaryColor),
+              onTap: () {
+                // Toggle theme or show options
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.text_fields, color: primaryColor),
+              title: Text("إعدادات الخط", style: GoogleFonts.cairo()),
+              onTap: () {
+                // Navigate to a dedicated settings page if available
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
       ),
     );

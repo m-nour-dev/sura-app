@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 import 'package:sila_app/features/wird/data/models/wird_history.dart';
 
@@ -7,23 +8,75 @@ class WirdService {
 
   WirdService(this._isar);
 
+  static const String _goalTypeKey = 'wird_goal_type';
+  static const String _goalValueKey = 'wird_goal_value';
+  static const String _hasGoalKey = 'wird_has_goal';
+
+  static const String _targetPageKey = r'wird_target_page';
+  static const String _lastTargetCalcDateKey = r'wird_last_target_calc_date';
+
   Future<WirdSettings> getSettings() async {
-    final settings = await _isar.wirdSettings.where().findFirst();
+    final settings = await _isar.wirdSettings.where().findFirst() ?? WirdSettings();
+    final prefs = await SharedPreferences.getInstance();
     
-    if (settings == null) {
-      // Create default settings
-      final newSettings = WirdSettings()
-        ..currentPage = 1
-        ..pagesPerDay = 2
-        ..khatmaStartDate = DateTime.now();
-      
+    // Load from SharedPreferences
+    settings.goalType = WirdGoalType.values[prefs.getInt(_goalTypeKey) ?? 0];
+    settings.goalValue = prefs.getInt(_goalValueKey) ?? 2;
+    settings.hasConfiguredGoal = prefs.getBool(_hasGoalKey) ?? false;
+
+    if (settings.id == Isar.autoIncrement) {
+      settings.currentPage = 1;
+      settings.khatmaStartDate = DateTime.now();
       await _isar.writeTxn(() async {
-        await _isar.wirdSettings.put(newSettings);
+        await _isar.wirdSettings.put(settings);
       });
-      return newSettings;
+    }
+
+    // Calculate/Retrieve stable target page for today
+    final lastCalcStr = prefs.getString(_lastTargetCalcDateKey);
+    final todayStr = DateTime.now().toIso8601String().split('T')[0];
+    
+    int? stableTarget = prefs.getInt(_targetPageKey);
+    
+    if (lastCalcStr != todayStr || stableTarget == null) {
+      // It's a new day or no target set yet, calculate new target
+      int increment = 0;
+      switch (settings.goalType) {
+        case WirdGoalType.page: increment = settings.goalValue; break;
+        case WirdGoalType.juz: increment = settings.goalValue * 20; break;
+        case WirdGoalType.hizb: increment = settings.goalValue * 10; break;
+      }
+      
+      stableTarget = (settings.currentPage + increment - 1).clamp(1, 604);
+      await prefs.setInt(_targetPageKey, stableTarget);
+      await prefs.setString(_lastTargetCalcDateKey, todayStr);
     }
     
+    // We override the getter logic by using a field if we had one, 
+    // but for now, we'll let the controller know the stable target.
+    // Actually, I'll store it in the settings object for the controller to read.
+    settings.targetPageForToday = stableTarget;
+    
     return settings;
+  }
+
+  Future<void> updateGoal(WirdGoalType type, int value) async {
+    final settings = await getSettings();
+    final prefs = await SharedPreferences.getInstance();
+    
+    await prefs.setInt(_goalTypeKey, type.index);
+    await prefs.setInt(_goalValueKey, value);
+    await prefs.setBool(_hasGoalKey, true);
+
+    // Force recalculation of today's target based on the new goal
+    await prefs.remove(_targetPageKey);
+    await prefs.remove(_lastTargetCalcDateKey);
+
+    // Reset start date for the new goal journey
+    settings.khatmaStartDate = DateTime.now();
+    await _isar.writeTxn(() async {
+      await _isar.wirdSettings.put(settings);
+    });
   }
 
   Future<List<WirdHistory>> getHistory() async {
@@ -48,19 +101,22 @@ class WirdService {
     });
   }
 
-  Future<void> updatePagesPerDay(int pages) async {
-    final settings = await getSettings();
-    settings.pagesPerDay = pages;
-    
-    await _isar.writeTxn(() async {
-      await _isar.wirdSettings.put(settings);
-    });
-  }
-
   Future<void> completeDailyWird(int startPage, int endPage) async {
     final settings = await getSettings();
+    final prefs = await SharedPreferences.getInstance();
+    
     settings.lastCompletionDate = DateTime.now();
-    settings.currentPage = endPage; // Advance current page
+    settings.currentPage = (endPage + 1).clamp(1, 604); // Advance to the next fresh page
+    
+    // Increment the stable target for today so the user can continue to the next portion
+    int increment = 0;
+    switch (settings.goalType) {
+      case WirdGoalType.page: increment = settings.goalValue; break;
+      case WirdGoalType.juz: increment = settings.goalValue * 20; break;
+      case WirdGoalType.hizb: increment = settings.goalValue * 10; break;
+    }
+    final nextTarget = (settings.currentPage + increment - 1).clamp(1, 604);
+    await prefs.setInt(_targetPageKey, nextTarget);
     
     final history = WirdHistory()
       ..date = DateTime.now()
@@ -83,7 +139,6 @@ class WirdService {
     
     await _isar.writeTxn(() async {
       await _isar.wirdSettings.put(settings);
-      // Optional: Clear history on reset? Usually no, but for now we leave it.
     });
   }
 }

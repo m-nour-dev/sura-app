@@ -18,80 +18,142 @@ class StreakSummaryCard extends ConsumerWidget {
         isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A);
     final data = summaryAsync.valueOrNull ?? <String, int>{};
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
-        color: card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: border),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E3A5F), Color(0xFF0F172A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withOpacity(0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+          // Subtle outer glow
+          BoxShadow(
+            color: const Color(0xFFD97706).withOpacity(0.04),
+            blurRadius: 40,
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'متابعة يومية',
-            style: GoogleFonts.getFont(
-              'Cairo',
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: titleColor,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            'استمرارية العادات التعبدية لهذا الأسبوع',
-            style: GoogleFonts.getFont('Cairo',
-                fontSize: 11, color: const Color(0xFF64748B)),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _keys
-                .map(
-                  (k) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF0B1220)
-                          : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: border),
+                      color: Colors.white.withOpacity(0.08),
+                      shape: BoxShape.circle,
                     ),
-                    child: Text(
-                      '${_name(k)} • ${data[k] ?? 0} يوم',
-                      style: GoogleFonts.getFont(
-                        'Cairo',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: titleColor,
-                      ),
+                    child: const Icon(Icons.flash_on_rounded, color: Color(0xFFD97706), size: 16),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'متابعة العبادة',
+                    style: GoogleFonts.cairo(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                )
-                .toList(),
+                ],
+              ),
+              Text(
+                'نشاطك الأسبوعي',
+                style: GoogleFonts.cairo(
+                  fontSize: 11,
+                  color: Colors.white.withOpacity(0.5),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: _keys.map((k) {
+              final count = data[k] ?? 0;
+              final hasStreak = count > 0;
+              
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: hasStreak ? const Color(0xFFD97706).withOpacity(0.2) : Colors.white.withOpacity(0.05),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _icon(k),
+                      color: hasStreak ? const Color(0xFFD97706) : Colors.white24,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _name(k),
+                          style: GoogleFonts.cairo(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        Text(
+                          '$count يوم',
+                          style: GoogleFonts.outfit(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: hasStreak ? const Color(0xFF10B981) : Colors.white30,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
           )
         ],
       ),
     );
   }
 
+  IconData _icon(String key) {
+    switch (key) {
+      case 'azkar': return Icons.wb_sunny_rounded;
+      case 'wird': return Icons.menu_book_rounded;
+      case 'hifz': return Icons.auto_stories_rounded;
+      case 'tasmi': return Icons.mic_rounded;
+      case 'tasbih': return Icons.flare_rounded;
+      default: return Icons.star_rounded;
+    }
+  }
+
   static String _name(String key) {
     switch (key) {
-      case 'azkar':
-        return 'الأذكار';
-      case 'wird':
-        return 'الورد';
-      case 'hifz':
-        return 'الحفظ';
-      case 'tasmi':
-        return 'التسميع';
-      case 'tasbih':
-        return 'التسبيح';
-      default:
-        return key;
+      case 'azkar': return 'أذكار';
+      case 'wird': return 'الورد';
+      case 'hifz': return 'الحفظ';
+      case 'tasmi': return 'تسميع';
+      case 'tasbih': return 'تسبيح';
+      default: return key;
     }
   }
 }
