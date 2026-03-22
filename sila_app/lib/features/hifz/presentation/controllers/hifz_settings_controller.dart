@@ -30,7 +30,7 @@ class HifzSettingsController extends _$HifzSettingsController {
     bool? smartStrictness,
     bool? nightMode,
   }) async {
-    final current = state.valueOrNull ?? HifzSettings.defaults();
+    final current = state.valueOrNull ?? await future;
     final next = HifzSettings()
       ..id = 1
       ..setVerificationMode(

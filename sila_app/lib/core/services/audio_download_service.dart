@@ -25,8 +25,8 @@ class AudioDownloadService {
   static Future<Directory> _reciterDirectory(ReciterModel reciter) async {
     final appDir = await getApplicationDocumentsDirectory();
     final dir = Directory('${appDir.path}${Platform.pathSeparator}$_cacheRoot${Platform.pathSeparator}${reciter.folderName}');
-    if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
     }
     return dir;
   }
@@ -52,12 +52,15 @@ class AudioDownloadService {
 
   static Future<int> downloadedAyahCount(ReciterModel reciter) async {
     final dir = await _reciterDirectory(reciter);
-    if (!dir.existsSync()) return 0;
-    return dir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.toLowerCase().endsWith('.mp3'))
-        .length;
+    if (!await dir.exists()) return 0;
+
+    var count = 0;
+    await for (final entity in dir.list()) {
+      if (entity is File && entity.path.toLowerCase().endsWith('.mp3')) {
+        count++;
+      }
+    }
+    return count;
   }
 
   static Future<void> downloadAllForReciter(
@@ -75,7 +78,7 @@ class AudioDownloadService {
         final localPath = await localAyahPath(reciter, surah, ayah);
         final localFile = File(localPath);
 
-        if (!localFile.existsSync()) {
+        if (!await localFile.exists()) {
           final url = reciter.buildAyahUrl(surah, ayah);
           await dio.download(url, localPath, cancelToken: cancelToken);
         }

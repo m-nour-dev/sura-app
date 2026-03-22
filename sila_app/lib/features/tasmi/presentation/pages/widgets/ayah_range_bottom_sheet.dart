@@ -39,7 +39,6 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
   }
 
   void _navigateToTasmi(int from, int to) {
-    Navigator.pop(context); // Close bottom sheet
     if (widget.returnSelectionOnly) {
       Navigator.pop(
         context,
@@ -54,6 +53,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
       );
       return;
     }
+    Navigator.pop(context); // Close bottom sheet
     Navigator.push(
       context,
       MaterialPageRoute(

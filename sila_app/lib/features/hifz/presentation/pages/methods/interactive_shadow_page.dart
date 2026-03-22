@@ -38,6 +38,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
   late final AnimationController _flashController;
   late final AnimationController _waveController;
   bool _isNextBusy = false;
+  int _lastInputsStateHash = 0;
 
   @override
   void initState() {
@@ -70,6 +71,14 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
   }
 
   void _syncInlineInputs(List<ShadowWordEntry> words) {
+    final currentHash = Object.hashAll(
+      words.asMap().entries.map(
+        (entry) => Object.hash(entry.key, entry.value.word),
+      ),
+    );
+    final verseChanged = currentHash != _lastInputsStateHash;
+    _lastInputsStateHash = currentHash;
+
     final validIndexes = <int>{};
     for (int i = 0; i < words.length; i++) {
       final w = words[i];
@@ -77,7 +86,10 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
         continue;
       }
       validIndexes.add(i);
-      _inlineControllers.putIfAbsent(i, () => TextEditingController());
+      if (!_inlineControllers.containsKey(i) || verseChanged) {
+        _inlineControllers.remove(i)?.dispose();
+        _inlineControllers[i] = TextEditingController();
+      }
       _inlineFocusNodes.putIfAbsent(i, () => FocusNode());
     }
 
@@ -260,17 +272,20 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => _MomentCaptureSheet(
-        surahName: surahName,
-        verseText: verseText,
-        onSave: (feeling, note) async {
-          await ref
-              .read(interactiveShadowControllerProvider.notifier)
-              .saveMoment(reflection: note, feeling: feeling);
-          if (ctx.mounted) {
-            Navigator.pop(ctx);
-          }
-        },
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: _MomentCaptureSheet(
+          surahName: surahName,
+          verseText: verseText,
+          onSave: (feeling, note) async {
+            await ref
+                .read(interactiveShadowControllerProvider.notifier)
+                .saveMoment(reflection: note, feeling: feeling);
+            if (ctx.mounted) {
+              Navigator.pop(ctx);
+            }
+          },
+        ),
       ),
     );
   }

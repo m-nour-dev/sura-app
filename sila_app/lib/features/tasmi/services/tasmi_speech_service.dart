@@ -154,6 +154,14 @@ class TasmiSpeechService {
   void _onError(SpeechRecognitionError error) {
     debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
 
+    if (error.errorMsg == 'error_network' && !_wordController.isClosed) {
+      _wordController.addError('يرجى التحقق من الاتصال بالإنترنت');
+    }
+
+    if (error.errorMsg == 'error_no_match' && !_wordController.isClosed) {
+      _wordController.addError('لم يتم التقاط التلاوة. حاول التحدث بوضوح.');
+    }
+
     if (!_autoRestartEnabled) {
       if (error.permanent && error.errorMsg == 'error_permission' && !_wordController.isClosed) {
         _wordController.addError('يرجى السماح بصلاحية الميكروفون');

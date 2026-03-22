@@ -229,7 +229,7 @@ class AudioController extends _$AudioController {
       await _ensureCacheSizeAvailable(approxIncomingBytes: 350000);
       await _dio.download(url, target.path);
       await _touchCacheFile(target.path);
-      await _enforceCacheLimit();
+      await _ensureCacheSizeAvailable(approxIncomingBytes: 0);
     } catch (_) {
       // Ignore background cache failures to keep playback fast.
     } finally {
@@ -310,29 +310,6 @@ class AudioController extends _$AudioController {
 
     for (final file in files) {
       if (total + approxIncomingBytes <= _maxCacheSizeBytes) break;
-      if (_activeDownloads.contains(file.path)) continue;
-      final len = file.lengthSync();
-      file.deleteSync();
-      total -= len;
-    }
-  }
-
-  Future<void> _enforceCacheLimit() async {
-    final root = await _audioCacheRoot();
-    if (!root.existsSync()) return;
-
-    var total = _directorySize(root);
-    if (total <= _maxCacheSizeBytes) return;
-
-    final files = root
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((f) => f.path.toLowerCase().endsWith('.mp3'))
-        .toList()
-      ..sort((a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
-
-    for (final file in files) {
-      if (total <= _maxCacheSizeBytes) break;
       if (_activeDownloads.contains(file.path)) continue;
       final len = file.lengthSync();
       file.deleteSync();

@@ -69,11 +69,13 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                         : 'ابدأ بالخطة الافتراضية',
                     recommended: true,
                     onTap: () {
-                      final target = (plan?.newAyahsTarget ?? 5).clamp(1, 10);
+                      const surahNumber = 1;
+                      final maxAyahs = quran.getVerseCount(surahNumber);
+                      final target = (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
                       Navigator.pop(
                         context,
                         HifzSelection(
-                          surahNumber: 1,
+                          surahNumber: surahNumber,
                           fromVerse: 1,
                           toVerse: target,
                           type: HifzSelectionType.dailyPlan,

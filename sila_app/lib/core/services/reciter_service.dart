@@ -145,7 +145,10 @@ class ReciterService {
   static ReciterModel getById(String id) {
     return availableReciters.firstWhere(
       (reciter) => reciter.id == id,
-      orElse: () => availableReciters.first,
+      orElse: () => availableReciters.firstWhere(
+        (reciter) => reciter.id == defaultReciterId,
+        orElse: () => availableReciters.first,
+      ),
     );
   }
 

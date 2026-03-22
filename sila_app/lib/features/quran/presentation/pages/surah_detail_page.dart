@@ -152,6 +152,7 @@ class SurahDetailPage extends ConsumerWidget {
                                     onTap: () async {
                                       try {
                                         if (isPlaying) {
+                                          await ref.read(audioControllerProvider.notifier).stopAudio();
                                           ref.read(playingAyahIdProvider.notifier).setPlaying(null);
                                         } else {
                                           ref.read(playingAyahIdProvider.notifier).setPlaying(ayah.number);

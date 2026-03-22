@@ -69,7 +69,7 @@ class SmartWordMatcher {
         ),
       );
 
-      if (exactMatch || normalizedSpoken.contains(normalizedHidden)) {
+      if (exactMatch) {
         results.add(HifzWordMatchResult.correct);
         continue;
       }

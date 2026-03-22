@@ -34,6 +34,7 @@ class _AudioStorageSheetState extends ConsumerState<_AudioStorageSheet> {
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     final stats = await ref.read(audioControllerProvider.notifier).getCacheStats();
     if (!mounted) return;

@@ -44,9 +44,18 @@ class TajweedNormalizer {
   }
 
   static String normalize(String text) {
+    return normalizeForComparison(text, ignoreDiacritics: true);
+  }
+
+  static String normalizeForComparison(
+    String text, {
+    bool ignoreDiacritics = true,
+  }) {
     String result = text;
 
-    result = stripDiacritics(result);
+    if (ignoreDiacritics) {
+      result = stripDiacritics(result);
+    }
     result = result.replaceAll(RegExp(r'[أإآٱ]'), 'ا');
     result = result.replaceAll('ة', 'ه');
     result = result.replaceAll('ؤ', 'و');
@@ -58,17 +67,6 @@ class TajweedNormalizer {
     result = result.replaceAll(RegExp(r'\s+'), ' ');
 
     return result.trim();
-  }
-
-  static String normalizeForComparison(
-    String text, {
-    bool ignoreDiacritics = true,
-  }) {
-    var result = text;
-    if (ignoreDiacritics) {
-      result = stripDiacritics(result);
-    }
-    return normalize(result);
   }
 
   static bool compareWithMode({

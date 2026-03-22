@@ -45,7 +45,11 @@ class HifzAudioSessionManager {
               surahNumber: surahNumber,
               ayahNumber: ayahNumber,
             );
-        await completer.future.timeout(timeout, onTimeout: () {});
+        try {
+          await completer.future.timeout(timeout);
+        } on TimeoutException {
+          await stopAudio();
+        }
       } finally {
         await sub.cancel();
       }
@@ -63,7 +67,7 @@ class HifzAudioSessionManager {
   Future<bool> startMic({bool autoRestart = false}) async {
     _switching = true;
     try {
-      await _ref.read(audioControllerProvider.notifier).stopAudio();
+      await stopAudio();
       await Future<void>.delayed(const Duration(milliseconds: 500));
       final started = await _speechService.startListening(autoRestart: autoRestart);
       _micActive = started;
