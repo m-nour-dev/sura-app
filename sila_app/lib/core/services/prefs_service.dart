@@ -93,7 +93,7 @@ class PrefsService {
 
   Future<String> getAdhanSound() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyAdhanSound) ?? 'adhan_mecca.mp3';
+    return prefs.getString(_keyAdhanSound) ?? 'adhan_egypt.mp3';
   }
 
   Future<void> setAdhanSound(String soundFile) async {

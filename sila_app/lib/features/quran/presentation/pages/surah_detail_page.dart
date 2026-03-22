@@ -2,6 +2,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_controller.dart';
@@ -49,6 +51,10 @@ class SurahDetailPage extends ConsumerWidget {
                 ),
               ),
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.mic_rounded, color: Colors.white),
+                  onPressed: () => showReciterPickerSheet(context),
+                ),
                 IconButton(
                   icon: const Icon(Icons.tune_rounded, color: Colors.white),
                   onPressed: () => _showSettingsDialog(context, ref, settings, isDark, surface, txtP, primaryColor),
@@ -144,25 +150,26 @@ class SurahDetailPage extends ConsumerWidget {
                                   // زر الصوت
                                   GestureDetector(
                                     onTap: () async {
-                                      if (ayah.audioUrl != null) {
-                                        try {
-                                          if (isPlaying) {
-                                            ref.read(playingAyahIdProvider.notifier).setPlaying(null);
-                                            // Handle pause if audioController supports it
-                                          } else {
-                                            ref.read(playingAyahIdProvider.notifier).setPlaying(ayah.number);
-                                            final audioController = ref.read(audioControllerProvider.notifier);
-                                            await audioController.playAudio(
-                                              ayah.audioUrl!,
-                                              surahName: surahName,
-                                              ayahNumber: ayah.number,
-                                            );
-                                          }
-                                        } catch (e) {
+                                      try {
+                                        if (isPlaying) {
                                           ref.read(playingAyahIdProvider.notifier).setPlaying(null);
-                                          if (!context.mounted) return;
-                                          _showErrorDialog(context, txtP, surface, primaryColor);
+                                        } else {
+                                          ref.read(playingAyahIdProvider.notifier).setPlaying(ayah.number);
+                                          final audioController = ref.read(audioControllerProvider.notifier);
+                                          final url = ref
+                                              .read(reciterControllerProvider.notifier)
+                                              .buildAyahUrl(surahNumber, ayah.number);
+                                          await audioController.playAudio(
+                                            url,
+                                            surahName: surahName,
+                                            surahNumber: surahNumber,
+                                            ayahNumber: ayah.number,
+                                          );
                                         }
+                                      } catch (e) {
+                                        ref.read(playingAyahIdProvider.notifier).setPlaying(null);
+                                        if (!context.mounted) return;
+                                        _showErrorDialog(context, txtP, surface, primaryColor);
                                       }
                                     },
                                     child: Container(
@@ -262,7 +269,10 @@ class SurahDetailPage extends ConsumerWidget {
             const SizedBox(height: 32),
             // Font Selection
             DropdownButtonFormField<String>(
-              value: settings.fontFamily,
+              initialValue: const ['Amiri', 'Noto Naskh Arabic']
+                      .contains(settings.fontFamily)
+                  ? settings.fontFamily
+                  : 'Amiri',
               dropdownColor: surface,
               style: GoogleFonts.getFont('Cairo', color: txtP),
               decoration: InputDecoration(

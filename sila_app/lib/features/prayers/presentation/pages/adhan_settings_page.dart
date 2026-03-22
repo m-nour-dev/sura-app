@@ -16,17 +16,18 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   final _adhanSvc = AdhanSchedulerService();
 
   bool _adhanEnabled = true;
-  String _selectedSound = 'adhan_mecca.mp3';
+  String _selectedSound = 'adhan_egypt.mp3';
   Map<String, bool> _prayerSettings = {
     'fajr': true, 'dhuhr': true, 'asr': true, 'maghrib': true, 'isha': true,
   };
 
   static const _sounds = {
-    'adhan_mecca.mp3': 'أذان مكة المكرمة',
-    'adhan_medina.mp3': 'أذان المدينة المنورة',
     'adhan_egypt.mp3': 'أذان مصر',
-    'adhan_mishary.mp3': 'أذان مشاري العفاسي',
-    'adhan_turkey.mp3': 'أذان تركيا',
+    'https://www.islamcan.com/audio/adhan/azan1.mp3': 'أذان الحرم المكي (مباشر)',
+    'https://www.islamcan.com/audio/adhan/azan2.mp3': 'أذان المدينة النبوية (مباشر)',
+    'https://www.islamcan.com/audio/adhan/azan3.mp3': 'أذان الشيخ مشاري العفاسي (مباشر)',
+    'https://www.islamcan.com/audio/adhan/azan4.mp3': 'أذان الشيخ علي ملا (مباشر)',
+    'https://www.islamcan.com/audio/adhan/azan5.mp3': 'أذان مؤثر كلاسيكي (مباشر)',
   };
 
   static const _prayerList = [
@@ -157,6 +158,29 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
           ),
 
           const SizedBox(height: 24),
+
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.amber.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.amber.withValues(alpha: 0.22)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.wifi_rounded, color: Colors.amber, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'الأصوات المكتوب بجانبها (مباشر) تحتاج اتصال إنترنت.\nعند فشلها يتم تشغيل أذان مصر تلقائياً.',
+                    style: GoogleFonts.cairo(color: Colors.white70, fontSize: 11),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
 
           // ── Per-prayer ───────────────────────────────────────────────────
           Padding(

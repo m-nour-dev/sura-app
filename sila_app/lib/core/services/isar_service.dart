@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sila_app/core/models/reciter_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
@@ -48,11 +50,13 @@ class IsarService {
             HifzVerseRecordSchema,
             HifzSessionSchema,
             HifzMomentSchema,
+            HifzSettingsSchema,
             IbadahRecordSchema,
             UserGenderPrefsSchema,
             NotificationContentSchema,
             NotificationSettingsSchema,
             UserActivityLogSchema,
+            ReciterSettingsSchema,
           ],
           directory: dir.path,
           inspector: true,

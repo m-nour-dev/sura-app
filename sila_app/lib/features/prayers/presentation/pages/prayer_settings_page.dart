@@ -2,6 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/core/presentation/widgets/audio_storage_sheet.dart';
+import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/adhan_settings_page.dart';
@@ -74,6 +77,8 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentReciter = ref.watch(reciterControllerProvider).valueOrNull;
+
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F1E),
       appBar: AppBar(
@@ -188,6 +193,20 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
                   ),
                 ),
               ),
+            ),
+            _Tile(
+              icon: Icons.mic_rounded,
+              title: 'الشيخ المختار',
+              subtitle: currentReciter?.nameArabic ?? 'الشيخ محمود خليل الحصري',
+              trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
+              onTap: () => showReciterPickerSheet(context),
+            ),
+            _Tile(
+              icon: Icons.storage_rounded,
+              title: 'إدارة مساحة الصوت',
+              subtitle: 'عرض وحذف كاش التلاوات',
+              trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
+              onTap: () => showAudioStorageSheet(context),
             ),
           ]),
         ],

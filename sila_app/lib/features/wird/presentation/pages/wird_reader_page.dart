@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
@@ -32,6 +34,7 @@ class WirdReaderPage extends ConsumerStatefulWidget {
 class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   late PageController _pageController;
   late int _currentPage;
+  bool _isAudioBuffering = false;
 
   @override
   void initState() {
@@ -188,6 +191,10 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                   builder: (_) => const WirdNotificationSettings()),
             );
           },
+        ),
+        IconButton(
+          icon: Icon(Icons.mic_rounded, color: iconColor),
+          onPressed: () => showReciterPickerSheet(context),
         ),
         IconButton(
           icon: Icon(Icons.settings, color: iconColor),
@@ -627,8 +634,9 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                           child: Column(
                             children: [
                               GestureDetector(
-                                onTap: () =>
-                                    _playAyahAudio(activeSurah, activeAyah),
+                                onTap: _isAudioBuffering
+                                    ? null
+                                    : () => _playAyahAudio(activeSurah, activeAyah),
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
@@ -650,8 +658,20 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                                             blurRadius: 15,
                                             offset: const Offset(0, 6))
                                       ]),
-                                  child: const Icon(Icons.play_arrow_rounded,
-                                      color: Colors.white, size: 32),
+                                  child: _isAudioBuffering
+                                      ? const SizedBox(
+                                          width: 32,
+                                          height: 32,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.play_arrow_rounded,
+                                          color: Colors.white,
+                                          size: 32,
+                                        ),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -777,19 +797,27 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   }
 
   Future<void> _playAyahAudio(int surahNum, int ayahNum) async {
-    final surahStr = surahNum.toString().padLeft(3, '0');
-    final ayahStr = ayahNum.toString().padLeft(3, '0');
-    final url =
-        'https://everyayah.com/data/Husary_128kbps/$surahStr$ayahStr.mp3';
+    if (mounted) {
+      setState(() => _isAudioBuffering = true);
+    }
+
+    final url = ref
+        .read(reciterControllerProvider.notifier)
+        .buildAyahUrl(surahNum, ayahNum);
 
     try {
       await ref.read(audioControllerProvider.notifier).playAudio(
             url,
             surahName: quran.getSurahNameArabic(surahNum),
+            surahNumber: surahNum,
             ayahNumber: ayahNum,
           );
     } catch (e) {
       debugPrint('Error playing ayah audio: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isAudioBuffering = false);
+      }
     }
   }
 
@@ -951,7 +979,10 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
             ),
             const SizedBox(height: 32),
             DropdownButtonFormField<String>(
-              value: settings.fontFamily,
+              initialValue: const ['Amiri', 'Noto Naskh Arabic', 'Scheherazade New']
+                      .contains(settings.fontFamily)
+                  ? settings.fontFamily
+                  : 'Amiri',
               dropdownColor: _getBackgroundColor(settings.themeMode),
               style: TextStyle(color: _getTextColor(settings.themeMode)),
               decoration: InputDecoration(
@@ -1049,7 +1080,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       required QuranSettings settings}) {
     return Container(
       decoration: BoxDecoration(
-        color: _getAccentColor(settings.themeMode).withOpacity(0.1),
+        color: _getAccentColor(settings.themeMode).withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: IconButton(
