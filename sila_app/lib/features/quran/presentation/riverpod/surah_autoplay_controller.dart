@@ -48,14 +48,19 @@ class AutoPlayState {
 class SurahAutoPlayController extends StateNotifier<AutoPlayState> {
   final Ref ref;
   StreamSubscription? _completionSubscription;
+  Timer? _timeoutTimer;
+  int? _currentPlayingAyahNumber;
 
   SurahAutoPlayController(this.ref, int totalAyahs) 
       : super(AutoPlayState.initial(totalAyahs)) {
     ref.onDispose(dispose);
   }
 
+  @override
   void dispose() {
     _completionSubscription?.cancel();
+    _timeoutTimer?.cancel();
+    super.dispose();
   }
 
   /// Start auto-play from the specified ayah number
@@ -88,6 +93,9 @@ class SurahAutoPlayController extends StateNotifier<AutoPlayState> {
     String surahName,
   ) async {
     try {
+      _currentPlayingAyahNumber = ayahNumber;
+      _timeoutTimer?.cancel();
+      
       final url = ref
           .read(reciterControllerProvider.notifier)
           .buildAyahUrl(surahNumber, ayahNumber);
@@ -103,9 +111,39 @@ class SurahAutoPlayController extends StateNotifier<AutoPlayState> {
 
       // Listen for when this ayah finishes
       _listenForCompletion(surahNumber, ayahNumber, surahName);
+      
+      // Set timeout as fallback (60 seconds max for any ayah)
+      _timeoutTimer = Timer(const Duration(seconds: 60), () {
+        if (_currentPlayingAyahNumber == ayahNumber && state.isPlaying) {
+          _advanceToNextAyah(surahNumber, ayahNumber, surahName);
+        }
+      });
     } catch (e) {
       state = state.copyWith(isPlaying: false);
       rethrow;
+    }
+  }
+
+  /// Advance to the next ayah
+  void _advanceToNextAyah(int surahNumber, int currentAyah, String surahName) {
+    if (!state.isPlaying || state.isPaused) return;
+
+    final nextAyah = currentAyah + 1;
+    
+    if (nextAyah <= state.totalAyahs) {
+      // Play next ayah in same surah
+      _playAyah(surahNumber, nextAyah, surahName).then((_) {
+        state = state.copyWith(currentAyahNumber: nextAyah);
+      }).catchError((e) {
+        // Silently stop on error
+        stopAutoPlay();
+      });
+    } else {
+      // Surah finished
+      state = state.copyWith(
+        isPlaying: false,
+        isFinished: true,
+      );
     }
   }
 
@@ -116,26 +154,18 @@ class SurahAutoPlayController extends StateNotifier<AutoPlayState> {
     
     final audioController = ref.read(audioControllerProvider.notifier);
     
-    _completionSubscription = audioController.onPlayerComplete.listen((_) {
-      if (!state.isPlaying || state.isPaused) return;
-
-      final nextAyah = ayahNumber + 1;
-      
-      if (nextAyah <= state.totalAyahs) {
-        // Play next ayah in same surah
-        _playAyah(surahNumber, nextAyah, surahName).then((_) {
-          state = state.copyWith(currentAyahNumber: nextAyah);
-        }).catchError((_) {
-          stopAutoPlay();
-        });
-      } else {
-        // Surah finished
-        state = state.copyWith(
-          isPlaying: false,
-          isFinished: true,
-        );
-      }
-    });
+    _completionSubscription = audioController.onPlayerComplete.listen(
+      (_) {
+        // Cancel timeout since we got completion event
+        _timeoutTimer?.cancel();
+        _advanceToNextAyah(surahNumber, ayahNumber, surahName);
+      },
+      onError: (error) {
+        _timeoutTimer?.cancel();
+        stopAutoPlay();
+      },
+      cancelOnError: false,
+    );
   }
 
   /// Pause auto-play (can be resumed)
