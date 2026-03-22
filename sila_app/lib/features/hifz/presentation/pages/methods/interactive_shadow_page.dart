@@ -1080,8 +1080,19 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
     final to = widget.state.toVerse;
 
     final items = <_ReviewAyahItem>[];
-    for (var ayah = from; ayah <= to; ayah++) {
-      final HifzVerseRecord? record = await repo.getVerseRecord(surah, ayah);
+    
+    // Fetch all verse records in parallel for better performance
+    final futures = [
+      for (var ayah = from; ayah <= to; ayah++)
+        repo.getVerseRecord(surah, ayah).then((record) => (ayah: ayah, record: record))
+    ];
+    
+    final results = await Future.wait(futures);
+    
+    for (final result in results) {
+      final ayah = result.ayah;
+      final record = result.record;
+      
       final needsReview = record != null &&
           (record.intervalDays <= 1 || record.correctSessions < record.totalSessions);
       if (!needsReview) {
@@ -1135,10 +1146,9 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final onSurfaceMuted = colors.onSurface.withValues(alpha: 0.65);
-    final totalWords = widget.state.correctWords + widget.state.wrongWords;
-    final accuracyValue = totalWords == 0 ? 0.0 : widget.state.correctWords / totalWords;
-    final accuracyPercent = (accuracyValue * 100).round();
-    final closeCount = 0;
+     final totalWords = widget.state.correctWords + widget.state.wrongWords;
+     final accuracyValue = totalWords == 0 ? 0.0 : widget.state.correctWords / totalWords;
+     final accuracyPercent = (accuracyValue * 100).round();
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 20 + MediaQuery.of(context).padding.bottom),
@@ -1192,33 +1202,25 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
             ),
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _ResultsStatCard(
-                  value: _toArabicIndic(widget.state.correctWords),
-                  label: 'صحيح',
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _ResultsStatCard(
-                  value: _toArabicIndic(closeCount),
-                  label: 'قريب',
-                  color: Colors.amber,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _ResultsStatCard(
-                  value: _toArabicIndic(widget.state.wrongWords),
-                  label: 'خطأ',
-                  color: colors.error,
-                ),
-              ),
-            ],
-          ),
+           Row(
+             children: [
+               Expanded(
+                 child: _ResultsStatCard(
+                   value: _toArabicIndic(widget.state.correctWords),
+                   label: 'صحيح',
+                   color: Colors.green,
+                 ),
+               ),
+               const SizedBox(width: 10),
+               Expanded(
+                 child: _ResultsStatCard(
+                   value: _toArabicIndic(widget.state.wrongWords),
+                   label: 'خطأ',
+                   color: colors.error,
+                 ),
+               ),
+             ],
+           ),
           const SizedBox(height: 14),
           FutureBuilder<HifzUserProfile?>(
             future: _profileFuture,
