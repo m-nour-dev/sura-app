@@ -222,32 +222,32 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                                 ),
                               ),
 
-                              // Translation (only if available)
-                              if (ayah.translation.isNotEmpty) ...[
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: primaryColor.withOpacity(0.05),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: primaryColor.withOpacity(0.1),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    ayah.translation,
-                                    textAlign: TextAlign.right,
-                                    textDirection: ui.TextDirection.rtl,
-                                    style: GoogleFonts.getFont(
-                                      'Cairo',
-                                      fontSize: 14,
-                                      height: 1.8,
-                                      color: txtS,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                               // Translation (only if available)
+                               if (ayah.translation.isNotEmpty) ...[
+                                 const SizedBox(height: 16),
+                                 Container(
+                                   padding: const EdgeInsets.all(14),
+                                   decoration: BoxDecoration(
+                                     color: primaryColor.withOpacity(0.05),
+                                     borderRadius: BorderRadius.circular(12),
+                                     border: Border.all(
+                                       color: primaryColor.withOpacity(0.1),
+                                       width: 1,
+                                     ),
+                                   ),
+                                   child: Text(
+                                     ayah.translation,
+                                     textAlign: TextAlign.start,
+                                     textDirection: _getTranslationDirection(ayah.translation),
+                                     style: GoogleFonts.getFont(
+                                       'Cairo',
+                                       fontSize: 14,
+                                       height: 1.8,
+                                       color: txtS,
+                                     ),
+                                   ),
+                                 ),
+                               ],
                             ],
                           ),
                         );
@@ -390,8 +390,6 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     Color txtP,
     Color primaryColor,
   ) {
-    final reciterState = ref.watch(reciterControllerProvider);
-    
     showModalBottomSheet(
       context: context,
       useSafeArea: true,
@@ -420,93 +418,44 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
               ),
               const SizedBox(height: 32),
 
-              // Reciter Selection
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: primaryColor.withOpacity(0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.mic_rounded, color: primaryColor, size: 20),
-                        const SizedBox(width: 12),
-                        Text(
-                          "اختر القارئ",
-                          style: GoogleFonts.getFont(
-                            'Cairo',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: txtP,
-                          ),
-                        ),
-                      ],
+              // Reciter Selection Button
+              GestureDetector(
+                onTap: () => showReciterPickerSheet(context),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: primaryColor.withOpacity(0.2),
+                      width: 1,
                     ),
-                    const SizedBox(height: 12),
-                    reciterState.when(
-                      data: (reciter) => GestureDetector(
-                        onTap: () => showReciterPickerSheet(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: surface,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: primaryColor.withOpacity(0.3),
-                              width: 1,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.mic_rounded, color: primaryColor, size: 24),
+                          const SizedBox(width: 16),
+                          Text(
+                            "اختر القارئ",
+                            style: GoogleFonts.getFont(
+                              'Cairo',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: txtP,
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  reciter.nameArabic,
-                                  style: GoogleFonts.getFont(
-                                    'Cairo',
-                                    fontSize: 14,
-                                    color: txtP,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 14,
-                                color: primaryColor.withOpacity(0.6),
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
-                      loading: () => Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF064E3B)),
-                          ),
-                        ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: primaryColor.withOpacity(0.6),
                       ),
-                      error: (_, __) => Text(
-                        'خطأ في تحميل القارئ',
-                        style: GoogleFonts.getFont(
-                          'Cairo',
-                          fontSize: 14,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 28),
@@ -678,5 +627,22 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
         ],
       ),
     );
+  }
+
+  /// Detect translation text direction (RTL for Arabic, LTR for Turkish/English)
+  ui.TextDirection _getTranslationDirection(String text) {
+    if (text.isEmpty) return ui.TextDirection.ltr;
+    
+    // Check first character for Arabic/Persian/Urdu scripts
+    final firstChar = text.codeUnitAt(0);
+    
+    // Arabic Unicode range: 0x0600 - 0x06FF
+    // Persian/Urdu: 0x0600 - 0x06FF
+    if (firstChar >= 0x0600 && firstChar <= 0x06FF) {
+      return ui.TextDirection.rtl;
+    }
+    
+    // Turkish, English, and other LTR languages
+    return ui.TextDirection.ltr;
   }
 }
