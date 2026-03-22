@@ -3,12 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
+import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/interactive_shadow_controller.dart';
 import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
 
 const Color _successColor = Color(0xFF10B981);
 const Color _hasanatGold = Color(0xFFFCD34D);
@@ -138,6 +143,17 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                         state: state,
                         onHome: () => Navigator.popUntil(context, (r) => r.isFirst),
                         onDedicate: () => controller.openThawaabDedication(context),
+                        onRestart: () {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => InteractiveShadowPage(
+                                surahNumber: state.surahNumber,
+                                fromVerse: state.fromVerse,
+                                toVerse: state.toVerse,
+                              ),
+                            ),
+                          );
+                        },
                       )
                     : Column(
                         children: [
@@ -853,36 +869,73 @@ class _MicBar extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isListening ? 'المايك يعمل الآن' : 'اختبر تلاوتك بالمايك',
-                  style: GoogleFonts.cairo(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isListening ? const Color(0xFF6EE7B7) : Colors.white70,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isListening ? 'تحدث بوضوح...' : 'اضغط للبدء بالمقارنة الصوتية',
-                  style: GoogleFonts.cairo(fontSize: 9.5, color: Colors.white38),
-                ),
-                const SizedBox(height: 5),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    value: isListening ? null : 0,
-                    backgroundColor: Colors.white.withValues(alpha: 0.1),
-                    valueColor: AlwaysStoppedAnimation(
-                      isListening ? const Color(0xFF6EE7B7) : Colors.white24,
+            child: StreamBuilder<MicHealthStatus>(
+              stream: TasmiSpeechService().micHealthStream,
+              initialData: MicHealthStatus.active,
+              builder: (context, snapshot) {
+                final status = snapshot.data ?? MicHealthStatus.active;
+                final statusColor = switch (status) {
+                  MicHealthStatus.active => const Color(0xFF1D9E75),
+                  MicHealthStatus.reconnecting => Colors.orange,
+                  MicHealthStatus.stalled => Colors.red,
+                };
+                final statusText = switch (status) {
+                  MicHealthStatus.active => 'يستمع...',
+                  MicHealthStatus.reconnecting => 'يعيد الاتصال...',
+                  MicHealthStatus.stalled => 'توقف - اضغط للاعادة',
+                };
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: statusColor,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          statusText,
+                          style: GoogleFonts.cairo(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: statusColor,
+                          ),
+                        ),
+                        if (status == MicHealthStatus.stalled)
+                          IconButton(
+                            icon: const Icon(Icons.refresh, size: 16),
+                            onPressed: () => TasmiSpeechService().forceRestart(),
+                          ),
+                      ],
                     ),
-                    minHeight: 3,
-                  ),
-                ),
-              ],
+                    const SizedBox(height: 2),
+                    Text(
+                      isListening ? 'تحدث بوضوح...' : 'اضغط للبدء بالمقارنة الصوتية',
+                      style: GoogleFonts.cairo(fontSize: 9.5, color: Colors.white38),
+                    ),
+                    const SizedBox(height: 5),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: LinearProgressIndicator(
+                        value: isListening ? null : 0,
+                        backgroundColor: Colors.white.withValues(alpha: 0.1),
+                        valueColor: AlwaysStoppedAnimation(
+                          isListening ? const Color(0xFF6EE7B7) : Colors.white24,
+                        ),
+                        minHeight: 3,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -980,256 +1033,485 @@ class _InstructionCard extends StatelessWidget {
   }
 }
 
-class _SessionResultsView extends StatefulWidget {
+class _SessionResultsView extends ConsumerStatefulWidget {
   final InteractiveShadowState state;
   final VoidCallback onHome;
   final VoidCallback onDedicate;
+  final VoidCallback onRestart;
 
-  const _SessionResultsView({required this.state, required this.onHome, required this.onDedicate});
+  const _SessionResultsView({
+    required this.state,
+    required this.onHome,
+    required this.onDedicate,
+    required this.onRestart,
+  });
 
   @override
-  State<_SessionResultsView> createState() => _SessionResultsViewState();
+  ConsumerState<_SessionResultsView> createState() => _SessionResultsViewState();
 }
 
-class _SessionResultsViewState extends State<_SessionResultsView> {
-  final List<bool> _visible = List<bool>.filled(5, false);
+class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
+  late final Future<HifzUserProfile?> _profileFuture;
+  late final Future<List<_ReviewAyahItem>> _reviewItemsFuture;
 
   @override
   void initState() {
     super.initState();
-    for (int i = 0; i < 5; i++) {
-      Future<void>.delayed(Duration(milliseconds: i * 150), () {
-        if (!mounted) return;
-        setState(() => _visible[i] = true);
-      });
+    _profileFuture = _loadProfile();
+    _reviewItemsFuture = _loadReviewItems();
+  }
+
+  Future<HifzUserProfile?> _loadProfile() async {
+    final repo = await ref.read(hifzRepositoryProvider.future);
+    return repo.getProfile();
+  }
+
+  Future<List<_ReviewAyahItem>> _loadReviewItems() async {
+    if (widget.state.wrongWords <= 0) {
+      return const [];
     }
+
+    final repo = await ref.read(hifzRepositoryProvider.future);
+    final surah = widget.state.surahNumber;
+    final from = widget.state.fromVerse;
+    final to = widget.state.toVerse;
+
+    final items = <_ReviewAyahItem>[];
+    for (var ayah = from; ayah <= to; ayah++) {
+      final HifzVerseRecord? record = await repo.getVerseRecord(surah, ayah);
+      final needsReview = record != null &&
+          (record.intervalDays <= 1 || record.correctSessions < record.totalSessions);
+      if (!needsReview) {
+        continue;
+      }
+
+      final verse = quran.getVerse(surah, ayah, verseEndSymbol: false);
+      final snippet = verse.split(' ').take(3).join(' ');
+      items.add(
+        _ReviewAyahItem(
+          ayahNumber: ayah,
+          displayText: snippet,
+          severe: record.correctSessions < record.totalSessions,
+        ),
+      );
+    }
+
+    if (items.isNotEmpty) {
+      return items;
+    }
+
+    // Fallback: session has errors but no per-ayah error metadata persisted.
+    final fallback = <_ReviewAyahItem>[];
+    final totalAyahs = (to - from + 1).clamp(1, 10);
+    for (var i = 0; i < totalAyahs; i++) {
+      final ayah = from + i;
+      final verse = quran.getVerse(surah, ayah, verseEndSymbol: false);
+      fallback.add(
+        _ReviewAyahItem(
+          ayahNumber: ayah,
+          displayText: verse.split(' ').take(3).join(' '),
+          severe: true,
+        ),
+      );
+    }
+    return fallback;
+  }
+
+  String _ageMessage(int? ageGroup) {
+    return switch (ageGroup) {
+      0 => '🔥 أنت وحش! هكذا يُحفظ القرآن',
+      1 => 'أداء ممتاز — استمر وستصل',
+      2 => 'أحسنت — كل جلسة تقربك من هدفك',
+      3 => 'بارك الله فيك — كل حرف نور يوم القيامة',
+      _ => 'أحسنت — كل جلسة تقربك من هدفك',
+    };
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final onSurfaceMuted = colors.onSurface.withValues(alpha: 0.65);
     final totalWords = widget.state.correctWords + widget.state.wrongWords;
-    final accuracy = totalWords == 0 ? 0 : ((widget.state.correctWords / totalWords) * 100).round();
-    final minutes = (widget.state.stageResults.values
-                .fold<int>(0, (sum, e) => sum + e.totalWords) /
-            12)
-        .ceil();
-    final ayahCount = widget.state.toVerse - widget.state.fromVerse + 1;
+    final accuracyValue = totalWords == 0 ? 0.0 : widget.state.correctWords / totalWords;
+    final accuracyPercent = (accuracyValue * 100).round();
+    final closeCount = 0;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 20 + MediaQuery.of(context).padding.bottom),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 20),
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 300),
-            opacity: _visible[0] ? 1 : 0,
-            child: TweenAnimationBuilder<int>(
-              tween: IntTween(begin: 0, end: widget.state.sessionHashanat),
-              duration: const Duration(milliseconds: 1500),
-              curve: Curves.easeOut,
-              builder: (_, value, __) {
-                return Column(
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppTheme.primaryColor.withValues(alpha: theme.brightness == Brightness.dark ? 0.24 : 0.08),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+            child: Center(
+              child: CircularPercentIndicator(
+                radius: 60,
+                lineWidth: 10,
+                percent: accuracyValue.clamp(0.0, 1.0),
+                animation: true,
+                animateFromLastPercent: true,
+                circularStrokeCap: CircularStrokeCap.round,
+                progressColor: AppTheme.primaryColor,
+                backgroundColor: colors.onSurface.withValues(alpha: 0.15),
+                center: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      _toArabicIndic(value),
-                      style: GoogleFonts.cairo(fontSize: 52, fontWeight: FontWeight.w800, color: _hasanatGold),
+                      '${_toArabicIndic(accuracyPercent)}٪',
+                      style: GoogleFonts.cairo(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: colors.onSurface,
+                      ),
                     ),
-                    Text('حسنة اكتسبتها بإذن الله', style: GoogleFonts.cairo(fontSize: 13, color: Colors.white60)),
+                    Text(
+                      'دقة الحفظ',
+                      style: GoogleFonts.cairo(
+                        fontSize: 11,
+                        color: onSurfaceMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _ResultsStatCard(
+                  value: _toArabicIndic(widget.state.correctWords),
+                  label: 'صحيح',
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ResultsStatCard(
+                  value: _toArabicIndic(closeCount),
+                  label: 'قريب',
+                  color: Colors.amber,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ResultsStatCard(
+                  value: _toArabicIndic(widget.state.wrongWords),
+                  label: 'خطأ',
+                  color: colors.error,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          FutureBuilder<HifzUserProfile?>(
+            future: _profileFuture,
+            builder: (context, snapshot) {
+              final message = _ageMessage(snapshot.data?.ageGroup);
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border(
+                    left: BorderSide(color: AppTheme.accentColor, width: 4),
+                  ),
+                ),
+                child: Text(
+                  message,
+                  style: GoogleFonts.cairo(
+                    fontSize: 15,
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              );
+            },
+          ),
+          if (widget.state.wrongWords > 0) ...[
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Icon(Icons.bookmark_added_rounded, color: AppTheme.primaryColor, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  'كلمات تحتاج مراجعة',
+                  style: GoogleFonts.cairo(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            FutureBuilder<List<_ReviewAyahItem>>(
+              future: _reviewItemsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 18),
+                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  );
+                }
+
+                final items = snapshot.data ?? const <_ReviewAyahItem>[];
+                final shown = items.take(10).toList();
+                final hiddenCount = (items.length - shown.length).clamp(0, 999);
+
+                if (shown.isEmpty) {
+                  return Text(
+                    'لا توجد عناصر مراجعة حالياً',
+                    style: GoogleFonts.cairo(fontSize: 12, color: onSurfaceMuted),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    ...shown.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
+                      return Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  item.severe ? Icons.cancel_rounded : Icons.warning_amber_rounded,
+                                  color: item.severe ? colors.error : Colors.amber,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    item.displayText,
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.amiri(
+                                      fontSize: 20,
+                                      color: item.severe ? colors.error : colors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'سورة ${quran.getSurahNameArabic(widget.state.surahNumber)} • آية ${_toArabicIndic(item.ayahNumber)}',
+                                  style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
+                                ),
+                              ],
+                            ),
+                            if (index != shown.length - 1)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Divider(height: 1, color: colors.onSurface.withValues(alpha: 0.08)),
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                    if (hiddenCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          'و ${_toArabicIndic(hiddenCount)} آية أخرى',
+                          style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
+                        ),
+                      ),
                   ],
                 );
               },
             ),
-          ),
-          const SizedBox(height: 24),
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 300),
-            opacity: _visible[1] ? 1 : 0,
+          ],
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppTheme.accentColor.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Row(
               children: [
-                _ResultStat(value: '${_toArabicIndic(accuracy)}٪', label: 'دقة', color: _successColor),
+                Icon(Icons.auto_awesome_rounded, color: AppTheme.accentColor, size: 24),
                 const SizedBox(width: 10),
-                _ResultStat(value: _toArabicIndic(ayahCount), label: 'آيات', color: Colors.white),
-                const SizedBox(width: 10),
-                _ResultStat(value: '${_toArabicIndic(minutes)} د', label: 'وقت', color: AppTheme.accentColor),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'حسنات اكتسبتها',
+                        style: GoogleFonts.cairo(fontSize: 12, color: onSurfaceMuted),
+                      ),
+                      Text(
+                        _toArabicIndic(widget.state.sessionHashanat),
+                        style: GoogleFonts.cairo(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.accentColor,
+                        ),
+                      ),
+                      Text(
+                        'بإذن الله',
+                        style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 300),
-            opacity: _visible[2] ? 1 : 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(14),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: widget.onDedicate,
+              icon: const Text('💛', style: TextStyle(fontSize: 16)),
+              label: Text(
+                'إهداء الثواب',
+                style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w700),
               ),
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('أداء كل مرحلة', style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white70)),
-                  const SizedBox(height: 10),
-                  ...List.generate(5, (idx) {
-                    final stage = idx + 1;
-                    final r = widget.state.stageResults[stage];
-                    final total = (r?.totalWords ?? 0);
-                    final acc = total == 0 ? 1.0 : ((r!.correctWords) / total).clamp(0.0, 1.0);
-                    final labels = ['الاستماع', 'الترديد', '٣٠٪ مخفي', '٦٠٪ مخفي', 'كامل'];
-                    return _StageRow(stage: stage, label: labels[idx], accuracy: acc);
-                  }),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 300),
-            opacity: _visible[3] ? 1 : 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.2),
-                border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.5), width: 0.5),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Text(_motivational().$1, style: const TextStyle(fontSize: 28)),
-                  const SizedBox(height: 6),
-                  Text(
-                    _motivational().$2,
-                    style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF6EE7B7)),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _motivational().$3,
-                    style: GoogleFonts.cairo(fontSize: 11, color: Colors.white.withValues(alpha: 0.5)),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.accentColor,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
             ),
           ),
           const SizedBox(height: 12),
-          if (widget.state.sessionMoments.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'لحظاتك مع القرآن اليوم 💎',
-                    style: GoogleFonts.cairo(
-                      fontSize: 13,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...widget.state.sessionMoments.map((moment) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(
-                        '• آية ${_toArabicIndic(moment.verseNumber)}: ${moment.feeling}${moment.reflection.isNotEmpty ? ' - ${moment.reflection}' : ''}',
-                        style: GoogleFonts.cairo(fontSize: 11, color: Colors.white70),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            )
-          else
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: Row(
-                children: [
-                  const Text('💎', style: TextStyle(fontSize: 20)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'هل لمستك آية اليوم؟',
-                          style: GoogleFonts.cairo(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'اضغط 💎 في أي وقت خلال الجلسة القادمة',
-                          style: GoogleFonts.cairo(fontSize: 11, color: Colors.white38),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 24),
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 300),
-            opacity: _visible[4] ? 1 : 0,
-            child: Row(
-              children: [
-                Expanded(
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48,
                   child: OutlinedButton(
-                    onPressed: widget.onHome,
+                    onPressed: widget.onRestart,
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white24),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                    ),
-                    child: Text('الرئيسية', style: GoogleFonts.cairo(fontSize: 13, color: Colors.white60)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: widget.onDedicate,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentColor,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                      elevation: 0,
+                      side: const BorderSide(color: AppTheme.primaryColor),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
-                      'إهداء الثواب 🤲',
-                      style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                      '↺ إعادة',
+                      style: GoogleFonts.cairo(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primaryColor,
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: widget.onHome,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      '🏠 الرئيسية',
+                      style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+}
 
-  (String, String, String) _motivational() {
-    final ayahCount = _toArabicIndic(widget.state.toVerse - widget.state.fromVerse + 1);
-    final minutes = _toArabicIndic((widget.state.stageResults.values.fold<int>(0, (sum, e) => sum + e.totalWords) / 12).ceil());
-    return switch (1) {
-      0 => ('✦', 'أداء مميز', 'حفظت $ayahCount آيات في جلسة واحدة'),
-      1 => ('🌟', 'أداء ممتاز', 'أنت في أفضل ١٥٪ من الحفاظ اليوم'),
-      2 => ('✨', 'أحسنت', '$minutes دقيقة أوصلتك لهدفك اليوم'),
-      3 => ('🤲', 'بارك الله فيك', 'كل حرف حفظته نور في الدنيا والآخرة'),
-      _ => ('🤲', 'بارك الله فيك', 'كل حرف حفظته نور في الدنيا والآخرة'),
-    };
+class _ReviewAyahItem {
+  final int ayahNumber;
+  final String displayText;
+  final bool severe;
+
+  const _ReviewAyahItem({
+    required this.ayahNumber,
+    required this.displayText,
+    required this.severe,
+  });
+}
+
+class _ResultsStatCard extends StatelessWidget {
+  const _ResultsStatCard({
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  final String value;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: GoogleFonts.cairo(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: color,
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.cairo(
+              fontSize: 12,
+              color: colors.onSurface.withValues(alpha: 0.65),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -1383,67 +1665,6 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ResultStat extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color color;
-
-  const _ResultStat({required this.value, required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            Text(value, style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w800, color: color)),
-            Text(label, style: GoogleFonts.cairo(fontSize: 10, color: Colors.white38)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StageRow extends StatelessWidget {
-  final int stage;
-  final String label;
-  final double accuracy;
-
-  const _StageRow({required this.stage, required this.label, required this.accuracy});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: accuracy,
-                minHeight: 6,
-                backgroundColor: Colors.white.withValues(alpha: 0.12),
-                valueColor: const AlwaysStoppedAnimation(_successColor),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(label, style: GoogleFonts.cairo(fontSize: 10, color: Colors.white70)),
-          const SizedBox(width: 8),
-          Text('$stage', style: GoogleFonts.cairo(fontSize: 10, color: Colors.white54)),
         ],
       ),
     );

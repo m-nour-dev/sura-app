@@ -19,8 +19,9 @@ class TasmiActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: EdgeInsets.fromLTRB(20, 12, 20, 12 + bottomInset),
       child: _buildButton(context, state.status),
     );
   }
