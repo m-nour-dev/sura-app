@@ -873,13 +873,16 @@ class _MicBar extends StatelessWidget {
               stream: TasmiSpeechService().micHealthStream,
               initialData: MicHealthStatus.active,
               builder: (context, snapshot) {
-                final status = snapshot.data ?? MicHealthStatus.active;
+                final MicHealthStatus? status =
+                    isListening ? (snapshot.data ?? MicHealthStatus.active) : null;
                 final statusColor = switch (status) {
+                  null => Colors.white54,
                   MicHealthStatus.active => const Color(0xFF1D9E75),
                   MicHealthStatus.reconnecting => Colors.orange,
                   MicHealthStatus.stalled => Colors.red,
                 };
                 final statusText = switch (status) {
+                  null => 'اختبر تلاوتك بالمايك',
                   MicHealthStatus.active => 'يستمع...',
                   MicHealthStatus.reconnecting => 'يعيد الاتصال...',
                   MicHealthStatus.stalled => 'توقف - اضغط للاعادة',
