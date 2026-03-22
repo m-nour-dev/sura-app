@@ -25,6 +25,7 @@ class TasmiSpeechService {
   Timer? _restartTimer;
   Timer? _watchdogTimer;
   DateTime? _lastWordReceivedAt;
+  bool _isWatchdogHealing = false;
 
   static const _watchdogInterval = Duration(seconds: 8);
   static const _silenceThreshold = Duration(seconds: 8);
@@ -260,39 +261,54 @@ class TasmiSpeechService {
     _lastWordReceivedAt = DateTime.now();
     _watchdogTimer = Timer.periodic(
       _watchdogInterval,
-      (_) => _checkAndHeal(),
+      (_) async {
+        // Don't await here to prevent blocking the timer, but check guard before starting
+        if (!_isWatchdogHealing) {
+          unawaited(_checkAndHeal());
+        }
+      },
     );
   }
 
   Future<void> _checkAndHeal() async {
+    if (_isWatchdogHealing) {
+      return;
+    }
+
     if (_isManuallyStopped || _isPausedForTts || _wordController.isClosed) {
       return;
     }
 
-    final sinceLastWord = _lastWordReceivedAt == null
-        ? _silenceThreshold
-        : DateTime.now().difference(_lastWordReceivedAt!);
+    _isWatchdogHealing = true;
 
-    final isActuallyListening = _speech.isListening;
-    final silenceTooLong = sinceLastWord >= _silenceThreshold;
+    try {
+      final sinceLastWord = _lastWordReceivedAt == null
+          ? _silenceThreshold
+          : DateTime.now().difference(_lastWordReceivedAt!);
 
-    if (!isActuallyListening || silenceTooLong) {
-      debugPrint(
-        '🔧 Watchdog: healing STT — '
-        'isListening=$isActuallyListening '
-        'silence=${sinceLastWord.inSeconds}s',
-      );
+      final isActuallyListening = _speech.isListening;
+      final silenceTooLong = sinceLastWord >= _silenceThreshold;
 
-      if (!_micHealthController.isClosed) {
-        _micHealthController.add(MicHealthStatus.reconnecting);
-      }
-
-      final healed = await _hardReset();
-      if (!_micHealthController.isClosed) {
-        _micHealthController.add(
-          healed ? MicHealthStatus.active : MicHealthStatus.stalled,
+      if (!isActuallyListening || silenceTooLong) {
+        debugPrint(
+          '🔧 Watchdog: healing STT — '
+          'isListening=$isActuallyListening '
+          'silence=${sinceLastWord.inSeconds}s',
         );
+
+        if (!_micHealthController.isClosed) {
+          _micHealthController.add(MicHealthStatus.reconnecting);
+        }
+
+        final healed = await _hardReset();
+        if (!_micHealthController.isClosed) {
+          _micHealthController.add(
+            healed ? MicHealthStatus.active : MicHealthStatus.stalled,
+          );
+        }
       }
+    } finally {
+      _isWatchdogHealing = false;
     }
   }
 
@@ -338,6 +354,7 @@ class TasmiSpeechService {
     _restartTimer?.cancel();
     _watchdogTimer?.cancel();
     _watchdogTimer = null;
+    _isWatchdogHealing = false;
     _speech.cancel();
     _textController.close();
     _wordController.close();
