@@ -89,29 +89,29 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('الصلاة القادمة',
+                   Text('next_prayer'.tr(),
                     style: GoogleFonts.getFont('Cairo',
                       fontSize: 12, color: Colors.white60)),
-                  Text(nextPrayerName,
+                   Text(nextPrayerName,
                     style: GoogleFonts.getFont('Cairo',
                       fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white)),
-                  Text(formattedNextTime,
+                   Text(formattedNextTime,
                     style: GoogleFonts.getFont('Cairo',
                       fontSize: 14, color: Colors.white70)),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('متبقي',
+                 ],
+               ),
+               Column(
+                 crossAxisAlignment: CrossAxisAlignment.end,
+                 children: [
+                   Text('remaining_time'.tr(),
                     style: GoogleFonts.getFont('Cairo',
                       fontSize: 11, color: Colors.white60)),
-                  Text(remainingTime,
+                   Text(remainingTime,
                     style: GoogleFonts.getFont('Cairo',
                       fontSize: 18, fontWeight: FontWeight.w700,
                       color: const Color(0xFFFCD34D))),
-                ],
-              ),
+                 ],
+               ),
             ],
           ),
         );

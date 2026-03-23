@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class HomeHeader extends StatelessWidget {
   final VoidCallback? onNotificationTap;
@@ -13,11 +14,11 @@ class HomeHeader extends StatelessWidget {
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'صباح الخير';
+      return 'morning_greeting'.tr();
     } else if (hour < 18) {
-      return 'مساء الخير';
+      return 'afternoon_greeting'.tr();
     } else {
-      return 'مساء النور';
+      return 'evening_greeting'.tr();
     }
   }
 
@@ -70,15 +71,15 @@ class HomeHeader extends StatelessWidget {
                           color: Colors.white60,
                         ),
                       ),
-                      Text(
-                        'أهلاً بك في صِلة',
-                        style: GoogleFonts.getFont(
-                          'Cairo',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
+                       Text(
+                         'welcome_message'.tr(),
+                         style: GoogleFonts.getFont(
+                           'Cairo',
+                           fontSize: 20,
+                           fontWeight: FontWeight.w700,
+                           color: Colors.white,
+                         ),
+                       ),
                     ],
                   ),
                   // Bell Icon

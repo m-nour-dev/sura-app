@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,86 +63,86 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _selectionOption(
-                    icon: '🎯',
-                    title: 'الخطة اليومية',
-                    subtitle: plan != null
-                        ? '${plan.newAyahsTarget} آيات جديدة بحسب خطتك'
-                        : 'ابدأ بالخطة الافتراضية',
-                    recommended: true,
-                    onTap: () {
-                      const surahNumber = 1;
-                      final maxAyahs = quran.getVerseCount(surahNumber);
-                      final target = (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
-                      Navigator.pop(
-                        context,
-                        HifzSelection(
-                          surahNumber: surahNumber,
-                          fromVerse: 1,
-                          toVerse: target,
-                          type: HifzSelectionType.dailyPlan,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _selectionOption(
-                    icon: '📖',
-                    title: 'سورة كاملة',
-                    subtitle: 'اختر السورة من قائمة المصحف',
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final result = await Navigator.push<HifzSelection>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
-                            forHifz: true,
-                            showAyahRange: false,
-                          ),
-                        ),
-                      );
-                      if (!mounted || result == null) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => InteractiveShadowPage(
-                            surahNumber: result.surahNumber,
-                            fromVerse: result.fromVerse,
-                            toVerse: result.toVerse,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _selectionOption(
-                    icon: '✂️',
-                    title: 'نطاق آيات محدد',
-                    subtitle: 'اختر السورة ثم من آية X إلى Y',
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final result = await Navigator.push<HifzSelection>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
-                            forHifz: true,
-                            showAyahRange: true,
-                          ),
-                        ),
-                      );
-                      if (!mounted || result == null) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => InteractiveShadowPage(
-                            surahNumber: result.surahNumber,
-                            fromVerse: result.fromVerse,
-                            toVerse: result.toVerse,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                   _selectionOption(
+                     icon: '🎯',
+                     title: 'daily_plan'.tr(),
+                     subtitle: plan != null
+                         ? '${plan.newAyahsTarget} ${'ayah_label'.tr()}s ${'from_verse'.tr()}'
+                         : 'hifz_start'.tr(),
+                     recommended: true,
+                     onTap: () {
+                       const surahNumber = 1;
+                       final maxAyahs = quran.getVerseCount(surahNumber);
+                       final target = (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
+                       Navigator.pop(
+                         context,
+                         HifzSelection(
+                           surahNumber: surahNumber,
+                           fromVerse: 1,
+                           toVerse: target,
+                           type: HifzSelectionType.dailyPlan,
+                         ),
+                       );
+                     },
+                   ),
+                   const SizedBox(height: 10),
+                   _selectionOption(
+                     icon: '📖',
+                     title: 'complete_surah'.tr(),
+                     subtitle: 'ابحث عن السورة من المصحف',
+                     onTap: () async {
+                       Navigator.pop(context);
+                       final result = await Navigator.push<HifzSelection>(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
+                             forHifz: true,
+                             showAyahRange: false,
+                           ),
+                         ),
+                       );
+                       if (!mounted || result == null) return;
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => InteractiveShadowPage(
+                             surahNumber: result.surahNumber,
+                             fromVerse: result.fromVerse,
+                             toVerse: result.toVerse,
+                           ),
+                         ),
+                       );
+                     },
+                   ),
+                   const SizedBox(height: 10),
+                   _selectionOption(
+                     icon: '✂️',
+                     title: 'verse_range'.tr(),
+                     subtitle: 'اختر السورة ثم من آية X إلى Y',
+                     onTap: () async {
+                       Navigator.pop(context);
+                       final result = await Navigator.push<HifzSelection>(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
+                             forHifz: true,
+                             showAyahRange: true,
+                           ),
+                         ),
+                       );
+                       if (!mounted || result == null) return;
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => InteractiveShadowPage(
+                             surahNumber: result.surahNumber,
+                             fromVerse: result.fromVerse,
+                             toVerse: result.toVerse,
+                           ),
+                         ),
+                       );
+                     },
+                   ),
                 ],
               ),
             ),
@@ -268,7 +270,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
     final controller = ref.read(hifzHomeControllerProvider.notifier);
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: ui.TextDirection.rtl,
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         body: CustomScrollView(
@@ -878,7 +880,7 @@ class _MomentsSection extends StatelessWidget {
     }
 
     return Directionality(
-      textDirection: TextDirection.rtl,
+      textDirection: ui.TextDirection.rtl,
       child: SizedBox(
         height: 140,
         child: ListView.separated(

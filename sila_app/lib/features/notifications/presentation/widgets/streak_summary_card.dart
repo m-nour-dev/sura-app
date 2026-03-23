@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 
 class StreakSummaryCard extends ConsumerWidget {
@@ -57,24 +58,24 @@ class StreakSummaryCard extends ConsumerWidget {
                     child: const Icon(Icons.flash_on_rounded, color: Color(0xFFD97706), size: 16),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    'متابعة العبادة',
-                    style: GoogleFonts.cairo(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                   Text(
+                     'worship_tracking'.tr(),
+                     style: GoogleFonts.cairo(
+                       fontSize: 18,
+                       fontWeight: FontWeight.bold,
+                       color: Colors.white,
+                     ),
+                   ),
                 ],
               ),
-              Text(
-                'نشاطك الأسبوعي',
-                style: GoogleFonts.cairo(
-                  fontSize: 11,
-                  color: Colors.white.withOpacity(0.5),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+               Text(
+                 'weekly_activity'.tr(),
+                 style: GoogleFonts.cairo(
+                   fontSize: 11,
+                   color: Colors.white.withOpacity(0.5),
+                   fontWeight: FontWeight.w500,
+                 ),
+               ),
             ],
           ),
           const SizedBox(height: 24),
@@ -107,22 +108,22 @@ class StreakSummaryCard extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          _name(k),
-                          style: GoogleFonts.cairo(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                        Text(
-                          '$count يوم',
-                          style: GoogleFonts.outfit(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: hasStreak ? const Color(0xFF10B981) : Colors.white30,
-                          ),
-                        ),
+                         Text(
+                           _name(k).tr(),
+                           style: GoogleFonts.cairo(
+                             fontSize: 13,
+                             fontWeight: FontWeight.w600,
+                             color: Colors.white.withOpacity(0.9),
+                           ),
+                         ),
+                         Text(
+                           '$count ${'streak_days'.tr()}',
+                           style: GoogleFonts.outfit(
+                             fontSize: 11,
+                             fontWeight: FontWeight.bold,
+                             color: hasStreak ? const Color(0xFF10B981) : Colors.white30,
+                           ),
+                         ),
                       ],
                     ),
                   ],
@@ -148,11 +149,11 @@ class StreakSummaryCard extends ConsumerWidget {
 
   static String _name(String key) {
     switch (key) {
-      case 'azkar': return 'أذكار';
-      case 'wird': return 'الورد';
-      case 'hifz': return 'الحفظ';
-      case 'tasmi': return 'تسميع';
-      case 'tasbih': return 'تسبيح';
+      case 'azkar': return 'azkar_label';
+      case 'wird': return 'wird_label';
+      case 'hifz': return 'hifz_label';
+      case 'tasmi': return 'tasmi_label';
+      case 'tasbih': return 'tasbih_label';
       default: return key;
     }
   }

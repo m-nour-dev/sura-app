@@ -61,24 +61,24 @@ class WirdCard extends ConsumerWidget {
             child: const Icon(Icons.auto_stories_rounded, color: Color(0xFFD97706), size: 40),
           ),
           const SizedBox(height: 20),
-          Text(
-            'حدد وردك اليومي',
-            style: GoogleFonts.amiri(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.primaryColor,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'ابدأ رحلتك المباركة مع القرآن الكريم وحدد هدفك اليومي للختمة',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.cairo(
-              fontSize: 14,
-              color: AppTheme.primaryColor.withOpacity(0.6),
-              height: 1.5,
-            ),
-          ),
+           Text(
+             'set_daily_wird'.tr(),
+             style: GoogleFonts.amiri(
+               fontSize: 24,
+               fontWeight: FontWeight.bold,
+               color: AppTheme.primaryColor,
+             ),
+           ),
+           const SizedBox(height: 8),
+           Text(
+             'start_blessed_journey'.tr(),
+             textAlign: TextAlign.center,
+             style: GoogleFonts.cairo(
+               fontSize: 14,
+               color: AppTheme.primaryColor.withOpacity(0.6),
+               height: 1.5,
+             ),
+           ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
@@ -93,10 +93,10 @@ class WirdCard extends ConsumerWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 0,
               ),
-              child: Text(
-                'ابدأ الإعداد',
-                style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
+               child: Text(
+                 'start_setup'.tr(),
+                 style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16),
+               ),
             ),
           ),
         ],
@@ -173,14 +173,14 @@ class WirdCard extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    'وردك اليومي',
-                    style: GoogleFonts.cairo(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+                   Text(
+                     'daily_wird_label'.tr(),
+                     style: GoogleFonts.cairo(
+                       color: textColor,
+                       fontWeight: FontWeight.bold,
+                       fontSize: 16,
+                     ),
+                   ),
                 ],
               ),
               Container(
@@ -190,14 +190,14 @@ class WirdCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFD97706).withOpacity(0.3)),
                 ),
-                child: Text(
-                  'جزء $juz',
-                  style: GoogleFonts.cairo(
-                    color: const Color(0xFFD97706),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
+                 child: Text(
+                   'juz_number'.tr(args: ['$juz']),
+                   style: GoogleFonts.cairo(
+                     color: const Color(0xFFD97706),
+                     fontWeight: FontWeight.bold,
+                     fontSize: 12,
+                   ),
+                 ),
               ),
             ],
           ),
@@ -210,22 +210,22 @@ class WirdCard extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'أنجزت ${((progress * 100).toInt())}% من وردك اليومي',
-                    style: GoogleFonts.cairo(
-                      color: subtextColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    '$pagesReadSoFar / $totalPagesToRead صفحة',
-                    style: GoogleFonts.outfit(
-                      color: const Color(0xFFD97706),
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                   Text(
+                     'progress_text'.tr(args: ['${(progress * 100).toInt()}']),
+                     style: GoogleFonts.cairo(
+                       color: subtextColor,
+                       fontSize: 13,
+                       fontWeight: FontWeight.w500,
+                     ),
+                   ),
+                   Text(
+                     'pages_count'.tr(args: ['$pagesReadSoFar', '$totalPagesToRead']),
+                     style: GoogleFonts.outfit(
+                       color: const Color(0xFFD97706),
+                       fontSize: 13,
+                       fontWeight: FontWeight.bold,
+                     ),
+                   ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -253,13 +253,13 @@ class WirdCard extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                Text(
-                  'من قوله تعالى:',
-                  style: GoogleFonts.amiri(
-                    color: Colors.white.withOpacity(0.5),
-                    fontSize: 14,
-                  ),
-                ),
+                 Text(
+                   'from_quran_saying'.tr(),
+                   style: GoogleFonts.amiri(
+                     color: Colors.white.withOpacity(0.5),
+                     fontSize: 14,
+                   ),
+                 ),
                 const SizedBox(height: 12),
                 Text(
                   firstVerse,
@@ -273,14 +273,14 @@ class WirdCard extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'سورة ${quran.getSurahNameArabic(surahNum)} - صفحة $safeStartPage',
-                  style: GoogleFonts.cairo(
-                    color: const Color(0xFFD97706).withOpacity(0.8),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                 Text(
+                   'surah_page'.tr(args: [quran.getSurahNameArabic(surahNum), '$safeStartPage']),
+                   style: GoogleFonts.cairo(
+                     color: const Color(0xFFD97706).withOpacity(0.8),
+                     fontSize: 12,
+                     fontWeight: FontWeight.w500,
+                   ),
+                 ),
               ],
             ),
           ),
@@ -367,16 +367,16 @@ class WirdCard extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Text(
-                      'تابع قراءة الورد',
-                      style: GoogleFonts.cairo(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                   child: Center(
+                     child: Text(
+                       'continue_reading_wird'.tr(),
+                       style: GoogleFonts.cairo(
+                         color: Colors.white,
+                         fontSize: 14,
+                         fontWeight: FontWeight.bold,
+                       ),
+                     ),
+                   ),
                 ),
               ),
             ),
@@ -405,18 +405,18 @@ class WirdCard extends ConsumerWidget {
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'أتممت القراءة',
-                          style: GoogleFonts.cairo(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
-                      ],
+                       children: [
+                         Text(
+                           'completed_reading'.tr(),
+                           style: GoogleFonts.cairo(
+                             color: Colors.white,
+                             fontSize: 14,
+                             fontWeight: FontWeight.bold,
+                           ),
+                         ),
+                         const SizedBox(width: 4),
+                         const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+                       ],
                     ),
                   ),
                 ),
@@ -441,26 +441,26 @@ class WirdCard extends ConsumerWidget {
                     if (isLate) 
                       const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 16),
                     const SizedBox(width: 4),
-                    Text(
-                      isLate 
-                        ? 'أنت متأخر عن ختمتك بـ $lateDays أيام'
-                        : 'أنت تسير بشكل رائع في ختمتك!',
-                      style: GoogleFonts.cairo(
-                        color: isLate ? const Color(0xFFEF4444) : Colors.white.withOpacity(0.7),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                     Text(
+                       isLate 
+                         ? 'behind_schedule'.tr(args: ['$lateDays'])
+                         : 'on_track'.tr(),
+                       style: GoogleFonts.cairo(
+                         color: isLate ? const Color(0xFFEF4444) : Colors.white.withOpacity(0.7),
+                         fontSize: 12,
+                         fontWeight: FontWeight.w500,
+                       ),
+                     ),
                   ],
                 ),
-                Text(
-                  'الختمة الحالية',
-                  style: GoogleFonts.cairo(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                 Text(
+                   'current_khatma'.tr(),
+                   style: GoogleFonts.cairo(
+                     color: Colors.white.withOpacity(0.9),
+                     fontSize: 13,
+                     fontWeight: FontWeight.bold,
+                   ),
+                 ),
               ],
             ),
             const SizedBox(height: 12),
@@ -478,20 +478,20 @@ class WirdCard extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'الأوراد القادمة : ${state.remainingWirdsCount}',
-                  style: GoogleFonts.cairo(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 11,
-                  ),
-                ),
-                Text(
-                  'الأوراد السابقة : ${state.completedWirdsCount}',
-                  style: GoogleFonts.cairo(
-                    color: Colors.white.withOpacity(0.6),
-                    fontSize: 11,
-                  ),
-                ),
+                 Text(
+                   'upcoming_wirds'.tr(args: ['${state.remainingWirdsCount}']),
+                   style: GoogleFonts.cairo(
+                     color: Colors.white.withOpacity(0.6),
+                     fontSize: 11,
+                   ),
+                 ),
+                 Text(
+                   'completed_wirds'.tr(args: ['${state.completedWirdsCount}']),
+                   style: GoogleFonts.cairo(
+                     color: Colors.white.withOpacity(0.6),
+                     fontSize: 11,
+                   ),
+                 ),
               ],
             ),
           ],
@@ -507,47 +507,47 @@ class WirdCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          isKhatmaComplete ? 'ختم القرآن الكريم 🎉' : 'إتمام الورد',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          isKhatmaComplete
-              ? 'مبارك! لقد أتممت قراءة القرآن الكريم كاملاً.\nتقبل الله منك وجعل بكل حرف نوراً في قلبك وحياتك.\n\nهل تود البدء بختمة جديدة؟'
-              : 'هل انتهيت من قراءة الورد المحدد لهذا اليوم؟\nسيتم تحديث تقدمك في الختمة.',
-          style: GoogleFonts.outfit(fontSize: 15, height: 1.6),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء', style: GoogleFonts.outfit()),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              if (isKhatmaComplete) {
-                ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, 604).then((_) {
-                  ref.read(wirdControllerProvider.notifier).startNewKhatma();
-                });
-              } else {
-                ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, state.targetPage);
-              }
-              Navigator.pop(context); // Close completion dialog
-              
-              if (context.mounted) {
-                _showMubarakCelebration(context);
-              }
-            },
-            child: Text(
-              isKhatmaComplete ? 'بدء ختمة جديدة' : 'تم بحمد الله',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
+         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+         title: Text(
+           isKhatmaComplete ? 'quran_completion_title'.tr() : 'wird_completed_title'.tr(),
+           style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+         ),
+         content: Text(
+           isKhatmaComplete
+               ? 'quran_completion_message'.tr()
+               : 'completion_check'.tr(),
+           style: GoogleFonts.outfit(fontSize: 15, height: 1.6),
+         ),
+         actions: [
+           TextButton(
+             onPressed: () => Navigator.pop(context),
+             child: Text('cancel'.tr(), style: GoogleFonts.outfit()),
+           ),
+           FilledButton(
+             style: FilledButton.styleFrom(
+               backgroundColor: AppTheme.primaryColor,
+               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+             ),
+             onPressed: () {
+               if (isKhatmaComplete) {
+                 ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, 604).then((_) {
+                   ref.read(wirdControllerProvider.notifier).startNewKhatma();
+                 });
+               } else {
+                 ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, state.targetPage);
+               }
+               Navigator.pop(context); // Close completion dialog
+               
+               if (context.mounted) {
+                 _showMubarakCelebration(context);
+               }
+             },
+             child: Text(
+               isKhatmaComplete ? 'start_new_khatma'.tr() : 'wird_completed_title'.tr(),
+               style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+             ),
+           ),
+         ],
       ),
     );
   }
@@ -581,32 +581,32 @@ class WirdCard extends ConsumerWidget {
           style: GoogleFonts.outfit(fontSize: 15),
         ),
         actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('لاحقاً', style: GoogleFonts.outfit(color: Colors.grey)),
-          ),
-          const SizedBox(width: 8),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const VefaPage(isSelectionMode: true),
-                ),
-              );
-            },
-            child: Text(
-              'نعم، بالتأكيد',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
+         actions: [
+           TextButton(
+             onPressed: () => Navigator.pop(context),
+             child: Text('later'.tr(), style: GoogleFonts.outfit(color: Colors.grey)),
+           ),
+           const SizedBox(width: 8),
+           FilledButton(
+             style: FilledButton.styleFrom(
+               backgroundColor: AppTheme.primaryColor,
+               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+             ),
+             onPressed: () {
+               Navigator.pop(context); // Close dialog
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(
+                   builder: (context) => const VefaPage(isSelectionMode: true),
+                 ),
+               );
+             },
+             child: Text(
+               'yes_definitely'.tr(),
+               style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+             ),
+           ),
+         ],
       ),
     );
   }
@@ -688,22 +688,22 @@ class _CelebrationWidgetState extends State<_CelebrationWidget>
                         style: TextStyle(fontSize: 60),
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        'مبارك!',
-                        style: GoogleFonts.amiri(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'أتممت وردك اليومي بنجاح',
-                        style: GoogleFonts.cairo(
-                          fontSize: 18,
-                          color: AppTheme.primaryColor.withOpacity(0.8),
-                        ),
-                      ),
+                       Text(
+                         'mubarak_text'.tr(),
+                         style: GoogleFonts.amiri(
+                           fontSize: 48,
+                           fontWeight: FontWeight.bold,
+                           color: AppTheme.primaryColor,
+                         ),
+                       ),
+                       const SizedBox(height: 8),
+                       Text(
+                         'completed_wird_daily'.tr(),
+                         style: GoogleFonts.cairo(
+                           fontSize: 18,
+                           color: AppTheme.primaryColor.withOpacity(0.8),
+                         ),
+                       ),
                     ],
                   ),
                 ),
