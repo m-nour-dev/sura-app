@@ -1,4 +1,4 @@
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
@@ -132,7 +132,10 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
     return Scaffold(
       body: Column(
         children: [
-          const TasmiSelectionHeader(),
+          TasmiSelectionHeader(
+            title: widget.forHifz ? 'hifz_label'.tr() : 'tasmi_header_title'.tr(),
+            subtitle: widget.forHifz ? 'hifz_header_subtitle'.tr() : 'tasmi_header_subtitle'.tr(),
+          ),
           SearchAndFilterBar(
             onSearchChanged: _updateSearchQuery,
           ),
@@ -141,17 +144,17 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildFilterChip(0, 'كل السور'),
+                _buildFilterChip(0, 'all_surahs'.tr()),
                 const SizedBox(width: 8),
-                _buildFilterChip(1, 'مكية'),
+                _buildFilterChip(1, 'makki'.tr()),
                 const SizedBox(width: 8),
-                _buildFilterChip(2, 'مدنية'),
+                _buildFilterChip(2, 'madani'.tr()),
               ],
             ),
           ),
           Expanded(
             child: _filteredSurahs.isEmpty
-                ? const Center(child: Text('لا توجد نتائج'))
+                ? Center(child: Text('no_results_found'.tr()))
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _filteredSurahs.length,

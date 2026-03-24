@@ -1,9 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_page.dart';
 
-String _toArabicNumber(String input) {
+String _toArabicNumber(BuildContext context, String input) {
+  if (context.locale.languageCode != 'ar') return input;
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
   for (int i = 0; i < english.length; i++) {
@@ -73,15 +75,13 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
     final accentColor = const Color(0xFFD97706);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Container(
-        padding: EdgeInsets.only(
-          top: 24,
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).padding.bottom + 20,
-        ),
+    return Container(
+      padding: EdgeInsets.only(
+        top: 24,
+        left: 20,
+        right: 20,
+        bottom: MediaQuery.of(context).padding.bottom + 20,
+      ),
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -122,7 +122,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'سورة ${quran.getSurahNameArabic(widget.surahNumber)}',
+                      'surah_name_prefix'.tr(args: [quran.getSurahNameArabic(widget.surahNumber)]),
                       style: TextStyle(
                         fontSize: 22, 
                         fontWeight: FontWeight.bold,
@@ -131,7 +131,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                       ),
                     ),
                     Text(
-                      '${_toArabicNumber(quran.getVerseCount(widget.surahNumber).toString())} آية',
+                      'ayah_count_suffix'.tr(args: [_toArabicNumber(context, quran.getVerseCount(widget.surahNumber).toString())]),
                       style: TextStyle(
                         color: isDark ? Colors.white70 : Colors.black54,
                         fontFamily: 'Cairo',
@@ -149,8 +149,8 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
             _buildOptionCard(
               context: context,
               icon: Icons.done_all_rounded,
-              title: 'السورة كاملة',
-              subtitle: 'من الآية ١ إلى نهاية السورة',
+              title: 'full_surah_option'.tr(),
+              subtitle: 'full_surah_desc'.tr(),
               isDark: isDark,
               primaryColor: primaryColor,
               onTap: () => _navigateToTasmi(1, _maxAyah),
@@ -161,8 +161,8 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
             _buildOptionCard(
               context: context,
               icon: Icons.tune_rounded,
-              title: 'نطاق مخصص',
-              subtitle: 'اختر من أي آية إلى أي آية',
+              title: 'custom_range_option'.tr(),
+              subtitle: 'custom_range_desc'.tr(),
               isDark: isDark,
               primaryColor: primaryColor,
               isSelected: _isCustomRangeExpanded,
@@ -193,7 +193,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('من الآية:', style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
+                          Text('from_ayah_label'.tr(), style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
@@ -201,7 +201,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              _toArabicNumber(_fromAyah.round().toString()), 
+                              _toArabicNumber(context, _fromAyah.round().toString()), 
                               style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
                             ),
                           ),
@@ -220,7 +220,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                           min: 1,
                           max: _maxAyah.toDouble(),
                           divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
-                          label: _toArabicNumber(_fromAyah.round().toString()),
+                          label: _toArabicNumber(context, _fromAyah.round().toString()),
                           onChanged: (value) {
                             setState(() {
                               _fromAyah = value;
@@ -235,7 +235,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('إلى الآية:', style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
+                          Text('to_ayah_label'.tr(), style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(
@@ -243,7 +243,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              _toArabicNumber(_toAyah.round().toString()), 
+                              _toArabicNumber(context, _toAyah.round().toString()), 
                               style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
                             ),
                           ),
@@ -262,7 +262,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                           min: 1,
                           max: _maxAyah.toDouble(),
                           divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
-                          label: _toArabicNumber(_toAyah.round().toString()),
+                          label: _toArabicNumber(context, _toAyah.round().toString()),
                           onChanged: (value) {
                             setState(() {
                               if (value >= _fromAyah) {
@@ -279,7 +279,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                         child: ElevatedButton.icon(
                           onPressed: () => _navigateToTasmi(_fromAyah.round(), _toAyah.round()),
                           icon: const Icon(Icons.mic_rounded),
-                          label: const Text('ابدأ التسميع', style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, fontSize: 16)),
+                          label: Text(widget.returnSelectionOnly ? 'start_hifz_action'.tr() : 'start_tasmi_action'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, fontSize: 16)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,
                             foregroundColor: Colors.white,
@@ -297,8 +297,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildOptionCard({

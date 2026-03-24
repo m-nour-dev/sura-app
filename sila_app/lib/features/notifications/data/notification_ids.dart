@@ -28,4 +28,12 @@ class NotificationIds {
   static const int fridaySalawatB = 118;
   static const int fridayResponseHour = 119;
   static const int dailyReport = 120;
+  
+  // Daily Smart Slots (Fixed times)
+  static const int dailySlot1 = 201; // 07:00
+  static const int dailySlot2 = 202; // 09:00
+  static const int dailySlot3 = 203; // 12:00
+  static const int dailySlot4 = 204; // 15:00
+  static const int dailySlot5 = 205; // 17:00
+  static const int dailySlot6 = 206; // 21:00
 }

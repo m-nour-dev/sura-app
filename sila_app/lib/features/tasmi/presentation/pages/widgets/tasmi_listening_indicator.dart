@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class TasmiListeningIndicator extends StatefulWidget {
@@ -82,7 +83,7 @@ class _TasmiListeningIndicatorState extends State<TasmiListeningIndicator>
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'أستمع إليك...',
+                    'tasmi_indicator_listening'.tr(),
                     style: TextStyle(
                       fontSize: 13,
                       fontFamily: 'Cairo',
@@ -106,7 +107,7 @@ class _TasmiListeningIndicatorState extends State<TasmiListeningIndicator>
                   Icon(Icons.mic_off_rounded, size: 16, color: isDark ? Colors.white54 : Colors.grey[600]),
                   const SizedBox(width: 6),
                   Text(
-                    'متوقف مؤقتا',
+                    'tasmi_indicator_paused'.tr(),
                     style: TextStyle(
                       fontSize: 13, 
                       fontFamily: 'Cairo',

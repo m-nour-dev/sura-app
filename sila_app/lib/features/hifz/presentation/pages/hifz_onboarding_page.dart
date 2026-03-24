@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,12 +66,10 @@ class _HifzOnboardingPageState extends ConsumerState<HifzOnboardingPage> {
     final state = ref.watch(hifzOnboardingControllerProvider);
     final controller = ref.read(hifzOnboardingControllerProvider.notifier);
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppTheme.backgroundColor,
-        body: SafeArea(
-          child: Column(
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      body: SafeArea(
+        child: Column(
             children: [
               if (state.currentPage > 0)
                 Padding(
@@ -134,8 +134,7 @@ class _HifzOnboardingPageState extends ConsumerState<HifzOnboardingPage> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Future<void> _goToPage(int page) async {
@@ -214,7 +213,7 @@ class _WelcomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'رحلتك مع القرآن\nتبدأ هنا',
+              'hifz_onboarding_welcome_title'.tr(),
               textAlign: TextAlign.center,
               style: GoogleFonts.cairo(
                 fontSize: 24,
@@ -224,7 +223,7 @@ class _WelcomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'سنبني معك خطة تناسبك\nتماماً بإذن الله',
+              'hifz_onboarding_welcome_desc'.tr(),
               textAlign: TextAlign.center,
               style: GoogleFonts.cairo(
                 fontSize: 13,
@@ -235,7 +234,7 @@ class _WelcomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             const _WelcomeDots(),
             const SizedBox(height: 24),
-            _ScaleTapButton(label: 'ابدأ ←', onTap: onStart),
+            _ScaleTapButton(label: 'start_arrow'.tr(), onTap: onStart),
           ],
         ),
       ),
@@ -274,16 +273,16 @@ class _AgeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const items = [
-      ('١٨–', 'أقل من ١٨'),
-      ('٢٥–١٨', '١٨ إلى ٢٥ سنة'),
-      ('٣٥–٢٦', '٢٦ إلى ٣٥ سنة'),
-      ('٣٥+', 'أكثر من ٣٥'),
+    final items = [
+      ('hifz_age_short_under_18'.tr(), 'hifz_age_under_18'.tr()),
+      ('hifz_age_short_18_25'.tr(), 'hifz_age_18_25'.tr()),
+      ('hifz_age_short_26_35'.tr(), 'hifz_age_26_35'.tr()),
+      ('hifz_age_short_over_35'.tr(), 'hifz_age_over_35'.tr()),
     ];
 
     return _QuestionLayout(
-      title: 'كم عمرك؟',
-      hint: 'سيساعدنا في تخصيص طريقة الحفظ',
+      title: 'how_old'.tr(),
+      hint: 'hifz_age_hint'.tr(),
       child: Column(
         children: [
           Expanded(
@@ -329,11 +328,11 @@ class _AgeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const _InfoBanner(
-            color: Color(0xFFF0FDF4),
-            border: Color(0xFFBBF7D0),
+           _InfoBanner(
+            color: const Color(0xFFF0FDF4),
+            border: const Color(0xFFBBF7D0),
             textColor: AppTheme.primaryColor,
-            message: '💡 سينتقل تلقائياً بعد اختيارك',
+            message: 'hifz_auto_continue'.tr(),
           ),
         ],
       ),
@@ -359,17 +358,22 @@ class _TimeGoalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const minuteOptions = [10, 20, 30, 60];
-    const minuteLabels = ['١٠ دق', '٢٠ دق', '٣٠ دق', 'أكثر'];
-    const goals = [
-      ('📖', 'سور قصيرة', 'للمبتدئين والمشغولين'),
-      ('📚', 'جزء كامل', 'هدف واضح ومحدد'),
-      ('🔄', 'مراجعة', 'ما حفظته سابقاً'),
-      ('⭐', 'القرآن كاملاً', 'الهمة العالية'),
+    final minuteLabels = [
+      'hifz_time_10'.tr(),
+      'hifz_time_20'.tr(),
+      'hifz_time_30'.tr(),
+      'hifz_time_more'.tr()
+    ];
+    final goals = [
+      ('📖', 'hifz_goal_short_surahs'.tr(), 'hifz_goal_short_surahs_desc'.tr()),
+      ('📚', 'hifz_goal_full_juz'.tr(), 'hifz_goal_full_juz_desc'.tr()),
+      ('🔄', 'hifz_goal_revision'.tr(), 'hifz_goal_revision_desc'.tr()),
+      ('⭐', 'hifz_goal_full_quran'.tr(), 'hifz_goal_full_quran_desc'.tr()),
     ];
 
     return _QuestionLayout(
-      title: 'كم وقتك يومياً للحفظ؟',
-      hint: 'اختر الوقت الأنسب ليومك',
+      title: 'daily_time'.tr(),
+      hint: 'hifz_time_hint'.tr(),
       child: Column(
         children: [
           Wrap(
@@ -415,7 +419,7 @@ class _TimeGoalScreen extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              'ما هدفك؟',
+              'hifz_goal_question'.tr(),
               style: GoogleFonts.cairo(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -480,7 +484,7 @@ class _TimeGoalScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
-                'التالي',
+                'next'.tr(),
                 style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w700),
               ),
             ),
@@ -499,16 +503,16 @@ class _LearningStyleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const styles = [
-      ('👁', 'أقرأ وأكرر', 'أسلوب بصري'),
-      ('👂', 'أسمع وأردد', 'أسلوب سمعي'),
-      ('🔄', 'أمزج الطريقتين', 'أسلوب مختلط'),
-      ('❓', 'لا أعرف بعد', 'سنساعدك في الاختيار'),
+    final styles = [
+      ('👁', 'style_read_repeat'.tr(), 'style_visual'.tr()),
+      ('👂', 'style_listen_repeat'.tr(), 'style_auditory'.tr()),
+      ('🔄', 'style_mix'.tr(), 'style_mixed'.tr()),
+      ('❓', 'style_dont_know'.tr(), 'style_help_choose'.tr()),
     ];
 
     return _QuestionLayout(
-      title: 'كيف تحفظ عادةً؟',
-      hint: 'اختيارك يساعد في تخصيص طريقة الظل التفاعلي',
+      title: 'how_memorize_usually'.tr(),
+      hint: 'shadow_style_hint'.tr(),
       child: GridView.builder(
         itemCount: styles.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -576,7 +580,7 @@ class _SmartPlanScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'خطتك الذكية ✨',
+            'smart_plan_title'.tr(),
             style: GoogleFonts.cairo(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -598,7 +602,7 @@ class _SmartPlanScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'بناءً على إجاباتك:',
+                  'based_on_answers'.tr(),
                   style: GoogleFonts.cairo(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -607,17 +611,17 @@ class _SmartPlanScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '● ${_toArabicIndic(plan?.newAyahsTarget ?? 3)} آيات جديدة يومياً',
+                  '● ${context.locale.languageCode == 'ar' ? _toArabicIndic(plan?.newAyahsTarget ?? 3) : (plan?.newAyahsTarget ?? 3)} ${'new_ayahs_daily_suffix'.tr()}',
                   style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '● مراجعة ${_toArabicIndic(plan?.reviewAyahsTarget ?? 8)} آيات',
+                  '● ${'review_ayahs_text'.tr(args: [context.locale.languageCode == 'ar' ? _toArabicIndic(plan?.reviewAyahsTarget ?? 8) : (plan?.reviewAyahsTarget ?? 8).toString()])}',
                   style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '● ${plan?.estimatedCompletion ?? 'ستنهي الجزء في ٤ أشهر'} ⭐',
+                  '● ${plan?.estimatedCompletion ?? 'estimated_completion_fallback'.tr()} ⭐',
                   style: GoogleFonts.cairo(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -642,7 +646,7 @@ class _SmartPlanScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'التكيف التلقائي',
+                        'auto_adapt_title'.tr(),
                         style: GoogleFonts.cairo(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -651,7 +655,7 @@ class _SmartPlanScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'سيعدّل التطبيق خطتك كل أسبوع بناءً على أدائك',
+                        'auto_adapt_desc'.tr(),
                         style: GoogleFonts.cairo(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
@@ -683,7 +687,7 @@ class _SmartPlanScreen extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
                     : Text(
-                        'ابدأ رحلتي ✨',
+                        'start_my_journey'.tr(),
                         style: GoogleFonts.cairo(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,

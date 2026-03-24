@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,18 +26,16 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
-        body: SafeArea(
+    return Scaffold(
+      backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
+      body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'كيف تحب تجربة التسميع؟',
+                  'tasmi_onboarding_title'.tr(),
                   style: GoogleFonts.cairo(
                     fontSize: 26, 
                     fontWeight: FontWeight.bold,
@@ -44,7 +44,7 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'يمكنك تغيير هذا لاحقا من الإعدادات',
+                  'tasmi_onboarding_subtitle'.tr(),
                   style: GoogleFonts.cairo(
                     fontSize: 15, 
                     color: isDark ? Colors.white70 : Colors.grey[600],
@@ -55,13 +55,13 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                 Expanded(
                   child: ListView(
                     children: [
-                      _SectionTitle('عند الخطأ، ماذا تريد التطبيق يفعل؟', isDark),
+                      _SectionTitle('on_error_behavior_title'.tr(), isDark),
                       const SizedBox(height: 12),
                       _ChoiceCard(
                         selected: _onError == OnErrorBehavior.speakAndContinue,
                         icon: Icons.record_voice_over_rounded,
-                        title: 'ينطق الكلمة الصحيحة ويكمل',
-                        subtitle: 'مناسب للحفظ السريع',
+                        title: 'behavior_speak_continue'.tr(),
+                        subtitle: 'behavior_speak_continue_desc'.tr(),
                         onTap: () => setState(() => _onError = OnErrorBehavior.speakAndContinue),
                         isDark: isDark,
                       ),
@@ -69,8 +69,8 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                       _ChoiceCard(
                         selected: _onError == OnErrorBehavior.waitForUser,
                         icon: Icons.pause_circle_rounded,
-                        title: 'يوقف وينتظر حتى أصحح',
-                        subtitle: 'مناسب للتعلم والمراجعة',
+                        title: 'behavior_wait_user'.tr(),
+                        subtitle: 'behavior_wait_user_desc'.tr(),
                         onTap: () => setState(() => _onError = OnErrorBehavior.waitForUser),
                         isDark: isDark,
                       ),
@@ -78,32 +78,32 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                       _ChoiceCard(
                         selected: _onError == OnErrorBehavior.continueOnly,
                         icon: Icons.skip_next_rounded,
-                        title: 'يكمل بصمت',
-                        subtitle: 'للاختبار الذاتي بدون تدخل',
+                        title: 'behavior_continue_only'.tr(),
+                        subtitle: 'behavior_continue_only_desc'.tr(),
                         onTap: () => setState(() => _onError = OnErrorBehavior.continueOnly),
                         isDark: isDark,
                       ),
                       const SizedBox(height: 32),
-                      _SectionTitle('كم مرة تريد تحاول قبل تسجيل الخطأ؟', isDark),
+                      _SectionTitle('attempts_before_error_title'.tr(), isDark),
                       const SizedBox(height: 12),
                       Row(
                         children: [
                           _AttemptsChip(
-                            label: 'مرة واحدة',
+                            label: 'one_time'.tr(),
                             selected: _attempts == AttemptsMode.one,
                             onTap: () => setState(() => _attempts = AttemptsMode.one),
                             isDark: isDark,
                           ),
                           const SizedBox(width: 8),
                           _AttemptsChip(
-                            label: 'مرتان',
+                            label: 'two_times'.tr(),
                             selected: _attempts == AttemptsMode.two,
                             onTap: () => setState(() => _attempts = AttemptsMode.two),
                             isDark: isDark,
                           ),
                           const SizedBox(width: 8),
                           _AttemptsChip(
-                            label: 'ثلاث مرات',
+                            label: 'three_times'.tr(),
                             selected: _attempts == AttemptsMode.three,
                             onTap: () => setState(() => _attempts = AttemptsMode.three),
                             isDark: isDark,
@@ -111,7 +111,7 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                         ],
                       ),
                       const SizedBox(height: 32),
-                      _SectionTitle('هل تريد سماع الكلمة الصحيحة بصوت عند الخطأ؟', isDark),
+                      _SectionTitle('tts_enable_title'.tr(), isDark),
                       const SizedBox(height: 12),
                       Container(
                         decoration: BoxDecoration(
@@ -124,14 +124,14 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                           activeColor: AppTheme.accentColor,
                           onChanged: (value) => setState(() => _ttsEnabled = value),
                           title: Text(
-                            'صوت التصحيح',
+                            'correction_voice'.tr(),
                             style: GoogleFonts.cairo(
                               fontWeight: FontWeight.bold,
                               color: isDark ? Colors.white : AppTheme.primaryColor,
                             ),
                           ),
                           subtitle: Text(
-                            _ttsEnabled ? 'مفعّل' : 'معطّل',
+                            _ttsEnabled ? 'enabled'.tr() : 'disabled'.tr(),
                             style: GoogleFonts.cairo(
                               color: isDark ? Colors.white70 : Colors.grey[600],
                             ),
@@ -139,13 +139,13 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      _SectionTitle('كم تريد التطبيق صارما في التقييم؟', isDark),
+                      _SectionTitle('strictness_title'.tr(), isDark),
                       const SizedBox(height: 12),
                       _ChoiceCard(
                         selected: _strictness == StrictnessLevel.easy,
                         icon: Icons.sentiment_satisfied_rounded,
-                        title: 'متساهل',
-                        subtitle: 'الأخطاء القريبة تعد صحيحة',
+                        title: 'lenient'.tr(),
+                        subtitle: 'strictness_easy_desc'.tr(),
                         onTap: () => setState(() => _strictness = StrictnessLevel.easy),
                         isDark: isDark,
                       ),
@@ -153,8 +153,8 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                       _ChoiceCard(
                         selected: _strictness == StrictnessLevel.medium,
                         icon: Icons.sentiment_neutral_rounded,
-                        title: 'متوسط',
-                        subtitle: 'الأخطاء القريبة تحتسب منفصلة',
+                        title: 'medium'.tr(),
+                        subtitle: 'strictness_medium_desc'.tr(),
                         onTap: () => setState(() => _strictness = StrictnessLevel.medium),
                         isDark: isDark,
                       ),
@@ -162,8 +162,8 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                       _ChoiceCard(
                         selected: _strictness == StrictnessLevel.strict,
                         icon: Icons.sentiment_very_dissatisfied_rounded,
-                        title: 'صارم',
-                        subtitle: 'أي انحراف عن النص = خطأ',
+                        title: 'strict'.tr(),
+                        subtitle: 'strictness_strict_desc'.tr(),
                         onTap: () => setState(() => _strictness = StrictnessLevel.strict),
                         isDark: isDark,
                       ),
@@ -184,7 +184,7 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
                       shadowColor: AppTheme.primaryColor.withValues(alpha: 0.4),
                     ),
                     child: Text(
-                      'ابدأ التسميع', 
+                      'start_tasmi_button'.tr(), 
                       style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -193,7 +193,6 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
             ),
           ),
         ),
-      ),
     );
   }
 

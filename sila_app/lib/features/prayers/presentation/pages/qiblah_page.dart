@@ -52,9 +52,9 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
           : StreamBuilder<CompassEvent>(
               stream: FlutterCompass.events,
               builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error reading compass: ${snapshot.error}'));
-                }
+               if (snapshot.hasError) {
+                 return Center(child: Text('error_reading_compass'.tr(args: [snapshot.error.toString()])));
+               }
 
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -62,18 +62,18 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
 
                 double? direction = snapshot.data?.heading;
 
-                // If device doesn't support compass
-                if (direction == null) {
-                   return const Center(child: Text("Device does not have sensors"));
-                }
+                 // If device doesn't support compass
+                 if (direction == null) {
+                    return Center(child: Text('no_compass'.tr()));
+                 }
 
                 // Get Qibla Angle from coordinates
                 final prayerState = ref.watch(prayerTimesControllerProvider);
                 
-                return prayerState.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e,s) => Center(child: Text("Error location: $e")),
-                  data: (timesEntity) {
+                 return prayerState.when(
+                   loading: () => const Center(child: CircularProgressIndicator()),
+                   error: (e,s) => Center(child: Text('error_location'.tr(args: [e.toString()]))),
+                   data: (timesEntity) {
                      final coordinates = Coordinates(
                        timesEntity.latitude, 
                        timesEntity.longitude
@@ -146,12 +146,12 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
                              ),
                            ),
                            
-                           const SizedBox(height: 50),
-                           const Text(
-                             "يرجى وضع الجهاز على سطح أفقي",
-                             textAlign: TextAlign.center,
-                             style: TextStyle(color: Colors.grey),
-                           ),
+                            const SizedBox(height: 50),
+                            Text(
+                              'place_device_flat'.tr(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.grey),
+                            ),
                          ],
                        ),
                      );

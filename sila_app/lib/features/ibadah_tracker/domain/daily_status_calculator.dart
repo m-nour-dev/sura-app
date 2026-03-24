@@ -6,7 +6,7 @@ class DailyStatusCalculator {
   static final Random _random = Random();
   static final Map<int, String> _dailyTextCache = {};
 
-  static int totalCount({required bool isMale}) => isMale ? 16 : 11;
+  static int totalCount({required bool isMale}) => isMale ? 15 : 10;
 
   static int completedCount(IbadahRecord record, {required bool isMale}) {
     var done = 0;
@@ -36,7 +36,7 @@ class DailyStatusCalculator {
       record.readAzkarMasa,
       record.didTasbih,
       (record.didHifz || record.didTasmi),
-      record.rememberedAllah,
+      // record.rememberedAllah, // Removed as per request
       !isMale,
     ];
 

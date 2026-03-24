@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
+import 'package:sila_app/features/ibadah_tracker/presentation/controllers/custom_ibadah_controller.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/ibadah_detail_sheet.dart';
 
@@ -22,12 +25,21 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
     final h = HijriCalendar.now();
     // Using translation keys for Hijri months
     final monthKey = 'hijri_months.${h.hMonth}';
-    return '${h.hDay} ${monthKey.tr()} ${h.hYear}هـ';
+    final suffix = "hijri_suffix".tr();
+    
+    // Check if current locale is Turkish
+    if (context.locale.languageCode == 'tr') {
+      return '${h.hDay} ${monthKey.tr()} ${h.hYear} $suffix';
+    }
+    
+    // Default Arabic format
+    return '${h.hDay} ${monthKey.tr()} ${h.hYear} $suffix';
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(ibadahTrackerControllerProvider);
+    final customIbadahs = ref.watch(customIbadahListProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF0F172A) : const Color(0xFFFDFBF7);
 
@@ -43,9 +55,11 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
 
     return Scaffold(
       backgroundColor: bg,
-      body: state.when(
-        data: (data) {
-          final hijriDate = _hijriArabicDate();
+      body: Directionality(
+        textDirection: context.locale.languageCode == 'tr' ? ui.TextDirection.ltr : ui.TextDirection.rtl,
+        child: state.when(
+          data: (data) {
+            final hijriDate = _hijriArabicDate();
           final weekday = DateTime.now().weekday;
           final dayNameKey = 'weekdays.${[
             'monday',
@@ -153,7 +167,10 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                       _row('azkar_masa', '🌆', 'ibadah_names.azkar_masa'.tr(), data),
                       _row('hifz', '📚', 'ibadah_names.hifz'.tr(), data),
                       _row('tasbih', '💎', 'ibadah_names.tasbih'.tr(), data),
-                      _row('dhikr', '🔵', 'ibadah_names.dhikr'.tr(), data),
+                      // _row('dhikr', '🔵', 'ibadah_names.dhikr'.tr(), data),
+                      const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                      ...customIbadahs.map((name) => _customRow(name, data)),
+                      _addCustomIbadahButton(),
                     ],
                   ),
                 ),
@@ -187,6 +204,171 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => Center(child: Text('loading_tracker_error'.tr())),
       ),
+      ),
+    );
+  }
+
+  Widget _addCustomIbadahButton() {
+    return InkWell(
+      onTap: () => _showAddCustomDialog(context),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        width: double.infinity,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.add_circle_outline, color: Color(0xFFD97706), size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'add_custom_ibadah_title'.tr(),
+              style: GoogleFonts.getFont('Cairo',
+                  color: const Color(0xFFD97706), fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showAddCustomDialog(BuildContext context) async {
+    final controller = TextEditingController();
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('add_custom_ibadah_title'.tr(), style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'custom_ibadah_hint'.tr(),
+            labelText: 'custom_ibadah_name'.tr(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('cancel'.tr(), style: GoogleFonts.cairo()),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF064E3B)),
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                ref.read(customIbadahListProvider.notifier).add(controller.text.trim());
+                Navigator.pop(context);
+              }
+            },
+            child: Text('add'.tr(), style: GoogleFonts.cairo(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _customRow(String name, IbadahTrackerState s) {
+    // Parse custom status from personalNote JSON if available
+    final todayNote = s.today.personalNote ?? '{}';
+    final yesterdayNote = s.yesterday?.personalNote ?? '{}';
+    
+    bool todayStatus = false;
+    bool yesterdayStatus = false;
+    
+    try {
+      final tMap = jsonDecode(todayNote) as Map<String, dynamic>;
+      if (tMap.containsKey('custom') && tMap['custom'] is Map) {
+         todayStatus = tMap['custom'][name] == true;
+      }
+    } catch (_) {}
+
+    try {
+      final yMap = jsonDecode(yesterdayNote) as Map<String, dynamic>;
+      if (yMap.containsKey('custom') && yMap['custom'] is Map) {
+         yesterdayStatus = yMap['custom'][name] == true;
+      }
+    } catch (_) {}
+
+    return GestureDetector(
+      onLongPress: () => _showDeleteCustomDialog(context, name),
+      onTap: () async {
+        final currentNote = s.today.personalNote ?? '{}';
+        Map<String, dynamic> noteMap = {};
+        try {
+          noteMap = jsonDecode(currentNote);
+        } catch (_) {}
+        
+        if (!noteMap.containsKey('custom')) noteMap['custom'] = {};
+        noteMap['custom'][name] = !todayStatus;
+        
+        await ref.read(ibadahTrackerControllerProvider.notifier)
+            .updatePersonalNote(jsonEncode(noteMap));
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.5)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: s.yesterday != null ? 3 : 4,
+              child: Row(
+                children: [
+                  const Text('✨', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 8),
+                  Text(name,
+                      style: GoogleFonts.getFont('Cairo', fontSize: 13)),
+                ],
+              ),
+            ),
+            if (s.yesterday != null)
+              Expanded(
+                child: Center(
+                  child: Text(
+                    yesterdayStatus ? '✅' : '❌',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            Expanded(
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: (todayStatus ? const Color(0xFF064E3B) : Colors.red).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    todayStatus ? '✅' : '❌',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showDeleteCustomDialog(BuildContext context, String name) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('delete_custom_ibadah'.tr(), style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        content: Text('delete_custom_ibadah_confirm'.tr(), style: GoogleFonts.cairo()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('cancel'.tr(), style: GoogleFonts.cairo()),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(customIbadahListProvider.notifier).remove(name);
+              Navigator.pop(context);
+            },
+            child: Text('delete'.tr(), style: GoogleFonts.cairo(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -203,14 +385,14 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
         children: [
           Expanded(
             flex: showYesterday ? 3 : 4,
-            child: Text('العبادة',
+            child: Text('tracker_table.worship'.tr(),
                 style: GoogleFonts.getFont('Cairo',
                     fontSize: 12, color: Colors.grey[500])),
           ),
           if (showYesterday)
             Expanded(
               child: Text(
-                'أمس',
+                'tracker_table.yesterday'.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.getFont('Cairo',
                     fontSize: 12, color: Colors.grey[500]),
@@ -218,7 +400,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
             ),
           Expanded(
             child: Text(
-              'اليوم',
+              'tracker_table.today'.tr(),
               textAlign: TextAlign.center,
               style: GoogleFonts.getFont(
                 'Cairo',

@@ -27,24 +27,35 @@ const WirdSettingsSchema = CollectionSchema(
       name: r'currentPage',
       type: IsarType.long,
     ),
-    r'khatmaStartDate': PropertySchema(
+    r'goalType': PropertySchema(
       id: 2,
+      name: r'goalType',
+      type: IsarType.byte,
+      enumMap: _WirdSettingsgoalTypeEnumValueMap,
+    ),
+    r'goalValue': PropertySchema(
+      id: 3,
+      name: r'goalValue',
+      type: IsarType.long,
+    ),
+    r'hasConfiguredGoal': PropertySchema(
+      id: 4,
+      name: r'hasConfiguredGoal',
+      type: IsarType.bool,
+    ),
+    r'khatmaStartDate': PropertySchema(
+      id: 5,
       name: r'khatmaStartDate',
       type: IsarType.dateTime,
     ),
     r'lastCompletionDate': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'lastCompletionDate',
       type: IsarType.dateTime,
     ),
     r'pagesPerDay': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'pagesPerDay',
-      type: IsarType.long,
-    ),
-    r'targetPageForToday': PropertySchema(
-      id: 5,
-      name: r'targetPageForToday',
       type: IsarType.long,
     )
   },
@@ -79,10 +90,12 @@ void _wirdSettingsSerialize(
 ) {
   writer.writeLong(offsets[0], object.bookmarkPage);
   writer.writeLong(offsets[1], object.currentPage);
-  writer.writeDateTime(offsets[2], object.khatmaStartDate);
-  writer.writeDateTime(offsets[3], object.lastCompletionDate);
-  writer.writeLong(offsets[4], object.pagesPerDay);
-  writer.writeLong(offsets[5], object.targetPageForToday);
+  writer.writeByte(offsets[2], object.goalType.index);
+  writer.writeLong(offsets[3], object.goalValue);
+  writer.writeBool(offsets[4], object.hasConfiguredGoal);
+  writer.writeDateTime(offsets[5], object.khatmaStartDate);
+  writer.writeDateTime(offsets[6], object.lastCompletionDate);
+  writer.writeLong(offsets[7], object.pagesPerDay);
 }
 
 WirdSettings _wirdSettingsDeserialize(
@@ -94,10 +107,15 @@ WirdSettings _wirdSettingsDeserialize(
   final object = WirdSettings();
   object.bookmarkPage = reader.readLongOrNull(offsets[0]);
   object.currentPage = reader.readLong(offsets[1]);
+  object.goalType =
+      _WirdSettingsgoalTypeValueEnumMap[reader.readByteOrNull(offsets[2])] ??
+          WirdGoalType.page;
+  object.goalValue = reader.readLong(offsets[3]);
+  object.hasConfiguredGoal = reader.readBool(offsets[4]);
   object.id = id;
-  object.khatmaStartDate = reader.readDateTimeOrNull(offsets[2]);
-  object.lastCompletionDate = reader.readDateTimeOrNull(offsets[3]);
-  object.pagesPerDay = reader.readLong(offsets[4]);
+  object.khatmaStartDate = reader.readDateTimeOrNull(offsets[5]);
+  object.lastCompletionDate = reader.readDateTimeOrNull(offsets[6]);
+  object.pagesPerDay = reader.readLong(offsets[7]);
   return object;
 }
 
@@ -113,17 +131,34 @@ P _wirdSettingsDeserializeProp<P>(
     case 1:
       return (reader.readLong(offset)) as P;
     case 2:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (_WirdSettingsgoalTypeValueEnumMap[
+              reader.readByteOrNull(offset)] ??
+          WirdGoalType.page) as P;
     case 3:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 4:
       return (reader.readLong(offset)) as P;
+    case 4:
+      return (reader.readBool(offset)) as P;
     case 5:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 6:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 7:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _WirdSettingsgoalTypeEnumValueMap = {
+  'page': 0,
+  'juz': 1,
+  'hizb': 2,
+};
+const _WirdSettingsgoalTypeValueEnumMap = {
+  0: WirdGoalType.page,
+  1: WirdGoalType.juz,
+  2: WirdGoalType.hizb,
+};
 
 Id _wirdSettingsGetId(WirdSettings object) {
   return object.id;
@@ -345,6 +380,128 @@ extension WirdSettingsQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalTypeEqualTo(WirdGoalType value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'goalType',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalTypeGreaterThan(
+    WirdGoalType value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'goalType',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalTypeLessThan(
+    WirdGoalType value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'goalType',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalTypeBetween(
+    WirdGoalType lower,
+    WirdGoalType upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'goalType',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalValueEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'goalValue',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalValueGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'goalValue',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalValueLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'goalValue',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      goalValueBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'goalValue',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
+      hasConfiguredGoalEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'hasConfiguredGoal',
+        value: value,
       ));
     });
   }
@@ -605,62 +762,6 @@ extension WirdSettingsQueryFilter
       ));
     });
   }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
-      targetPageForTodayEqualTo(int value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'targetPageForToday',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
-      targetPageForTodayGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'targetPageForToday',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
-      targetPageForTodayLessThan(
-    int value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'targetPageForToday',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterFilterCondition>
-      targetPageForTodayBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'targetPageForToday',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
 }
 
 extension WirdSettingsQueryObject
@@ -694,6 +795,44 @@ extension WirdSettingsQuerySortBy
       sortByCurrentPageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentPage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> sortByGoalType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> sortByGoalTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> sortByGoalValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalValue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> sortByGoalValueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalValue', Sort.desc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
+      sortByHasConfiguredGoal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasConfiguredGoal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
+      sortByHasConfiguredGoalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasConfiguredGoal', Sort.desc);
     });
   }
 
@@ -737,20 +876,6 @@ extension WirdSettingsQuerySortBy
       return query.addSortBy(r'pagesPerDay', Sort.desc);
     });
   }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
-      sortByTargetPageForToday() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'targetPageForToday', Sort.asc);
-    });
-  }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
-      sortByTargetPageForTodayDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'targetPageForToday', Sort.desc);
-    });
-  }
 }
 
 extension WirdSettingsQuerySortThenBy
@@ -778,6 +903,44 @@ extension WirdSettingsQuerySortThenBy
       thenByCurrentPageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'currentPage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> thenByGoalType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalType', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> thenByGoalTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalType', Sort.desc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> thenByGoalValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalValue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy> thenByGoalValueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'goalValue', Sort.desc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
+      thenByHasConfiguredGoal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasConfiguredGoal', Sort.asc);
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
+      thenByHasConfiguredGoalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'hasConfiguredGoal', Sort.desc);
     });
   }
 
@@ -833,20 +996,6 @@ extension WirdSettingsQuerySortThenBy
       return query.addSortBy(r'pagesPerDay', Sort.desc);
     });
   }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
-      thenByTargetPageForToday() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'targetPageForToday', Sort.asc);
-    });
-  }
-
-  QueryBuilder<WirdSettings, WirdSettings, QAfterSortBy>
-      thenByTargetPageForTodayDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'targetPageForToday', Sort.desc);
-    });
-  }
 }
 
 extension WirdSettingsQueryWhereDistinct
@@ -860,6 +1009,25 @@ extension WirdSettingsQueryWhereDistinct
   QueryBuilder<WirdSettings, WirdSettings, QDistinct> distinctByCurrentPage() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'currentPage');
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QDistinct> distinctByGoalType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'goalType');
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QDistinct> distinctByGoalValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'goalValue');
+    });
+  }
+
+  QueryBuilder<WirdSettings, WirdSettings, QDistinct>
+      distinctByHasConfiguredGoal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'hasConfiguredGoal');
     });
   }
 
@@ -880,13 +1048,6 @@ extension WirdSettingsQueryWhereDistinct
   QueryBuilder<WirdSettings, WirdSettings, QDistinct> distinctByPagesPerDay() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'pagesPerDay');
-    });
-  }
-
-  QueryBuilder<WirdSettings, WirdSettings, QDistinct>
-      distinctByTargetPageForToday() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'targetPageForToday');
     });
   }
 }
@@ -911,6 +1072,26 @@ extension WirdSettingsQueryProperty
     });
   }
 
+  QueryBuilder<WirdSettings, WirdGoalType, QQueryOperations>
+      goalTypeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'goalType');
+    });
+  }
+
+  QueryBuilder<WirdSettings, int, QQueryOperations> goalValueProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'goalValue');
+    });
+  }
+
+  QueryBuilder<WirdSettings, bool, QQueryOperations>
+      hasConfiguredGoalProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'hasConfiguredGoal');
+    });
+  }
+
   QueryBuilder<WirdSettings, DateTime?, QQueryOperations>
       khatmaStartDateProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -928,13 +1109,6 @@ extension WirdSettingsQueryProperty
   QueryBuilder<WirdSettings, int, QQueryOperations> pagesPerDayProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'pagesPerDay');
-    });
-  }
-
-  QueryBuilder<WirdSettings, int, QQueryOperations>
-      targetPageForTodayProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'targetPageForToday');
     });
   }
 }

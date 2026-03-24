@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
@@ -34,7 +35,7 @@ class TasmiActionButton extends StatelessWidget {
       case TasmiStatus.listening:
         return _buildFullWidthButton(
           context: context,
-          label: 'إيقاف التسميع',
+          label: 'tasmi_action_stop'.tr(),
           icon: Icons.stop_rounded,
           onPressed: onStop,
           color: Colors.red[700],
@@ -45,7 +46,7 @@ class TasmiActionButton extends StatelessWidget {
             Expanded(
               child: _buildFullWidthButton(
                 context: context,
-                label: 'عرض النتائج',
+                label: 'tasmi_action_results'.tr(),
                 icon: Icons.analytics_rounded,
                 onPressed: onShowResults,
                 color: primaryColor,
@@ -55,7 +56,7 @@ class TasmiActionButton extends StatelessWidget {
             Expanded(
               child: _buildFullWidthButton(
                 context: context,
-                label: 'إعادة',
+                label: 'tasmi_action_repeat'.tr(),
                 icon: Icons.refresh_rounded,
                 onPressed: onRestart,
                 isOutlined: true,
@@ -69,7 +70,7 @@ class TasmiActionButton extends StatelessWidget {
       default:
         return _buildFullWidthButton(
           context: context,
-          label: 'ابدأ التسميع',
+          label: 'tasmi_action_start'.tr(),
           icon: Icons.mic_rounded,
           onPressed: onStart,
           color: primaryColor,

@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quran/quran.dart' as quran;
@@ -72,12 +73,10 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
     final bgColor = isDark ? const Color(0xFF0F172A) : Colors.grey[50];
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
 
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: bgColor,
         appBar: TasmiPageHeader(
-          surahName: 'سورة ${quran.getSurahNameArabic(widget.surahNumber)}',
+          surahName: '${'surah_label'.tr()} ${quran.getSurahNameArabic(widget.surahNumber)}',
           fromAya: widget.fromAya,
           toAya: widget.toAya,
           isListening: state.status == TasmiStatus.listening,
@@ -106,9 +105,9 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                           MicHealthStatus.stalled => Colors.red,
                         };
                         final label = switch (status) {
-                          MicHealthStatus.active => 'يستمع...',
-                          MicHealthStatus.reconnecting => 'يعيد الاتصال...',
-                          MicHealthStatus.stalled => 'توقف - اضغط للاعادة',
+                          MicHealthStatus.active => 'listening_status'.tr(),
+                          MicHealthStatus.reconnecting => 'reconnecting_status'.tr(),
+                          MicHealthStatus.stalled => 'stalled_status'.tr(),
                         };
 
                         return Row(
@@ -157,7 +156,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       );
                     },
                     icon: const Icon(Icons.tune_rounded, size: 18),
-                    label: const Text('إعدادات التسميع', style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+                    label: Text('tasmi_settings'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -194,7 +193,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            'اضغط ابدأ للبدء بالتسميع', 
+                            'press_start_tasmi'.tr(), 
                             style: TextStyle(
                               fontSize: 18, 
                               fontFamily: 'Cairo',
@@ -204,7 +203,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'اقرأ بوضوح وصوت مسموع لنتائج أفضل', 
+                            'speak_clearly_hint'.tr(), 
                             style: TextStyle(
                               fontSize: 14, 
                               fontFamily: 'Cairo',
@@ -270,7 +269,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                   child: ElevatedButton.icon(
                     onPressed: controller.resumeAfterUserPrompt,
                     icon: const Icon(Icons.play_arrow_rounded, size: 28),
-                    label: const Text('متابعة التسميع', style: TextStyle(fontSize: 18, fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+                    label: Text('continue_tasmi'.tr(), style: const TextStyle(fontSize: 18, fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
@@ -293,20 +292,17 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
               ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  void _showResultsBottomSheet(BuildContext context, TasmiState state, Color primaryColor, Color accentColor, bool isDark) {
+    void _showResultsBottomSheet(BuildContext context, TasmiState state, Color primaryColor, Color accentColor, bool isDark) {
     try {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        builder: (sheetContext) => Directionality(
-          textDirection: ui.TextDirection.rtl,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        builder: (sheetContext) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -331,7 +327,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                   ),
                 ),
                 Text(
-                  'نتائج التسميع',
+                  'tasmi_results'.tr(),
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -367,7 +363,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                             ),
                           ),
                           Text(
-                            'دقة الحفظ',
+                            'memorization_accuracy'.tr(),
                             style: TextStyle(
                               fontSize: 14, 
                               fontFamily: 'Cairo',
@@ -391,7 +387,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _StatChip(
-                        label: 'صحيح',
+                        label: 'correct_label'.tr(),
                         value: state.stats.correctCount,
                         color: Colors.green,
                         icon: Icons.check_circle_rounded,
@@ -399,7 +395,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       ),
                       Container(width: 1, height: 40, color: isDark ? Colors.white10 : Colors.grey[300]),
                       _StatChip(
-                        label: 'قريب',
+                        label: 'close_match_label'.tr(),
                         value: state.stats.closeErrorCount,
                         color: accentColor,
                         icon: Icons.warning_rounded,
@@ -407,7 +403,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       ),
                       Container(width: 1, height: 40, color: isDark ? Colors.white10 : Colors.grey[300]),
                       _StatChip(
-                        label: 'خطأ',
+                        label: 'wrong_label'.tr(),
                         value: state.stats.wrongCount,
                         color: Colors.red,
                         icon: Icons.cancel_rounded,
@@ -423,7 +419,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       Icon(Icons.history_edu_rounded, color: accentColor),
                       const SizedBox(width: 8),
                       Text(
-                        'الكلمات التي تحتاج مراجعة',
+                        'words_needing_review'.tr(),
                         style: TextStyle(
                           fontWeight: FontWeight.bold, 
                           fontFamily: 'Cairo',
@@ -475,15 +471,16 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                               color: isDark ? Colors.white10 : Colors.grey[200],
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Text(
-                              'آية ${e.verseNumber}',
-                              style: TextStyle(
-                                fontSize: 12, 
-                                fontFamily: 'Cairo',
-                                color: isDark ? Colors.white70 : Colors.black54,
-                                fontWeight: FontWeight.bold,
+                              child: Text(
+                                '${'ayah_label'.tr()} ${e.verseNumber}',
+                                style: TextStyle(
+                                  fontSize: 12, 
+                                  fontFamily: 'Cairo',
+                                  color: isDark ? Colors.white70 : Colors.black54,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+
                           ),
                         );
                       },
@@ -493,7 +490,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                     TextButton(
                       onPressed: () {},
                       child: Text(
-                        'عرض كل الأخطاء (${state.stats.errorList.length})',
+                        'view_all_errors'.tr(args: [state.stats.errorList.length.toString()]),
                         style: TextStyle(fontFamily: 'Cairo', color: primaryColor, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -519,7 +516,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                     },
                     icon: Icon(Icons.favorite_rounded, color: accentColor, size: 24),
                     label: Text(
-                      'إهداء الثواب', 
+                      'gift_thawab'.tr(), 
                       style: TextStyle(
                         fontSize: 18, 
                         fontFamily: 'Cairo', 
@@ -541,16 +538,16 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     onPressed: () => Navigator.pop(sheetContext),
-                    child: const Text('حسنا', style: TextStyle(fontSize: 18, fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+                    child: Text('understood'.tr(), style: const TextStyle(fontSize: 18, fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
                   ),
                 ),
                 SizedBox(height: MediaQuery.of(sheetContext).padding.bottom),
               ],
             ),
           ),
-        ),
       );
     } catch (e) {
+
       debugPrint('❌ Error showing bottom sheet: $e');
     }
   }

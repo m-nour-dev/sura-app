@@ -1,10 +1,13 @@
 
+import 'package:sila_app/core/utils/surah_utils.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
 
-String _toArabicNumber(String input) {
+String _toArabicNumber(BuildContext context, String input) {
+  if (context.locale.languageCode != 'ar') return input;
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
   for (int i = 0; i < english.length; i++) {
@@ -42,7 +45,6 @@ class SurahListItem extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
-            textDirection: TextDirection.rtl,
             children: [
               // Number Badge
               Container(
@@ -54,7 +56,7 @@ class SurahListItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  _toArabicNumber(surahNumber.toString()),
+                  _toArabicNumber(context, surahNumber.toString()),
                   style: GoogleFonts.cairo(
                     color: isDark ? AppTheme.accentColor : AppTheme.primaryColor,
                     fontWeight: FontWeight.bold,
@@ -67,10 +69,9 @@ class SurahListItem extends StatelessWidget {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  textDirection: TextDirection.rtl,
                   children: [
                     Text(
-                      'سورة ${quran.getSurahNameArabic(surahNumber)}',
+                      'surah_name_prefix'.tr(args: [SurahUtils.getLocalizedSurahName(context, surahNumber)]),
                       style: GoogleFonts.cairo(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -78,7 +79,7 @@ class SurahListItem extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${_toArabicNumber(quran.getVerseCount(surahNumber).toString())} آية',
+                      'ayah_count_suffix'.tr(args: [_toArabicNumber(context, quran.getVerseCount(surahNumber).toString())]),
                       style: GoogleFonts.cairo(
                         color: isDark ? Colors.white70 : Colors.grey[600],
                         fontSize: 14,
@@ -97,7 +98,7 @@ class SurahListItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  isMakki ? 'مكية' : 'مدنية',
+                  isMakki ? 'makki'.tr() : 'madani'.tr(),
                   style: GoogleFonts.cairo(
                     color: isDark ? Colors.white70 : (isMakki ? Colors.amber[800] : Colors.blue[800]),
                     fontWeight: FontWeight.bold,

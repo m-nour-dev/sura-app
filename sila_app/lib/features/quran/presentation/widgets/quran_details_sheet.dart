@@ -1,9 +1,11 @@
 import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran_lib;
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
@@ -44,7 +46,12 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
     final quranDataAsync = ref.watch(quranDataProvider);
     final settings = widget.settings;
     final isDark = settings.themeMode == QuranThemeMode.dark;
-    final title = widget.showTafsir ? 'التفسير الميسّر' : 'Türkçe Çeviri';
+    
+    // Determine title based on language
+    final isArabic = context.locale.languageCode == 'ar';
+    final title = widget.showTafsir 
+        ? (isArabic ? 'التفسير الميسّر' : 'Tefsir')
+        : (isArabic ? 'الترجمة' : 'Çeviri');
 
     return quranDataAsync.when(
       data: (quranData) {
@@ -52,7 +59,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
             ? (quranData.tafsir['${activeSurah}_$activeAyah'] ?? 'لا يوجد تفسير متوفر حالياً')
             : (quranData.translation['${activeSurah}_$activeAyah'] ?? 'Çeviri bulunamadı');
         
-        final surahName = quran_lib.getSurahNameArabic(activeSurah);
+        final surahName = SurahUtils.getLocalizedSurahName(context, activeSurah);
         final verseText = quran_lib.getVerse(activeSurah, activeAyah);
 
         return BackdropFilter(
@@ -121,7 +128,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                                 color: _getTextColor(settings.themeMode),
                               ),
                             ),
-                            Text('سورة $surahName - آية $activeAyah',
+                            Text('surah_ayah_label'.tr(args: [surahName, activeAyah.toString()]),
                               style: GoogleFonts.cairo(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,

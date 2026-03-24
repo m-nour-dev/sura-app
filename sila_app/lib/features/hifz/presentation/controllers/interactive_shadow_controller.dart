@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
@@ -335,7 +336,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
 
   Future<void> onUserRecited(String recitedText) async {
     if (recitedText.trim().isEmpty) {
-      state = state.copyWith(errorMessage: 'لم يتم التقاط تلاوة واضحة. حاول مرة أخرى.');
+      state = state.copyWith(errorMessage: 'error_capture_failed'.tr());
       return;
     }
 
@@ -470,14 +471,14 @@ class InteractiveShadowController extends _$InteractiveShadowController {
 
         state = state.copyWith(
           wrongWords: state.wrongWords + 1,
-          errorMessage: 'غير صحيحة. تلميح: $hint',
+          errorMessage: 'error_wrong_hint'.tr(args: [hint]),
         );
         if (_settings.playCorrectOnError) {
           await _playVerseAudio();
         }
       } else {
         final left = attemptsBeforeHint - currentAttempts;
-        state = state.copyWith(errorMessage: 'حاول مرة أخرى (${left} متبقية)');
+        state = state.copyWith(errorMessage: 'error_try_again_attempts'.tr(args: [left.toString()]));
       }
       return;
     }
@@ -550,7 +551,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       if (state.currentStage == 2) {
         state = state.copyWith(
           isMicListening: false,
-          errorMessage: 'اضغط المايك لتختبر نفسك بالصوت أو تابع للمرحلة التالية.',
+          errorMessage: 'mic_prompt_stage_2'.tr(),
         );
       } else {
         await nextStageOrVerse();
@@ -567,7 +568,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     if (!available) {
       state = state.copyWith(
         isMicListening: false,
-        errorMessage: 'تعذر تشغيل الميكروفون الآن',
+        errorMessage: 'error_mic_init'.tr(),
       );
       return;
     }
@@ -608,12 +609,12 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       }
 
       if (attempt < attempts) {
-        state = state.copyWith(errorMessage: 'لم يلتقط الصوت بوضوح. سنحاول مرة أخرى...');
+        state = state.copyWith(errorMessage: 'error_mic_retry'.tr());
         await Future<void>.delayed(const Duration(milliseconds: 500));
       }
     }
 
-    state = state.copyWith(errorMessage: 'لم يتم التقاط التلاوة. قرّب الهاتف وتحدث بوضوح ثم أعد المحاولة.');
+    state = state.copyWith(errorMessage: 'error_mic_final'.tr());
   }
 
   Future<void> _stopMic() async {

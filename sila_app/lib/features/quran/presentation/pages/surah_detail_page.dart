@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
@@ -80,7 +82,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
         final firstSurahOnPage = surahData.isNotEmpty ? surahData[0]['surah'] as int : 1;
         final firstAyahOnPage = surahData.isNotEmpty ? surahData[0]['start'] as int : 1;
         final currentJuz = quran.getJuzNumber(firstSurahOnPage, firstAyahOnPage);
-        final currentSurahName = quran.getSurahNameArabic(firstSurahOnPage);
+        final currentSurahName = SurahUtils.getLocalizedSurahName(context, firstSurahOnPage);
 
         return Scaffold(
           backgroundColor: QuranUIUtils.getBackgroundColor(settings.themeMode),
@@ -134,7 +136,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
       title: Column(
         children: [
           Text(
-            'سورة $surahName',
+            'surah_label'.tr(args: [surahName]),
             style: TextStyle(
               color: iconColor,
               fontWeight: FontWeight.bold,
@@ -143,7 +145,10 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
             ),
           ),
           Text(
-            'صفحة $_currentPage، جزء $juz',
+            'page_with_juz_label'.tr(args: [
+              _currentPage.toString(),
+              juz.toString()
+            ]),
             style: GoogleFonts.cairo(
               color: iconColor.withOpacity(0.8),
               fontSize: 12,
@@ -306,7 +311,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
       ),
       child: Center(
         child: Text(
-          "سورة ${quran.getSurahNameArabic(surahNum)}",
+          'surah_label'.tr(args: [SurahUtils.getLocalizedSurahName(context, surahNum)]),
           style: TextStyle(fontFamily: 'Amiri', fontSize: 24, fontWeight: FontWeight.bold, color: QuranUIUtils.getTextColor(settings.themeMode)),
         ),
       ),
@@ -387,7 +392,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     setState(() => _isAudioBuffering = true);
     try {
       final url = ref.read(reciterControllerProvider.notifier).buildAyahUrl(surahNum, ayahNum);
-      await ref.read(audioControllerProvider.notifier).playAudio(url, surahName: quran.getSurahNameArabic(surahNum), surahNumber: surahNum, ayahNumber: ayahNum);
+      await ref.read(audioControllerProvider.notifier).playAudio(url, surahName: SurahUtils.getLocalizedSurahName(context, surahNum), surahNumber: surahNum, ayahNumber: ayahNum);
     } catch (e) { print(e); } finally { if (mounted) setState(() => _isAudioBuffering = false); }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 
 class TafsirService {
@@ -5,7 +6,11 @@ class TafsirService {
 
   static Future<void> loadTafsir() async {
     try {
-      final String jsonString = await rootBundle.loadString('assets/data/tafseer.json');
+      final languageCode = Intl.getCurrentLocale();
+      final isTurkish = languageCode.startsWith('tr');
+      final filePath = isTurkish ? 'assets/data/tafseer_tr.json' : 'assets/data/tafseer.json';
+      
+      final String jsonString = await rootBundle.loadString(filePath);
       // Parse JSON and cache by surah number
       // Format: {"1": {"1": "تفسير الآية 1", "2": "تفسير الآية 2"}}
     } catch (e) {

@@ -64,6 +64,8 @@ class NotificationService {
         onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
       );
 
+      await _createNotificationChannel();
+
       final launchDetails =
           await _notifications.getNotificationAppLaunchDetails();
       final launchPayload = launchDetails?.notificationResponse?.payload;
@@ -71,30 +73,26 @@ class NotificationService {
         handleNotificationPayload(launchPayload);
       }
 
-      await FirebaseMessaging.instance.requestPermission();
-
-      await requestPermissions();
-
       try {
+        await FirebaseMessaging.instance.requestPermission();
         await FirebaseMessaging.instance.subscribeToTopic('all_users');
         await FirebaseMessaging.instance.subscribeToTopic('updates');
+
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          if (message.data['type'] == 'update') {
+            _showUpdateNotification(message);
+          }
+        });
+
+        FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+          if (message.data['type'] == 'update') {
+            _showUpdateNotification(message);
+          }
+        });
       } catch (e) {
-        debugPrint('FCM topic subscription failed: $e');
+        debugPrint('Firebase Messaging setup failed: $e');
       }
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        if (message.data['type'] == 'update') {
-          _showUpdateNotification(message);
-        }
-      });
-
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        if (message.data['type'] == 'update') {
-          _showUpdateNotification(message);
-        }
-      });
-
-      await _createNotificationChannel();
       _initialized = true;
       debugPrint('NotificationService: Initialized');
     } catch (e) {
@@ -133,47 +131,65 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    if (await Permission.notification.isDenied ||
-        await Permission.notification.isRestricted) {
-      await Permission.notification.request();
+    debugPrint('🔔 Requesting notification permissions...');
+
+    // Step 1: POST_NOTIFICATIONS (Android 13+)
+    try {
+      final status = await Permission.notification.status;
+      debugPrint('Notification permission status: $status');
+
+      if (!status.isGranted) {
+        final result = await Permission.notification.request();
+        debugPrint('Notification permission result: $result');
+      }
+    } catch (e) {
+      debugPrint('❌ POST_NOTIFICATIONS error: $e');
     }
 
-    if (await Permission.scheduleExactAlarm.isDenied) {
-      await Permission.scheduleExactAlarm.request();
+    // Step 2: SCHEDULE_EXACT_ALARM (Android 12+)
+    try {
+      final exactStatus = await Permission.scheduleExactAlarm.status;
+      debugPrint('Exact alarm status: $exactStatus');
+
+      if (!exactStatus.isGranted) {
+        final result = await Permission.scheduleExactAlarm.request();
+        debugPrint('Exact alarm result: $result');
+
+        if (!result.isGranted) {
+          // Open settings so user can grant manually
+          debugPrint('⚠️ User must grant exact alarm in settings');
+          await openAppSettings();
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ SCHEDULE_EXACT_ALARM error: $e');
     }
 
-    final android = _notifications.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-    if (android != null) {
-      return await android.requestNotificationsPermission() ?? false;
-    }
-    final ios = _notifications.resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>();
-    if (ios != null) {
-      return await ios.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          ) ??
-          false;
-    }
-    return true;
+    debugPrint('✅ Permission requests complete');
+    return await Permission.notification.isGranted;
   }
 
-  Future<void> scheduleNotification({
+  Future<bool> scheduleNotification({
     required int id,
     required String prayerName,
     required DateTime prayerTime,
-    String? soundFile,
+    required String soundFile,
   }) async {
-    if (!_initialized) await initialize();
+    if (!_initialized) {
+      debugPrint('❌ NotificationService not initialized');
+      return false;
+    }
 
-    final prayerNameArabic = _getPrayerNameArabic(prayerName);
-
-    // prayerTime is already a local DateTime — convert to TZDateTime using local tz
     final scheduledTime = tz.TZDateTime.from(prayerTime, tz.local);
 
-    final soundName = soundFile?.split('.').first;
+    if (scheduledTime.isBefore(tz.TZDateTime.now(tz.local))) {
+      debugPrint('⚠️ Skipping past notification: $prayerName');
+      return false;
+    }
+
+    debugPrint('📅 Scheduling: $prayerName at $scheduledTime');
+
+    final soundName = soundFile.split('.').first;
 
     final androidDetails = AndroidNotificationDetails(
       'adhan_channel',
@@ -181,57 +197,60 @@ class NotificationService {
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
       priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
       playSound: true,
-      sound: soundName != null
-          ? RawResourceAndroidNotificationSound(soundName)
-          : null,
+      sound: RawResourceAndroidNotificationSound(soundName),
       enableVibration: true,
-      enableLights: true,
-      color: const Color(0xFF43A047),
-      icon: '@drawable/ic_notification',
+      fullScreenIntent: true,
     );
 
-    final iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      sound: soundFile,
-    );
-
-    final notificationDetails = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        sound: soundFile,
+      ),
     );
 
+    // Try exact alarm first
     try {
       await _notifications.zonedSchedule(
         id,
-        'حان وقت صلاة $prayerNameArabic',
-        'الله أكبر، الله أكبر',
+        'حان وقت $prayerName 🕌',
+        'حان وقت الصلاة — $prayerName',
         scheduledTime,
-        notificationDetails,
+        details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         payload: prayerName,
       );
-      print('Scheduled notification for $prayerName at $prayerTime (local)');
+      debugPrint('✅ Exact alarm scheduled: $prayerName');
+      return true;
     } catch (e) {
-      try {
-        await _notifications.zonedSchedule(
-          id,
-          'حان وقت صلاة $prayerNameArabic',
-          'الله أكبر، الله أكبر',
-          scheduledTime,
-          notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          payload: prayerName,
-        );
-      } catch (_) {
-        print('Error scheduling notification for $prayerName: $e');
-      }
+      debugPrint('⚠️ Exact alarm failed: $e — trying inexact');
+    }
+
+    // Fallback: inexact alarm
+    try {
+      await _notifications.zonedSchedule(
+        id,
+        'حان وقت $prayerName 🕌',
+        'حان وقت الصلاة — $prayerName',
+        scheduledTime,
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: prayerName,
+      );
+      debugPrint('✅ Inexact alarm scheduled: $prayerName');
+      return true;
+    } catch (e) {
+      debugPrint('❌ Both alarm modes failed: $e');
+      return false;
     }
   }
 
@@ -268,17 +287,35 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _notifications.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledTime,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+    try {
+      await _notifications.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledTime,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (e) {
+      try {
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduledTime,
+          notificationDetails,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      } catch (e2) {
+        debugPrint('Error scheduling daily reminder: $e / fallback: $e2');
+      }
+    }
   }
 
   Future<void> scheduleOneShot({
@@ -557,6 +594,69 @@ class NotificationService {
       dateTime: at,
       payload: jsonEncode({'route': 'debug_notification'}),
     );
+  }
+
+  Future<void> showTestNotification() async {
+    try {
+      await _notifications.show(
+        9999,
+        'سِلى — اختبار الإشعارات 🕌',
+        'إذا وصلك هذا الإشعار فالنظام يعمل بشكل صحيح',
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            'adhan_channel',
+            'أذان الصلاة',
+            channelDescription: 'إشعارات أذان الصلاة',
+            importance: Importance.max,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+        ),
+        payload: 'test',
+      );
+      debugPrint('✅ Test notification sent');
+    } catch (e) {
+      debugPrint('❌ Test notification failed: $e');
+    }
+  }
+
+  Future<bool> scheduleDailyReminder({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+    String payload = '',
+  }) async {
+    if (!_initialized) return false;
+
+    debugPrint('📅 Scheduling daily: $title at $hour:$minute');
+
+    const androidDetails = AndroidNotificationDetails(
+      'adhan_channel',
+      'أذان الصلاة',
+      channelDescription: 'إشعارات أذان الصلاة',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    try {
+      await _notifications.periodicallyShow(
+        id,
+        title,
+        body,
+        RepeatInterval.daily,
+        const NotificationDetails(android: androidDetails),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        payload: payload,
+      );
+      debugPrint('✅ Daily reminder scheduled: $title');
+      return true;
+    } catch (e) {
+      debugPrint('❌ Daily reminder failed: $e');
+      return false;
+    }
   }
 
   void _onNotificationTap(NotificationResponse response) async {

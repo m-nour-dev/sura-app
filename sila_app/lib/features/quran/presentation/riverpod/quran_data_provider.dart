@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,10 +19,22 @@ class QuranData {
 
 final quranDataProvider = FutureProvider<QuranData>((ref) async {
   try {
+    final languageCode = Intl.getCurrentLocale();
+    final isTurkish = languageCode.startsWith('tr');
+
+    // Load Quran translation
+    final quranTranslationPath = 'assets/data/quran_tr.json';
+    
+    // Load Tafseer based on language
+    final tafseerPath = isTurkish ? 'assets/data/tafseer_tr.json' : 'assets/data/tafseer.json';
+    
+    // Load Tajweed based on language
+    final tajweedPath = isTurkish ? 'assets/data/tajweed_tr.json' : 'assets/data/tajweed.json';
+
     final results = await Future.wait([
-      rootBundle.loadString('assets/data/tafseer.json'),
-      rootBundle.loadString('assets/data/tajweed.json'),
-      rootBundle.loadString('assets/data/quran_tr.json'),
+      rootBundle.loadString(tafseerPath),
+      rootBundle.loadString(tajweedPath),
+      rootBundle.loadString(quranTranslationPath),
     ]);
 
     final Map<String, dynamic> tafsirRaw = json.decode(results[0]);

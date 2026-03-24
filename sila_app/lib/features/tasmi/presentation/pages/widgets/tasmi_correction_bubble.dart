@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class TasmiCorrectionBubble extends StatelessWidget {
@@ -39,7 +41,7 @@ class TasmiCorrectionBubble extends StatelessWidget {
               Icon(Icons.lightbulb_outline_rounded, size: 16, color: accentColor),
               const SizedBox(width: 6),
               Text(
-                'الكلمة الصحيحة',
+                'tasmi_correct_word_label'.tr(),
                 style: TextStyle(
                   fontSize: 13,
                   fontFamily: 'Cairo',
@@ -58,7 +60,7 @@ class TasmiCorrectionBubble extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: accentColor,
             ),
-            textDirection: TextDirection.rtl,
+            textDirection: ui.TextDirection.rtl,
           ),
           const SizedBox(height: 8),
           Container(
@@ -68,7 +70,7 @@ class TasmiCorrectionBubble extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              'جار المتابعة...',
+              'tasmi_resuming_label'.tr(),
               style: TextStyle(
                 fontSize: 11,
                 fontFamily: 'Cairo',

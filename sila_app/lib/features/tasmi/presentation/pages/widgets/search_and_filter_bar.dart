@@ -1,4 +1,5 @@
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SearchAndFilterBar extends StatefulWidget {
@@ -41,9 +42,8 @@ class _SearchAndFilterBarState extends State<SearchAndFilterBar> {
       child: TextField(
         controller: _searchController,
         onChanged: widget.onSearchChanged,
-        textDirection: TextDirection.rtl,
         decoration: InputDecoration(
-          hintText: 'ابحث بالاسم أو رقم السورة أو رقمها',
+          hintText: 'search_hint_surah_number'.tr(),
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(

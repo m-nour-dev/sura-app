@@ -43,48 +43,63 @@ const NotificationContentSchema = CollectionSchema(
       name: r'grade',
       type: IsarType.string,
     ),
-    r'isFavorited': PropertySchema(
+    r'gradeTr': PropertySchema(
       id: 5,
+      name: r'gradeTr',
+      type: IsarType.string,
+    ),
+    r'isFavorited': PropertySchema(
+      id: 6,
       name: r'isFavorited',
       type: IsarType.bool,
     ),
     r'lastShown': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'lastShown',
       type: IsarType.dateTime,
     ),
     r'seasonTags': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'seasonTags',
       type: IsarType.stringList,
     ),
     r'shortExplanation': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'shortExplanation',
       type: IsarType.string,
     ),
+    r'shortExplanationTr': PropertySchema(
+      id: 10,
+      name: r'shortExplanationTr',
+      type: IsarType.string,
+    ),
     r'shownCount': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'shownCount',
       type: IsarType.long,
     ),
     r'source': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'source',
       type: IsarType.string,
     ),
+    r'sourceTr': PropertySchema(
+      id: 13,
+      name: r'sourceTr',
+      type: IsarType.string,
+    ),
     r'surahNumber': PropertySchema(
-      id: 11,
+      id: 14,
       name: r'surahNumber',
       type: IsarType.long,
     ),
     r'triggerTags': PropertySchema(
-      id: 12,
+      id: 15,
       name: r'triggerTags',
       type: IsarType.stringList,
     ),
     r'type': PropertySchema(
-      id: 13,
+      id: 16,
       name: r'type',
       type: IsarType.string,
     )
@@ -113,6 +128,12 @@ int _notificationContentEstimateSize(
   bytesCount += 3 + object.category.length * 3;
   bytesCount += 3 + object.contentId.length * 3;
   bytesCount += 3 + object.grade.length * 3;
+  {
+    final value = object.gradeTr;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.seasonTags.length * 3;
   {
     for (var i = 0; i < object.seasonTags.length; i++) {
@@ -121,7 +142,19 @@ int _notificationContentEstimateSize(
     }
   }
   bytesCount += 3 + object.shortExplanation.length * 3;
+  {
+    final value = object.shortExplanationTr;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.source.length * 3;
+  {
+    final value = object.sourceTr;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.triggerTags.length * 3;
   {
     for (var i = 0; i < object.triggerTags.length; i++) {
@@ -144,15 +177,18 @@ void _notificationContentSerialize(
   writer.writeString(offsets[2], object.category);
   writer.writeString(offsets[3], object.contentId);
   writer.writeString(offsets[4], object.grade);
-  writer.writeBool(offsets[5], object.isFavorited);
-  writer.writeDateTime(offsets[6], object.lastShown);
-  writer.writeStringList(offsets[7], object.seasonTags);
-  writer.writeString(offsets[8], object.shortExplanation);
-  writer.writeLong(offsets[9], object.shownCount);
-  writer.writeString(offsets[10], object.source);
-  writer.writeLong(offsets[11], object.surahNumber);
-  writer.writeStringList(offsets[12], object.triggerTags);
-  writer.writeString(offsets[13], object.type);
+  writer.writeString(offsets[5], object.gradeTr);
+  writer.writeBool(offsets[6], object.isFavorited);
+  writer.writeDateTime(offsets[7], object.lastShown);
+  writer.writeStringList(offsets[8], object.seasonTags);
+  writer.writeString(offsets[9], object.shortExplanation);
+  writer.writeString(offsets[10], object.shortExplanationTr);
+  writer.writeLong(offsets[11], object.shownCount);
+  writer.writeString(offsets[12], object.source);
+  writer.writeString(offsets[13], object.sourceTr);
+  writer.writeLong(offsets[14], object.surahNumber);
+  writer.writeStringList(offsets[15], object.triggerTags);
+  writer.writeString(offsets[16], object.type);
 }
 
 NotificationContent _notificationContentDeserialize(
@@ -167,16 +203,19 @@ NotificationContent _notificationContentDeserialize(
   object.category = reader.readString(offsets[2]);
   object.contentId = reader.readString(offsets[3]);
   object.grade = reader.readString(offsets[4]);
+  object.gradeTr = reader.readStringOrNull(offsets[5]);
   object.id = id;
-  object.isFavorited = reader.readBool(offsets[5]);
-  object.lastShown = reader.readDateTimeOrNull(offsets[6]);
-  object.seasonTags = reader.readStringList(offsets[7]) ?? [];
-  object.shortExplanation = reader.readString(offsets[8]);
-  object.shownCount = reader.readLong(offsets[9]);
-  object.source = reader.readString(offsets[10]);
-  object.surahNumber = reader.readLong(offsets[11]);
-  object.triggerTags = reader.readStringList(offsets[12]) ?? [];
-  object.type = reader.readString(offsets[13]);
+  object.isFavorited = reader.readBool(offsets[6]);
+  object.lastShown = reader.readDateTimeOrNull(offsets[7]);
+  object.seasonTags = reader.readStringList(offsets[8]) ?? [];
+  object.shortExplanation = reader.readString(offsets[9]);
+  object.shortExplanationTr = reader.readStringOrNull(offsets[10]);
+  object.shownCount = reader.readLong(offsets[11]);
+  object.source = reader.readString(offsets[12]);
+  object.sourceTr = reader.readStringOrNull(offsets[13]);
+  object.surahNumber = reader.readLong(offsets[14]);
+  object.triggerTags = reader.readStringList(offsets[15]) ?? [];
+  object.type = reader.readString(offsets[16]);
   return object;
 }
 
@@ -198,22 +237,28 @@ P _notificationContentDeserializeProp<P>(
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readBool(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 6:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 7:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 8:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringList(offset) ?? []) as P;
     case 9:
-      return (reader.readLong(offset)) as P;
-    case 10:
       return (reader.readString(offset)) as P;
+    case 10:
+      return (reader.readStringOrNull(offset)) as P;
     case 11:
       return (reader.readLong(offset)) as P;
     case 12:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readString(offset)) as P;
     case 13:
+      return (reader.readStringOrNull(offset)) as P;
+    case 14:
+      return (reader.readLong(offset)) as P;
+    case 15:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 16:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -917,6 +962,160 @@ extension NotificationContentQueryFilter on QueryBuilder<NotificationContent,
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'gradeTr',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'gradeTr',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'gradeTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'gradeTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'gradeTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'gradeTr',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'gradeTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'gradeTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'gradeTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'gradeTr',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'gradeTr',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      gradeTrIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'gradeTr',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
       idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1418,6 +1617,160 @@ extension NotificationContentQueryFilter on QueryBuilder<NotificationContent,
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'shortExplanationTr',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'shortExplanationTr',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'shortExplanationTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'shortExplanationTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'shortExplanationTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'shortExplanationTr',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'shortExplanationTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'shortExplanationTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'shortExplanationTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'shortExplanationTr',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'shortExplanationTr',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      shortExplanationTrIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'shortExplanationTr',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
       shownCountEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1604,6 +1957,160 @@ extension NotificationContentQueryFilter on QueryBuilder<NotificationContent,
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'source',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'sourceTr',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'sourceTr',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sourceTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'sourceTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'sourceTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'sourceTr',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'sourceTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'sourceTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'sourceTr',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'sourceTr',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'sourceTr',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterFilterCondition>
+      sourceTrIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'sourceTr',
         value: '',
       ));
     });
@@ -2106,6 +2613,20 @@ extension NotificationContentQuerySortBy
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      sortByGradeTr() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gradeTr', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      sortByGradeTrDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gradeTr', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
       sortByIsFavorited() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isFavorited', Sort.asc);
@@ -2148,6 +2669,20 @@ extension NotificationContentQuerySortBy
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      sortByShortExplanationTr() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shortExplanationTr', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      sortByShortExplanationTrDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shortExplanationTr', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
       sortByShownCount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shownCount', Sort.asc);
@@ -2172,6 +2707,20 @@ extension NotificationContentQuerySortBy
       sortBySourceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'source', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      sortBySourceTr() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sourceTr', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      sortBySourceTrDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sourceTr', Sort.desc);
     });
   }
 
@@ -2277,6 +2826,20 @@ extension NotificationContentQuerySortThenBy
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      thenByGradeTr() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gradeTr', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      thenByGradeTrDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'gradeTr', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
       thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -2333,6 +2896,20 @@ extension NotificationContentQuerySortThenBy
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      thenByShortExplanationTr() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shortExplanationTr', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      thenByShortExplanationTrDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'shortExplanationTr', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
       thenByShownCount() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'shownCount', Sort.asc);
@@ -2357,6 +2934,20 @@ extension NotificationContentQuerySortThenBy
       thenBySourceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'source', Sort.desc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      thenBySourceTr() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sourceTr', Sort.asc);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QAfterSortBy>
+      thenBySourceTrDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'sourceTr', Sort.desc);
     });
   }
 
@@ -2427,6 +3018,13 @@ extension NotificationContentQueryWhereDistinct
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QDistinct>
+      distinctByGradeTr({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'gradeTr', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QDistinct>
       distinctByIsFavorited() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isFavorited');
@@ -2456,6 +3054,14 @@ extension NotificationContentQueryWhereDistinct
   }
 
   QueryBuilder<NotificationContent, NotificationContent, QDistinct>
+      distinctByShortExplanationTr({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'shortExplanationTr',
+          caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QDistinct>
       distinctByShownCount() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'shownCount');
@@ -2466,6 +3072,13 @@ extension NotificationContentQueryWhereDistinct
       distinctBySource({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'source', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<NotificationContent, NotificationContent, QDistinct>
+      distinctBySourceTr({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'sourceTr', caseSensitive: caseSensitive);
     });
   }
 
@@ -2533,6 +3146,13 @@ extension NotificationContentQueryProperty
     });
   }
 
+  QueryBuilder<NotificationContent, String?, QQueryOperations>
+      gradeTrProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'gradeTr');
+    });
+  }
+
   QueryBuilder<NotificationContent, bool, QQueryOperations>
       isFavoritedProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -2561,6 +3181,13 @@ extension NotificationContentQueryProperty
     });
   }
 
+  QueryBuilder<NotificationContent, String?, QQueryOperations>
+      shortExplanationTrProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'shortExplanationTr');
+    });
+  }
+
   QueryBuilder<NotificationContent, int, QQueryOperations>
       shownCountProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -2571,6 +3198,13 @@ extension NotificationContentQueryProperty
   QueryBuilder<NotificationContent, String, QQueryOperations> sourceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'source');
+    });
+  }
+
+  QueryBuilder<NotificationContent, String?, QQueryOperations>
+      sourceTrProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'sourceTr');
     });
   }
 
