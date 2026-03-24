@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
 import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
-String _toArabicNumber(String input) {
+String _toArabicNumber(BuildContext context, String input) {
+  if (context.locale.languageCode != 'ar') return input;
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 
@@ -24,20 +26,17 @@ class TasmiStatsRow extends StatelessWidget {
         ? 0
         : state.words[state.currentIndex].verseNumber;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Padding(
+    return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
           children: [
-            Expanded(child: _StatCard(label: 'الآية الحالية', value: currentAyah > 0 ? _toArabicNumber(currentAyah.toString()) : '-', icon: Icons.menu_book_rounded)),
+            Expanded(child: _StatCard(label: 'tasmi_stat_current_ayah'.tr(), value: currentAyah > 0 ? _toArabicNumber(context, currentAyah.toString()) : '-', icon: Icons.menu_book_rounded)),
             const SizedBox(width: 12),
-            Expanded(child: _StatCard(label: 'أخطاء', value: _toArabicNumber(errorCount.toString()), color: Colors.red[400], icon: Icons.error_outline_rounded)),
+            Expanded(child: _StatCard(label: 'tasmi_stat_errors'.tr(), value: _toArabicNumber(context, errorCount.toString()), color: Colors.red[400], icon: Icons.error_outline_rounded)),
             const SizedBox(width: 12),
-            Expanded(child: _StatCard(label: 'صحيح', value: _toArabicNumber(correctCount.toString()), color: Colors.green[400], icon: Icons.check_circle_outline_rounded)),
+            Expanded(child: _StatCard(label: 'tasmi_stat_correct'.tr(), value: _toArabicNumber(context, correctCount.toString()), color: Colors.green[400], icon: Icons.check_circle_outline_rounded)),
           ],
         ),
-      ),
     );
   }
 }

@@ -53,9 +53,16 @@ class WirdState {
 class WirdController extends StateNotifier<AsyncValue<WirdState>> {
   final WirdService _service;
   final Ref _ref;
+  bool _isDisposed = false;
 
   WirdController(this._service, this._ref) : super(const AsyncValue.loading()) {
     _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   Future<void> _loadSettings() async {
@@ -198,45 +205,46 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
 final wirdControllerProvider =
     StateNotifierProvider<WirdController, AsyncValue<WirdState>>((ref) {
   final asyncService = ref.watch(wirdServiceProvider);
-  return asyncService.maybeWhen(
+  return asyncService.when(
     data: (service) => WirdController(service, ref),
-    orElse: () => WirdController(_FallbackWirdService(), ref),
+    loading: () => WirdController(_FallbackWirdService(), ref),
+    error: (error, stackTrace) => WirdController(_FallbackWirdService(), ref),
   );
 });
 
 class _FallbackWirdService implements WirdService {
   @override
-  Future<void> completeDailyWird(int startPage, int endPage) {
-    throw StateError('WirdService is not ready');
+  Future<void> completeDailyWird(int startPage, int endPage) async {
+    // Silently handle - the real service will be loaded
   }
 
   @override
-  Future<List<WirdHistory>> getHistory() {
-    throw StateError('WirdService is not ready');
+  Future<List<WirdHistory>> getHistory() async {
+    return [];
   }
 
   @override
-  Future<WirdSettings> getSettings() {
-    throw StateError('WirdService is not ready');
+  Future<WirdSettings> getSettings() async {
+    return WirdSettings();
   }
 
   @override
-  Future<void> updateBookmark(int page) {
-    throw StateError('WirdService is not ready');
+  Future<void> updateBookmark(int page) async {
+    // Silently handle
   }
 
   @override
-  Future<void> updateCurrentPage(int page) {
-    throw StateError('WirdService is not ready');
+  Future<void> updateCurrentPage(int page) async {
+    // Silently handle
   }
 
   @override
-  Future<void> updateGoal(WirdGoalType type, int value) {
-    throw StateError('WirdService is not ready');
+  Future<void> updateGoal(WirdGoalType type, int value) async {
+    // Silently handle
   }
 
   @override
-  Future<void> resetKhatma() {
-    throw StateError('WirdService is not ready');
+  Future<void> resetKhatma() async {
+    // Silently handle
   }
 }

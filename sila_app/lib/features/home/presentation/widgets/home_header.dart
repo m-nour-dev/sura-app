@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class HomeHeader extends StatelessWidget {
   final VoidCallback? onNotificationTap;
@@ -13,18 +14,33 @@ class HomeHeader extends StatelessWidget {
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return 'صباح الخير';
+      return 'morning_greeting'.tr();
     } else if (hour < 18) {
-      return 'مساء الخير';
+      return 'afternoon_greeting'.tr();
     } else {
-      return 'مساء النور';
+      return 'evening_greeting'.tr();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final hijriDate = HijriCalendar.now();
-    const months = [
+    final locale = context.locale;
+    
+    final months = locale.languageCode == 'tr' ? [
+      'Muharrem',
+      'Safar',
+      'Rebiülevvel',
+      'Rebiülahir',
+      'Cumadelüla',
+      'Cumadelahir',
+      'Recep',
+      'Şaban',
+      'Ramazan',
+      'Şevval',
+      'Zilkade',
+      'Zilhicce',
+    ] : [
       'محرم',
       'صفر',
       'ربيع الأول',
@@ -39,7 +55,9 @@ class HomeHeader extends StatelessWidget {
       'ذو الحجة',
     ];
     final month = months[(hijriDate.hMonth - 1).clamp(0, 11)];
-    final arabicHijri = '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
+    final hijriText = locale.languageCode == 'tr'
+        ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
+        : '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
 
     return Container(
       decoration: const BoxDecoration(
@@ -59,7 +77,7 @@ class HomeHeader extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -70,38 +88,44 @@ class HomeHeader extends StatelessWidget {
                           color: Colors.white60,
                         ),
                       ),
-                      Text(
-                        'أهلاً بك في صِلة',
-                        style: GoogleFonts.getFont(
-                          'Cairo',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                       Text(
+                         'welcome_message'.tr(),
+                         style: GoogleFonts.getFont(
+                           'Cairo',
+                           fontSize: 20,
+                           fontWeight: FontWeight.w700,
+                           color: Colors.white,
+                         ),
+                       ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const _LanguageHeaderButton(),
+                      const SizedBox(width: 8),
+                      // Bell Icon
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onNotificationTap,
+                          borderRadius: BorderRadius.circular(999),
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.14),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
+                            ),
+                            child: const Icon(
+                              Icons.notifications_active_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                  // Bell Icon
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: onNotificationTap,
-                      borderRadius: BorderRadius.circular(999),
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.14),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
-                        ),
-                        child: const Icon(
-                          Icons.notifications_active_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -115,10 +139,10 @@ class HomeHeader extends StatelessWidget {
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
                 child: Text(
-                  arabicHijri,
-                  style: GoogleFonts.getFont(
-                    'Cairo',
-                    fontSize: 12,
+                   hijriText,
+                   style: GoogleFonts.getFont(
+                     'Cairo',
+                     fontSize: 12,
                     color: Colors.white.withOpacity(0.8),
                   ),
                 ),
@@ -130,3 +154,62 @@ class HomeHeader extends StatelessWidget {
     );
   }
 }
+
+class _LanguageHeaderButton extends StatelessWidget {
+  const _LanguageHeaderButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<Locale>(
+      onSelected: (Locale locale) {
+        context.setLocale(locale);
+      },
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      offset: const Offset(0, 50),
+      color: Colors.white,
+      itemBuilder: (BuildContext context) {
+        return context.supportedLocales.map((locale) {
+          final isSelected = context.locale == locale;
+          final langName = locale.languageCode == 'ar' ? 'العربية' : 'Türkçe';
+          
+          return PopupMenuItem<Locale>(
+            value: locale,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  langName,
+                  style: GoogleFonts.cairo(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? const Color(0xFF064E3B) : Colors.black87,
+                  ),
+                ),
+                if (isSelected)
+                  const Icon(Icons.check, color: Color(0xFF064E3B), size: 16),
+              ],
+            ),
+          );
+        }).toList();
+      },
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.14),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
+        ),
+        child: const Icon(
+          Icons.language,
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
+

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/azkar_notification_settings.dart';
@@ -22,14 +23,14 @@ class NotificationHubPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF065F46),
         foregroundColor: Colors.white,
-        title: Text('الإشعارات الذكية', style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
+        title: Text('smart_notifications_title'.tr(), style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _HubTile(
-            title: 'إعدادات الصلاة',
-            subtitle: 'تنبيهات الصلاة وما قبل الأذان',
+            title: 'salah_settings_title'.tr(),
+            subtitle: 'salah_settings_subtitle'.tr(),
             icon: Icons.mosque_rounded,
             card: card,
             border: border,
@@ -39,8 +40,8 @@ class NotificationHubPage extends StatelessWidget {
             ),
           ),
           _HubTile(
-            title: 'إعدادات الورد',
-            subtitle: 'وقت وردك القرآني والتكرار',
+            title: 'wird_settings_title'.tr(),
+            subtitle: 'wird_settings_subtitle'.tr(),
             icon: Icons.menu_book_rounded,
             card: card,
             border: border,
@@ -50,8 +51,8 @@ class NotificationHubPage extends StatelessWidget {
             ),
           ),
           _HubTile(
-            title: 'إعدادات الأذكار',
-            subtitle: 'الصباح والمساء وتنبيه نهاية الوقت',
+            title: 'azkar_settings_title'.tr(),
+            subtitle: 'azkar_settings_subtitle'.tr(),
             icon: Icons.wb_sunny_rounded,
             card: card,
             border: border,
@@ -61,8 +62,8 @@ class NotificationHubPage extends StatelessWidget {
             ),
           ),
           _HubTile(
-            title: 'إعدادات الحفظ',
-            subtitle: 'تنبيهات الحفظ والتسميع',
+            title: 'hifz_settings_title'.tr(),
+            subtitle: 'hifz_settings_subtitle'.tr(),
             icon: Icons.school_rounded,
             card: card,
             border: border,
@@ -72,8 +73,8 @@ class NotificationHubPage extends StatelessWidget {
             ),
           ),
           _HubTile(
-            title: 'إعدادات التسبيح',
-            subtitle: 'ذكر يومي ثابت أو ذكي',
+            title: 'tasbih_settings_title'.tr(),
+            subtitle: 'tasbih_settings_subtitle'.tr(),
             icon: Icons.auto_awesome_rounded,
             card: card,
             border: border,

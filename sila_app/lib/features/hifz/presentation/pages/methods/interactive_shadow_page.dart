@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +10,7 @@ import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
 import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
@@ -132,7 +135,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
         ),
       ),
       child: Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: ui.TextDirection.rtl,
         child: Scaffold(
           backgroundColor: AppTheme.darkBackgroundColor,
           body: SafeArea(
@@ -157,10 +160,10 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                       )
                     : Column(
                         children: [
-                      _TopHeader(
-                        surahName: quran.getSurahNameArabic(state.surahNumber),
+                        _TopHeader(
+                        surahName: SurahUtils.getLocalizedSurahName(context, state.surahNumber),
                         stage: state.currentStage,
-                        reciterLabel: reciter?.nameArabic.split(' ').last ?? 'الحصري',
+                        reciterLabel: reciter?.nameArabic.split(' ').last ?? 'default_reciter_name'.tr(),
                         onReciterTap: () => showReciterPickerSheet(context),
                         onMomentTap: () {
                           final verseIndex = state.fromVerse + state.currentVerseIndex;
@@ -171,7 +174,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                               verseIndex,
                               verseEndSymbol: false,
                             ),
-                            quran.getSurahNameArabic(state.surahNumber),
+                            SurahUtils.getLocalizedSurahName(context, state.surahNumber),
                           );
                         },
                       ),
@@ -203,7 +206,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                           isPlaying: state.isPlaying,
                           waveController: _waveController,
                           onToggle: controller.toggleAudio,
-                          reciterLabel: reciter?.nameArabic.split(' ').last ?? 'الحصري',
+                          reciterLabel: reciter?.nameArabic.split(' ').last ?? 'default_reciter_name'.tr(),
                         ),
                       const SizedBox(height: 8),
                       _MicBar(
@@ -255,7 +258,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                                 ),
                               )
                             : Text(
-                                'التالي',
+                                'next'.tr(),
                                 style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.w700),
                               ),
                       ),
@@ -264,7 +267,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'يمكنك إكمال المخفي بالكتابة أو اختبار نفسك بالمايك',
+                            'shadow_hint_text'.tr(),
                             style: GoogleFonts.cairo(fontSize: 11, color: Colors.white54),
                           ),
                         ),
@@ -432,12 +435,12 @@ class _StageBanner extends StatelessWidget {
 
   String _stageName(int stage) {
     return switch (stage) {
-      1 => 'المرحلة ١ — الاستماع',
-      2 => 'المرحلة ٢ — التظليل',
-      3 => 'المرحلة ٣ — ٣٠٪ مخفي',
-      4 => 'المرحلة ٤ — ٦٠٪ مخفي',
-      5 => 'المرحلة ٥ — كامل من الذاكرة',
-      _ => 'المرحلة',
+      1 => 'stage_1_title'.tr(),
+      2 => 'stage_2_title'.tr(),
+      3 => 'stage_3_title'.tr(),
+      4 => 'stage_4_title'.tr(),
+      5 => 'stage_5_title'.tr(),
+      _ => 'stage_generic'.tr(),
     };
   }
 }
@@ -468,7 +471,7 @@ class _StageContent extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: color.value,
             child: Directionality(
-              textDirection: TextDirection.rtl,
+              textDirection: ui.TextDirection.rtl,
               child: Wrap(
                 spacing: 6,
                 runSpacing: 8,
@@ -690,7 +693,7 @@ class _InlineWordInput extends StatelessWidget {
           : TextField(
               controller: controller,
               focusNode: focusNode,
-              textDirection: TextDirection.rtl,
+              textDirection: ui.TextDirection.rtl,
               textAlign: TextAlign.center,
               style: GoogleFonts.amiri(fontSize: 18, color: Colors.white),
               decoration: const InputDecoration(
@@ -774,7 +777,7 @@ class _WritingModeBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'الوضع الكتابي مفعل',
+                  'writing_mode_active'.tr(),
                   style: GoogleFonts.cairo(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -783,7 +786,7 @@ class _WritingModeBar extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'أكمل الكلمات المخفية داخل الآية',
+                  'writing_mode_hint'.tr(),
                   style: GoogleFonts.cairo(fontSize: 10, color: Colors.white54),
                 ),
               ],
@@ -882,10 +885,10 @@ class _MicBar extends StatelessWidget {
                   MicHealthStatus.stalled => Colors.red,
                 };
                 final statusText = switch (status) {
-                  null => 'اختبر تلاوتك بالمايك',
-                  MicHealthStatus.active => 'يستمع...',
-                  MicHealthStatus.reconnecting => 'يعيد الاتصال...',
-                  MicHealthStatus.stalled => 'توقف - اضغط للاعادة',
+                  null => 'mic_test_hint'.tr(),
+                  MicHealthStatus.active => 'listening_status'.tr(),
+                  MicHealthStatus.reconnecting => 'reconnecting_status'.tr(),
+                  MicHealthStatus.stalled => 'stalled_status'.tr(),
                 };
 
                 return Column(
@@ -921,7 +924,7 @@ class _MicBar extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      isListening ? 'تحدث بوضوح...' : 'اضغط للبدء بالمقارنة الصوتية',
+                      isListening ? 'speak_clearly'.tr() : 'tap_to_start_mic'.tr(),
                       style: GoogleFonts.cairo(fontSize: 9.5, color: Colors.white38),
                     ),
                     const SizedBox(height: 5),
@@ -960,11 +963,11 @@ class _StatsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          _StatChip(value: _toArabicIndic(correct), label: 'صح', valueColor: _successColor),
+          _StatChip(value: _toArabicIndic(context, correct), label: 'correct_label'.tr(), valueColor: _successColor),
           const SizedBox(width: 8),
-          _StatChip(value: _toArabicIndic(wrong), label: 'خطأ', valueColor: _errorColor),
+          _StatChip(value: _toArabicIndic(context, wrong), label: 'wrong_label'.tr(), valueColor: _errorColor),
           const SizedBox(width: 8),
-          _StatChip(value: _toArabicIndic(hasanat), label: 'حسنة', valueColor: _hasanatGold),
+          _StatChip(value: _toArabicIndic(context, hasanat), label: 'hasanah_label'.tr(), valueColor: _hasanatGold),
         ],
       ),
     );
@@ -1026,12 +1029,12 @@ class _InstructionCard extends StatelessWidget {
 
   (String, String) _instruction(int stage) {
     return switch (stage) {
-      1 => ('استمع جيداً', 'اضغط "التالي" للانتقال للمرحلة التالية'),
-      2 => ('ردد مع الشيخ', 'حاول المزامنة مع الصوت'),
-      3 => ('أكمل الكلمات المخفية', 'الكلمات الخضراء أجبت عنها صح'),
-      4 => ('تحدٍّ أكبر — استمر', '٦٠٪ من الآية مخفي الآن'),
-      5 => ('تلاوة كاملة من الذاكرة', 'أنت قادر على ذلك بإذن الله'),
-      _ => ('مرحلة', ''),
+      1 => ('stage_1_instr_title'.tr(), 'stage_1_instr_sub'.tr()),
+      2 => ('stage_2_instr_title'.tr(), 'stage_2_instr_sub'.tr()),
+      3 => ('stage_3_instr_title'.tr(), 'stage_3_instr_sub'.tr()),
+      4 => ('stage_4_instr_title'.tr(), 'stage_4_instr_sub'.tr()),
+      5 => ('stage_5_instr_title'.tr(), 'stage_5_instr_sub'.tr()),
+      _ => ('stage_generic'.tr(), ''),
     };
   }
 }
@@ -1133,11 +1136,11 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
 
   String _ageMessage(int? ageGroup) {
     return switch (ageGroup) {
-      0 => '🔥 أنت وحش! هكذا يُحفظ القرآن',
-      1 => 'أداء ممتاز — استمر وستصل',
-      2 => 'أحسنت — كل جلسة تقربك من هدفك',
-      3 => 'بارك الله فيك — كل حرف نور يوم القيامة',
-      _ => 'أحسنت — كل جلسة تقربك من هدفك',
+      0 => 'age_msg_0'.tr(),
+      1 => 'age_msg_1'.tr(),
+      2 => 'age_msg_2'.tr(),
+      3 => 'age_msg_3'.tr(),
+      _ => 'age_msg_2'.tr(),
     };
   }
 
@@ -1182,7 +1185,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${_toArabicIndic(accuracyPercent)}٪',
+                      '${_toArabicIndic(context, accuracyPercent)}٪',
                       style: GoogleFonts.cairo(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -1190,7 +1193,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                       ),
                     ),
                     Text(
-                      'دقة الحفظ',
+                      'memorization_accuracy'.tr(),
                       style: GoogleFonts.cairo(
                         fontSize: 11,
                         color: onSurfaceMuted,
@@ -1206,16 +1209,16 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
              children: [
                Expanded(
                  child: _ResultsStatCard(
-                   value: _toArabicIndic(widget.state.correctWords),
-                   label: 'صحيح',
+                   value: _toArabicIndic(context, widget.state.correctWords),
+                   label: 'correct_long'.tr(),
                    color: Colors.green,
                  ),
                ),
                const SizedBox(width: 10),
                Expanded(
                  child: _ResultsStatCard(
-                   value: _toArabicIndic(widget.state.wrongWords),
-                   label: 'خطأ',
+                   value: _toArabicIndic(context, widget.state.wrongWords),
+                   label: 'wrong_long'.tr(),
                    color: colors.error,
                  ),
                ),
@@ -1253,7 +1256,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                 Icon(Icons.bookmark_added_rounded, color: AppTheme.primaryColor, size: 18),
                 const SizedBox(width: 6),
                 Text(
-                  'كلمات تحتاج مراجعة',
+                  'words_needing_review'.tr(),
                   style: GoogleFonts.cairo(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1279,7 +1282,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
 
                 if (shown.isEmpty) {
                   return Text(
-                    'لا توجد عناصر مراجعة حالياً',
+                    'no_review_items'.tr(),
                     style: GoogleFonts.cairo(fontSize: 12, color: onSurfaceMuted),
                   );
                 }
@@ -1326,7 +1329,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
-                                  'سورة ${quran.getSurahNameArabic(widget.state.surahNumber)} • آية ${_toArabicIndic(item.ayahNumber)}',
+                                  '${'surah_label'.tr()} ${SurahUtils.getLocalizedSurahName(context, widget.state.surahNumber)} • ${'ayah_label'.tr()} ${_toArabicIndic(context, item.ayahNumber)}',
                                   style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
                                 ),
                               ],
@@ -1344,7 +1347,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
-                          'و ${_toArabicIndic(hiddenCount)} آية أخرى',
+                          'and_x_more_ayahs'.tr(args: [_toArabicIndic(context, hiddenCount)]),
                           style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
                         ),
                       ),
@@ -1369,11 +1372,11 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'حسنات اكتسبتها',
+                        'hasanat_earned_title'.tr(),
                         style: GoogleFonts.cairo(fontSize: 12, color: onSurfaceMuted),
                       ),
                       Text(
-                        _toArabicIndic(widget.state.sessionHashanat),
+                        _toArabicIndic(context, widget.state.sessionHashanat),
                         style: GoogleFonts.cairo(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -1381,7 +1384,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                         ),
                       ),
                       Text(
-                        'بإذن الله',
+                        'inshaallah'.tr(),
                         style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
                       ),
                     ],
@@ -1397,7 +1400,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
               onPressed: widget.onDedicate,
               icon: const Text('💛', style: TextStyle(fontSize: 16)),
               label: Text(
-                'إهداء الثواب',
+                'gift_thawab'.tr(),
                 style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
@@ -1421,7 +1424,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
-                      '↺ إعادة',
+                      'restart_button'.tr(),
                       style: GoogleFonts.cairo(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -1444,7 +1447,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
-                      '🏠 الرئيسية',
+                      'home_button'.tr(),
                       style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -1536,7 +1539,7 @@ class _MomentCaptureSheet extends StatefulWidget {
 }
 
 class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
-  String _selectedFeeling = 'أثّر فيّ';
+  String _selectedFeeling = 'feeling_touched';
   String _note = '';
 
   @override
@@ -1544,7 +1547,7 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
     Widget feelingChip(String emoji, String label) {
       final selected = _selectedFeeling == label;
       return ChoiceChip(
-        label: Text('$emoji $label', style: GoogleFonts.cairo(fontSize: 11)),
+        label: Text('$emoji ${label.tr()}', style: GoogleFonts.cairo(fontSize: 11)),
         selected: selected,
         showCheckmark: false,
         onSelected: (_) => setState(() => _selectedFeeling = label),
@@ -1584,7 +1587,7 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
           ),
           const SizedBox(height: 6),
           Directionality(
-            textDirection: TextDirection.rtl,
+            textDirection: ui.TextDirection.rtl,
             child: Text(
               widget.verseText,
               style: GoogleFonts.amiri(fontSize: 14, color: Colors.white60, height: 2.0),
@@ -1595,7 +1598,7 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              'هل لامست هذه الآية قلبك؟',
+              'moment_prompt'.tr(),
               style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
             ),
           ),
@@ -1604,21 +1607,21 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              feelingChip('🥺', 'أثّر فيّ'),
-              feelingChip('😢', 'بكيت'),
-              feelingChip('😌', 'اطمأننت'),
-              feelingChip('🤔', 'تأملت'),
-              feelingChip('🙏', 'شكرت الله'),
+              feelingChip('🥺', 'feeling_touched'),
+              feelingChip('😢', 'feeling_cried'),
+              feelingChip('😌', 'feeling_comforted'),
+              feelingChip('🤔', 'feeling_reflected'),
+              feelingChip('🙏', 'feeling_thankful'),
             ],
           ),
           const SizedBox(height: 10),
           TextField(
             style: GoogleFonts.cairo(fontSize: 13, color: Colors.white70),
-            textDirection: TextDirection.rtl,
+            textDirection: ui.TextDirection.rtl,
             maxLines: 2,
             onChanged: (v) => _note = v,
             decoration: InputDecoration(
-              hintText: 'اكتب كلمتين عن شعورك...',
+              hintText: 'moment_note_hint'.tr(),
               hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.white30),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.07),
@@ -1648,7 +1651,7 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: Text('تخطي', style: GoogleFonts.cairo(fontSize: 12, color: Colors.white60)),
+                  child: Text('skip'.tr(), style: GoogleFonts.cairo(fontSize: 12, color: Colors.white60)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -1663,7 +1666,7 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'احفظ اللحظة 💎',
+                    'save_moment_button'.tr(),
                     style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
                   ),
                 ),
@@ -1676,7 +1679,10 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
   }
 }
 
-String _toArabicIndic(int value) {
+String _toArabicIndic(BuildContext context, int value) {
+  if (context.locale.languageCode != 'ar') {
+    return value.toString();
+  }
   final western = value.toString();
   const digits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
   final buffer = StringBuffer();

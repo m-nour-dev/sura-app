@@ -1,3 +1,6 @@
+import 'package:sila_app/core/utils/surah_utils.dart';
+import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,86 +64,86 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _selectionOption(
-                    icon: '🎯',
-                    title: 'الخطة اليومية',
-                    subtitle: plan != null
-                        ? '${plan.newAyahsTarget} آيات جديدة بحسب خطتك'
-                        : 'ابدأ بالخطة الافتراضية',
-                    recommended: true,
-                    onTap: () {
-                      const surahNumber = 1;
-                      final maxAyahs = quran.getVerseCount(surahNumber);
-                      final target = (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
-                      Navigator.pop(
-                        context,
-                        HifzSelection(
-                          surahNumber: surahNumber,
-                          fromVerse: 1,
-                          toVerse: target,
-                          type: HifzSelectionType.dailyPlan,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _selectionOption(
-                    icon: '📖',
-                    title: 'سورة كاملة',
-                    subtitle: 'اختر السورة من قائمة المصحف',
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final result = await Navigator.push<HifzSelection>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
-                            forHifz: true,
-                            showAyahRange: false,
-                          ),
-                        ),
-                      );
-                      if (!mounted || result == null) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => InteractiveShadowPage(
-                            surahNumber: result.surahNumber,
-                            fromVerse: result.fromVerse,
-                            toVerse: result.toVerse,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _selectionOption(
-                    icon: '✂️',
-                    title: 'نطاق آيات محدد',
-                    subtitle: 'اختر السورة ثم من آية X إلى Y',
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final result = await Navigator.push<HifzSelection>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
-                            forHifz: true,
-                            showAyahRange: true,
-                          ),
-                        ),
-                      );
-                      if (!mounted || result == null) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => InteractiveShadowPage(
-                            surahNumber: result.surahNumber,
-                            fromVerse: result.fromVerse,
-                            toVerse: result.toVerse,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                   _selectionOption(
+                     icon: '🎯',
+                     title: 'daily_plan'.tr(),
+                     subtitle: plan != null
+                         ? '${plan.newAyahsTarget} ${'ayah_label'.tr()}s ${'from_verse'.tr()}'
+                         : 'hifz_start'.tr(),
+                     recommended: true,
+                     onTap: () {
+                       const surahNumber = 1;
+                       final maxAyahs = quran.getVerseCount(surahNumber);
+                       final target = (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
+                       Navigator.pop(
+                         context,
+                         HifzSelection(
+                           surahNumber: surahNumber,
+                           fromVerse: 1,
+                           toVerse: target,
+                           type: HifzSelectionType.dailyPlan,
+                         ),
+                       );
+                     },
+                   ),
+                   const SizedBox(height: 10),
+                   _selectionOption(
+                     icon: '📖',
+                     title: 'complete_surah'.tr(),
+                     subtitle: 'complete_surah_subtitle'.tr(),
+                     onTap: () async {
+                       Navigator.pop(context);
+                       final result = await Navigator.push<HifzSelection>(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
+                             forHifz: true,
+                             showAyahRange: false,
+                           ),
+                         ),
+                       );
+                       if (!mounted || result == null) return;
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => InteractiveShadowPage(
+                             surahNumber: result.surahNumber,
+                             fromVerse: result.fromVerse,
+                             toVerse: result.toVerse,
+                           ),
+                         ),
+                       );
+                     },
+                   ),
+                   const SizedBox(height: 10),
+                   _selectionOption(
+                     icon: '✂️',
+                     title: 'verse_range'.tr(),
+                     subtitle: 'verse_range_subtitle'.tr(args: ['X', 'Y']),
+                     onTap: () async {
+                       Navigator.pop(context);
+                       final result = await Navigator.push<HifzSelection>(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
+                             forHifz: true,
+                             showAyahRange: true,
+                           ),
+                         ),
+                       );
+                       if (!mounted || result == null) return;
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(
+                           builder: (_) => InteractiveShadowPage(
+                             surahNumber: result.surahNumber,
+                             fromVerse: result.fromVerse,
+                             toVerse: result.toVerse,
+                           ),
+                         ),
+                       );
+                     },
+                   ),
                 ],
               ),
             ),
@@ -160,7 +163,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'ميزة "$featureName" تحت الإنشاء، نسأل الله أن ييسر إتمامها لتكون عوناً لك في حفظ كتابه الكريم ✨',
+                'feature_under_construction'.tr(args: [featureName]),
                 style: GoogleFonts.cairo(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -233,7 +236,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'موصى به',
+                  'recommended'.tr(),
                   style: GoogleFonts.cairo(
                     fontSize: 10,
                     color: const Color(0xFF064E3B),
@@ -267,9 +270,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
     final state = ref.watch(hifzHomeControllerProvider);
     final controller = ref.read(hifzHomeControllerProvider.notifier);
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         body: CustomScrollView(
           slivers: [
@@ -333,7 +334,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      'الميزة الرئيسية ⭐',
+                                      'main_feature'.tr(),
                                       style: GoogleFonts.cairo(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w700,
@@ -343,7 +344,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'التسميع بالذكاء الاصطناعي',
+                                    'ai_tasmi_title'.tr(),
                                     style: GoogleFonts.cairo(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w800,
@@ -353,7 +354,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    'اختبر حفظك للقرآن الكريم مع مصحح آلي يستمع لتلاوتك ويصحح أخطائك بدقة',
+                                    'ai_tasmi_desc'.tr(),
                                     style: GoogleFonts.cairo(
                                       fontSize: 12,
                                       color: Colors.white.withValues(alpha: 0.8),
@@ -385,7 +386,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                     _HasanatCard(hasanat: state.hasanatToday),
                     const SizedBox(height: 24),
                     Text(
-                      'طرق الحفظ',
+                      'hifz_methods'.tr(),
                       style: GoogleFonts.cairo(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -409,13 +410,13 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                           ),
                         );
                       },
-                      onSmartReview: () => _showComingSoon('المراجعة الذكية'),
-                      onListening: () => _showComingSoon('التلقي'),
-                      onRepetition: () => _showComingSoon('التكرار'),
+                      onSmartReview: () => _showComingSoon('smart_review'.tr()),
+                      onListening: () => _showComingSoon('listening_method'.tr()),
+                      onRepetition: () => _showComingSoon('repetition_method'.tr()),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'لحظاتي مع القرآن',
+                      'my_moments'.tr(),
                       style: GoogleFonts.cairo(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -437,7 +438,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                           },
                           icon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
                           label: Text(
-                            'أكمل من حيث توقفت',
+                            'continue_session'.tr(),
                             style: GoogleFonts.cairo(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -459,8 +460,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -521,14 +521,14 @@ class _Header extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'أهلاً بك،',
+                        'welcome_hifz_user'.tr(),
                         style: GoogleFonts.cairo(
                           fontSize: 13,
                           color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                       Text(
-                        'حافظ القرآن',
+                        'quran_memorizer'.tr(),
                         style: GoogleFonts.cairo(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -559,7 +559,11 @@ class _DailyPlanCard extends StatelessWidget {
     final total = state.targetAyahsToday <= 0 ? 1 : state.targetAyahsToday;
     final progress = (state.doneAyahsToday / total).clamp(0.0, 1.0);
     final now = DateTime.now();
-    final todayArabicDate = '${_toArabicIndic(now.day)}/${_toArabicIndic(now.month)}/${_toArabicIndic(now.year)}';
+    final isArabic = context.locale.languageCode == 'ar';
+    final dayStr = isArabic ? _toArabicIndic(now.day) : now.day.toString();
+    final monthStr = isArabic ? _toArabicIndic(now.month) : now.month.toString();
+    final yearStr = isArabic ? _toArabicIndic(now.year) : now.year.toString();
+    final todayDate = '$dayStr/$monthStr/$yearStr';
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -581,7 +585,7 @@ class _DailyPlanCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'خطتك اليوم',
+                'your_plan_today'.tr(),
                 style: GoogleFonts.cairo(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -589,7 +593,7 @@ class _DailyPlanCard extends StatelessWidget {
                 ),
               ),
               Text(
-                todayArabicDate,
+                todayDate,
                 style: GoogleFonts.cairo(
                   fontSize: 10,
                   color: const Color(0xFF94A3B8),
@@ -618,7 +622,7 @@ class _DailyPlanCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '${_toArabicIndic(state.doneAyahsToday)} / ${_toArabicIndic(total)} آيات',
+                    '${isArabic ? _toArabicIndic(state.doneAyahsToday) : state.doneAyahsToday} / ${isArabic ? _toArabicIndic(total) : total} ${'ayah_label'.tr()}',
                     style: GoogleFonts.cairo(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -634,7 +638,7 @@ class _DailyPlanCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'آيات اليوم',
+                'today_verses'.tr(),
                 style: GoogleFonts.cairo(
                   fontSize: 10,
                   color: const Color(0xFF94A3B8),
@@ -648,7 +652,7 @@ class _DailyPlanCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'مراجعة: ${_toArabicIndic(state.reviewDueCount)} آيات',
+                  'review_label'.tr(args: [isArabic ? _toArabicIndic(state.reviewDueCount) : state.reviewDueCount.toString()]),
                   style: GoogleFonts.cairo(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -671,6 +675,7 @@ class _HasanatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = context.locale.languageCode == 'ar';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -686,7 +691,7 @@ class _HasanatCard extends StatelessWidget {
             curve: Curves.easeOut,
             builder: (_, value, __) {
               return Text(
-                _toArabicIndic(value),
+                isArabic ? _toArabicIndic(value) : value.toString(),
                 style: GoogleFonts.cairo(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
@@ -696,7 +701,7 @@ class _HasanatCard extends StatelessWidget {
             },
           ),
           Text(
-            'حسنة اكتسبتها اليوم بإذن الله',
+            'hasanah_earned'.tr(),
             style: GoogleFonts.cairo(
               fontSize: 11,
               color: Colors.white.withValues(alpha: 0.7),
@@ -704,7 +709,7 @@ class _HasanatCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'من قرأ حرفاً فله حسنة والحسنة بعشر أمثالها',
+            'hasanah_hadith'.tr(),
             style: GoogleFonts.cairo(
               fontSize: 9,
               fontStyle: FontStyle.italic,
@@ -734,31 +739,34 @@ class _MethodsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isArabic = context.locale.languageCode == 'ar';
+    final countStr = isArabic ? _toArabicIndic(dueReviewCount) : dueReviewCount.toString();
+    
     final cards = [
       (
-        title: 'الظل التفاعلي',
-        sub: 'استمع، ردد، ثم من الذاكرة',
+        title: 'interactive_shadow'.tr(),
+        sub: 'interactive_shadow_desc'.tr(),
         icon: '⭐',
         onTap: onInteractiveShadow,
         featured: true,
       ),
       (
-        title: 'المراجعة الذكية',
-        sub: '${_toArabicIndic(dueReviewCount)} آيات للمراجعة اليوم',
+        title: 'smart_review'.tr(),
+        sub: 'smart_review_desc'.tr(args: [countStr]),
         icon: '🔄',
         onTap: onSmartReview,
         featured: false,
       ),
       (
-        title: 'التلقي',
-        sub: 'استمع مع الشيخ الحصري',
+        title: 'listening_method'.tr(),
+        sub: 'listening_method_desc'.tr(),
         icon: '🎧',
         onTap: onListening,
         featured: false,
       ),
       (
-        title: 'التكرار',
-        sub: 'احفظ بالتكرار المنتظم',
+        title: 'repetition_method'.tr(),
+        sub: 'repetition_method_desc'.tr(),
         icon: '📖',
         onTap: onRepetition,
         featured: false,
@@ -802,7 +810,7 @@ class _MethodsGrid extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '⭐ موصى به',
+                      'recommended'.tr(),
                       style: GoogleFonts.cairo(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
@@ -858,7 +866,7 @@ class _MomentsSection extends StatelessWidget {
             const Text('💎', style: TextStyle(fontSize: 24)),
             const SizedBox(height: 6),
             Text(
-              'لم تسجّل لحظة بعد',
+              'no_moments_title'.tr(),
               style: GoogleFonts.cairo(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -866,7 +874,7 @@ class _MomentsSection extends StatelessWidget {
               ),
             ),
             Text(
-              'ستجد هنا الآيات التي لمست قلبك',
+              'no_moments_desc'.tr(),
               style: GoogleFonts.cairo(
                 fontSize: 10,
                 color: const Color(0xFF93C5FD),
@@ -877,68 +885,66 @@ class _MomentsSection extends StatelessWidget {
       );
     }
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: SizedBox(
-        height: 140,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: moments.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 12),
-          itemBuilder: (_, index) {
-            final moment = moments[index];
-            final surahName = quran.getSurahNameArabic(moment.surahIndex);
-            final reflection = moment.reflection.toString().trim();
-            
-            return Container(
-              width: 200,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        surahName,
-                        style: GoogleFonts.cairo(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.primaryColor,
-                        ),
+    return SizedBox(
+      height: 140,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: moments.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (_, index) {
+          final moment = moments[index];
+          // Use localized helper
+          final surahName = SurahUtils.getLocalizedSurahName(context, moment.surahIndex);
+          final reflection = (moment.reflection ?? '').toString().trim();
+          
+          return Container(
+            width: 200,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      surahName,
+                      style: GoogleFonts.cairo(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.primaryColor,
                       ),
-                      const Text('💎', style: TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    reflection.isEmpty ? 'لم يتم تسجيل تأمل' : reflection,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.cairo(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF1E293B),
-                      height: 1.5,
                     ),
+                    const Text('💎', style: TextStyle(fontSize: 14)),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  reflection.isEmpty ? 'no_reflection'.tr() : reflection,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.cairo(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF1E293B),
+                    height: 1.5,
                   ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -1,17 +1,21 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/features/home/presentation/providers/last_notification_provider.dart';
 import 'package:sila_app/features/home/presentation/widgets/daily_content_card.dart';
 import 'package:sila_app/features/home/presentation/widgets/home_header.dart';
 import 'package:sila_app/features/home/presentation/widgets/next_prayer_card.dart';
 import 'package:sila_app/features/home/presentation/widgets/last_read_card.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
+import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
 import 'package:sila_app/features/notifications/presentation/pages/notification_hub_page.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_summary_card.dart';
 import 'package:sila_app/features/wird/presentation/widgets/wird_card.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -82,8 +86,8 @@ class HomePage extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: _buildToolCard(
-                        title: 'حفظ',
-                        subtitle: 'أكمل رحلتك',
+                        title: 'nav_hifz'.tr(),
+                        subtitle: 'hifz_continue'.tr(),
                         icon: Icons.auto_stories,
                         color: const Color(0xFF064E3B),
                         onTap: () => _openHifz(context),
@@ -92,8 +96,8 @@ class HomePage extends ConsumerWidget {
                     const SizedBox(width: 16),
                     Expanded(
                       child: _buildToolCard(
-                        title: 'تسميع',
-                        subtitle: 'اختبر حفظك',
+                        title: 'continue_tasmi'.tr(),
+                        subtitle: 'test_hifz'.tr(),
                         icon: Icons.mic_rounded,
                         color: const Color(0xFF1E3A5F),
                         onTap: () {
@@ -108,6 +112,10 @@ class HomePage extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+
+                // ── Notification Inbox Card ──
+                const _NotificationInboxCard(),
 
                 const SizedBox(height: 24),
 
@@ -148,6 +156,7 @@ class HomePage extends ConsumerWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
               padding: const EdgeInsets.all(10),
@@ -157,26 +166,150 @@ class HomePage extends ConsumerWidget {
               ),
               child: Icon(icon, color: Colors.white, size: 24),
             ),
-            const Spacer(),
-            Text(
-              title,
-              style: GoogleFonts.amiri(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: GoogleFonts.cairo(
-                color: Colors.white.withOpacity(0.8),
-                fontSize: 12,
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.amiri(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.cairo(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 12,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _NotificationInboxCard extends ConsumerWidget {
+  const _NotificationInboxCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lastNotifAsync = ref.watch(lastNotificationProvider);
+
+    return lastNotifAsync.when(
+      data: (notif) {
+        if (notif == null) return const SizedBox.shrink();
+
+        return GestureDetector(
+          onTap: () {
+            if (notif.category != null && notif.contentId != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => NotificationDetailPage(
+                    category: notif.category!,
+                    contentId: notif.contentId!,
+                  ),
+                ),
+              );
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.accentColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppTheme.accentColor.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accentColor.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.notifications_active_outlined,
+                    color: AppTheme.accentColor,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            notif.title,
+                            style: GoogleFonts.notoKufiArabic(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
+                          Text(
+                            _formatTime(notif.time),
+                            style: GoogleFonts.notoKufiArabic(
+                              fontSize: 11,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        notif.body,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.notoKufiArabic(
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: AppTheme.accentColor,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    if (time.year == now.year && time.month == now.month && time.day == now.day) {
+      final hour = time.hour.toString().padLeft(2, '0');
+      final minute = time.minute.toString().padLeft(2, '0');
+      return '$hour:$minute';
+    }
+    return '${time.day}/${time.month}';
   }
 }

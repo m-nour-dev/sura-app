@@ -9,6 +9,17 @@ class PrefsService {
   static const String _keyCalculationMethod = 'calculation_method';
   static const String _keyAdhanNotificationsEnabled = 'adhan_notifications_enabled';
   static const String _keyAdhanSound = 'adhan_sound';
+  static const String _keyNeverShowNotificationPrompt = 'never_show_notification_prompt';
+
+  Future<bool> getNeverShowNotificationPrompt() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyNeverShowNotificationPrompt) ?? false;
+  }
+
+  Future<void> setNeverShowNotificationPrompt(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyNeverShowNotificationPrompt, value);
+  }
 
   // ─── Location ────────────────────────────────────────────────────────────
 
@@ -99,5 +110,19 @@ class PrefsService {
   Future<void> setAdhanSound(String soundFile) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyAdhanSound, soundFile);
+  }
+
+  // ─── Planned Notifications Cache ──────────────────────────────────────────
+
+  static const String _keyPlannedNotifications = 'planned_notifications_cache';
+
+  Future<void> savePlannedNotifications(String json) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyPlannedNotifications, json);
+  }
+
+  Future<String?> getPlannedNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyPlannedNotifications);
   }
 }

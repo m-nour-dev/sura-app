@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui' as ui;
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/ibadah_tracker_tab.dart';
@@ -28,12 +29,12 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
   bool _screenLogged = false;
 
   static const _prayerMeta = [
-    {'key': 'fajr',    'icon': Icons.wb_twilight_rounded, 'name': 'الفجر'},
-    {'key': 'sunrise', 'icon': Icons.wb_sunny_rounded,    'name': 'الشروق'},
-    {'key': 'dhuhr',   'icon': Icons.sunny,               'name': 'الظهر'},
-    {'key': 'asr',     'icon': Icons.wb_cloudy_rounded,   'name': 'العصر'},
-    {'key': 'maghrib', 'icon': Icons.nights_stay_rounded, 'name': 'المغرب'},
-    {'key': 'isha',    'icon': Icons.brightness_3_rounded,'name': 'العشاء'},
+    {'key': 'fajr',    'icon': Icons.wb_twilight_rounded, 'name': 'fajr'},
+    {'key': 'sunrise', 'icon': Icons.wb_sunny_rounded,    'name': 'sunrise'},
+    {'key': 'dhuhr',   'icon': Icons.sunny,               'name': 'dhuhr'},
+    {'key': 'asr',     'icon': Icons.wb_cloudy_rounded,   'name': 'asr'},
+    {'key': 'maghrib', 'icon': Icons.nights_stay_rounded, 'name': 'maghrib'},
+    {'key': 'isha',    'icon': Icons.brightness_3_rounded,'name': 'isha'},
   ];
 
   @override
@@ -76,17 +77,19 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFFD97706);
 
-    return DefaultTabController(
-      initialIndex: widget.initialTabIndex.clamp(0, 1),
-      length: 2,
-      child: Scaffold(
+    return Directionality(
+      textDirection: ui.TextDirection.ltr,
+      child: DefaultTabController(
+        initialIndex: widget.initialTabIndex.clamp(0, 1),
+        length: 2,
+        child: Scaffold(
         backgroundColor: bg,
         appBar: AppBar(
           toolbarHeight: 0,
           bottom: TabBar(
-            tabs: const [
-              Tab(text: 'مواقيت الصلاة'),
-              Tab(text: 'متابعتي'),
+            tabs: [
+              Tab(text: 'prayer_times'.tr()),
+              Tab(text: 'my_tracking'.tr()),
             ],
             labelStyle: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700),
             indicatorColor: const Color(0xFFD97706),
@@ -129,7 +132,9 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
           final secs = timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
           final remainingTime = '$hours:$mins:$secs';
           
-          final nextPrayerName = _prayerMeta[nextIdx]['name'] as String;
+           final nextPrayerName = _prayerMeta[nextIdx]['name'] as String;
+           // Get translated prayer name
+           final translatedPrayerName = nextPrayerName.tr();
 
           return CustomScrollView(
             slivers: [
@@ -156,28 +161,28 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'مواقيت الصلاة',
-                                      style: GoogleFonts.getFont(
-                                        'Cairo',
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      entity.locationName,
-                                      style: GoogleFonts.getFont(
-                                        'Cairo',
-                                        fontSize: 13,
-                                        color: Colors.white60,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                   Column(
+                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                   children: [
+                                      Text(
+                                        'prayer_times'.tr(),
+                                        style: GoogleFonts.getFont(
+                                         'Cairo',
+                                         fontSize: 20,
+                                         fontWeight: FontWeight.w800,
+                                         color: Colors.white,
+                                       ),
+                                     ),
+                                     Text(
+                                       entity.locationName,
+                                       style: GoogleFonts.getFont(
+                                         'Cairo',
+                                         fontSize: 13,
+                                         color: Colors.white60,
+                                       ),
+                                     ),
+                                   ],
+                                 ),
                                 // Settings icon
                                 Row(
                                   children: [
@@ -252,15 +257,17 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                     size: 16,
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    '$nextPrayerName بعد $remainingTime',
-                                    style: GoogleFonts.getFont(
-                                      'Cairo',
-                                      fontSize: 13,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                   Text(
+                                     context.locale.languageCode == 'tr'
+                                         ? '$translatedPrayerName için $remainingTime'
+                                         : '$translatedPrayerName بعد $remainingTime',
+                                     style: GoogleFonts.getFont(
+                                       'Cairo',
+                                       fontSize: 13,
+                                       color: Colors.white,
+                                       fontWeight: FontWeight.w600,
+                                     ),
+                                   ),
                                 ],
                               ),
                             ),
@@ -315,15 +322,15 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                Text(
-                                  name,
-                                  style: GoogleFonts.getFont(
-                                    'Cairo',
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: isNext ? primaryColor : txtP,
-                                  ),
-                                ),
+                                 Text(
+                                   name.tr(),
+                                   style: GoogleFonts.getFont(
+                                     'Cairo',
+                                     fontSize: 15,
+                                     fontWeight: FontWeight.w700,
+                                     color: isNext ? primaryColor : txtP,
+                                   ),
+                                 ),
                               ],
                             ),
                             Row(
@@ -339,22 +346,22 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                 ),
                                 if (isNext) ...[
                                   const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: accentColor,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      'التالية',
-                                      style: GoogleFonts.getFont(
-                                        'Cairo',
-                                        fontSize: 9,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
+                                   Container(
+                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                     decoration: BoxDecoration(
+                                       color: accentColor,
+                                       borderRadius: BorderRadius.circular(6),
+                                     ),
+                                     child: Text(
+                                       'next_prayer'.tr(),
+                                       style: GoogleFonts.getFont(
+                                         'Cairo',
+                                         fontSize: 9,
+                                         color: Colors.white,
+                                         fontWeight: FontWeight.w700,
+                                       ),
+                                     ),
+                                   ),
                                 ],
                               ],
                             ),
@@ -395,23 +402,23 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'اتجاه القبلة',
-                                    style: GoogleFonts.getFont(
-                                      'Cairo',
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: txtP,
-                                    ),
-                                  ),
-                                  Text(
-                                    'حدد اتجاه القبلة من موقعك الحالي',
-                                    style: GoogleFonts.getFont(
-                                      'Cairo',
-                                      fontSize: 12,
-                                      color: txtS,
-                                    ),
-                                  ),
+                                   Text(
+                                     'qiblah_direction'.tr(),
+                                     style: GoogleFonts.getFont(
+                                       'Cairo',
+                                       fontSize: 15,
+                                       fontWeight: FontWeight.w700,
+                                       color: txtP,
+                                     ),
+                                   ),
+                                   Text(
+                                     'find_qibla_direction'.tr(),
+                                     style: GoogleFonts.getFont(
+                                       'Cairo',
+                                       fontSize: 12,
+                                       color: txtS,
+                                     ),
+                                   ),
                                 ],
                               ),
                             ),
@@ -432,6 +439,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
             ),
             const IbadahTrackerTab(),
           ],
+        ),
         ),
       ),
     );

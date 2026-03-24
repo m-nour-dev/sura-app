@@ -66,70 +66,73 @@ class DailyContentCard extends StatelessWidget {
             ),
             textAlign: TextAlign.right,
           ),
-          const SizedBox(height: 8),
-          
-          // Source & Actions
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-               Expanded(
-                 child: Text(
-                  "المصدر: ${sunnah.source}",
-                  style: GoogleFonts.getFont(
-                    'Cairo',
-                    color: txtS,
-                    fontSize: 11,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+           const SizedBox(height: 8),
+           
+            // Source & Actions
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                 Flexible(
+                   child: Text(
+                    "${'source'.tr()}: ${sunnah.source}",
+                    style: GoogleFonts.getFont(
+                      'Cairo',
+                      color: txtS,
+                      fontSize: 11,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                   ),
                  ),
-               ),
-             if (sunnah.explanation.isNotEmpty)
-               GestureDetector(
-                 onTap: () {
-                   showDialog(
-                     context: context,
-                     builder: (context) => AlertDialog(
-                       backgroundColor: surface,
-                       title: Text("شرح السنة", style: GoogleFonts.getFont('Cairo', color: txtP)),
-                       content: SingleChildScrollView(
-                         child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                              Text(sunnah.text, style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.bold, color: txtP)),
-                              const SizedBox(height: 10),
-                              Text(sunnah.explanation, style: GoogleFonts.getFont('Cairo', color: txtP, height: 1.6)),
-                              const SizedBox(height: 20),
-                              Text("المصدر: ${sunnah.source}", style: GoogleFonts.getFont('Cairo', color: txtS, fontSize: 12)),
-                           ],
+                 const SizedBox(width: 8),
+               if (sunnah.explanation.isNotEmpty)
+                 GestureDetector(
+                   onTap: () {
+                     showDialog(
+                       context: context,
+                       builder: (context) => AlertDialog(
+                         backgroundColor: surface,
+                         title: Text('explanation'.tr(), style: GoogleFonts.getFont('Cairo', color: txtP)),
+                         content: SingleChildScrollView(
+                           child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+                                Text(sunnah.text, style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.bold, color: txtP)),
+                                const SizedBox(height: 10),
+                                Text(sunnah.explanation, style: GoogleFonts.getFont('Cairo', color: txtP, height: 1.6)),
+                                const SizedBox(height: 20),
+                                Text("${'source'.tr()}: ${sunnah.source}", style: GoogleFonts.getFont('Cairo', color: txtS, fontSize: 12)),
+                             ],
+                           ),
                          ),
+                         actions: [
+                           TextButton(
+                             onPressed: () => Navigator.pop(context),
+                             child: Text('close'.tr(), style: GoogleFonts.getFont('Cairo', color: primaryColor)),
+                           )
+                         ],
                        ),
-                       actions: [
-                         TextButton(
-                           onPressed: () => Navigator.pop(context),
-                           child: Text("إغلاق", style: GoogleFonts.getFont('Cairo', color: primaryColor)),
-                         )
+                     );
+                   },
+                   child: Container(
+                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                     decoration: BoxDecoration(
+                       color: primaryColor.withOpacity(0.08),
+                       borderRadius: BorderRadius.circular(12),
+                     ),
+                     child: Row(
+                       mainAxisSize: MainAxisSize.min,
+                       children: [
+                         const Icon(Icons.info_outline, size: 14, color: primaryColor),
+                         const SizedBox(width: 4),
+                         Text('explanation'.tr(), style: GoogleFonts.getFont('Cairo', fontSize: 11, color: primaryColor, fontWeight: FontWeight.w700)),
                        ],
                      ),
-                   );
-                 },
-                 child: Container(
-                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                   decoration: BoxDecoration(
-                     color: primaryColor.withOpacity(0.08),
-                     borderRadius: BorderRadius.circular(12),
                    ),
-                   child: Row(
-                     children: [
-                       const Icon(Icons.info_outline, size: 14, color: primaryColor),
-                       const SizedBox(width: 4),
-                       Text('شرح', style: GoogleFonts.getFont('Cairo', fontSize: 11, color: primaryColor, fontWeight: FontWeight.w700)),
-                     ],
-                   ),
-                 ),
-               )
-            ],
-          ),
+                 )
+              ],
+            ),
         ],
       ),
     );

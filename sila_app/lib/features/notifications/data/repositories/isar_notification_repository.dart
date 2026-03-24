@@ -27,7 +27,31 @@ class IsarNotificationRepository implements INotificationRepository {
       ...await _loadBankAsset('assets/banks/seasons_bank.json'),
     ];
 
-    final contents = allBanks.map(_mapToContent).toList();
+    final trMap = <String, Map<String, dynamic>>{};
+    final trFiles = [
+      'assets/banks/salah_bank_tr.json',
+      'assets/banks/quran_bank_tr.json',
+      'assets/banks/azkar_bank_tr.json',
+      'assets/banks/tasbih_bank_tr.json',
+      'assets/banks/hifz_bank_tr.json',
+      'assets/banks/scholars_bank_tr.json',
+      'assets/banks/seasons_bank_tr.json',
+    ];
+
+    for (final p in trFiles) {
+      try {
+        final items = await _loadBankAsset(p);
+        for (final i in items) {
+          final id = i['id'] as String?;
+          if (id != null) trMap[id] = i;
+        }
+      } catch (e) {
+        // Ignore missing Turkish files or errors
+        print('Error loading Turkish bank $p: $e');
+      }
+    }
+
+    final contents = allBanks.map((m) => _mapToContent(m, trMap)).toList();
     await _isar.writeTxn(() async {
       await _isar.notificationContents.putAll(contents);
     });
@@ -43,7 +67,7 @@ class IsarNotificationRepository implements INotificationRepository {
         .toList();
   }
 
-  NotificationContent _mapToContent(Map<String, dynamic> map) {
+  NotificationContent _mapToContent(Map<String, dynamic> map, Map<String, Map<String, dynamic>> trMap) {
     final content = NotificationContent();
     content.contentId = map['id'] as String;
     content.category = (map['category'] as String?) ?? 'general';
@@ -61,6 +85,14 @@ class IsarNotificationRepository implements INotificationRepository {
     content.shownCount = 0;
     content.lastShown = null;
     content.isFavorited = false;
+
+    final tr = trMap[content.contentId];
+    if (tr != null) {
+      content.sourceTr = tr['source'] as String?;
+      content.gradeTr = tr['grade'] as String?;
+      content.shortExplanationTr = tr['short_explanation'] as String?;
+    }
+
     return content;
   }
 

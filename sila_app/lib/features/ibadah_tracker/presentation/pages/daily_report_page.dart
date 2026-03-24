@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,24 +29,13 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
     _anchorDay = DateTime(now.year, now.month, now.day);
   }
 
-  String _hijriArabicDate() {
+  String _hijriDate(BuildContext context) {
     final h = HijriCalendar.now();
-    const months = [
-      'محرم',
-      'صفر',
-      'ربيع الأول',
-      'ربيع الآخر',
-      'جمادى الأولى',
-      'جمادى الآخرة',
-      'رجب',
-      'شعبان',
-      'رمضان',
-      'شوال',
-      'ذو القعدة',
-      'ذو الحجة',
-    ];
-    final month = months[(h.hMonth - 1).clamp(0, 11)];
-    return '${h.hDay} $month ${h.hYear}هـ';
+    final month = tr('hijri_months.${h.hMonth}');
+    if (context.locale.languageCode == 'ar') {
+      return '${h.hDay} $month ${h.hYear}هـ';
+    }
+    return '${h.hDay} $month ${h.hYear}';
   }
 
   @override
@@ -80,8 +70,8 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
           final comparisonText = hasYesterday
               ? engine.comparisonText(
                   today: today, yesterday: yesterday, isMale: data.isMale)
-              : 'هذا يومك الأول — بداية مباركة بإذن الله 🌱';
-          final hijriDate = _hijriArabicDate();
+              : tr('daily_report_page.first_day_message');
+          final hijriDate = _hijriDate(context);
 
           final completedItems = _completedItems(today, isMale: data.isMale);
           final incompleteItems = _incompleteItems(today, isMale: data.isMale);
@@ -144,7 +134,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'تقريرك اليومي 📋',
+                            tr('daily_report_page.title'),
                             style: GoogleFonts.getFont(
                               'Cairo',
                               fontSize: 20,
@@ -177,11 +167,11 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                       hasYesterday: hasYesterday,
                     ),
                     const SizedBox(height: 12),
-                    _SectionTitle('ما أتممته اليوم ✅'),
+                    _SectionTitle(tr('daily_report_page.completed_today')),
                     _PillList(items: completedItems, positive: true),
                     const SizedBox(height: 12),
                     if (incompleteItems.isNotEmpty) ...[
-                      _SectionTitle('فرصة غدًا 🌅'),
+                      _SectionTitle(tr('daily_report_page.tomorrow_opportunity')),
                       _PillList(items: incompleteItems, positive: false),
                       const SizedBox(height: 12),
                     ],
@@ -194,7 +184,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                       ),
                       const SizedBox(height: 12),
                     ],
-                    _SectionTitle('المقارنة الزمنية'),
+                    _SectionTitle(tr('daily_report_page.time_comparison')),
                     _RangeSelector(
                       selectedDays: _selectedDays,
                       customSelected: _customRange != null,
@@ -208,7 +198,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                           firstDate: DateTime(_anchorDay.year - 1, 1, 1),
                           lastDate: _anchorDay,
                           initialDateRange: _customRange,
-                          helpText: 'اختر النطاق الزمني',
+                          helpText: tr('daily_report_page.select_time_range'),
                         );
                         if (picked != null) {
                           setState(() {
@@ -232,12 +222,12 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                             ),
                             child: Text(
                               _selectedDays == 7
-                                  ? 'المقارنة الأسبوعية غير متوفرة بعد — ننتظرك حتى يكتمل الأسبوع 🌿'
+                                  ? tr('daily_report_page.weekly_comparison_unavailable')
                                   : _selectedDays == 30
-                                      ? 'المقارنة الشهرية غير متوفرة بعد — ننتظرك حتى يكتمل الشهر 🌿'
+                                      ? tr('daily_report_page.monthly_comparison_unavailable')
                                       : _customRange != null
-                                          ? 'هذا النطاق غير متوفر بعد — اختر نطاقًا أقرب 🌿'
-                                          : 'المقارنة لثلاثة أشهر غير متوفرة بعد — ننتظرك حتى يكتمل النطاق 🌿',
+                                          ? tr('daily_report_page.custom_range_unavailable')
+                                          : tr('daily_report_page.three_months_comparison_unavailable'),
                               textAlign: TextAlign.center,
                               style: GoogleFonts.getFont('Cairo',
                                   fontSize: 12, color: const Color(0xFF64748B)),
@@ -262,7 +252,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
                     ),
                     if (incompleteItems.isNotEmpty) ...[
                       const SizedBox(height: 16),
-                      _SectionTitle('تذكير من السنة 📿'),
+                      _SectionTitle(tr('daily_report_page.sunnah_reminder')),
                       _ReminderCards(
                           items: incompleteItems, isMale: data.isMale),
                     ],
@@ -274,7 +264,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Center(child: Text('تعذر تحميل التقرير')),
+        error: (_, __) => Center(child: Text(tr('daily_report_page.load_error'))),
       ),
     );
   }
@@ -378,7 +368,7 @@ class _StatsStrip extends StatelessWidget {
       children: [
         Expanded(
           child: _MiniStatCard(
-            title: 'إنجاز اليوم',
+            title: tr('daily_report_page.today_achievement'),
             value: '$todayCount / $todayTotal',
             accent: const Color(0xFF064E3B),
           ),
@@ -386,10 +376,10 @@ class _StatsStrip extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _MiniStatCard(
-            title: 'إنجاز أمس',
+            title: tr('daily_report_page.yesterday_achievement'),
             value: hasYesterday
                 ? '$yesterdayCount / $yesterdayTotal'
-                : 'غير متوفر',
+                : tr('daily_report_page.not_available'),
             accent: const Color(0xFFD97706),
           ),
         ),
@@ -458,19 +448,19 @@ class _ComparisonCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text('مقارنة مع أمس',
+          Text(tr('daily_report_page.comparison_yesterday'),
               style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: _RatioBox(
-                    label: 'أمس', ratio: ratioYesterday, active: false),
+                    label: tr('daily_report_page.yesterday'), ratio: ratioYesterday, active: false),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child:
-                    _RatioBox(label: 'اليوم', ratio: ratioToday, active: true),
+                    _RatioBox(label: tr('daily_report_page.today'), ratio: ratioToday, active: true),
               ),
             ],
           ),
@@ -602,7 +592,7 @@ class _CalendarHeatmap extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Text(
-          'غير متوفر اليوم — ننتظرك غدًا لنبدأ المقارنة الزمنية 🌿',
+          tr('daily_report_page.today_unavailable'),
           textAlign: TextAlign.center,
           style: GoogleFonts.getFont('Cairo',
               fontSize: 12, color: const Color(0xFF64748B)),
@@ -614,7 +604,12 @@ class _CalendarHeatmap extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'آخر $days يوم: مكتمل $completed | جزئي $partial | بلا تسجيل $empty',
+          tr('daily_report_page.heatmap_legend', args: [
+            days.toString(),
+            completed.toString(),
+            partial.toString(),
+            empty.toString()
+          ]),
           textAlign: TextAlign.center,
           style: GoogleFonts.getFont('Cairo',
               fontSize: 11, color: const Color(0xFF64748B)),
@@ -628,12 +623,12 @@ class _CalendarHeatmap extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            _LegendDot(color: Color(0xFF064E3B), label: 'مكتمل'),
-            SizedBox(width: 10),
-            _LegendDot(color: Color(0xFFD97706), label: 'جزئي'),
-            SizedBox(width: 10),
-            _LegendDot(color: Color(0xFFE2E8F0), label: 'لا تسجيل'),
+          children: [
+            _LegendDot(color: const Color(0xFF064E3B), label: tr('daily_report_page.completed')),
+            const SizedBox(width: 10),
+            _LegendDot(color: const Color(0xFFD97706), label: tr('daily_report_page.partial')),
+            const SizedBox(width: 10),
+            _LegendDot(color: const Color(0xFFE2E8F0), label: tr('daily_report_page.no_record')),
           ],
         ),
       ],
@@ -685,17 +680,17 @@ class _RangeSelector extends StatelessWidget {
       runSpacing: 8,
       children: [
         _RangeChip(
-            label: 'أسبوع',
+            label: tr('daily_report_page.week'),
             days: 7,
             selected: selectedDays == 7,
             onTap: onSelect),
         _RangeChip(
-            label: 'شهر',
+            label: tr('daily_report_page.month'),
             days: 30,
             selected: selectedDays == 30,
             onTap: onSelect),
         _RangeChip(
-            label: '3 أشهر',
+            label: tr('daily_report_page.three_months'),
             days: 90,
             selected: selectedDays == 90,
             onTap: onSelect),
@@ -718,7 +713,7 @@ class _RangeSelector extends StatelessWidget {
               ),
             ),
             child: Text(
-              'مخصص',
+              tr('daily_report_page.custom'),
               style: GoogleFonts.getFont(
                 'Cairo',
                 fontSize: 12,
@@ -772,74 +767,74 @@ class _RangeChip extends StatelessWidget {
 List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale}) {
   final out = <_IbadahItem>[];
   if (r.fajrStatus > 0)
-    out.add(const _IbadahItem(key: 'fajr', label: 'صلاة الفجر'));
+    out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr')));
   if (r.dhuhrStatus > 0)
-    out.add(const _IbadahItem(key: 'dhuhr', label: 'صلاة الظهر'));
+    out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr')));
   if (r.asrStatus > 0)
-    out.add(const _IbadahItem(key: 'asr', label: 'صلاة العصر'));
+    out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr')));
   if (r.maghribStatus > 0)
-    out.add(const _IbadahItem(key: 'maghrib', label: 'صلاة المغرب'));
+    out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib')));
   if (r.ishaStatus > 0)
-    out.add(const _IbadahItem(key: 'isha', label: 'صلاة العشاء'));
-  if (r.readWird) out.add(const _IbadahItem(key: 'wird', label: 'الورد'));
+    out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha')));
+  if (r.readWird) out.add(_IbadahItem(key: 'wird', label: tr('daily_report_page.wird')));
   if (r.readAzkarSabah)
-    out.add(const _IbadahItem(key: 'azkar_sabah', label: 'أذكار الصباح'));
+    out.add(_IbadahItem(key: 'azkar_sabah', label: tr('daily_report_page.azkar_sabah')));
   if (r.readAzkarMasa)
-    out.add(const _IbadahItem(key: 'azkar_masa', label: 'أذكار المساء'));
-  if (r.didTasbih) out.add(const _IbadahItem(key: 'tasbih', label: 'التسبيح'));
+    out.add(_IbadahItem(key: 'azkar_masa', label: tr('daily_report_page.azkar_masa')));
+  if (r.didTasbih) out.add(_IbadahItem(key: 'tasbih', label: tr('daily_report_page.tasbih')));
   if (r.didHifz || r.didTasmi)
-    out.add(const _IbadahItem(key: 'hifz', label: 'الحفظ/التسميع'));
+    out.add(_IbadahItem(key: 'hifz', label: tr('daily_report_page.hifz_tasmi')));
   if (r.rememberedAllah)
-    out.add(const _IbadahItem(key: 'dhikr', label: 'ذكر الله'));
+    out.add(_IbadahItem(key: 'dhikr', label: tr('daily_report_page.dhikr')));
   if (isMale) {
     if (r.fajrInMasjid == true)
-      out.add(const _IbadahItem(key: 'fajr', label: 'فجر جماعة'));
+      out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr_congregation')));
     if (r.dhuhrInMasjid == true)
-      out.add(const _IbadahItem(key: 'dhuhr', label: 'ظهر جماعة'));
+      out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr_congregation')));
     if (r.asrInMasjid == true)
-      out.add(const _IbadahItem(key: 'asr', label: 'عصر جماعة'));
+      out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr_congregation')));
     if (r.maghribInMasjid == true)
-      out.add(const _IbadahItem(key: 'maghrib', label: 'مغرب جماعة'));
+      out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib_congregation')));
     if (r.ishaInMasjid == true)
-      out.add(const _IbadahItem(key: 'isha', label: 'عشاء جماعة'));
+      out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha_congregation')));
   }
   return out.isEmpty
-      ? [const _IbadahItem(key: 'general', label: 'بداية مباركة اليوم')]
+      ? [_IbadahItem(key: 'general', label: tr('daily_report_page.general_start'))]
       : out;
 }
 
 List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale}) {
   final out = <_IbadahItem>[];
   if (r.fajrStatus == 0)
-    out.add(const _IbadahItem(key: 'fajr', label: 'الفجر'));
+    out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr')));
   if (r.dhuhrStatus == 0)
-    out.add(const _IbadahItem(key: 'dhuhr', label: 'الظهر'));
-  if (r.asrStatus == 0) out.add(const _IbadahItem(key: 'asr', label: 'العصر'));
+    out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr')));
+  if (r.asrStatus == 0) out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr')));
   if (r.maghribStatus == 0)
-    out.add(const _IbadahItem(key: 'maghrib', label: 'المغرب'));
+    out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib')));
   if (r.ishaStatus == 0)
-    out.add(const _IbadahItem(key: 'isha', label: 'العشاء'));
-  if (!r.readWird) out.add(const _IbadahItem(key: 'wird', label: 'الورد'));
+    out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha')));
+  if (!r.readWird) out.add(_IbadahItem(key: 'wird', label: tr('daily_report_page.wird')));
   if (!r.readAzkarSabah)
-    out.add(const _IbadahItem(key: 'azkar_sabah', label: 'أذكار الصباح'));
+    out.add(_IbadahItem(key: 'azkar_sabah', label: tr('daily_report_page.azkar_sabah')));
   if (!r.readAzkarMasa)
-    out.add(const _IbadahItem(key: 'azkar_masa', label: 'أذكار المساء'));
-  if (!r.didTasbih) out.add(const _IbadahItem(key: 'tasbih', label: 'التسبيح'));
+    out.add(_IbadahItem(key: 'azkar_masa', label: tr('daily_report_page.azkar_masa')));
+  if (!r.didTasbih) out.add(_IbadahItem(key: 'tasbih', label: tr('daily_report_page.tasbih')));
   if (!(r.didHifz || r.didTasmi))
-    out.add(const _IbadahItem(key: 'hifz', label: 'الحفظ/التسميع'));
+    out.add(_IbadahItem(key: 'hifz', label: tr('daily_report_page.hifz_tasmi')));
   if (!r.rememberedAllah)
-    out.add(const _IbadahItem(key: 'dhikr', label: 'ذكر الله'));
+    out.add(_IbadahItem(key: 'dhikr', label: tr('daily_report_page.dhikr')));
   if (isMale) {
     if (r.fajrStatus > 0 && r.fajrInMasjid == false)
-      out.add(const _IbadahItem(key: 'fajr', label: 'فجر جماعة'));
+      out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr_congregation')));
     if (r.dhuhrStatus > 0 && r.dhuhrInMasjid == false)
-      out.add(const _IbadahItem(key: 'dhuhr', label: 'ظهر جماعة'));
+      out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr_congregation')));
     if (r.asrStatus > 0 && r.asrInMasjid == false)
-      out.add(const _IbadahItem(key: 'asr', label: 'عصر جماعة'));
+      out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr_congregation')));
     if (r.maghribStatus > 0 && r.maghribInMasjid == false)
-      out.add(const _IbadahItem(key: 'maghrib', label: 'مغرب جماعة'));
+      out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib_congregation')));
     if (r.ishaStatus > 0 && r.ishaInMasjid == false)
-      out.add(const _IbadahItem(key: 'isha', label: 'عشاء جماعة'));
+      out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha_congregation')));
   }
   return out;
 }

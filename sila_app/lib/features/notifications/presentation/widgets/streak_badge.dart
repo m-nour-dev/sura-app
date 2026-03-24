@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +21,7 @@ class StreakBadge extends ConsumerWidget {
         border: Border.all(color: const Color(0xFFA7F3D0)),
       ),
       child: Text(
-        '✦ $days يوم',
+        '✦ ${'streak_days_count'.tr(args: [days.toString()])}',
         style: GoogleFonts.getFont(
           'Cairo',
           fontSize: 11,
@@ -31,3 +32,4 @@ class StreakBadge extends ConsumerWidget {
     );
   }
 }
+

@@ -1,9 +1,11 @@
 import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran_lib;
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
@@ -44,15 +46,23 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
     final quranDataAsync = ref.watch(quranDataProvider);
     final settings = widget.settings;
     final isDark = settings.themeMode == QuranThemeMode.dark;
-    final title = widget.showTafsir ? 'التفسير الميسّر' : 'Türkçe Çeviri';
+    
+    // Determine title based on language
+    final isArabic = context.locale.languageCode == 'ar';
+    final title = widget.showTafsir 
+        ? (isArabic ? 'التفسير الميسّر' : 'Tefsir')
+        : (isArabic ? 'الترجمة' : 'Çeviri');
 
     return quranDataAsync.when(
       data: (quranData) {
-        final content = widget.showTafsir
-            ? (quranData.tafsir['${activeSurah}_$activeAyah'] ?? 'لا يوجد تفسير متوفر حالياً')
-            : (quranData.translation['${activeSurah}_$activeAyah'] ?? 'Çeviri bulunamadı');
+        final isArabic = context.locale.languageCode == 'ar';
+        final isTurkish = context.locale.languageCode == 'tr';
         
-        final surahName = quran_lib.getSurahNameArabic(activeSurah);
+        final content = widget.showTafsir
+            ? (quranData.tafsir['${activeSurah}_$activeAyah'] ?? (isArabic ? 'لا يوجد تفسير متوفر حالياً' : 'Tefsir bulunamadı'))
+            : (quranData.translation['${activeSurah}_$activeAyah'] ?? (isArabic ? 'لا توجد ترجمة متوفرة' : 'Çeviri bulunamadı'));
+        
+        final surahName = SurahUtils.getLocalizedSurahName(context, activeSurah);
         final verseText = quran_lib.getVerse(activeSurah, activeAyah);
 
         return BackdropFilter(
@@ -121,7 +131,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                                 color: _getTextColor(settings.themeMode),
                               ),
                             ),
-                            Text('سورة $surahName - آية $activeAyah',
+                            Text('surah_ayah_label'.tr(args: [surahName, activeAyah.toString()]),
                               style: GoogleFonts.cairo(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -204,42 +214,43 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                   const SizedBox(height: 32),
 
-                  // Content
-                  Text(widget.showTafsir ? 'التفسير:' : 'Meali:',
-                    style: GoogleFonts.cairo(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: _getAccentColor(settings.themeMode),
+                    // Content
+                    Text(widget.showTafsir ? 'tafsir_label'.tr() : 'translation_label'.tr(),
+                      style: GoogleFonts.cairo(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _getAccentColor(settings.themeMode),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(content.replaceAll('\n', '\n\n'),
-                    textAlign: widget.showTafsir ? TextAlign.justify : TextAlign.left,
-                    textDirection: widget.showTafsir ? ui.TextDirection.rtl : ui.TextDirection.ltr,
-                    style: TextStyle(
-                      fontFamily: widget.showTafsir ? settings.fontFamily : 'Roboto',
-                      fontSize: settings.fontSize * 0.9,
-                      height: widget.showTafsir ? 2.2 : 1.6,
-                      color: _getTextColor(settings.themeMode).withOpacity(0.9),
+                    const SizedBox(height: 12),
+                    
+                    Text(content.replaceAll('\n', '\n\n'),
+                      textAlign: widget.showTafsir ? TextAlign.justify : TextAlign.left,
+                      textDirection: widget.showTafsir ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+                      style: TextStyle(
+                        fontFamily: widget.showTafsir ? settings.fontFamily : 'Roboto',
+                        fontSize: settings.fontSize * 0.9,
+                        height: widget.showTafsir ? 2.2 : 1.6,
+                        color: _getTextColor(settings.themeMode).withOpacity(0.9),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 48),
+                   const SizedBox(height: 48),
 
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _getAccentColor(settings.themeMode),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(widget.showTafsir ? 'إغلاق' : 'Kapat',
-                      style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold)),
-                  ),
+                   ElevatedButton(
+                     style: ElevatedButton.styleFrom(
+                       backgroundColor: _getAccentColor(settings.themeMode),
+                       foregroundColor: Colors.white,
+                       padding: const EdgeInsets.symmetric(vertical: 18),
+                       elevation: 4,
+                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                     ),
+                     onPressed: () => Navigator.pop(context),
+                     child: Text('close'.tr(),
+                       style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold)),
+                   ),
                   const SizedBox(height: 24),
                 ],
               ),

@@ -143,6 +143,14 @@ class IbadahTrackerController extends StateNotifier<AsyncValue<IbadahTrackerStat
     await repository.updateBoolStatus(date: current.today.date, key: key, value: value);
     await load();
   }
+
+  Future<void> updatePersonalNote(String note) async {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    final repository = await _repositoryFuture;
+    await repository.updatePersonalNote(date: current.today.date, note: note);
+    await load();
+  }
 }
 
 final ibadahTrackerControllerProvider = StateNotifierProvider<

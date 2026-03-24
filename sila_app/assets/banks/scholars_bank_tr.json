@@ -1,0 +1,962 @@
+[
+  {
+    "id": "scholars_001",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "القلب في سيره إلى الله بمنزلة الطائر؛ المحبة رأسه والخوف والرجاء جناحاه.",
+    "source": "ابن القيم - مدارج السالكين",
+    "grade": "Hikmet",
+    "short_explanation": "Kalbin ümit ve korku dengesi, istikrarın aslıdır.",
+    "trigger_tags": [
+      "تذكير_عام",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_002",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من علامة تعظيم الأمر والنهي ألا يعارض بترخص جاف.",
+    "source": "ابن رجب - جامع العلوم والحكم",
+    "grade": "Hikmet",
+    "short_explanation": "Gerçek tazim sözde değil, amelde görülür.",
+    "trigger_tags": [
+      "تذكير_عام",
+      "تيقظ"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_003",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "العلم يهتف بالعمل فإن أجابه وإلا ارتحل.",
+    "source": "الإمام الغزالي - إحياء علوم الدين",
+    "grade": "Hikmet",
+    "short_explanation": "Uygulanmayan ilim etkisini çabuk kaybeder.",
+    "trigger_tags": [
+      "تذكير_عام",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_004",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الإخلاص أن يكون سكونك وحركتك لله وحده.",
+    "source": "ابن القيم - الفوائد",
+    "grade": "Hikmet",
+    "short_explanation": "İhlas, her ibadette niyeti temizler.",
+    "trigger_tags": [
+      "إلهام",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_005",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من أصلح سريرته أصلح الله علانيته.",
+    "source": "ابن رجب - لطائف المعارف",
+    "grade": "Hikmet",
+    "short_explanation": "Salih bir iç dünya, istikametli bir dış görünüş verir.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_006",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "السعيد من وعظ بغيره، والشقي من اتعظ به غيره.",
+    "source": "ابن الجوزي - صيد الخاطر",
+    "grade": "Hikmet",
+    "short_explanation": "İbret olmadan önce ibret al.",
+    "trigger_tags": [
+      "تيقظ",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_007",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "دواء القلب خمسة: قراءة القرآن بتدبر، وخلاء البطن، وقيام الليل، والتضرع عند السحر، ومجالسة الصالحين.",
+    "source": "ابن القيم - زاد المعاد",
+    "grade": "Hikmet",
+    "short_explanation": "Kalbi günlük ihya etmek için pratik bir program.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_008",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "النفس إن لم تشغلها بالحق شغلتك بالباطل.",
+    "source": "ابن القيم - الفوائد",
+    "grade": "Hikmet",
+    "short_explanation": "Gününüzü boşluk doldurmadan önce itaatle doldurun.",
+    "trigger_tags": [
+      "تحفيز",
+      "تيقظ"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_009",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الموفق من فتح له باب الدعاء وألهمه الافتقار.",
+    "source": "ابن تيمية - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Dua büyük bir muvaffakiyettir, ancak gafil olan mahrum kalır.",
+    "trigger_tags": [
+      "إلهام",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_010",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "إذا أردت أن تعرف ما لك عند الله فانظر ما لله عندك.",
+    "source": "ابن القيم - الوابل الصيب",
+    "grade": "Hikmet",
+    "short_explanation": "Kalbindeki itaat yeri, halinin aynasıdır.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_011",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "قيمة كل امرئ ما يحسنه.",
+    "source": "الغزالي - إحياء علوم الدين",
+    "grade": "Hikmet",
+    "short_explanation": "İbadetini güzelleştir, Allah katındaki değerin artsın.",
+    "trigger_tags": [
+      "تحفيز",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_012",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "العبادة لا تقوم إلا على العلم، والعلم لا ينفع إلا مع العمل.",
+    "source": "ابن عثيمين - شرح الأصول الثلاثة",
+    "grade": "Hikmet",
+    "short_explanation": "İlim ve amel dengesi, sebatın yoludur.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_013",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من صدق الله صدقه الله.",
+    "source": "ابن باز - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Allah ile sadakat, yardım ve kolaylık getirir.",
+    "trigger_tags": [
+      "تحفيز",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_014",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "لا يزال العبد بخير ما دام له واعظ من قلبه.",
+    "source": "ابن الجوزي - صيد الخاطر",
+    "grade": "Hikmet",
+    "short_explanation": "Günlük nefis muhasebesi gafletten korur.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_015",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الذنوب جراحات، ورب جرح وقع في مقتل.",
+    "source": "ابن القيم - الجواب الكافي",
+    "grade": "Hikmet",
+    "short_explanation": "Israrla işlenen küçük günah kalbi bozar.",
+    "trigger_tags": [
+      "تيقظ",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_016",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "دوام القليل خير من كثير منقطع.",
+    "source": "ابن رجب - فتح الباري",
+    "grade": "Hikmet",
+    "short_explanation": "Günlük devamlılık, geçici hevesten daha büyüktür.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_017",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الغفلة داء القلب، وذكر الله دواؤه.",
+    "source": "ابن القيم - الوابل الصيب",
+    "grade": "Hikmet",
+    "short_explanation": "Günlük zikir kalbi diri tutur.",
+    "trigger_tags": [
+      "تذكير_عام",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_018",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من عرف قدر الوقت لم يضيعه.",
+    "source": "ابن الجوزي - تلبيس إبليس",
+    "grade": "Hikmet",
+    "short_explanation": "Zaman yönetimi, başarıya yardımcı bir ibadettir.",
+    "trigger_tags": [
+      "تحفيز",
+      "تيقظ"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_019",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "حسن الظن بالله مع حسن العمل هو طريق النجاة.",
+    "source": "ابن عثيمين - شرح رياض الصالحين",
+    "grade": "Hikmet",
+    "short_explanation": "Amelsiz ümit kuruntu, ümitsiz amel ise kasvet verir.",
+    "trigger_tags": [
+      "إلهام",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_020",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "أعظم الناس راحة من كانت همومه همًا واحدًا: رضى الله.",
+    "source": "ابن القيم - طريق الهجرتين",
+    "grade": "Hikmet",
+    "short_explanation": "Hedefi birlemek, kalbin dağınıklığını giderir.",
+    "trigger_tags": [
+      "إلهام",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_021",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الصبر حبس النفس على ما يرضي الله.",
+    "source": "ابن تيمية - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Pratik sabır, Allah'a giden yolun yakıtıdır.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_022",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من لم يجد لذة الطاعة فليتهم قلبه.",
+    "source": "ابن القيم - الفوائد",
+    "grade": "Hikmet",
+    "short_explanation": "Kalp katılığının sebebini ara ve tövbe ile tedavi et.",
+    "trigger_tags": [
+      "تيقظ",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_023",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "البركة في أول الوقت لمن صدق مع الله.",
+    "source": "ابن باز - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Güne itaatle başlamak büyük fark yaratır.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_024",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "إذا ضاق صدرك فافزع إلى الصلاة.",
+    "source": "ابن عثيمين - لقاءات الباب المفتوح",
+    "grade": "Hikmet",
+    "short_explanation": "Namaz, zorluklarda kalbin sığınağıdır.",
+    "trigger_tags": [
+      "تكاسل_عن_salah",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_025",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "القرآن حياة القلوب كما أن المطر حياة الأرض.",
+    "source": "ابن القيم - مفتاح دار السعادة",
+    "grade": "Hikmet",
+    "short_explanation": "Günlük Kur'an virdi kalbin gıdasıdır.",
+    "trigger_tags": [
+      "تكاسل_عن_wird",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_026",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من لازم الاستغفار جعل الله له من كل هم فرجًا.",
+    "source": "ابن باز - نور على الدرب",
+    "grade": "Hikmet",
+    "short_explanation": "İstiğfar, sıkıntıları gidermenin anahtarıdır.",
+    "trigger_tags": [
+      "تكاسل_عن_tasbih",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_027",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الدعاء سلاح المؤمن، فمن تركه ضعف قلبه.",
+    "source": "ابن تيمية - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Dua yakini güçlendirir ve kalbi Allah'a bağlar.",
+    "trigger_tags": [
+      "إلهام",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_028",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "المؤمن بين نعمة تحتاج شكرًا وذنب يحتاج استغفارًا.",
+    "source": "ابن القيم - مدارج السالكين",
+    "grade": "Hikmet",
+    "short_explanation": "Hayatın şükür veya tövbeden ibarettir.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_029",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الخير عادة، فدرّب نفسك عليه حتى تألفه.",
+    "source": "الغزالي - إحياء علوم الدين",
+    "grade": "Hikmet",
+    "short_explanation": "Salih alışkanlıklar tedricilik ve sebatla inşa edilir.",
+    "trigger_tags": [
+      "تحفيز",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_030",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "إذا أردت الثبات فأكثر من دعاء: يا مقلب القلوب ثبت قلبي على دينك.",
+    "source": "ابن عثيمين - شرح الأذكار",
+    "grade": "Hikmet",
+    "short_explanation": "Sebatın en büyük sebebi Allah'a çokça sığınmaktır.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_031",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من صدق في الطلب وصل، ومن داوم على الباب فُتح له.",
+    "source": "ابن القيم - الفوائد",
+    "grade": "Hikmet",
+    "short_explanation": "Sadık devamlılık hayır kapılarını açar.",
+    "trigger_tags": [
+      "تحفيز",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_032",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "القلب إذا امتلأ بالقرآن ضاقت عليه المعصية.",
+    "source": "ابن رجب - لطائف المعارف",
+    "grade": "Hikmet",
+    "short_explanation": "Kur'an ile beraberlik kalbi hatalardan korur.",
+    "trigger_tags": [
+      "تكاسل_عن_wird",
+      "تيقظ"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_033",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من أكثر من ذكر الموت هان عليه ترك الشهوات.",
+    "source": "ابن الجوزي - التذكرة",
+    "grade": "Hikmet",
+    "short_explanation": "Ahireti hatırlamak nefsi kontrol etmeye yardımcı olur.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_034",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "العبد محتاج إلى هداية كل يوم كما يحتاج إلى الطعام والشراب.",
+    "source": "ابن تيمية - الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Hidayet, durmayan günlük bir taleptir.",
+    "trigger_tags": [
+      "تذكير_عام",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_035",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "صلاح القلب مقدم على صلاح الجوارح، والجوارح تبع له.",
+    "source": "ابن القيم - إغاثة اللهفان",
+    "grade": "Hikmet",
+    "short_explanation": "İçini düzeltmeye başla, dışın kendiliğinden düzelir.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_036",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من علامات القبول أن ترى نفسك مقصراً بعد كل طاعة.",
+    "source": "ابن رجب - جامع العلوم والحكم",
+    "grade": "Hikmet",
+    "short_explanation": "Amelden sonra tevazu, ihlasın alametidir.",
+    "trigger_tags": [
+      "تيقظ",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_037",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "أعظم الخسارة أن يمر يومك بلا ذكر ولا قرآن.",
+    "source": "ابن باز - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Günün ne kadar yoğun olursa olsun düşmeyen bir virdin olsun.",
+    "trigger_tags": [
+      "تكاسل_عن_wird",
+      "تكاسل_عن_tasbih"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_038",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "قيام الليل مدرسة الإخلاص والصبر.",
+    "source": "ابن عثيمين - لقاء الباب المفتوح",
+    "grade": "Hikmet",
+    "short_explanation": "Gece, kul ile Rabbi arasında özel bir bağ kurar.",
+    "trigger_tags": [
+      "تحفيز",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_039",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من عرف الله استحيا أن يراه حيث نهاه.",
+    "source": "ابن القيم - مدارج السالكين",
+    "grade": "Hikmet",
+    "short_explanation": "Allah'ı tanımak, sadık bir murakabe meyvesi verir.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_040",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "أحسن إلى الناس ما استطعت، فإن القلوب مجبولة على حب من أحسن إليها.",
+    "source": "الغزالي - إحياء علوم الدين",
+    "grade": "Hikmet",
+    "short_explanation": "Güzel ahlak, davet ve etki için büyük bir kapıdır.",
+    "trigger_tags": [
+      "إلهام",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_041",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من أراد الله به خيرًا فتح له باب الذكر.",
+    "source": "ابن القيم - الوابل الصيب",
+    "grade": "Hikmet",
+    "short_explanation": "Zikir, Allah'ın kuluna lütfunun bir işaretidir.",
+    "trigger_tags": [
+      "تكاسل_عن_tasbih",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_042",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "كلما ازددت علمًا ازددت خوفًا من الله.",
+    "source": "ابن باز - الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Doğru ilim kibre değil takvaya götürür.",
+    "trigger_tags": [
+      "تيقظ",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_043",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "المحروم من حرم الدعاء، والمخذول من أعرض عنه.",
+    "source": "ابن تيمية - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Hiçbir durumda dua kapısını bırakma.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_044",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "النظر في عيوب النفس أولى من تتبع عيوب الناس.",
+    "source": "ابن الجوزي - صيد الخاطر",
+    "grade": "Hikmet",
+    "short_explanation": "Kendini düzeltmek, başkalarını eleştirmekten öncedir.",
+    "trigger_tags": [
+      "تيقظ",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_045",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من أدام الطرق على الباب فُتح له.",
+    "source": "ابن القيم - الفوائد",
+    "grade": "Hikmet",
+    "short_explanation": "İtaatte devamlılık sana yeni kapılar açar.",
+    "trigger_tags": [
+      "تحفيز",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_046",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "الاستقامة خير من ألف كرامة.",
+    "source": "ابن تيمية - الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "İtaatte sebat, olağanüstülük aramaktan daha büyüktür.",
+    "trigger_tags": [
+      "تذكير_عام",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_047",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "إذا جاءك الفتور فتمسك بالفرائض ولا تترك الأوراد.",
+    "source": "ابن عثيمين - شرح رياض الصالحين",
+    "grade": "Hikmet",
+    "short_explanation": "Fetret zamanı geri çekilmeyi değil, sebatı gerektirir.",
+    "trigger_tags": [
+      "تحفيز",
+      "تكاسل_عن_wird"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_048",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من أصلح ما بينه وبين الله أصلح الله ما بينه وبين الناس.",
+    "source": "ابن القيم - الفوائد",
+    "grade": "Hikmet",
+    "short_explanation": "Allah ile ilişkiyi düzeltmek tüm hayatına yansır.",
+    "trigger_tags": [
+      "إلهام",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_049",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "أفضل الجهاد جهاد النفس على الطاعة.",
+    "source": "ابن باز - مجموع الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Günlük nefis mücadelesi başarının aslıdır.",
+    "trigger_tags": [
+      "تحفيز",
+      "تيقظ"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_050",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "التوبة الصادقة تمحو ما قبلها وتفتح بداية جديدة.",
+    "source": "ابن رجب - جامع العلوم والحكم",
+    "grade": "Hikmet",
+    "short_explanation": "Kusurun ne olursa olsun Allah'a dönüşü geciktirme.",
+    "trigger_tags": [
+      "تيقظ",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_051",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من لازم القرآن بصدق رأى أثره في قوله وخلقه.",
+    "source": "ابن القيم - التبيان",
+    "grade": "Hikmet",
+    "short_explanation": "Kur'an, bilgiden önce şahsiyeti inşa eder.",
+    "trigger_tags": [
+      "تكاسل_عن_wird",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_052",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "العاقل من كان يومه خيرًا من أمسه.",
+    "source": "ابن الجوزي - صيد الخاطر",
+    "grade": "Hikmet",
+    "short_explanation": "Az da olsa günlük ilerleme gerçek başarıdır.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_053",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "أكثر ما يثبت العبد: صحبة صالحة وذكر دائم.",
+    "source": "ابن عثيمين - لقاءات الباب المفتوح",
+    "grade": "Hikmet",
+    "short_explanation": "Salih çevre devamlılığa yardımcı olur.",
+    "trigger_tags": [
+      "تحفيز",
+      "إلهام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_054",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "إذا وجدت قسوة في قلبك فأكثر من تلاوة القرآن.",
+    "source": "ابن باز - الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Kur'an, kalp katılığının en faydalı ilacıdır.",
+    "trigger_tags": [
+      "تكاسل_عن_wird",
+      "تيقظ"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_055",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "أحب الأعمال إلى الله أدومها وإن قل.",
+    "source": "ابن رجب - شرح الحديث",
+    "grade": "Hikmet",
+    "short_explanation": "Devamlılık, geçici çokluktan daha önemlidir.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_056",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "اللسان إن لم تذكر به الله شغلك بما يضرك.",
+    "source": "ابن القيم - الوابل الصيب",
+    "grade": "Hikmet",
+    "short_explanation": "Dilini boş sözle meşgul etmeden zikirle meşgul et.",
+    "trigger_tags": [
+      "تكاسل_عن_tasbih",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_057",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "العبد يقطع إلى الله بالصدق ما لا يقطعه بكثرة العمل.",
+    "source": "ابن تيمية - الفتاوى",
+    "grade": "Hikmet",
+    "short_explanation": "Sadakat az ameli bereketlendirir ve büyütür.",
+    "trigger_tags": [
+      "إلهام",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_058",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "من داوم على الاستقامة رأى لطف الله في التفاصيل الصغيرة قبل الكبيرة.",
+    "source": "ابن عثيمين - شرح العقيدة",
+    "grade": "Hikmet",
+    "short_explanation": "Sebat, günden güne sekine ve bereket getirir.",
+    "trigger_tags": [
+      "تحفيز",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_059",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "أطول الناس ندمًا من ضيّع أوقات قدرته على الطاعة.",
+    "source": "ابن الجوزي - صيد الخاطر",
+    "grade": "Hikmet",
+    "short_explanation": "Fırsat geçmeden gücünü ve sağlığını değerlendir.",
+    "trigger_tags": [
+      "تيقظ",
+      "تحفيز"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  },
+  {
+    "id": "scholars_060",
+    "category": "scholars",
+    "type": "hikma",
+    "arabic_text": "إذا فتح لك باب الطاعة فلا تنظر لصغره، ولكن انظر لمن وفقك له.",
+    "source": "ابن القيم - الفوائد",
+    "grade": "Hikmet",
+    "short_explanation": "Her itaat, şükrü ve devamı hak eden bir lütuftur.",
+    "trigger_tags": [
+      "إلهام",
+      "تذكير_عام"
+    ],
+    "season_tags": [
+      "عام"
+    ]
+  }
+]

@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
@@ -80,7 +82,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
         final firstSurahOnPage = surahData.isNotEmpty ? surahData[0]['surah'] as int : 1;
         final firstAyahOnPage = surahData.isNotEmpty ? surahData[0]['start'] as int : 1;
         final currentJuz = quran.getJuzNumber(firstSurahOnPage, firstAyahOnPage);
-        final currentSurahName = quran.getSurahNameArabic(firstSurahOnPage);
+        final currentSurahName = SurahUtils.getLocalizedSurahName(context, firstSurahOnPage);
 
         return Scaffold(
           backgroundColor: QuranUIUtils.getBackgroundColor(settings.themeMode),
@@ -134,7 +136,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
       title: Column(
         children: [
           Text(
-            'سورة $surahName',
+            'surah_label'.tr(args: [surahName]),
             style: TextStyle(
               color: iconColor,
               fontWeight: FontWeight.bold,
@@ -143,7 +145,10 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
             ),
           ),
           Text(
-            'صفحة $_currentPage، جزء $juz',
+            'page_with_juz_label'.tr(args: [
+              _currentPage.toString(),
+              juz.toString()
+            ]),
             style: GoogleFonts.cairo(
               color: iconColor.withOpacity(0.8),
               fontSize: 12,
@@ -306,7 +311,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
       ),
       child: Center(
         child: Text(
-          "سورة ${quran.getSurahNameArabic(surahNum)}",
+          'surah_label'.tr(args: [SurahUtils.getLocalizedSurahName(context, surahNum)]),
           style: TextStyle(fontFamily: 'Amiri', fontSize: 24, fontWeight: FontWeight.bold, color: QuranUIUtils.getTextColor(settings.themeMode)),
         ),
       ),
@@ -358,26 +363,26 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     return GestureDetector(onTap: () => ref.read(quranSettingsControllerProvider.notifier).updateThemeMode(mode), child: Column(children: [Container(width: 40, height: 40, decoration: BoxDecoration(color: QuranUIUtils.getBackgroundColor(mode), shape: BoxShape.circle, border: Border.all(color: isSelected ? QuranUIUtils.getAccentColor(settings.themeMode) : Colors.grey))), Text(label, style: GoogleFonts.cairo(color: QuranUIUtils.getTextColor(settings.themeMode)))]));
   }
 
-  Widget _buildToolbar(BuildContext context, WidgetRef ref, QuranSettings settings) {
-    final isAnySelected = _selectedSurah != null && _selectedAyah != null;
-    if (!isAnySelected) return const SizedBox.shrink();
-    return Container(
-      height: 60, margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))]),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _toolbarAction(Icons.volume_up_rounded, 'استماع', () => _playAyahAudio(_selectedSurah!, _selectedAyah!)),
-          _toolbarAction(Icons.menu_book_rounded, 'تفسير', () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: true, settings: settings)),
-          _toolbarAction(Icons.translate_rounded, 'تركية', () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: false, settings: settings)),
-          _toolbarAction(Icons.share_rounded, 'نسخ', () {
-            Clipboard.setData(ClipboardData(text: quran.getVerse(_selectedSurah!, _selectedAyah!, verseEndSymbol: false)));
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نسخ الآية')));
-          }),
-        ],
-      ),
-    );
-  }
+   Widget _buildToolbar(BuildContext context, WidgetRef ref, QuranSettings settings) {
+     final isAnySelected = _selectedSurah != null && _selectedAyah != null;
+     if (!isAnySelected) return const SizedBox.shrink();
+     return Container(
+       height: 60, margin: const EdgeInsets.all(16),
+       decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))]),
+       child: Row(
+         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+         children: [
+           _toolbarAction(Icons.volume_up_rounded, 'toolbar_listen'.tr(), () => _playAyahAudio(_selectedSurah!, _selectedAyah!)),
+           _toolbarAction(Icons.menu_book_rounded, 'toolbar_tafsir'.tr(), () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: true, settings: settings)),
+           _toolbarAction(Icons.translate_rounded, 'toolbar_translation'.tr(), () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: false, settings: settings)),
+           _toolbarAction(Icons.share_rounded, 'toolbar_copy'.tr(), () {
+             Clipboard.setData(ClipboardData(text: quran.getVerse(_selectedSurah!, _selectedAyah!, verseEndSymbol: false)));
+             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('verse_copied_success'.tr())));
+           }),
+         ],
+       ),
+     );
+   }
 
   Widget _toolbarAction(IconData icon, String label, VoidCallback onTap) {
     return InkWell(onTap: onTap, child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, color: const Color(0xFF1D9E75), size: 20), Text(label, style: const TextStyle(color: Color(0xFF1D9E75), fontSize: 10, fontFamily: 'Cairo'))]));
@@ -387,7 +392,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     setState(() => _isAudioBuffering = true);
     try {
       final url = ref.read(reciterControllerProvider.notifier).buildAyahUrl(surahNum, ayahNum);
-      await ref.read(audioControllerProvider.notifier).playAudio(url, surahName: quran.getSurahNameArabic(surahNum), surahNumber: surahNum, ayahNumber: ayahNum);
+      await ref.read(audioControllerProvider.notifier).playAudio(url, surahName: SurahUtils.getLocalizedSurahName(context, surahNum), surahNumber: surahNum, ayahNumber: ayahNum);
     } catch (e) { print(e); } finally { if (mounted) setState(() => _isAudioBuffering = false); }
   }
 }

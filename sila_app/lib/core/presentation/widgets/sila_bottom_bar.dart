@@ -1,8 +1,23 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../main_layout.dart'; // To access bottomNavIndexProvider
+
+class _NavItemData {
+  final IconData icon;
+  final String label;
+  final int index;
+  final bool featured;
+
+  _NavItemData({
+    required this.icon,
+    required this.label,
+    required this.index,
+    this.featured = false,
+  });
+}
 
 class SilaBottomBar extends ConsumerWidget {
   final int currentIndex;
@@ -14,6 +29,15 @@ class SilaBottomBar extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surface = isDark ? const Color(0xFF1E293B) : Colors.white;
     final border = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
+
+    // Define nav items
+    final navItems = [
+      _NavItemData(icon: Icons.home_rounded, label: 'nav_home'.tr(), index: 0),
+      _NavItemData(icon: Icons.menu_book_rounded, label: 'nav_quran'.tr(), index: 1),
+      _NavItemData(icon: Icons.auto_stories, label: 'nav_hifz'.tr(), index: 2, featured: true),
+      _NavItemData(icon: Icons.access_time_rounded, label: 'nav_prayers'.tr(), index: 3),
+      _NavItemData(icon: Icons.favorite_rounded, label: 'nav_azkar'.tr(), index: 4),
+    ];
 
     return Container(
       decoration: BoxDecoration(
@@ -33,13 +57,18 @@ class SilaBottomBar extends ConsumerWidget {
           height: 68,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(child: _NavItem(icon: Icons.home_rounded, label: 'الرئيسية', index: 0, currentIndex: currentIndex, ref: ref)),
-              Expanded(child: _NavItem(icon: Icons.menu_book_rounded, label: 'القرآن', index: 1, currentIndex: currentIndex, ref: ref)),
-              Expanded(child: _NavItem(icon: Icons.auto_stories, label: 'الحفظ', index: 2, featured: true, currentIndex: currentIndex, ref: ref)),
-              Expanded(child: _NavItem(icon: Icons.access_time_rounded, label: 'الصلاة', index: 3, currentIndex: currentIndex, ref: ref)),
-              Expanded(child: _NavItem(icon: Icons.favorite_rounded, label: 'الأذكار', index: 4, currentIndex: currentIndex, ref: ref)),
-            ],
+            children: navItems.map((item) {
+              return Expanded(
+                child: _NavItem(
+                  icon: item.icon,
+                  label: item.label,
+                  index: item.index,
+                  featured: item.featured,
+                  currentIndex: currentIndex,
+                  ref: ref,
+                ),
+              );
+            }).toList(),
           ),
         ),
       ),

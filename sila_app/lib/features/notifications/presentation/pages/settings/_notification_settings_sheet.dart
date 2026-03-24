@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -119,41 +120,41 @@ class _NotificationSettingsSheetState
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'إعدادات التذكير',
-                                  style: GoogleFonts.getFont(
-                                    'Cairo',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: title,
-                                  ),
-                                ),
-                                Text(
-                                  'خصص الوقت والنمط بحسب عبادتك',
-                                  style: GoogleFonts.getFont(
-                                    'Cairo',
-                                    fontSize: 11,
-                                    color: subtitle,
-                                  ),
-                                ),
+                                 Text(
+                                   'notification_reminder_settings'.tr(),
+                                   style: GoogleFonts.getFont(
+                                     'Cairo',
+                                     fontSize: 16,
+                                     fontWeight: FontWeight.w800,
+                                     color: title,
+                                   ),
+                                 ),
+                                 Text(
+                                   'customize_reminders'.tr(),
+                                   style: GoogleFonts.getFont(
+                                     'Cairo',
+                                     fontSize: 11,
+                                     color: subtitle,
+                                   ),
+                                 ),
                               ],
                             ),
                           ],
                         ),
                         const SizedBox(height: 10),
-                        SwitchListTile(
+                          SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           value: settings.isEnabled,
                           activeThumbColor: const Color(0xFF064E3B),
                           title: Text(
-                            'تفعيل التذكير',
+                            'enable_reminder'.tr(),
                             style: GoogleFonts.getFont('Cairo',
                                 color: title, fontWeight: FontWeight.w700),
                           ),
                           subtitle: Text(
                             settings.isEnabled
-                                ? 'الإشعارات فعالة الآن'
-                                : 'الإشعارات متوقفة',
+                                ? 'notifications_active_now'.tr()
+                                : 'notifications_disabled_now'.tr(),
                             style: GoogleFonts.getFont('Cairo',
                                 color: subtitle, fontSize: 11),
                           ),
@@ -178,7 +179,7 @@ class _NotificationSettingsSheetState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('التكرار',
+                          Text('repeat_frequency'.tr(),
                               style: GoogleFonts.getFont(
                                 'Cairo',
                                 color: title,
@@ -203,17 +204,17 @@ class _NotificationSettingsSheetState
                             items: [
                               DropdownMenuItem(
                                 value: 'daily',
-                                child: Text('يومي',
+                                child: Text('daily'.tr(),
                                     style: GoogleFonts.getFont('Cairo')),
                               ),
                               DropdownMenuItem(
                                 value: 'weekly',
-                                child: Text('أسبوعي',
+                                child: Text('weekly'.tr(),
                                     style: GoogleFonts.getFont('Cairo')),
                               ),
                               DropdownMenuItem(
                                 value: 'smart',
-                                child: Text('ذكي',
+                                child: Text('smart'.tr(),
                                     style: GoogleFonts.getFont('Cairo')),
                               ),
                             ],
@@ -228,7 +229,7 @@ class _NotificationSettingsSheetState
                             },
                           ),
                           const SizedBox(height: 14),
-                          Text('نوع المحتوى المفضل',
+                          Text('preferred_content_type'.tr(),
                               style: GoogleFonts.getFont(
                                 'Cairo',
                                 color: title,
@@ -242,19 +243,19 @@ class _NotificationSettingsSheetState
                               _TypeChip(
                                   featureKey: featureKey,
                                   type: 'hadith',
-                                  label: 'حديث'),
+                                  label: 'hadith'.tr()),
                               _TypeChip(
                                   featureKey: featureKey,
                                   type: 'ayah',
-                                  label: 'آية'),
+                                  label: 'verse'.tr()),
                               _TypeChip(
                                   featureKey: featureKey,
                                   type: 'dhikr',
-                                  label: 'ذكر'),
+                                  label: 'dhikr'.tr()),
                               _TypeChip(
                                   featureKey: featureKey,
                                   type: 'hikma',
-                                  label: 'حكمة'),
+                                  label: 'wisdom'.tr()),
                             ],
                           ),
                           if (featureKey == 'azkar') ...[
@@ -264,12 +265,12 @@ class _NotificationSettingsSheetState
                               value: settings.endTimeReminderEnabled,
                               activeThumbColor: const Color(0xFF064E3B),
                               title: Text(
-                                'تذكير قبل نهاية الوقت',
+                                'reminder_before_end'.tr(),
                                 style: GoogleFonts.getFont('Cairo',
                                     color: title, fontWeight: FontWeight.w700),
                               ),
                               subtitle: Text(
-                                'تنبيه إضافي قبل ساعة من انتهاء الوقت',
+                                'reminder_before_end_desc'.tr(),
                                 style: GoogleFonts.getFont('Cairo',
                                     color: subtitle, fontSize: 11),
                               ),
@@ -304,17 +305,17 @@ class _NotificationSettingsSheetState
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
-                                      'تمت إعادة الجدولة بنجاح: ${pending.length} إشعار')),
+                                      'reschedule_success'.tr(args: [pending.length.toString()]))),
                             );
                           } catch (e) {
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('فشل إعادة الجدولة: $e')),
+                              SnackBar(content: Text('reschedule_failed'.tr(args: [e.toString()]))),
                             );
                           }
                         },
                         icon: const Icon(Icons.refresh_rounded),
-                        label: Text('إعادة تفعيل الإشعارات الآن',
+                        label: Text('reactivate_notifications_now'.tr(),
                             style: GoogleFonts.getFont('Cairo')),
                       ),
                     ),
@@ -332,19 +333,19 @@ class _NotificationSettingsSheetState
                             _refreshPendingNotifications();
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                   content: Text(
-                                      'يجب أن يظهر إشعار فوري الآن، ثم إشعار بعد 15 ثانية')),
+                                      'test_notification_started'.tr())),
                             );
                           } catch (e) {
                             if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('فشل إشعار الاختبار: $e')),
+                              SnackBar(content: Text('test_notification_failed'.tr(args: [e.toString()]))),
                             );
                           }
                         },
                         icon: const Icon(Icons.bug_report_rounded),
-                        label: Text('اختبار إشعار بعد 15 ثانية',
+                        label: Text('test_notification_15s'.tr(),
                             style: GoogleFonts.getFont('Cairo')),
                       ),
                     ),
@@ -365,14 +366,14 @@ class _NotificationSettingsSheetState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'الإشعارات المجدولة لهذه العبادة: $count',
+                              'scheduled_notifications_count'.tr(args: [count.toString()]),
                               style: GoogleFonts.getFont('Cairo',
                                   fontSize: 11, color: subtitle),
                             ),
                             const SizedBox(height: 4),
                             if (list.isEmpty)
                               Text(
-                                'لا توجد إشعارات مجدولة لهذه العبادة حاليًا',
+                                'no_scheduled_notifications'.tr(),
                                 style: GoogleFonts.getFont('Cairo',
                                     fontSize: 10, color: subtitle),
                               )
@@ -386,7 +387,7 @@ class _NotificationSettingsSheetState
                                   ),
                             const SizedBox(height: 2),
                             Text(
-                              'الإجمالي على الجهاز: ${all.length}',
+                              'total_on_device'.tr(args: [all.length.toString()]),
                               style: GoogleFonts.getFont('Cairo',
                                   fontSize: 10, color: subtitle),
                             ),
@@ -408,14 +409,14 @@ class _NotificationSettingsSheetState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('تعذر تحميل الإعدادات'),
+              Text('settings_load_error'.tr()),
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: () =>
                     ref.invalidate(notificationSettingsProvider(featureKey)),
                 icon: const Icon(Icons.refresh_rounded),
                 label:
-                    Text('إعادة المحاولة', style: GoogleFonts.getFont('Cairo')),
+                    Text('retry'.tr(), style: GoogleFonts.getFont('Cairo')),
               ),
               const SizedBox(height: 4),
               Text(
@@ -431,6 +432,7 @@ class _NotificationSettingsSheetState
     );
   }
 }
+
 
 class _TypeChip extends ConsumerWidget {
   final String featureKey;

@@ -4,7 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 
 class TasmiSelectionHeader extends StatelessWidget {
-  const TasmiSelectionHeader({super.key});
+  final String title;
+  final String subtitle;
+
+  const TasmiSelectionHeader({
+    super.key,
+    required this.title,
+    required this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +47,7 @@ class TasmiSelectionHeader extends StatelessWidget {
                 ),
               ),
               Text(
-                'التسميع',
+                title,
                 style: GoogleFonts.cairo(
                   fontSize: 24, 
                   fontWeight: FontWeight.bold,
@@ -51,7 +58,7 @@ class TasmiSelectionHeader extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'اختر السورة التي تريد تسميعها',
+            subtitle,
             style: GoogleFonts.cairo(
               color: isDark ? Colors.white70 : Colors.grey[700], 
               fontSize: 16,

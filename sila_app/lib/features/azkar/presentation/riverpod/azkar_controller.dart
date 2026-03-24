@@ -12,5 +12,5 @@ AzkarRepository azkarRepository(AzkarRepositoryRef ref) {
 @riverpod
 Future<Map<String, List<AzkarItem>>> azkarData(AzkarDataRef ref) async {
   final repository = ref.watch(azkarRepositoryProvider);
-  return await repository.getAzkar();
+  return await repository.getAzkar('ar'); 
 }
