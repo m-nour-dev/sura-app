@@ -337,10 +337,12 @@ class WirdCard extends ConsumerWidget {
     final int lateDays = state.daysDifference.abs();
 
     return Column(
-      children: [
-        // Buttons Row (Side-by-side)
-        Row(
-          children: [
+       children: [
+         // Buttons Row (Side-by-side)
+         Directionality(
+           textDirection: context.locale.languageCode == 'tr' ? ui.TextDirection.ltr : ui.TextDirection.rtl,
+           child: Row(
+             children: [
             Expanded(
               child: GestureDetector(
                 onTap: () async {
@@ -433,10 +435,11 @@ class WirdCard extends ConsumerWidget {
                 ),
               ),
             ),
-          ],
-        ),
-        
-        const SizedBox(height: 24),
+           ],
+           ),
+         ),
+         
+         const SizedBox(height: 24),
         Divider(color: Colors.white.withOpacity(0.1), height: 1),
         const SizedBox(height: 20),
 
