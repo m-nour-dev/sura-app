@@ -8,6 +8,8 @@ import 'package:sila_app/core/presentation/main_layout.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/services/timezone_service.dart';
+import 'package:sila_app/core/services/adhan_scheduler_service.dart';
+import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -34,15 +36,21 @@ void main() async {
   final notificationService = NotificationService();
   try {
     await notificationService.initialize();
-  } catch (error) {
-    debugPrint('NotificationService init/permission failed: $error');
-  }
+    
+    // FIX 5: Schedule adhan notifications
+    try {
+      final prayerRepo = PrayerRepositoryImpl();
+      final prayerTimes = await prayerRepo.getPrayerTimes();
+      final adhanScheduler = AdhanSchedulerService();
+      await adhanScheduler.scheduleAllPrayers(prayerTimes);
+      debugPrint('✅ Adhan and Smart Reminders scheduled');
+    } catch (e) {
+      debugPrint('❌ Scheduling failed: $e');
+    }
 
-  unawaited(
-    notificationService.rescheduleAllOnBoot().catchError((error, stackTrace) {
-      debugPrint('NotificationService reschedule failed: $error');
-    }),
-  );
+  } catch (error) {
+    debugPrint('NotificationService init failed: $error');
+  }
 
   runApp(
     ProviderScope(

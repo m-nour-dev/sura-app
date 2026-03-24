@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quran/quran.dart' as quran;
@@ -266,17 +267,18 @@ class WirdCard extends ConsumerWidget {
                    ),
                  ),
                 const SizedBox(height: 12),
-                Text(
-                  firstVerse,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.amiri(
-                    fontSize: 24,
-                    height: 1.6,
-                    color: textColor,
-                  ),
-                ),
+                 Text(
+                   firstVerse,
+                   textAlign: TextAlign.center,
+                   textDirection: ui.TextDirection.rtl,
+                   maxLines: 2,
+                   overflow: TextOverflow.ellipsis,
+                   style: GoogleFonts.amiri(
+                     fontSize: 24,
+                     height: 1.6,
+                     color: textColor,
+                   ),
+                 ),
                 const SizedBox(height: 12),
                  Text(
                    'surah_page'.tr(args: [quran.getSurahNameArabic(surahNum), '$safeStartPage']),
