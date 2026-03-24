@@ -25,7 +25,22 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hijriDate = HijriCalendar.now();
-    const months = [
+    final locale = context.locale;
+    
+    final months = locale.languageCode == 'tr' ? [
+      'Muharrem',
+      'Safar',
+      'Rebiülevvel',
+      'Rebiülahir',
+      'Cumadelüla',
+      'Cumadelahir',
+      'Recep',
+      'Şaban',
+      'Ramazan',
+      'Şevval',
+      'Zilkade',
+      'Zilhicce',
+    ] : [
       'محرم',
       'صفر',
       'ربيع الأول',
@@ -40,7 +55,9 @@ class HomeHeader extends StatelessWidget {
       'ذو الحجة',
     ];
     final month = months[(hijriDate.hMonth - 1).clamp(0, 11)];
-    final arabicHijri = '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
+    final hijriText = locale.languageCode == 'tr'
+        ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
+        : '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
 
     return Container(
       decoration: const BoxDecoration(
@@ -60,7 +77,7 @@ class HomeHeader extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -116,10 +133,10 @@ class HomeHeader extends StatelessWidget {
                   border: Border.all(color: Colors.white.withOpacity(0.2)),
                 ),
                 child: Text(
-                  arabicHijri,
-                  style: GoogleFonts.getFont(
-                    'Cairo',
-                    fontSize: 12,
+                   hijriText,
+                   style: GoogleFonts.getFont(
+                     'Cairo',
+                     fontSize: 12,
                     color: Colors.white.withOpacity(0.8),
                   ),
                 ),

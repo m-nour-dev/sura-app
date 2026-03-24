@@ -59,15 +59,15 @@ class SunanListPage extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          sunnah.text,
-                          style: GoogleFonts.amiri(
-                            fontSize: 20,
-                            height: 1.8,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : AppTheme.primaryColor,
-                          ),
-                        ),
+                       child: Text(
+                         sunnah.textKey.tr(),
+                         style: GoogleFonts.amiri(
+                           fontSize: 20,
+                           height: 1.8,
+                           fontWeight: FontWeight.w600,
+                           color: isDark ? Colors.white : AppTheme.primaryColor,
+                         ),
+                       ),
                       ),
                     ],
                   ),
@@ -83,59 +83,59 @@ class SunanListPage extends StatelessWidget {
                           color: isDark ? Colors.white10 : AppTheme.surfaceColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          "المصدر: ${sunnah.source}",
-                          style: GoogleFonts.cairo(
-                            fontSize: 12,
-                            color: isDark ? Colors.white70 : Colors.grey[700],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                         child: Text(
+                           'sunnah_source'.tr(args: [sunnah.sourceKey.tr()]),
+                           style: GoogleFonts.cairo(
+                             fontSize: 12,
+                             color: isDark ? Colors.white70 : Colors.grey[700],
+                             fontWeight: FontWeight.w600,
+                           ),
+                         ),
                       ),
-                       if (sunnah.explanation.isNotEmpty)
-                        InkWell(
-                          borderRadius: BorderRadius.circular(20),
-                          onTap: () {
-                             showDialog(
-                               context: context,
-                               builder: (context) => AlertDialog(
-                                 backgroundColor: isDark ? AppTheme.darkSurfaceColor : Colors.white,
-                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                 title: Text(
-                                   "شرح السنة",
-                                   style: GoogleFonts.cairo(
-                                     color: isDark ? Colors.white : AppTheme.primaryColor,
-                                     fontWeight: FontWeight.bold,
-                                   ),
-                                 ),
-                                 content: Text(
-                                   sunnah.explanation,
-                                   style: GoogleFonts.cairo(
-                                     fontSize: 15,
-                                     height: 1.6,
-                                     color: isDark ? Colors.white70 : Colors.grey[800],
-                                   ),
-                                 ),
-                                 actions: [
-                                   TextButton(
-                                     onPressed: () => Navigator.pop(context), 
-                                     child: Text(
-                                       "إغلاق",
-                                       style: GoogleFonts.cairo(
-                                         color: AppTheme.accentColor,
-                                         fontWeight: FontWeight.bold,
-                                       ),
-                                     )
-                                   )
-                                 ],
-                               ),
-                             );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Icon(Icons.info_outline, size: 22, color: AppTheme.accentColor),
-                          ),
-                        )
+                        if (sunnah.explanationKey.isNotEmpty)
+                         InkWell(
+                           borderRadius: BorderRadius.circular(20),
+                           onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: isDark ? AppTheme.darkSurfaceColor : Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  title: Text(
+                                    'sunnah_explanation_title'.tr(),
+                                    style: GoogleFonts.cairo(
+                                      color: isDark ? Colors.white : AppTheme.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    sunnah.explanationKey.tr(),
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 15,
+                                      height: 1.6,
+                                      color: isDark ? Colors.white70 : Colors.grey[800],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context), 
+                                      child: Text(
+                                        'close_button'.tr(),
+                                        style: GoogleFonts.cairo(
+                                          color: AppTheme.accentColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    )
+                                  ],
+                                ),
+                              );
+                           },
+                           child: Padding(
+                             padding: const EdgeInsets.all(4.0),
+                             child: Icon(Icons.info_outline, size: 22, color: AppTheme.accentColor),
+                           ),
+                         )
                     ],
                   ),
                 ],

@@ -1,145 +1,145 @@
 class SunnahItem {
-  final String text;
-  final String source;
-  final String explanation;
+  final String textKey;
+  final String sourceKey;
+  final String explanationKey;
 
   const SunnahItem({
-    required this.text, 
-    required this.source,
-    this.explanation = "",
+    required this.textKey, 
+    required this.sourceKey,
+    required this.explanationKey,
   });
 }
 
 final List<SunnahItem> sunanMahjouraList = [
    SunnahItem(
-    text: "المضمضة والاستنشاق من غرفة واحدة",
-    source: "متفق عليه",
-    explanation: "أن يأخذ غرفة واحدة من الماء، فيتمضمض ببعضها، ويستنشق بالباقي، ويفعل ذلك ثلاث مرات.",
+    textKey: "sunnah_1_text",
+    sourceKey: "sunnah_1_source",
+    explanationKey: "sunnah_1_explanation",
   ),
   SunnahItem(
-    text: "الدعاء بعد الوضوء",
-    source: "رواه الترمذي",
-    explanation: "يقول بعد الفراغ من الوضوء: 'أشهد أن لا إله إلا الله وحده لا شريك له، وأشهد أن محمدًا عبده ورسوله..'.",
+    textKey: "sunnah_2_text",
+    sourceKey: "sunnah_2_source",
+    explanationKey: "sunnah_2_explanation",
   ),
   SunnahItem(
-    text: "صلاة ركعتين بعد الوضوء",
-    source: "متفق عليه",
-    explanation: "يستحب لمن توضأ أن يصلي ركعتين لا يحدث فيهما نفسه بشيء من أمور الدنيا، وهي سبب لمغفرة الذنوب.",
+    textKey: "sunnah_3_text",
+    sourceKey: "sunnah_3_source",
+    explanationKey: "sunnah_3_explanation",
   ),
   SunnahItem(
-    text: "التنويع في دعاء الاستفتاح",
-    source: "رواه البخاري ومسلم",
-    explanation: "يستحب أن ينوع المصلي في دعاء الاستفتاح، فتارة يقول: 'اللهم باعد بيني وبين خطاياي..' وتارة: 'سبحانك اللهم وبحمدك..'.",
+    textKey: "sunnah_4_text",
+    sourceKey: "sunnah_4_source",
+    explanationKey: "sunnah_4_explanation",
   ),
   SunnahItem(
-    text: "السواك عند كل صلاة",
-    source: "متفق عليه",
-    explanation: "يستحب استخدام السواك عند القيام للصلاة، وهو مطهرة للفم ومرضاة للرب.",
+    textKey: "sunnah_5_text",
+    sourceKey: "sunnah_5_source",
+    explanationKey: "sunnah_5_explanation",
   ),
   SunnahItem(
-    text: "الصلاة إلى سترة",
-    source: "متفق عليه",
-    explanation: "أن يضع المصلي شيئًا أمامه (جدار، عمود، أو شيء مرتفع) ليمنع المارة من المرور بين يديه، وهذا سنة مؤكدة.",
+    textKey: "sunnah_6_text",
+    sourceKey: "sunnah_6_source",
+    explanationKey: "sunnah_6_explanation",
   ),
   SunnahItem(
-    text: "جلسة الاستراحة",
-    source: "رواه البخاري",
-    explanation: "هي جلسة خفيفة جداً يسيرة يجلسها المصلي بعد السجدة الثانية من الركعة الأولى والركعة الثالثة قبل أن يقوم.",
+    textKey: "sunnah_7_text",
+    sourceKey: "sunnah_7_source",
+    explanationKey: "sunnah_7_explanation",
   ),
   SunnahItem(
-    text: "الإقعاء بين السجدتين",
-    source: "رواه مسلم",
-    explanation: "هو أن ينصب قدميه ويجلس على عقبيه بين السجدتين، وهي سنة تفعل أحياناً.",
+    textKey: "sunnah_8_text",
+    sourceKey: "sunnah_8_source",
+    explanationKey: "sunnah_8_explanation",
   ),
   SunnahItem(
-    text: "سجود الشكر",
-    source: "رواه أبو داود والترمذي",
-    explanation: "يسجد المسلم سجدة واحدة يحمد الله فيها ويشكره عند حصول نعمة جديدة أو اندفاع نقمة.",
+    textKey: "sunnah_9_text",
+    sourceKey: "sunnah_9_source",
+    explanationKey: "sunnah_9_explanation",
   ),
    SunnahItem(
-    text: "نفض الفراش قبل النوم",
-    source: "متفق عليه",
-    explanation: "ينفض فراشه بداخل إزاره ثلاث مرات، لأنه لا يدري ما خلفه عليه في فراشه.",
+    textKey: "sunnah_10_text",
+    sourceKey: "sunnah_10_source",
+    explanationKey: "sunnah_10_explanation",
   ),
   SunnahItem(
-    text: "النوم على طهارة",
-    source: "متفق عليه",
-    explanation: "يستحب للمسلم أن يتوضأ وضوءه للصلاة قبل أن ينام.",
+    textKey: "sunnah_11_text",
+    sourceKey: "sunnah_11_source",
+    explanationKey: "sunnah_11_explanation",
   ),
   SunnahItem(
-    text: "قراءة سورة الملك قبل النوم",
-    source: "رواه أبو داود والترمذي",
-    explanation: "هي المانعة من عذاب القبر، ويستحب قراءتها كل ليلة.",
+    textKey: "sunnah_12_text",
+    sourceKey: "sunnah_12_source",
+    explanationKey: "sunnah_12_explanation",
+  ),
+  SunnahItem(
+    textKey: "sunnah_13_text",
+    sourceKey: "sunnah_13_source",
+    explanationKey: "sunnah_13_explanation",
+  ),
+  SunnahItem(
+    textKey: "sunnah_14_text",
+    sourceKey: "sunnah_14_source",
+    explanationKey: "sunnah_14_explanation",
+  ),
+  SunnahItem(
+    textKey: "sunnah_15_text",
+    sourceKey: "sunnah_15_source",
+    explanationKey: "sunnah_15_explanation",
+  ),
+  SunnahItem(
+    textKey: "sunnah_16_text",
+    sourceKey: "sunnah_16_source",
+    explanationKey: "sunnah_16_explanation",
+  ),
+  SunnahItem(
+    textKey: "sunnah_17_text",
+    sourceKey: "sunnah_17_source",
+    explanationKey: "sunnah_17_explanation",
+  ),
+  SunnahItem(
+    textKey: "sunnah_18_text",
+    sourceKey: "sunnah_18_source",
+    explanationKey: "sunnah_18_explanation",
+  ),
+  SunnahItem(
+    textKey: "sunnah_19_text",
+    sourceKey: "sunnah_19_source",
+    explanationKey: "sunnah_19_explanation",
   ),
    SunnahItem(
-    text: "لعق الأصابع بعد الطعام",
-    source: "رواه مسلم",
-    explanation: "السنة لعق الأصابع قبل مسحها أو غسلها، فإن فيها بركة لا يدري في أي طعامه هي.",
+    textKey: "sunnah_20_text",
+    sourceKey: "sunnah_20_source",
+    explanationKey: "sunnah_20_explanation",
   ),
   SunnahItem(
-    text: "حمد الله بعد الأكل والشرب",
-    source: "رواه مسلم",
-    explanation: "يقول: الحمد لله الذي أطعمنا وسقانا وجعلنا مسلمين، أو غيرها من صيغ الحمد.",
-  ),
-  SunnahItem(
-    text: "التنفس خارج الإناء عند الشرب",
-    source: "متفق عليه",
-    explanation: "يشرب الماء على ثلاث دفعات، ويتنفس خارج الإناء بين كل رشفة وأخرى.",
-  ),
-  SunnahItem(
-    text: "مبادرة من لقيت بالسلام",
-    source: "رواه أبو داود",
-    explanation: "أن يكون هو البادئ بالسلام عند اللقاء، وخيرهما الذي يبدأ بالسلام.",
-  ),
-  SunnahItem(
-    text: "إفشاء السلام",
-    source: "متفق عليه",
-    explanation: "نشر السلام وإلقاؤه على من عرفت ومن لم تعرف من المسلمين.",
-  ),
-  SunnahItem(
-    text: "التبسم في وجه أخيك",
-    source: "رواه الترمذي",
-    explanation: "إظهار البشر والابتسامة عند لقاء المسلم، فهو عمل صالح يؤجر عليه.",
-  ),
-  SunnahItem(
-    text: "المصافحة عند اللقاء",
-    source: "رواه أبو داود والترمذي",
-    explanation: "تصافح المسلمين يوجب تساقط الذنوب كما تتساقط أوراق الشجر.",
+    textKey: "sunnah_21_text",
+    sourceKey: "sunnah_21_source",
+    explanationKey: "sunnah_21_explanation",
   ),
    SunnahItem(
-    text: "زيارة المقابر",
-    source: "رواه مسلم",
-    explanation: "تسن زيارة المقابر للرجال لتذكر الآخرة والدعاء للموتى.",
+    textKey: "sunnah_22_text",
+    sourceKey: "sunnah_22_source",
+    explanationKey: "sunnah_22_explanation",
   ),
   SunnahItem(
-    text: "صلاة الضحى",
-    source: "رواه مسلم",
-    explanation: "أقلها ركعتان، ووقتها من ارتفاع الشمس قيد رمح إلى قبيل الزوال، وهي صلاة الأوابين.",
-  ),
-   SunnahItem(
-    text: "صلاة الوتر",
-    source: "متفق عليه",
-    explanation: "أن يختم صلاته بالليل بركعة واحدة، وهي سنة مؤكدة.",
+    textKey: "sunnah_23_text",
+    sourceKey: "sunnah_23_source",
+    explanationKey: "sunnah_23_explanation",
   ),
   SunnahItem(
-    text: "المشي حافياً أحياناً",
-    source: "رواه أحمد وأبو داود",
-    explanation: "يستحب المشي بدون نعلين أحياناً تواضعاً لله وتدريباً للنفس، في أماكن مناسبة.",
+    textKey: "sunnah_24_text",
+    sourceKey: "sunnah_24_source",
+    explanationKey: "sunnah_24_explanation",
   ),
   SunnahItem(
-    text: "كتابة الوصية",
-    source: "متفق عليه",
-    explanation: "من كان له شيء يريد أن يوصي فيه، فلا يبيت ليلتين إلا ووصيته مكتوبة عند رأسه.",
+    textKey: "sunnah_25_text",
+    sourceKey: "sunnah_25_source",
+    explanationKey: "sunnah_25_explanation",
   ),
   SunnahItem(
-    text: "الدعاء عند نزول المطر",
-    source: "رواه البخاري",
-    explanation: "يستحب كشف جزء من البدن ليصيبه المطر والقول: اللهم صيباً نافعاً.",
-  ),
-  SunnahItem(
-    text: "كف الصبيان عند الغروب",
-    source: "متفق عليه",
-    explanation: "منع الأطفال من الخروج وقت غروب الشمس (بداية انتشار الشياطين) ثم تركهم بعد ذهاب ساعة من الليل.",
+    textKey: "sunnah_26_text",
+    sourceKey: "sunnah_26_source",
+    explanationKey: "sunnah_26_explanation",
   ),
 ];
 

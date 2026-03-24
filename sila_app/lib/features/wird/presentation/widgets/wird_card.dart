@@ -204,36 +204,41 @@ class WirdCard extends ConsumerWidget {
           const SizedBox(height: 24),
           
           // Progress Section
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                   Text(
-                     'progress_text'.tr(args: ['${(progress * 100).toInt()}']),
-                     style: GoogleFonts.cairo(
-                       color: subtextColor,
-                       fontSize: 13,
-                       fontWeight: FontWeight.w500,
-                     ),
-                   ),
-                   Text(
-                     'pages_count'.tr(args: ['$pagesReadSoFar', '$totalPagesToRead']),
-                     style: GoogleFonts.outfit(
-                       color: const Color(0xFFD97706),
-                       fontSize: 13,
-                       fontWeight: FontWeight.bold,
-                     ),
-                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 10,
+           Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Row(
+                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 children: [
+                    Flexible(
+                      child: Text(
+                        'progress_text'.tr(args: ['${(progress * 100).toInt()}']),
+                        style: GoogleFonts.cairo(
+                          color: subtextColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'pages_count'.tr(args: ['$pagesReadSoFar', '$totalPagesToRead']),
+                      style: GoogleFonts.outfit(
+                        color: const Color(0xFFD97706),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                 ],
+               ),
+               const SizedBox(height: 10),
+               ClipRRect(
+                 borderRadius: BorderRadius.circular(10),
+                 child: LinearProgressIndicator(
+                   value: progress,
+                   minHeight: 10,
                   backgroundColor: Colors.white.withOpacity(0.05),
                   valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)), // Success Green
                 ),
@@ -433,36 +438,43 @@ class WirdCard extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    if (isLate) 
-                      const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 16),
-                    const SizedBox(width: 4),
-                     Text(
-                       isLate 
-                         ? 'behind_schedule'.tr(args: ['$lateDays'])
-                         : 'on_track'.tr(),
-                       style: GoogleFonts.cairo(
-                         color: isLate ? const Color(0xFFEF4444) : Colors.white.withOpacity(0.7),
-                         fontSize: 12,
-                         fontWeight: FontWeight.w500,
-                       ),
-                     ),
-                  ],
-                ),
-                 Text(
-                   'current_khatma'.tr(),
-                   style: GoogleFonts.cairo(
-                     color: Colors.white.withOpacity(0.9),
-                     fontSize: 13,
-                     fontWeight: FontWeight.bold,
+             Row(
+               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+               children: [
+                 Flexible(
+                   child: Row(
+                     children: [
+                       if (isLate) 
+                         const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 16),
+                       const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            isLate 
+                              ? 'behind_schedule'.tr(args: ['$lateDays'])
+                              : 'on_track'.tr(),
+                            style: GoogleFonts.cairo(
+                              color: isLate ? const Color(0xFFEF4444) : Colors.white.withOpacity(0.7),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                        ),
+                     ],
                    ),
                  ),
-              ],
-            ),
+                 const SizedBox(width: 8),
+                  Text(
+                    'current_khatma'.tr(),
+                    style: GoogleFonts.cairo(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+               ],
+             ),
             const SizedBox(height: 12),
             // Linear Progress
             ClipRRect(
@@ -476,24 +488,31 @@ class WirdCard extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                 Text(
-                   'upcoming_wirds'.tr(args: ['${state.remainingWirdsCount}']),
-                   style: GoogleFonts.cairo(
-                     color: Colors.white.withOpacity(0.6),
-                     fontSize: 11,
-                   ),
-                 ),
-                 Text(
-                   'completed_wirds'.tr(args: ['${state.completedWirdsCount}']),
-                   style: GoogleFonts.cairo(
-                     color: Colors.white.withOpacity(0.6),
-                     fontSize: 11,
-                   ),
-                 ),
-              ],
-            ),
+               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+               children: [
+                  Flexible(
+                    child: Text(
+                      'upcoming_wirds'.tr(args: ['${state.remainingWirdsCount}']),
+                      style: GoogleFonts.cairo(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 11,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      'completed_wirds'.tr(args: ['${state.completedWirdsCount}']),
+                      style: GoogleFonts.cairo(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 11,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+               ],
+             ),
           ],
         ),
       ],
