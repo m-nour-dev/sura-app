@@ -68,6 +68,8 @@
   "adhan_notifications": "Ezan Bildirimleri",
   "qiblah": "Kible Yönü",
   "qiblah_direction": "Kible Yönü",
+  "find_qibla_direction": "Mevcut konumunuzdan kible yönünü bulun",
+  "qiblah_direction": "Kible Yönü",
   "qibla_direction": "Kible Yönü",
   "tasmi_settings": "Tasmi Ayarları",
   "selected_reciter": "Seçilmiş Okuyucu",
@@ -415,6 +417,39 @@
        "sunnah_25_explanation": "Vücudunun bir bölümünü açık bırakıp yağmurun ıslaması ve şöyle demesi tavsiye edilir: Ey Allah, faydalı bir yağmur yağdır.",
        "sunnah_26_text": "Gün Batımında Çocuklara Kısıtlama",
        "sunnah_26_source": "Buhârî ve Müslim",
-       "sunnah_26_explanation": "Güneş batışında (şeytanların yayılması zamanı) çocuklara çıkış yasağı uygulanması, ardından bir saat sonra serbest bırakılması tavsiye edilir."
-
+       "sunnah_26_explanation": "Güneş batışında (şeytanların yayılması zamanı) çocuklara çıkış yasağı uygulanması, ardından bir saat sonra serbest bırakılması tavsiye edilir.",
+       "ibadah_names": {
+         "wird": "Wird",
+         "azkar_sabah": "Sabah Zikirleri",
+         "azkar_masa": "Akşam Zikirleri",
+         "hifz": "Hıfz / Dinleme",
+         "tasbih": "Tesbih",
+         "dhikr": "Zikir"
+       },
+       "hijri_months": {
+         "1": "Muharrem",
+         "2": "Safer",
+         "3": "Rebiülevvel",
+         "4": "Rebiülahir",
+         "5": "Cemaziyelevvel",
+         "6": "Cemaziyelahir",
+         "7": "Recep",
+         "8": "Şaban",
+         "9": "Ramazan",
+         "10": "Şevval",
+         "11": "Zilkade",
+         "12": "Zilhicce"
+       },
+       "weekdays": {
+         "monday": "Pazartesi",
+         "tuesday": "Salı",
+         "wednesday": "Çarşamba",
+         "thursday": "Perşembe",
+         "friday": "Cuma",
+         "saturday": "Cumartesi",
+         "sunday": "Pazar"
+       },
+       "daily_report": "Günlük Raporum",
+       "loading_tracker_error": "Takip verileri yüklenemedi",
+       "tracker_completed_count": "{} / {} İbadet Tamamlandı"
 }

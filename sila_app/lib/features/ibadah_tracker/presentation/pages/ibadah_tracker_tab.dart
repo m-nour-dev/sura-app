@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,22 +20,9 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
 
   String _hijriArabicDate() {
     final h = HijriCalendar.now();
-    const months = [
-      'محرم',
-      'صفر',
-      'ربيع الأول',
-      'ربيع الآخر',
-      'جمادى الأولى',
-      'جمادى الآخرة',
-      'رجب',
-      'شعبان',
-      'رمضان',
-      'شوال',
-      'ذو القعدة',
-      'ذو الحجة',
-    ];
-    final month = months[(h.hMonth - 1).clamp(0, 11)];
-    return '${h.hDay} $month ${h.hYear}هـ';
+    // Using translation keys for Hijri months
+    final monthKey = 'hijri_months.${h.hMonth}';
+    return '${h.hDay} ${monthKey.tr()} ${h.hYear}هـ';
   }
 
   @override
@@ -58,18 +46,22 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
       body: state.when(
         data: (data) {
           final hijriDate = _hijriArabicDate();
-          final dayName = [
-            'الاثنين',
-            'الثلاثاء',
-            'الأربعاء',
-            'الخميس',
-            'الجمعة',
-            'السبت',
-            'الأحد'
-          ][DateTime.now().weekday - 1];
+          final weekday = DateTime.now().weekday;
+          final dayNameKey = 'weekdays.${[
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+            'saturday',
+            'sunday'
+          ][weekday - 1]}';
+          final dayName = dayNameKey.tr();
+
           final dailyStatusText = DailyStatusCalculator.getDailyStatusText(
             data.today,
             isMale: data.isMale,
+            languageCode: context.locale.languageCode,
           );
           final completionRatio = data.completionRatio;
 
@@ -128,7 +120,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${data.completedCount} من ${data.totalCount} عبادة',
+                          'tracker_completed_count'.tr(args: ['${data.completedCount}', '${data.totalCount}']),
                           style: GoogleFonts.getFont('Cairo',
                               fontSize: 11, color: Colors.white70),
                         ),
@@ -150,18 +142,18 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                     children: [
                       _tableHeader(isDark,
                           showYesterday: data.yesterday != null),
-                      _row('fajr', '🕌', 'الفجر', data),
-                      _row('dhuhr', '🕌', 'الظهر', data),
-                      _row('asr', '🕌', 'العصر', data),
-                      _row('maghrib', '🕌', 'المغرب', data),
-                      _row('isha', '🕌', 'العشاء', data),
+                      _row('fajr', '🕌', 'fajr'.tr(), data),
+                      _row('dhuhr', '🕌', 'dhuhr'.tr(), data),
+                      _row('asr', '🕌', 'asr'.tr(), data),
+                      _row('maghrib', '🕌', 'maghrib'.tr(), data),
+                      _row('isha', '🕌', 'isha'.tr(), data),
                       const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                      _row('wird', '📖', 'الورد', data),
-                      _row('azkar_sabah', '🌅', 'أذكار الصباح', data),
-                      _row('azkar_masa', '🌆', 'أذكار المساء', data),
-                      _row('hifz', '📚', 'الحفظ / التسميع', data),
-                      _row('tasbih', '💎', 'التسبيح', data),
-                      _row('dhikr', '🔵', 'ذكر الله', data),
+                      _row('wird', '📖', 'ibadah_names.wird'.tr(), data),
+                      _row('azkar_sabah', '🌅', 'ibadah_names.azkar_sabah'.tr(), data),
+                      _row('azkar_masa', '🌆', 'ibadah_names.azkar_masa'.tr(), data),
+                      _row('hifz', '📚', 'ibadah_names.hifz'.tr(), data),
+                      _row('tasbih', '💎', 'ibadah_names.tasbih'.tr(), data),
+                      _row('dhikr', '🔵', 'ibadah_names.dhikr'.tr(), data),
                     ],
                   ),
                 ),
@@ -182,7 +174,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                           builder: (_) => const DailyReportPage()),
                     ),
                     child: Text(
-                      'تقريري اليومي',
+                      'daily_report'.tr(),
                       style: GoogleFonts.getFont('Cairo',
                           color: Colors.white, fontWeight: FontWeight.w700),
                     ),
@@ -193,7 +185,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Center(child: Text('تعذر تحميل المتابعة')),
+        error: (_, __) => Center(child: Text('loading_tracker_error'.tr())),
       ),
     );
   }

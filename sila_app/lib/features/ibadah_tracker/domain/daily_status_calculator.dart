@@ -51,7 +51,7 @@ class DailyStatusCalculator {
   }
 
   static String getDailyStatusText(IbadahRecord record,
-      {required bool isMale}) {
+      {required bool isMale, String languageCode = 'ar'}) {
     final ratio = completionRatio(record, isMale: isMale);
     final missedPrayers = [
       record.fajrStatus,
@@ -67,6 +67,101 @@ class DailyStatusCalculator {
 
     List<String> texts;
 
+    if (languageCode == 'tr') {
+       if (missedPrayers >= 2) {
+        texts = const [
+          'Namaz kurtuluştur, bugün ilk dönülecek kapı olsun.',
+          'Namaz nefse ağır geliyorsa, bil ki kalp yakınlık istiyordur.',
+          'Namazını kıl, günün dolsun, ruhun huzur bulsun.',
+          'Rahmet kapısını erteleme, namaz vakti açık bir kapıdır.',
+          'Her samimi secde, kalpten uzun bir yorgunluğu siler.',
+          'Seninle huzur arasında samimi bir tekbir vardır.',
+          'Namazın dönüşü, sonrasının düzelmesinin başlangıcıdır.',
+          'Allah seni beş kez çağırıyor, bu çağrıya hazır bir kalple icabet et.',
+          'Göğsün daraldığında, ferahlık secdededir.',
+          'Namazı, dünya ile pazarlık edilmeyen bir randevu yap.',
+        ];
+      } else if (missedDhikr || missedAzkar) {
+        texts = const [
+          'Allah’ı an, O da seni ansın; bu kalbe en büyük yetinmedir.',
+          'Zikir kalbin hayatıdır, kendini bu hayattan mahrum etme.',
+          'Bir dakikalık zikir, tam bir günün huzurunu inşa eder.',
+          'Zikirle ıslanan dil ve huzur bulan kalp.',
+          'Sabahını ve akşamını Allah ile başlat, Allah ile bitir.',
+          'Allah’ı zikretmek en yakın, en kolay ve en kalıcı kaledir.',
+          'Kalp huzursuzsa, onu istiğfar ve tesbih ile sabitle.',
+          'Zikredenler, amel hafifliği ve etki büyüklüğü ile öne geçerler.',
+          'Zikrini artır, Allah’ın izniyle kalbinin nuru artsın.',
+          'Subhanallah, paslanmayan bir rahatlık anahtarıdır.',
+        ];
+      } else if (missedWird || missedHifz) {
+        texts = const [
+          'Kuran gününün yoldaşıdır, ondan nasibini terk etme.',
+          'Her gün az ayet, büyük bir sebat inşa eder.',
+          'Kuran’a devam edenin, Allah gizlisini ve açığını ıslah eder.',
+          'Kalbini tilavetin bereketinden, dakikalarca da olsa mahrum etme.',
+          'Hıfz adım adımdır, bereket devamlılıktadır.',
+          'Günün için en güzel yatırım, ihlasla ezberlediğin bir ayettir.',
+          'Her Kuran virdi, yoluna eklenen bir nurdur.',
+          'Gününü Mushaf’a bağla, Allah seni fitnelerden korur.',
+          'Kuran’ın azı bile, devamlı olursa Allah katında çoktur.',
+          'Bugünün ayeti, yarının kurtuluşu olabilir.',
+        ];
+      } else if (ratio == 1.0) {
+        texts = const [
+          'Gününe güzellikle başlayıp güzellikle bitirene ne mutlu.',
+          'Müminler kurtuluşa ermiştir.',
+          'Allah’ım kabul et, hayır dolu bir gün.',
+          'Şüphesiz iyiler nimet içindedir.',
+          'Maşallah, bugünkü sebatın sadakat alametidir.',
+          'Devamlılığın büyük bir nimettir, buna şükret.',
+          'Bu güzel bir gün, Allah’tan kabul ve devamlılık iste.',
+          'Allah’tan bu güzel sebatı bereketlendirmesini dileriz.',
+          'Hayır tamamlanınca, Allah’a şükür onu süsler.',
+          'İtaatte devamlılık, yakınlığın en güzel kapılarındandır.',
+        ];
+      } else if (ratio >= 0.7) {
+        texts = const [
+          'Rabbinizden bir mağfirete koşun.',
+          'Allah’ım, zikrine, şükrüne ve güzel ibadetine bize yardım et.',
+          'Yarın Allah’ın izniyle başka bir fırsat, durma.',
+          'Az kaldı, gününü Allah’a yakınlıkla tamamla.',
+          'Gününün bereketi tamamlanmak üzere, basit adımlar kaldı.',
+          'Güzel sebat, biraz daha ekle, Allah sana çokça açar.',
+          'Bugün iyiydin, iyiliğin devamı daha büyüktür.',
+          'Günün geri kalanını sadık bir niyetle değerlendir.',
+          'Tamamlanmaya çok yakın, durmadan devam et.',
+          'Kalan az, Allah sana kolaylıkla açar.',
+        ];
+      } else if (ratio >= 0.4) {
+        texts = const [
+          'Allah’ın rahmetinden ümidinizi kesmeyin, Allah bütün günahları bağışlar.',
+          'Her saat, Allah’a dönüş için bir fırsattır.',
+          'Allah kulunun tövbesiyle sevinir, şimdi başla.',
+          'Yapabildiğinle başla, Allah kendisine yönelen kulu sever.',
+          'Yol bir adımla başlar, bugünkü adımın bereketlidir.',
+          'Telafi kapısı, günde zaman kaldığı sürece açıktır.',
+          'Günün geri kalanını, geçenden daha sadık kıl.',
+          'Modunu bekleme, başla ve yardım sana gelir.',
+          'Şu an güzel bir başlangıç, sürekli ertelemekten hayırlıdır.',
+          'Gelecek her dakika, kaçanı telafi etmek için bir fırsattır.',
+        ];
+      } else {
+        texts = const [
+          'Şüphesiz Allah çok bağışlayan, çok esirgeyendir, ümitsizliğe kapılma.',
+          'Rahmetim her şeyi kuşatmıştır.',
+          'Günahtan tövbe eden, hiç günahı olmayan gibidir, Allah’a dön.',
+          'Şimdi başla, küçük bir amelle bile olsa, Allah kalbini açar.',
+          'Allah’a en yakın yol, dönüşün sadakatidir.',
+          'Başlaman yeterli, hayrı tamamlamak Allah’ın lütfundadır.',
+          'Zayıflık, Allah’tan çokça yardım istemekle kaybolur.',
+          'Ne kadar geç kalsak da bugün yeni bir başlangıçtır.',
+          'Kendini bir günle yargılama, yeniden başla.',
+          'Rahmet kapısı geniştir, onu tövbe ve amelle aç.',
+        ];
+      }
+    } else {
+      // Default Arabic texts
     if (missedPrayers >= 2) {
       texts = const [
         'الصلاة نجاة، فاجعلها أول ما تعود إليه اليوم',
@@ -203,7 +298,7 @@ class DailyStatusCalculator {
         'ابدأ بما تستطيع، فإن الله يحب العبد المقبل عليه',
         'الطريق يبدأ بخطوة، وخطوتك اليوم مباركة',
         'باب التدارك مفتوح ما دام في اليوم بقية',
-        'اجعل ما بقي من يومك أصدق مما مضى',
+        'اجعل ما بقي من اليومك أصدق مما مضى',
         'لا تنتظر المزاج، ابدأ وتأتيك المعونة',
         'حسن البداية الآن خير من تأجيل دائم',
         'كل دقيقة مقبلة فرصة لتعويض ما فات',
@@ -235,6 +330,7 @@ class DailyStatusCalculator {
         'الموفق من عاد سريعًا كلما فتر',
         'تفاءل، فالله يقبل التوبة ويحب التوابين',
       ];
+    }
     }
     final dayKey =
         record.date.year * 10000 + record.date.month * 100 + record.date.day;
