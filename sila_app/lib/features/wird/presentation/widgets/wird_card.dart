@@ -152,12 +152,14 @@ class WirdCard extends ConsumerWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+      child: Directionality(
+        textDirection: context.locale.languageCode == 'tr' ? ui.TextDirection.ltr : ui.TextDirection.rtl,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
               Row(
                 children: [
                   GestureDetector(
@@ -292,14 +294,15 @@ class WirdCard extends ConsumerWidget {
             ),
           ),
           
-          const SizedBox(height: 24),
-          
-          // Action Buttons integrated inside
-          _buildActionButtons(context, ref, state),
-        ],
-      ),
-    );
-  }
+           const SizedBox(height: 24),
+           
+           // Action Buttons integrated inside
+           _buildActionButtons(context, ref, state),
+         ],
+       ),
+       ),
+     );
+   }
 
   // ── Reusable info row ──
   Widget _buildInfoRow(String label, String value, Color color) {
@@ -343,99 +346,104 @@ class WirdCard extends ConsumerWidget {
            textDirection: context.locale.languageCode == 'tr' ? ui.TextDirection.ltr : ui.TextDirection.rtl,
            child: Row(
              children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => WirdReaderPage(
-                        startPage: state.currentPage,
-                        endPage: state.targetPage,
-                      ),
-                    ),
-                  );
-                  if (result == true && context.mounted) {
-                    _showCompletionDialog(context, ref, state);
-                  }
-                },
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF064E3B), Color(0xFF047857)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                   child: Center(
-                     child: Text(
-                       'continue_reading_wird'.tr(),
-                       style: GoogleFonts.cairo(
-                         color: Colors.white,
-                         fontSize: 14,
-                         fontWeight: FontWeight.bold,
+             Expanded(
+               child: GestureDetector(
+                 onTap: () async {
+                   final result = await Navigator.push(
+                     context,
+                     MaterialPageRoute(
+                       builder: (_) => WirdReaderPage(
+                         startPage: state.currentPage,
+                         endPage: state.targetPage,
                        ),
                      ),
+                   );
+                   if (result == true && context.mounted) {
+                     _showCompletionDialog(context, ref, state);
+                   }
+                 },
+                 child: Container(
+                   height: 56,
+                   padding: const EdgeInsets.symmetric(horizontal: 12),
+                   decoration: BoxDecoration(
+                     gradient: const LinearGradient(
+                       colors: [Color(0xFF064E3B), Color(0xFF047857)],
+                       begin: Alignment.topCenter,
+                       end: Alignment.bottomCenter,
+                     ),
+                     borderRadius: BorderRadius.circular(12),
+                     boxShadow: [
+                       BoxShadow(
+                         color: Colors.black.withOpacity(0.1),
+                         blurRadius: 8,
+                         offset: const Offset(0, 4),
+                       ),
+                     ],
                    ),
-                ),
-              ),
-            ),
+                    child: Center(
+                      child: Text(
+                        'continue_reading_wird'.tr(),
+                        style: GoogleFonts.cairo(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                 ),
+               ),
+             ),
             const SizedBox(width: 12),
             // Done Button (Islamic Gold)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _showCompletionDialog(context, ref, state),
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFD97706), Color(0xFFB45309)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        textDirection: ui.TextDirection.ltr,
-                         children: [
-                           const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
-                           const SizedBox(width: 4),
-                           Flexible(
-                             child: Text(
-                               'completed_reading'.tr(),
-                               style: GoogleFonts.cairo(
-                                 color: Colors.white,
-                                 fontSize: 14,
-                                 fontWeight: FontWeight.bold,
-                               ),
-                               overflow: TextOverflow.ellipsis,
-                             ),
-                           ),
-                         ],
-                      ),
-                    ),
-                ),
-              ),
-            ),
+             Expanded(
+               child: GestureDetector(
+                 onTap: () => _showCompletionDialog(context, ref, state),
+                 child: Container(
+                   height: 56,
+                   padding: const EdgeInsets.symmetric(horizontal: 12),
+                   decoration: BoxDecoration(
+                     gradient: const LinearGradient(
+                       colors: [Color(0xFFD97706), Color(0xFFB45309)],
+                       begin: Alignment.topCenter,
+                       end: Alignment.bottomCenter,
+                     ),
+                     borderRadius: BorderRadius.circular(12),
+                     boxShadow: [
+                       BoxShadow(
+                         color: Colors.black.withOpacity(0.1),
+                         blurRadius: 8,
+                         offset: const Offset(0, 4),
+                       ),
+                     ],
+                   ),
+                     child: Center(
+                       child: Row(
+                         mainAxisAlignment: MainAxisAlignment.center,
+                         mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'completed_reading'.tr(),
+                                style: GoogleFonts.cairo(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                          ],
+                       ),
+                     ),
+                 ),
+               ),
+             ),
            ],
            ),
          ),

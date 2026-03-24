@@ -32,7 +32,7 @@ class SilaBottomBar extends ConsumerWidget {
     final border = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
     final isTurkish = context.locale.languageCode == 'tr';
 
-    // Define nav items
+    // Define nav items in LTR order (Turkish order)
     final navItems = [
       _NavItemData(icon: Icons.home_rounded, label: 'nav_home'.tr(), index: 0),
       _NavItemData(icon: Icons.menu_book_rounded, label: 'nav_quran'.tr(), index: 1),
@@ -41,39 +41,43 @@ class SilaBottomBar extends ConsumerWidget {
       _NavItemData(icon: Icons.favorite_rounded, label: 'nav_azkar'.tr(), index: 4),
     ];
 
-    // For Turkish, reverse the order
-    final displayItems = isTurkish ? navItems.reversed.toList() : navItems;
+    // For Arabic, reverse the visual order to show RTL properly
+    // But keep the original index for navigation
+    final displayItems = !isTurkish ? navItems.reversed.toList() : navItems;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: surface,
-        border: Border(top: BorderSide(color: border, width: 0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          )
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 68,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: displayItems.map((item) {
-              return Expanded(
-                child: _NavItem(
-                  icon: item.icon,
-                  label: item.label,
-                  index: item.index,
-                  featured: item.featured,
-                  currentIndex: currentIndex,
-                  ref: ref,
-                ),
-              );
-            }).toList(),
+    return Directionality(
+      textDirection: isTurkish ? ui.TextDirection.ltr : ui.TextDirection.rtl,
+      child: Container(
+        decoration: BoxDecoration(
+          color: surface,
+          border: Border(top: BorderSide(color: border, width: 0.5)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            )
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 68,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: displayItems.map((item) {
+                return Expanded(
+                  child: _NavItem(
+                    icon: item.icon,
+                    label: item.label,
+                    index: item.index,
+                    featured: item.featured,
+                    currentIndex: currentIndex,
+                    ref: ref,
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

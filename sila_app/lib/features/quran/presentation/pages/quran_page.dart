@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui' as ui;
 import 'package:sila_app/features/quran/presentation/pages/surah_detail_page.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_controller.dart';
 
@@ -169,37 +170,43 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              // Name & info
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      surah.nameArabic,
-                                      style: GoogleFonts.amiri(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: txtP,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${surah.numberOfAyahs} آية · ${surah.revelationType}',
-                                      style: GoogleFonts.cairo(
-                                        fontSize: 11,
-                                        color: txtS,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Large decorative name
-                              Text(
-                                surah.nameArabic,
-                                style: GoogleFonts.amiri(
-                                  fontSize: 22,
-                                  color: primaryColor.withOpacity(0.4),
-                                ),
-                              ),
+                               // Name & info
+                               Expanded(
+                                 child: Column(
+                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                   children: [
+                                     Text(
+                                       context.locale.languageCode == 'tr'
+                                           ? surah.nameTurkish
+                                           : surah.nameArabic,
+                                       style: GoogleFonts.amiri(
+                                         fontSize: 18,
+                                         fontWeight: FontWeight.bold,
+                                         color: txtP,
+                                       ),
+                                     ),
+                                     Text(
+                                       context.locale.languageCode == 'tr'
+                                           ? '${surah.numberOfAyahs} ${surah.revelationType == 'Meccan' ? 'Mecci' : 'Medini'}'
+                                           : '${surah.numberOfAyahs} آية · ${surah.revelationType}',
+                                       style: GoogleFonts.cairo(
+                                         fontSize: 11,
+                                         color: txtS,
+                                       ),
+                                     ),
+                                   ],
+                                 ),
+                               ),
+                               // Large decorative name
+                               Text(
+                                 context.locale.languageCode == 'tr'
+                                     ? surah.nameTurkish
+                                     : surah.nameArabic,
+                                 style: GoogleFonts.amiri(
+                                   fontSize: 22,
+                                   color: primaryColor.withOpacity(0.4),
+                                 ),
+                               ),
                             ],
                           ),
                         ),
