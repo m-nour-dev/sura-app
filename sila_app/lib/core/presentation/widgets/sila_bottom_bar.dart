@@ -41,6 +41,9 @@ class SilaBottomBar extends ConsumerWidget {
       _NavItemData(icon: Icons.favorite_rounded, label: 'nav_azkar'.tr(), index: 4),
     ];
 
+    // For Turkish, reverse the order
+    final displayItems = isTurkish ? navItems.reversed.toList() : navItems;
+
     return Container(
       decoration: BoxDecoration(
         color: surface,
@@ -57,23 +60,20 @@ class SilaBottomBar extends ConsumerWidget {
         top: false,
         child: SizedBox(
           height: 68,
-          child: Directionality(
-            textDirection: isTurkish ? ui.TextDirection.ltr : ui.TextDirection.rtl,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: navItems.map((item) {
-                return Expanded(
-                  child: _NavItem(
-                    icon: item.icon,
-                    label: item.label,
-                    index: item.index,
-                    featured: item.featured,
-                    currentIndex: currentIndex,
-                    ref: ref,
-                  ),
-                );
-              }).toList(),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: displayItems.map((item) {
+              return Expanded(
+                child: _NavItem(
+                  icon: item.icon,
+                  label: item.label,
+                  index: item.index,
+                  featured: item.featured,
+                  currentIndex: currentIndex,
+                  ref: ref,
+                ),
+              );
+            }).toList(),
           ),
         ),
       ),
