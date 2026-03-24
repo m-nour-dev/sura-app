@@ -6,6 +6,7 @@ import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/azkar/data/models/azkar_model.dart';
 import 'package:sila_app/features/azkar/presentation/riverpod/azkar_controller.dart';
+import 'package:sila_app/features/azkar/data/repositories/azkar_repository.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
 class AzkarDetailPage extends ConsumerStatefulWidget {
@@ -121,7 +122,14 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final azkarAsync = ref.watch(azkarDataProvider);
+    // Determine which locale to load based on current language
+    final currentLocale = context.locale.languageCode;
+    final isTurkish = currentLocale.startsWith('tr');
+    final localeToLoad = isTurkish ? 'tr' : 'ar';
+    
+    // Load azkar data for the appropriate locale
+    final azkarAsync = ref.watch(_azkarDataProviderForLocale(localeToLoad));
+    
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
@@ -339,3 +347,9 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
     );
   }
 }
+
+// Provider to load azkar for a specific locale
+final _azkarDataProviderForLocale = FutureProvider.family<Map<String, List<AzkarItem>>, String>((ref, localeCode) async {
+  final repository = ref.watch(azkarRepositoryProvider);
+  return await repository.getAzkar(localeCode);
+});

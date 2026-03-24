@@ -363,26 +363,26 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     return GestureDetector(onTap: () => ref.read(quranSettingsControllerProvider.notifier).updateThemeMode(mode), child: Column(children: [Container(width: 40, height: 40, decoration: BoxDecoration(color: QuranUIUtils.getBackgroundColor(mode), shape: BoxShape.circle, border: Border.all(color: isSelected ? QuranUIUtils.getAccentColor(settings.themeMode) : Colors.grey))), Text(label, style: GoogleFonts.cairo(color: QuranUIUtils.getTextColor(settings.themeMode)))]));
   }
 
-  Widget _buildToolbar(BuildContext context, WidgetRef ref, QuranSettings settings) {
-    final isAnySelected = _selectedSurah != null && _selectedAyah != null;
-    if (!isAnySelected) return const SizedBox.shrink();
-    return Container(
-      height: 60, margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))]),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _toolbarAction(Icons.volume_up_rounded, 'استماع', () => _playAyahAudio(_selectedSurah!, _selectedAyah!)),
-          _toolbarAction(Icons.menu_book_rounded, 'تفسير', () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: true, settings: settings)),
-          _toolbarAction(Icons.translate_rounded, 'تركية', () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: false, settings: settings)),
-          _toolbarAction(Icons.share_rounded, 'نسخ', () {
-            Clipboard.setData(ClipboardData(text: quran.getVerse(_selectedSurah!, _selectedAyah!, verseEndSymbol: false)));
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نسخ الآية')));
-          }),
-        ],
-      ),
-    );
-  }
+   Widget _buildToolbar(BuildContext context, WidgetRef ref, QuranSettings settings) {
+     final isAnySelected = _selectedSurah != null && _selectedAyah != null;
+     if (!isAnySelected) return const SizedBox.shrink();
+     return Container(
+       height: 60, margin: const EdgeInsets.all(16),
+       decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))]),
+       child: Row(
+         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+         children: [
+           _toolbarAction(Icons.volume_up_rounded, 'toolbar_listen'.tr(), () => _playAyahAudio(_selectedSurah!, _selectedAyah!)),
+           _toolbarAction(Icons.menu_book_rounded, 'toolbar_tafsir'.tr(), () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: true, settings: settings)),
+           _toolbarAction(Icons.translate_rounded, 'toolbar_translation'.tr(), () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: false, settings: settings)),
+           _toolbarAction(Icons.share_rounded, 'toolbar_copy'.tr(), () {
+             Clipboard.setData(ClipboardData(text: quran.getVerse(_selectedSurah!, _selectedAyah!, verseEndSymbol: false)));
+             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('verse_copied_success'.tr())));
+           }),
+         ],
+       ),
+     );
+   }
 
   Widget _toolbarAction(IconData icon, String label, VoidCallback onTap) {
     return InkWell(onTap: onTap, child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, color: const Color(0xFF1D9E75), size: 20), Text(label, style: const TextStyle(color: Color(0xFF1D9E75), fontSize: 10, fontFamily: 'Cairo'))]));

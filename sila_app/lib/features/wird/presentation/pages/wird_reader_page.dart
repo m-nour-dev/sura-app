@@ -53,24 +53,24 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       final tracker = await ref.read(streakTrackerProvider.future);
       await tracker.logActivity('wird');
       
-      // Show hint SnackBar
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.touch_app, color: Colors.white, size: 20),
-                const SizedBox(width: 12),
-                Text('اضغط على أي آية للتفسير أو الاستماع', style: GoogleFonts.cairo(fontSize: 13)),
-              ],
-            ),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: AppTheme.primaryColor.withOpacity(0.9),
-            duration: const Duration(seconds: 4),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        );
-      }
+       // Show hint SnackBar
+       if (mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(
+             content: Row(
+               children: [
+                 Icon(Icons.touch_app, color: Colors.white, size: 20),
+                 const SizedBox(width: 12),
+                 Text('wird_hint_text'.tr(), style: GoogleFonts.cairo(fontSize: 13)),
+               ],
+             ),
+             behavior: SnackBarBehavior.floating,
+             backgroundColor: AppTheme.primaryColor.withOpacity(0.9),
+             duration: const Duration(seconds: 4),
+             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+           ),
+         );
+       }
     });
   }
 
@@ -545,24 +545,24 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _toolbarAction(Icons.volume_up_rounded, 'استماع', () => _playAyahAudio(_selectedSurah!, _selectedAyah!)),
-          _toolbarAction(Icons.menu_book_rounded, 'تفسير', () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: true, settings: settings)),
-          _toolbarAction(Icons.translate_rounded, 'ترجمة', () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: false, settings: settings)),
-          _toolbarAction(Icons.share_rounded, 'نسخ', () {
-            Clipboard.setData(ClipboardData(text: quran.getVerse(_selectedSurah!, _selectedAyah!, verseEndSymbol: false)));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('تم نسخ الآية', style: GoogleFonts.cairo()),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 1),
-              ),
-            );
-          }),
-        ],
-      ),
+       child: Row(
+         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+         children: [
+           _toolbarAction(Icons.volume_up_rounded, 'toolbar_listen'.tr(), () => _playAyahAudio(_selectedSurah!, _selectedAyah!)),
+           _toolbarAction(Icons.menu_book_rounded, 'toolbar_tafsir'.tr(), () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: true, settings: settings)),
+           _toolbarAction(Icons.translate_rounded, 'toolbar_translation'.tr(), () => showQuranDetailsSheet(context, surahNumber: _selectedSurah!, ayahNumber: _selectedAyah!, showTafsir: false, settings: settings)),
+           _toolbarAction(Icons.share_rounded, 'toolbar_copy'.tr(), () {
+             Clipboard.setData(ClipboardData(text: quran.getVerse(_selectedSurah!, _selectedAyah!, verseEndSymbol: false)));
+             ScaffoldMessenger.of(context).showSnackBar(
+               SnackBar(
+                 content: Text('verse_copied_success'.tr(), style: GoogleFonts.cairo()),
+                 behavior: SnackBarBehavior.floating,
+                 duration: const Duration(seconds: 1),
+               ),
+             );
+           }),
+         ],
+       ),
     );
   }
 

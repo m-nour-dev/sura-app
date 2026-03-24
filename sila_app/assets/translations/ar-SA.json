@@ -764,5 +764,14 @@
       "turkish_translation_message": "سيتم توفير هذا المحتوى بصيغة تركية قريباً. يتم عرضه بالعربية حالياً.",
       "tafsir_coming_soon": "سيتم توفير نسخة التفسير التركية قريباً",
       "tajweed_coming_soon": "سيتم توفير نسخة أحكام التجويد التركية قريباً",
-      "main_azkar_available": "الأذكار الرئيسية (الصباح والمساء والنوم والمسجد) متوفرة بالكامل بالتركية"
+      "main_azkar_available": "الأذكار الرئيسية (الصباح والمساء والنوم والمسجد) متوفرة بالكامل بالتركية",
+   "toolbar_listen": "استماع",
+   "toolbar_tafsir": "تفسير",
+   "toolbar_translation": "ترجمة",
+   "toolbar_copy": "نسخ",
+   "quran_hint_text": "اضغط على أي آية للتفسير أو الاستماع",
+   "wird_hint_text": "اضغط على أي آية للتفسير أو الاستماع",
+   "tafsir_label": "التفسير:",
+   "translation_label": "الترجمة:",
+   "verse_copied_success": "تم نسخ الآية"
 }

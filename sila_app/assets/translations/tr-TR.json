@@ -755,5 +755,14 @@
      "turkish_translation_message": "Bu içerik yakında Türkçe olarak sunulacak. Şu anda Arapça olarak gösterilmektedir.",
      "tafsir_coming_soon": "Tefsir Türkçe versiyonu yakında mevcut olacak",
      "tajweed_coming_soon": "Tecvid kuralları Türkçe versiyonu yakında mevcut olacak",
-     "main_azkar_available": "Önemli zikirler (Sabah, Akşam, Uyku, Cami) tamamen Türkçe mevcuttur"
+      "main_azkar_available": "Önemli zikirler (Sabah, Akşam, Uyku, Cami) tamamen Türkçe mevcuttur",
+      "toolbar_listen": "Dinle",
+      "toolbar_tafsir": "Tefsir",
+      "toolbar_translation": "Çeviri",
+      "toolbar_copy": "Kopyala",
+      "quran_hint_text": "Tefsir veya dinlemek için herhangi bir ayete dokunun",
+      "wird_hint_text": "Tefsir veya dinlemek için herhangi bir ayete dokunun",
+      "tafsir_label": "Tefsir:",
+      "translation_label": "Çeviri:",
+      "verse_copied_success": "Ayet kopyalandı"
 }
