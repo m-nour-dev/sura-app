@@ -14,18 +14,18 @@ import 'package:sila_app/features/prayers/presentation/widgets/location_settings
 
 // ── All supported calculation methods ────────────────────────────────────────
 const _methods = {
-  'turkey':              'رئاسة الشؤون الدينية – تركيا',
-  'muslim_world_league': 'رابطة العالم الإسلامي',
-  'egyptian':            'الهيئة المصرية العامة للمساحة',
-  'umm_al_qura':         'جامعة أم القرى – مكة المكرمة',
-  'morocco':             'وزارة الأوقاف المغربية',
-  'indonesia':           'وزارة الشؤون الدينية – إندونيسيا',
-  'karachi':             'جامعة العلوم الإسلامية – كراتشي',
-  'north_america':       'ISNA – أمريكا الشمالية',
-  'dubai':               'الإمارات',
-  'qatar':               'قطر',
-  'kuwait':              'الكويت',
-  'singapore':           'سنغافورة',
+  'turkey':              'calculation_methods.turkey',
+  'muslim_world_league': 'calculation_methods.muslim_world_league',
+  'egyptian':            'calculation_methods.egyptian',
+  'umm_al_qura':         'calculation_methods.umm_al_qura',
+  'morocco':             'calculation_methods.morocco',
+  'indonesia':           'calculation_methods.indonesia',
+  'karachi':             'calculation_methods.karachi',
+  'north_america':       'calculation_methods.north_america',
+  'dubai':               'calculation_methods.dubai',
+  'qatar':               'calculation_methods.qatar',
+  'kuwait':              'calculation_methods.kuwait',
+  'singapore':           'calculation_methods.singapore',
 };
 
 class PrayerSettingsPage extends ConsumerStatefulWidget {
@@ -63,16 +63,16 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
       context: context,
       builder: (_) => _MethodDialog(current: _method),
     );
-    if (selected != null && selected != _method) {
-      await _prefs.setCalculationMethod(selected);
-      setState(() => _method = selected);
-      ref.invalidate(prayerTimesControllerProvider);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم تحديث طريقة الحساب')),
-        );
+      if (selected != null && selected != _method) {
+        await _prefs.setCalculationMethod(selected);
+        setState(() => _method = selected);
+        ref.invalidate(prayerTimesControllerProvider);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('calculation_updated'.tr())),
+          );
+        }
       }
-    }
   }
 
   @override
@@ -86,7 +86,7 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
         foregroundColor: Colors.white,
         centerTitle: true,
         title: Text(
-          'إعدادات المواقيت',
+          'prayer_settings'.tr(),
           style: GoogleFonts.cairo(fontWeight: FontWeight.w700),
         ),
         elevation: 0,
@@ -94,11 +94,11 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _Section(label: 'الموقع', children: [
+          _Section(label: 'location'.tr(), children: [
             _Tile(
               icon: Icons.location_on_rounded,
-              title: 'تحديد الموقع تلقائياً',
-              subtitle: _isAuto ? 'مفعّل – GPS' : 'معطّل',
+              title: 'auto_detect_location'.tr(),
+              subtitle: _isAuto ? 'auto_detect_enabled'.tr() : 'auto_detect_disabled'.tr(),
               trailing: Switch(
                 value: _isAuto,
                 activeColor: const Color(0xFF43A047),
@@ -112,9 +112,9 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
             if (!_isAuto)
               _Tile(
                 icon: Icons.edit_location_alt_rounded,
-                title: 'تغيير المدينة',
+                title: 'change_city'.tr(),
                 subtitle:
-                    _cityName.isNotEmpty ? _cityName : 'اضغط لتحديد المدينة',
+                    _cityName.isNotEmpty ? _cityName : 'select_city'.tr(),
                 onTap: () async {
                   await showDialog(
                     context: context,
@@ -128,11 +128,11 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
 
           const SizedBox(height: 16),
 
-          _Section(label: 'طريقة الحساب', children: [
+          _Section(label: 'calculation_method_label'.tr(), children: [
             _Tile(
               icon: Icons.calculate_rounded,
-              title: 'الطريقة المستخدمة',
-              subtitle: _methods[_method] ?? _method,
+              title: 'calculation_method_name'.tr(),
+              subtitle: _methods[_method]?.tr() ?? _method,
               onTap: _pickMethod,
               trailing:
                   const Icon(Icons.chevron_right_rounded, color: Colors.white38),
@@ -142,7 +142,7 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Text(
-                  'ℹ️  يتم اختيار طريقة الحساب تلقائياً بناءً على دولتك',
+                  'info_calculation_method'.tr(),
                   style: GoogleFonts.cairo(
                       color: Colors.white38, fontSize: 12),
                 ),
@@ -151,11 +151,11 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
 
           const SizedBox(height: 16),
 
-          _Section(label: 'أذان وإشعارات', children: [
+          _Section(label: 'adhan_notifications_label'.tr(), children: [
             _Tile(
               icon: Icons.notifications_active_rounded,
-              title: 'إعدادات الأذان',
-              subtitle: 'صوت الأذان وإشعارات كل صلاة',
+              title: 'adhan_settings'.tr(),
+              subtitle: 'adhan_prayer_settings'.tr(),
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const AdhanSettingsPage())),
               trailing:
@@ -165,11 +165,11 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
 
           const SizedBox(height: 16),
 
-          _Section(label: 'القبلة', children: [
+          _Section(label: 'qiblah'.tr(), children: [
             _Tile(
               icon: Icons.explore_rounded,
-              title: 'اتجاه القبلة',
-              subtitle: 'بوصلة القبلة التفاعلية',
+              title: 'qiblah_direction'.tr(),
+              subtitle: 'qibla_interactive_compass'.tr(),
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const QiblahPage())),
               trailing:
@@ -179,11 +179,11 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
 
           const SizedBox(height: 16),
 
-          _Section(label: 'التسميع', children: [
+          _Section(label: 'tasmi_label'.tr(), children: [
             _Tile(
               icon: Icons.tune_rounded,
-              title: 'إعدادات التسميع',
-              subtitle: 'غيّر تفضيلاتك للتسميع',
+              title: 'tasmi_settings'.tr(),
+              subtitle: 'tasmi_customize_preferences'.tr(),
               trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
               onTap: () => Navigator.push(
                 context,
@@ -196,15 +196,15 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
             ),
             _Tile(
               icon: Icons.mic_rounded,
-              title: 'الشيخ المختار',
-              subtitle: currentReciter?.nameArabic ?? 'الشيخ محمود خليل الحصري',
+              title: 'selected_reciter'.tr(),
+              subtitle: currentReciter?.nameArabic ?? 'default_reciter_name'.tr(),
               trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
               onTap: () => showReciterPickerSheet(context),
             ),
             _Tile(
               icon: Icons.storage_rounded,
-              title: 'إدارة مساحة الصوت',
-              subtitle: 'عرض وحذف كاش التلاوات',
+              title: 'manage_audio_storage'.tr(),
+              subtitle: 'view_delete_audio_cache'.tr(),
               trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
               onTap: () => showAudioStorageSheet(context),
             ),
@@ -306,16 +306,16 @@ class _MethodDialog extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              'اختر طريقة الحساب',
-              style: GoogleFonts.cairo(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
+           Padding(
+             padding: const EdgeInsets.all(20),
+             child: Text(
+               'select_calculation_method'.tr(),
+               style: GoogleFonts.cairo(
+                   color: Colors.white,
+                   fontSize: 18,
+                   fontWeight: FontWeight.bold),
+             ),
+           ),
           SizedBox(
             height: 380,
             child: ListView(
@@ -323,7 +323,7 @@ class _MethodDialog extends StatelessWidget {
                 final selected = e.key == current;
                 return ListTile(
                   onTap: () => Navigator.pop(context, e.key),
-                  title: Text(e.value,
+                  title: Text(e.value.tr(),
                       style: GoogleFonts.cairo(
                           color: selected
                               ? const Color(0xFF66BB6A)
@@ -340,11 +340,11 @@ class _MethodDialog extends StatelessWidget {
               }).toList(),
             ),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('إلغاء',
-                style: GoogleFonts.cairo(color: Colors.white54)),
-          ),
+           TextButton(
+             onPressed: () => Navigator.pop(context),
+             child: Text('cancel'.tr(),
+                 style: GoogleFonts.cairo(color: Colors.white54)),
+           ),
           const SizedBox(height: 8),
         ],
       ),
