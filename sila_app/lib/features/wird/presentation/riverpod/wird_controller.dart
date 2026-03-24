@@ -53,9 +53,16 @@ class WirdState {
 class WirdController extends StateNotifier<AsyncValue<WirdState>> {
   final WirdService _service;
   final Ref _ref;
+  bool _isDisposed = false;
 
   WirdController(this._service, this._ref) : super(const AsyncValue.loading()) {
     _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   Future<void> _loadSettings() async {

@@ -407,23 +407,27 @@ class WirdCard extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                       children: [
-                         Text(
-                           'completed_reading'.tr(),
-                           style: GoogleFonts.cairo(
-                             color: Colors.white,
-                             fontSize: 14,
-                             fontWeight: FontWeight.bold,
-                           ),
-                         ),
-                         const SizedBox(width: 4),
-                         const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
-                       ],
-                    ),
-                  ),
+                   child: Center(
+                     child: Row(
+                       mainAxisAlignment: MainAxisAlignment.center,
+                       mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'completed_reading'.tr(),
+                              style: GoogleFonts.cairo(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+                        ],
+                     ),
+                   ),
                 ),
               ),
             ),
