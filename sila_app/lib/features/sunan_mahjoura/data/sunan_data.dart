@@ -1,3 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
+
 class SunnahItem {
   final String textKey;
   final String sourceKey;
@@ -8,6 +10,11 @@ class SunnahItem {
     required this.sourceKey,
     required this.explanationKey,
   });
+
+  // Getter methods for convenience (translates on access)
+  String get text => textKey.tr();
+  String get source => sourceKey.tr();
+  String get explanation => explanationKey.tr();
 }
 
 final List<SunnahItem> sunanMahjouraList = [
