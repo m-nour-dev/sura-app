@@ -749,6 +749,11 @@
     "azkar_settings_subtitle": "Favori zikirlerinizin saatlerini seçin",
     "hifz_settings_title": "Hafızlık Bildirimi Ayarları",
     "hifz_settings_subtitle": "Hafızlık ve tasmi uyarılarını ayarlayın",
-    "tasbih_settings_title": "Tesbih Bildirimi Ayarları",
-    "tasbih_settings_subtitle": "Tesbih ve tekbir uyarılarını özelleştirin"
+     "tasbih_settings_title": "Tesbih Bildirimi Ayarları",
+     "tasbih_settings_subtitle": "Tesbih ve tekbir uyarılarını özelleştirin",
+     "turkish_translation_coming": "Türkçe Çeviri Yakında",
+     "turkish_translation_message": "Bu içerik yakında Türkçe olarak sunulacak. Şu anda Arapça olarak gösterilmektedir.",
+     "tafsir_coming_soon": "Tefsir Türkçe versiyonu yakında mevcut olacak",
+     "tajweed_coming_soon": "Tecvid kuralları Türkçe versiyonu yakında mevcut olacak",
+     "main_azkar_available": "Önemli zikirler (Sabah, Akşam, Uyku, Cami) tamamen Türkçe mevcuttur"
 }

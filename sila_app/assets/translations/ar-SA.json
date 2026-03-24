@@ -758,6 +758,11 @@
      "azkar_settings_subtitle": "اختر أوقات أذكارك المفضلة",
      "hifz_settings_title": "إعدادات إشعارات الحفظ",
      "hifz_settings_subtitle": "ضبط تنبيهات حفظك والتسميع",
-     "tasbih_settings_title": "إعدادات إشعارات التسبيح",
-     "tasbih_settings_subtitle": "خصص تنبيهات التسبيح والتكبير"
+      "tasbih_settings_title": "إعدادات إشعارات التسبيح",
+      "tasbih_settings_subtitle": "خصص تنبيهات التسبيح والتكبير",
+      "turkish_translation_coming": "الترجمة التركية قادمة قريباً",
+      "turkish_translation_message": "سيتم توفير هذا المحتوى بصيغة تركية قريباً. يتم عرضه بالعربية حالياً.",
+      "tafsir_coming_soon": "سيتم توفير نسخة التفسير التركية قريباً",
+      "tajweed_coming_soon": "سيتم توفير نسخة أحكام التجويد التركية قريباً",
+      "main_azkar_available": "الأذكار الرئيسية (الصباح والمساء والنوم والمسجد) متوفرة بالكامل بالتركية"
 }

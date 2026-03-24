@@ -136,20 +136,50 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
         title: widget.title,
       ),
       body: azkarAsync.when(
-        data: (data) {
-          final items = data[widget.categoryId] ?? [];
-          if (items.isEmpty) {
-            return Center(
-              child: Text(
-                "Coming soon...",
-                style: TextStyle(
-                  fontFamily: 'Cairo',
-                  color: subtitleColor,
-                  fontSize: 16,
-                ),
-              ),
-            );
-          }
+         data: (data) {
+           final items = data[widget.categoryId] ?? [];
+           
+           // Show message if category is empty (not yet translated to Turkish)
+           if (items.isEmpty) {
+             final isTurkish = context.locale.languageCode == 'tr';
+             
+             return Center(
+               child: Padding(
+                 padding: const EdgeInsets.all(40),
+                 child: Column(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                     Icon(
+                       Icons.schedule_outlined,
+                       size: 80,
+                       color: const Color(0xFF064E3B).withOpacity(0.3),
+                     ),
+                     const SizedBox(height: 24),
+                     Text(
+                       isTurkish ? 'turkish_translation_coming'.tr() : 'Coming soon...',
+                       style: TextStyle(
+                         fontFamily: 'Cairo',
+                         color: subtitleColor,
+                         fontSize: 18,
+                         fontWeight: FontWeight.w600,
+                       ),
+                       textAlign: TextAlign.center,
+                     ),
+                     const SizedBox(height: 12),
+                     Text(
+                       isTurkish ? 'turkish_translation_message'.tr() : 'This content is coming soon',
+                       style: TextStyle(
+                         fontFamily: 'Cairo',
+                         color: subtitleColor,
+                         fontSize: 14,
+                       ),
+                       textAlign: TextAlign.center,
+                     ),
+                   ],
+                 ),
+               ),
+             );
+           }
 
           return ListView.separated(
             padding: const EdgeInsets.all(20),

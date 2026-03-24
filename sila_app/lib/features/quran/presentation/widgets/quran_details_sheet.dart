@@ -211,27 +211,61 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                   const SizedBox(height: 32),
 
-                  // Content
-                  Text(widget.showTafsir ? 'التفسير:' : 'Meali:',
-                    style: GoogleFonts.cairo(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: _getAccentColor(settings.themeMode),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(content.replaceAll('\n', '\n\n'),
-                    textAlign: widget.showTafsir ? TextAlign.justify : TextAlign.left,
-                    textDirection: widget.showTafsir ? ui.TextDirection.rtl : ui.TextDirection.ltr,
-                    style: TextStyle(
-                      fontFamily: widget.showTafsir ? settings.fontFamily : 'Roboto',
-                      fontSize: settings.fontSize * 0.9,
-                      height: widget.showTafsir ? 2.2 : 1.6,
-                      color: _getTextColor(settings.themeMode).withOpacity(0.9),
-                    ),
-                  ),
+                   // Content
+                   Text(widget.showTafsir ? 'التفسير:' : 'Meali:',
+                     style: GoogleFonts.cairo(
+                       fontSize: 16,
+                       fontWeight: FontWeight.bold,
+                       color: _getAccentColor(settings.themeMode),
+                     ),
+                   ),
+                   const SizedBox(height: 12),
+                   
+                   // Show notice for Turkish users if viewing tafsir
+                   if (widget.showTafsir && context.locale.languageCode == 'tr')
+                     Container(
+                       padding: const EdgeInsets.all(12),
+                       margin: const EdgeInsets.only(bottom: 12),
+                       decoration: BoxDecoration(
+                         color: _getAccentColor(settings.themeMode).withOpacity(0.1),
+                         borderRadius: BorderRadius.circular(8),
+                         border: Border.all(
+                           color: _getAccentColor(settings.themeMode).withOpacity(0.3),
+                         ),
+                       ),
+                       child: Row(
+                         children: [
+                           Icon(Icons.info_outline_rounded,
+                             color: _getAccentColor(settings.themeMode),
+                             size: 18,
+                           ),
+                           const SizedBox(width: 8),
+                           Expanded(
+                             child: Text(
+                               'tafsir_coming_soon'.tr(),
+                               style: TextStyle(
+                                 fontSize: 12,
+                                 color: _getAccentColor(settings.themeMode),
+                                 fontStyle: FontStyle.italic,
+                               ),
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                   
+                   Text(content.replaceAll('\n', '\n\n'),
+                     textAlign: widget.showTafsir ? TextAlign.justify : TextAlign.left,
+                     textDirection: widget.showTafsir ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+                     style: TextStyle(
+                       fontFamily: widget.showTafsir ? settings.fontFamily : 'Roboto',
+                       fontSize: settings.fontSize * 0.9,
+                       height: widget.showTafsir ? 2.2 : 1.6,
+                       color: _getTextColor(settings.themeMode).withOpacity(0.9),
+                     ),
+                   ),
 
                   const SizedBox(height: 48),
 

@@ -4,6 +4,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sila_app/features/onboarding/presentation/pages/language_selection_page.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
@@ -52,6 +54,10 @@ void main() async {
     debugPrint('NotificationService init failed: $error');
   }
 
+  // Check language selection
+  final prefs = await SharedPreferences.getInstance();
+  final isLanguageSelected = prefs.getBool('is_language_selected') ?? false;
+
   runApp(
     ProviderScope(
       child: EasyLocalization(
@@ -62,14 +68,19 @@ void main() async {
         path: 'assets/translations',
         fallbackLocale: const Locale('ar', 'SA'),
         startLocale: const Locale('ar', 'SA'),
-        child: const SilaApp(),
+        child: SilaApp(isLanguageSelected: isLanguageSelected),
       ),
     ),
   );
 }
 
 class SilaApp extends StatelessWidget {
-  const SilaApp({super.key});
+  final bool isLanguageSelected;
+
+  const SilaApp({
+    super.key,
+    required this.isLanguageSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +94,7 @@ class SilaApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const MainLayout(),
+      home: isLanguageSelected ? const MainLayout() : const LanguageSelectionPage(),
     );
   }
 }
