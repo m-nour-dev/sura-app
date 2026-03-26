@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
 class TimeUtils {
   static String formatPrayerTime(DateTime time, BuildContext context) {

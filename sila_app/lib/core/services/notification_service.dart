@@ -1,22 +1,22 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:audioplayers/audioplayers.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sila_app/core/services/isar_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
+import 'package:sila_app/core/services/isar_service.dart';
+import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
-import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
-import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
+import 'package:sila_app/features/notifications/data/notification_ids.dart';
+import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
 import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse response) {
@@ -27,9 +27,9 @@ void notificationTapBackground(NotificationResponse response) {
 }
 
 class NotificationService {
-  static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
+  static final NotificationService _instance = NotificationService._internal();
 
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
@@ -78,13 +78,13 @@ class NotificationService {
         await FirebaseMessaging.instance.subscribeToTopic('all_users');
         await FirebaseMessaging.instance.subscribeToTopic('updates');
 
-        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        FirebaseMessaging.onMessage.listen((message) {
           if (message.data['type'] == 'update') {
             _showUpdateNotification(message);
           }
         });
 
-        FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        FirebaseMessaging.onMessageOpenedApp.listen((message) {
           if (message.data['type'] == 'update') {
             _showUpdateNotification(message);
           }
@@ -602,7 +602,7 @@ class NotificationService {
         9999,
         'سِلى — اختبار الإشعارات 🕌',
         'إذا وصلك هذا الإشعار فالنظام يعمل بشكل صحيح',
-        NotificationDetails(
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             'adhan_channel',
             'أذان الصلاة',

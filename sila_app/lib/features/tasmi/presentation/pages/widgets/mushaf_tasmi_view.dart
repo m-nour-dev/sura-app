@@ -8,16 +8,13 @@ String _toArabicNumber(String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 
-  for (int i = 0; i < english.length; i++) {
+  for (var i = 0; i < english.length; i++) {
     input = input.replaceAll(english[i], arabic[i]);
   }
   return input;
 }
 
 class MushafTasmiView extends ConsumerWidget {
-  final List<TasmiWordEntry>? wordsOverride;
-  final int? currentIndexOverride;
-  final bool showAsBlank;
 
   const MushafTasmiView({
     super.key,
@@ -25,13 +22,16 @@ class MushafTasmiView extends ConsumerWidget {
     this.currentIndexOverride,
     this.showAsBlank = false,
   });
+  final List<TasmiWordEntry>? wordsOverride;
+  final int? currentIndexOverride;
+  final bool showAsBlank;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Optimization: Select only words and currentIndex to prevent rebuilding on other state changes
-    final List<TasmiWordEntry> words =
+    final words =
         wordsOverride ?? ref.watch(tasmiControllerProvider.select((state) => state.words));
-    final int currentIndex =
+    final currentIndex =
         currentIndexOverride ?? ref.watch(tasmiControllerProvider.select((state) => state.currentIndex));
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -66,10 +66,10 @@ class MushafTasmiView extends ConsumerWidget {
     String fontFamily,
     double fontSize,
   ) {
-    final List<InlineSpan> spans = [];
+    final spans = <InlineSpan>[];
     if (words.isEmpty) return spans;
 
-    for (int i = 0; i < words.length; i++) {
+    for (var i = 0; i < words.length; i++) {
       final entry = words[i];
       final isCurrent = i == currentIndex;
 
@@ -78,7 +78,7 @@ class MushafTasmiView extends ConsumerWidget {
 
       spans.add(TextSpan(text: '$renderedText ', style: _getWordStyle(entry.status, isCurrent, isDark, renderBlank)));
 
-      bool isLastWordOfAyah = (i + 1 == words.length) || (words[i + 1].verseNumber != entry.verseNumber);
+      final isLastWordOfAyah = (i + 1 == words.length) || (words[i + 1].verseNumber != entry.verseNumber);
 
       if (isLastWordOfAyah) {
         final ayahColor = isDark ? const Color(0xFFD97706) : const Color(0xFF064E3B);
@@ -100,8 +100,8 @@ class MushafTasmiView extends ConsumerWidget {
   }
 
   TextStyle _getWordStyle(WordEntryStatus status, bool isCurrent, bool isDark, bool isBlank) {
-    final primaryColor = const Color(0xFF064E3B);
-    final accentColor = const Color(0xFFD97706);
+    const primaryColor = Color(0xFF064E3B);
+    const accentColor = Color(0xFFD97706);
 
     // Current word being recited gets a distinct highlight
     if (isCurrent) {

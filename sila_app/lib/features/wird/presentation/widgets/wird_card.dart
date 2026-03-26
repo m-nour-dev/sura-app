@@ -1,18 +1,16 @@
 import 'dart:ui' as ui;
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quran/quran.dart' as quran;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
-import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart';
-import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:sila_app/features/wird/presentation/pages/wird_setup_page.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sila_app/features/wird/data/models/wird_settings.dart';
+import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart';
+import 'package:sila_app/features/wird/presentation/pages/wird_setup_page.dart';
+import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdCard extends ConsumerWidget {
   const WirdCard({super.key});
@@ -32,7 +30,7 @@ class WirdCard extends ConsumerWidget {
               );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, s) => Center(child: Text("Error: $e")),
+      error: (e, s) => Center(child: Text('Error: $e')),
     );
   }
 
@@ -117,7 +115,7 @@ class WirdCard extends ConsumerWidget {
     final juz = quran.getJuzNumber(surahNum, startAyah);
 
     // Progress calculation derived from state
-    int increment = 0;
+    var increment = 0;
     if (state.goalType == WirdGoalType.page) {
       increment = state.goalValue;
     } else if (state.goalType == WirdGoalType.juz) {
@@ -131,8 +129,8 @@ class WirdCard extends ConsumerWidget {
     final pagesReadSoFar = (state.currentPage - startOfGoal).clamp(0, totalPagesToRead);
     final progress = (pagesReadSoFar / totalPagesToRead).clamp(0.0, 1.0);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Colors.white;
-    final subtextColor = Colors.white70;
+    const textColor = Colors.white;
+    const subtextColor = Colors.white70;
 
     return Container(
       width: double.infinity,
@@ -336,8 +334,8 @@ class WirdCard extends ConsumerWidget {
 
   // ─── Action Buttons ───
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, WirdState state) {
-    final bool isLate = state.daysDifference < 0;
-    final int lateDays = state.daysDifference.abs();
+    final isLate = state.daysDifference < 0;
+    final lateDays = state.daysDifference.abs();
 
     return Column(
        children: [
@@ -650,8 +648,8 @@ class WirdCard extends ConsumerWidget {
 }
 
 class _CelebrationWidget extends StatefulWidget {
-  final VoidCallback onFinished;
   const _CelebrationWidget({required this.onFinished});
+  final VoidCallback onFinished;
 
   @override
   State<_CelebrationWidget> createState() => _CelebrationWidgetState();

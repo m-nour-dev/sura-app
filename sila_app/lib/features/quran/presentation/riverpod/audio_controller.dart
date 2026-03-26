@@ -6,17 +6,17 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/core/services/reciter_service.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
+import 'package:sila_app/core/services/reciter_service.dart';
 
 part 'audio_controller.g.dart';
 
 // Singleton audio player - shared across all instances
 // This prevents multiple AudioPlayer instances from interrupting each other
 class _AudioPlayerSingleton {
-  static final _AudioPlayerSingleton _instance = _AudioPlayerSingleton._internal();
   factory _AudioPlayerSingleton() => _instance;
   _AudioPlayerSingleton._internal();
+  static final _AudioPlayerSingleton _instance = _AudioPlayerSingleton._internal();
 
   AudioPlayer player = AudioPlayer();
   bool isLoading = false;
@@ -25,15 +25,15 @@ class _AudioPlayerSingleton {
 }
 
 class AudioCacheStats {
-  final int totalBytes;
-  final int totalFiles;
-  final Map<String, int> bytesByFolder;
 
   const AudioCacheStats({
     required this.totalBytes,
     required this.totalFiles,
     required this.bytesByFolder,
   });
+  final int totalBytes;
+  final int totalFiles;
+  final Map<String, int> bytesByFolder;
 }
 
 @riverpod
@@ -106,10 +106,10 @@ class AudioController extends _$AudioController {
 
       unawaited(_prefetchNextAyah(url));
       
-    } on PlayerException catch (e) {
+    } on PlayerException {
       _singleton.currentUrl = null;
       rethrow;
-    } on PlayerInterruptedException catch (e) {
+    } on PlayerInterruptedException {
       _singleton.currentUrl = null;
       rethrow;
     } catch (e) {
@@ -255,8 +255,8 @@ class AudioController extends _$AudioController {
       if (surah == null || ayah == null) return;
 
       final maxAyah = quran.getVerseCount(surah);
-      int nextSurah = surah;
-      int nextAyah = ayah + 1;
+      var nextSurah = surah;
+      var nextAyah = ayah + 1;
       if (nextAyah > maxAyah) {
         nextSurah = surah + 1;
         nextAyah = 1;

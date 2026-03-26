@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
-import 'package:sila_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/controllers/custom_ibadah_controller.dart';
+import 'package:sila_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/ibadah_detail_sheet.dart';
 
@@ -25,7 +26,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
     final h = HijriCalendar.now();
     // Using translation keys for Hijri months
     final monthKey = 'hijri_months.${h.hMonth}';
-    final suffix = "hijri_suffix".tr();
+    final suffix = 'hijri_suffix'.tr();
     
     // Check if current locale is Turkish
     if (context.locale.languageCode == 'tr') {
@@ -268,8 +269,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
     final todayNote = s.today.personalNote ?? '{}';
     final yesterdayNote = s.yesterday?.personalNote ?? '{}';
     
-    bool todayStatus = false;
-    bool yesterdayStatus = false;
+    var todayStatus = false;
+    var yesterdayStatus = false;
     
     try {
       final tMap = jsonDecode(todayNote) as Map<String, dynamic>;
@@ -289,7 +290,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
       onLongPress: () => _showDeleteCustomDialog(context, name),
       onTap: () async {
         final currentNote = s.today.personalNote ?? '{}';
-        Map<String, dynamic> noteMap = {};
+        var noteMap = <String, dynamic>{};
         try {
           noteMap = jsonDecode(currentNote);
         } catch (_) {}

@@ -2,9 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class TasmiListeningIndicator extends StatefulWidget {
-  final bool isListening;
 
   const TasmiListeningIndicator({super.key, required this.isListening});
+  final bool isListening;
 
   @override
   State<TasmiListeningIndicator> createState() => _TasmiListeningIndicatorState();

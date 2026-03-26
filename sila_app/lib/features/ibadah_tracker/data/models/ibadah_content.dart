@@ -1,13 +1,4 @@
 class IbadahContent {
-  final String id;
-  final String type;
-  final String arabicText;
-  final String shortText;
-  final String source;
-  final String grade;
-  final String? scholar;
-  final int? surahNumber;
-  final int? ayahNumber;
 
   const IbadahContent({
     required this.id,
@@ -36,6 +27,15 @@ class IbadahContent {
       ayahNumber: map['ayah_number'] as int?,
     );
   }
+  final String id;
+  final String type;
+  final String arabicText;
+  final String shortText;
+  final String source;
+  final String grade;
+  final String? scholar;
+  final int? surahNumber;
+  final int? ayahNumber;
 
   static String _compact(String text) {
     if (text.length <= 170) return text;

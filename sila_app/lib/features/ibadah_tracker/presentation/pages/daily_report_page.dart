@@ -767,37 +767,51 @@ class _RangeChip extends StatelessWidget {
 
 List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale}) {
   final out = <_IbadahItem>[];
-  if (r.fajrStatus > 0)
+  if (r.fajrStatus > 0) {
     out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr')));
-  if (r.dhuhrStatus > 0)
+  }
+  if (r.dhuhrStatus > 0) {
     out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr')));
-  if (r.asrStatus > 0)
+  }
+  if (r.asrStatus > 0) {
     out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr')));
-  if (r.maghribStatus > 0)
+  }
+  if (r.maghribStatus > 0) {
     out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib')));
-  if (r.ishaStatus > 0)
+  }
+  if (r.ishaStatus > 0) {
     out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha')));
+  }
   if (r.readWird) out.add(_IbadahItem(key: 'wird', label: tr('daily_report_page.wird')));
-  if (r.readAzkarSabah)
+  if (r.readAzkarSabah) {
     out.add(_IbadahItem(key: 'azkar_sabah', label: tr('daily_report_page.azkar_sabah')));
-  if (r.readAzkarMasa)
+  }
+  if (r.readAzkarMasa) {
     out.add(_IbadahItem(key: 'azkar_masa', label: tr('daily_report_page.azkar_masa')));
+  }
   if (r.didTasbih) out.add(_IbadahItem(key: 'tasbih', label: tr('daily_report_page.tasbih')));
-  if (r.didHifz || r.didTasmi)
+  if (r.didHifz || r.didTasmi) {
     out.add(_IbadahItem(key: 'hifz', label: tr('daily_report_page.hifz_tasmi')));
-  if (r.rememberedAllah)
+  }
+  if (r.rememberedAllah) {
     out.add(_IbadahItem(key: 'dhikr', label: tr('daily_report_page.dhikr')));
+  }
   if (isMale) {
-    if (r.fajrInMasjid == true)
+    if (r.fajrInMasjid == true) {
       out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr_congregation')));
-    if (r.dhuhrInMasjid == true)
+    }
+    if (r.dhuhrInMasjid == true) {
       out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr_congregation')));
-    if (r.asrInMasjid == true)
+    }
+    if (r.asrInMasjid == true) {
       out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr_congregation')));
-    if (r.maghribInMasjid == true)
+    }
+    if (r.maghribInMasjid == true) {
       out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib_congregation')));
-    if (r.ishaInMasjid == true)
+    }
+    if (r.ishaInMasjid == true) {
       out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha_congregation')));
+    }
   }
   return out.isEmpty
       ? [_IbadahItem(key: 'general', label: tr('daily_report_page.general_start'))]
@@ -806,44 +820,57 @@ List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale}) {
 
 List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale}) {
   final out = <_IbadahItem>[];
-  if (r.fajrStatus == 0)
+  if (r.fajrStatus == 0) {
     out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr')));
-  if (r.dhuhrStatus == 0)
+  }
+  if (r.dhuhrStatus == 0) {
     out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr')));
+  }
   if (r.asrStatus == 0) out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr')));
-  if (r.maghribStatus == 0)
+  if (r.maghribStatus == 0) {
     out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib')));
-  if (r.ishaStatus == 0)
+  }
+  if (r.ishaStatus == 0) {
     out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha')));
+  }
   if (!r.readWird) out.add(_IbadahItem(key: 'wird', label: tr('daily_report_page.wird')));
-  if (!r.readAzkarSabah)
+  if (!r.readAzkarSabah) {
     out.add(_IbadahItem(key: 'azkar_sabah', label: tr('daily_report_page.azkar_sabah')));
-  if (!r.readAzkarMasa)
+  }
+  if (!r.readAzkarMasa) {
     out.add(_IbadahItem(key: 'azkar_masa', label: tr('daily_report_page.azkar_masa')));
+  }
   if (!r.didTasbih) out.add(_IbadahItem(key: 'tasbih', label: tr('daily_report_page.tasbih')));
-  if (!(r.didHifz || r.didTasmi))
+  if (!(r.didHifz || r.didTasmi)) {
     out.add(_IbadahItem(key: 'hifz', label: tr('daily_report_page.hifz_tasmi')));
-  if (!r.rememberedAllah)
+  }
+  if (!r.rememberedAllah) {
     out.add(_IbadahItem(key: 'dhikr', label: tr('daily_report_page.dhikr')));
+  }
   if (isMale) {
-    if (r.fajrStatus > 0 && r.fajrInMasjid == false)
+    if (r.fajrStatus > 0 && r.fajrInMasjid == false) {
       out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr_congregation')));
-    if (r.dhuhrStatus > 0 && r.dhuhrInMasjid == false)
+    }
+    if (r.dhuhrStatus > 0 && r.dhuhrInMasjid == false) {
       out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr_congregation')));
-    if (r.asrStatus > 0 && r.asrInMasjid == false)
+    }
+    if (r.asrStatus > 0 && r.asrInMasjid == false) {
       out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr_congregation')));
-    if (r.maghribStatus > 0 && r.maghribInMasjid == false)
+    }
+    if (r.maghribStatus > 0 && r.maghribInMasjid == false) {
       out.add(_IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib_congregation')));
-    if (r.ishaStatus > 0 && r.ishaInMasjid == false)
+    }
+    if (r.ishaStatus > 0 && r.ishaInMasjid == false) {
       out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha_congregation')));
+    }
   }
   return out;
 }
 
 class _IbadahItem {
+  const _IbadahItem({required this.key, required this.label});
   final String key;
   final String label;
-  const _IbadahItem({required this.key, required this.label});
 }
 
 class _ReminderCards extends ConsumerWidget {

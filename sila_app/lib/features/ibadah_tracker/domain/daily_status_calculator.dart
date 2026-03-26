@@ -11,7 +11,7 @@ class DailyStatusCalculator {
   static final Map<int, String> _dailyTextCache = {};
 
   static String getDailyQuote(IbadahRecord record, String languageCode) {
-    List<String> texts = [];
+    var texts = <String>[];
     final double ratio = record.completionRatio;
 
     if (languageCode == 'ar') {

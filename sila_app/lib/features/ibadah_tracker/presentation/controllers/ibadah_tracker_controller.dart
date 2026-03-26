@@ -7,13 +7,6 @@ import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 
 class IbadahTrackerState {
-  final IbadahRecord today;
-  final IbadahRecord? yesterday;
-  final UserGenderPrefs? gender;
-  final bool onboardingNeeded;
-  final double completionRatio;
-  final int completedCount;
-  final int totalCount;
 
   const IbadahTrackerState({
     required this.today,
@@ -24,6 +17,13 @@ class IbadahTrackerState {
     required this.completedCount,
     required this.totalCount,
   });
+  final IbadahRecord today;
+  final IbadahRecord? yesterday;
+  final UserGenderPrefs? gender;
+  final bool onboardingNeeded;
+  final double completionRatio;
+  final int completedCount;
+  final int totalCount;
 
   bool get isMale => gender?.isMale == true;
 }

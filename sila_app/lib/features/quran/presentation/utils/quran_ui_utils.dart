@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 
 class QuranUIUtils {
@@ -24,26 +23,26 @@ class QuranUIUtils {
   static String toArabicNumber(int number) {
     const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    String numStr = number.toString();
-    for (int i = 0; i < english.length; i++) {
+    var numStr = number.toString();
+    for (var i = 0; i < english.length; i++) {
       numStr = numStr.replaceAll(english[i], arabic[i]);
     }
     return numStr;
   }
 
   static List<TextSpan> buildTajweedSpans(String text, QuranThemeMode mode) {
-    List<TextSpan> spans = [];
-    final RegExp exp = RegExp(r'\[([a-zA-Z0-9:]+)\[([^\]]+)\]');
-    int lastIndex = 0;
+    final spans = <TextSpan>[];
+    final exp = RegExp(r'\[([a-zA-Z0-9:]+)\[([^\]]+)\]');
+    var lastIndex = 0;
 
     for (final Match m in exp.allMatches(text)) {
       if (m.start > lastIndex) {
         spans.add(TextSpan(text: text.substring(lastIndex, m.start)));
       }
 
-      String rule = m.group(1)!;
-      String tajweedText = m.group(2)!;
-      Color textColor = getTajweedColor(rule, mode);
+      final rule = m.group(1)!;
+      final tajweedText = m.group(2)!;
+      final textColor = getTajweedColor(rule, mode);
 
       spans.add(TextSpan(
         text: tajweedText,

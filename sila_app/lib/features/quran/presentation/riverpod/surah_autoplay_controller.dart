@@ -1,15 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 
 /// Auto-play state for a surah
 class AutoPlayState {
-  final bool isPlaying;
-  final bool isPaused;
-  final int currentAyahNumber;
-  final int totalAyahs;
-  final bool isFinished;
 
   const AutoPlayState({
     required this.isPlaying,
@@ -26,6 +22,11 @@ class AutoPlayState {
     totalAyahs: totalAyahs,
     isFinished: false,
   );
+  final bool isPlaying;
+  final bool isPaused;
+  final int currentAyahNumber;
+  final int totalAyahs;
+  final bool isFinished;
 
   AutoPlayState copyWith({
     bool? isPlaying,
@@ -46,15 +47,15 @@ class AutoPlayState {
 
 /// Controller for managing surah-wide auto-play functionality
 class SurahAutoPlayController extends StateNotifier<AutoPlayState> {
-  final Ref ref;
-  StreamSubscription? _completionSubscription;
-  Timer? _timeoutTimer;
-  int? _currentPlayingAyahNumber;
 
   SurahAutoPlayController(this.ref, int totalAyahs) 
       : super(AutoPlayState.initial(totalAyahs)) {
     ref.onDispose(dispose);
   }
+  final Ref ref;
+  StreamSubscription? _completionSubscription;
+  Timer? _timeoutTimer;
+  int? _currentPlayingAyahNumber;
 
   @override
   void dispose() {

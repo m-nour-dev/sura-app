@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 class SilaCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final VoidCallback? onTap;
-  final Color? color;
-  final Border? customBorder;
 
   const SilaCard({
-    Key? key,
+    super.key,
     required this.child,
     this.padding,
     this.onTap,
     this.color,
     this.customBorder,
-  }) : super(key: key);
+  });
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final VoidCallback? onTap;
+  final Color? color;
+  final Border? customBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class SilaCard extends StatelessWidget {
     final surface = color ?? (isDark ? const Color(0xFF1E293B) : Colors.white);
     final border = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
 
-    Widget card = Container(
+    final Widget card = Container(
       padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: surface,

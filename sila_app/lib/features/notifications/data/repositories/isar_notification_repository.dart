@@ -8,9 +8,9 @@ import 'package:sila_app/features/notifications/data/models/user_activity_log.da
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
 
 class IsarNotificationRepository implements INotificationRepository {
-  final Isar _isar;
 
   IsarNotificationRepository(this._isar);
+  final Isar _isar;
 
   @override
   Future<void> seedInitialContentIfNeeded() async {

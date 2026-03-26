@@ -4,9 +4,6 @@ import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
 
 class UpdateDialog extends StatefulWidget {
-  final UpdateCheckResult updateResult;
-  final UpdateService updateService;
-  final AnalyticsService analyticsService;
 
   const UpdateDialog({
     super.key,
@@ -14,6 +11,9 @@ class UpdateDialog extends StatefulWidget {
     required this.updateService,
     required this.analyticsService,
   });
+  final UpdateCheckResult updateResult;
+  final UpdateService updateService;
+  final AnalyticsService analyticsService;
 
   @override
   State<UpdateDialog> createState() => _UpdateDialogState();

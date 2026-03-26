@@ -6,10 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../main_layout.dart'; // To access bottomNavIndexProvider
 
 class _NavItemData {
-  final IconData icon;
-  final String label;
-  final int index;
-  final bool featured;
 
   _NavItemData({
     required this.icon,
@@ -17,12 +13,16 @@ class _NavItemData {
     required this.index,
     this.featured = false,
   });
+  final IconData icon;
+  final String label;
+  final int index;
+  final bool featured;
 }
 
 class SilaBottomBar extends ConsumerWidget {
-  final int currentIndex;
 
-  const SilaBottomBar({Key? key, required this.currentIndex}) : super(key: key);
+  const SilaBottomBar({super.key, required this.currentIndex});
+  final int currentIndex;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,12 +77,6 @@ class SilaBottomBar extends ConsumerWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final int index;
-  final bool featured;
-  final int currentIndex;
-  final WidgetRef ref;
 
   const _NavItem({
     required this.icon,
@@ -92,12 +86,18 @@ class _NavItem extends StatelessWidget {
     required this.currentIndex,
     required this.ref,
   });
+  final IconData icon;
+  final String label;
+  final int index;
+  final bool featured;
+  final int currentIndex;
+  final WidgetRef ref;
 
   @override
   Widget build(BuildContext context) {
     final isSelected = currentIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF064E3B);
+    const primaryColor = Color(0xFF064E3B);
     final txtS = isDark ? Colors.white60 : const Color(0xFF64748B);
 
     return GestureDetector(

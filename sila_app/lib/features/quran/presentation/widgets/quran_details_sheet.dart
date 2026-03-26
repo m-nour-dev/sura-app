@@ -1,21 +1,18 @@
 import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran_lib;
+import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
 
 class QuranDetailsSheet extends ConsumerStatefulWidget {
-  final int surahNumber;
-  final int ayahNumber;
-  final bool showTafsir;
-  final QuranSettings settings;
 
   const QuranDetailsSheet({
     super.key,
@@ -24,6 +21,10 @@ class QuranDetailsSheet extends ConsumerStatefulWidget {
     required this.showTafsir,
     required this.settings,
   });
+  final int surahNumber;
+  final int ayahNumber;
+  final bool showTafsir;
+  final QuranSettings settings;
 
   @override
   ConsumerState<QuranDetailsSheet> createState() => _QuranDetailsSheetState();
@@ -199,7 +200,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        Text("﴿ $verseText ﴾",
+                        Text('﴿ $verseText ﴾',
                           textAlign: TextAlign.center,
                           textDirection: ui.TextDirection.rtl,
                           style: TextStyle(

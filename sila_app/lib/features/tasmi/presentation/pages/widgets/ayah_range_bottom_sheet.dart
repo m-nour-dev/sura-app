@@ -8,20 +8,20 @@ String _toArabicNumber(BuildContext context, String input) {
   if (context.locale.languageCode != 'ar') return input;
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  for (int i = 0; i < english.length; i++) {
+  for (var i = 0; i < english.length; i++) {
     input = input.replaceAll(english[i], arabic[i]);
   }
   return input;
 }
 
 class AyahRangeBottomSheet extends StatefulWidget {
-  final int surahNumber;
-  final bool returnSelectionOnly;
   const AyahRangeBottomSheet({
     super.key,
     required this.surahNumber,
     this.returnSelectionOnly = false,
   });
+  final int surahNumber;
+  final bool returnSelectionOnly;
 
   @override
   State<AyahRangeBottomSheet> createState() => _AyahRangeBottomSheetState();
@@ -71,8 +71,8 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF064E3B);
-    final accentColor = const Color(0xFFD97706);
+    const primaryColor = Color(0xFF064E3B);
+    const accentColor = Color(0xFFD97706);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
 
     return Container(
@@ -115,7 +115,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                     color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.menu_book_rounded, color: primaryColor),
+                  child: const Icon(Icons.menu_book_rounded, color: primaryColor),
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -202,7 +202,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                             ),
                             child: Text(
                               _toArabicNumber(context, _fromAyah.round().toString()), 
-                              style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
+                              style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
                             ),
                           ),
                         ],
@@ -244,7 +244,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                             ),
                             child: Text(
                               _toArabicNumber(context, _toAyah.round().toString()), 
-                              style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
+                              style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
                             ),
                           ),
                         ],

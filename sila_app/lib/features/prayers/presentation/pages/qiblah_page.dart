@@ -1,11 +1,12 @@
 import 'dart:math' as math;
+
 import 'package:adhan/adhan.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class QiblahPage extends ConsumerStatefulWidget {
   const QiblahPage({super.key});
@@ -60,7 +61,7 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                double? direction = snapshot.data?.heading;
+                final direction = snapshot.data?.heading;
 
                  // If device doesn't support compass
                  if (direction == null) {
@@ -92,12 +93,12 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
                          mainAxisAlignment: MainAxisAlignment.center,
                          children: [
                            Text(
-                             "${direction.toStringAsFixed(0)}°", 
+                             '${direction.toStringAsFixed(0)}°', 
                              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
                            ),
                            const SizedBox(height: 10),
                            Text(
-                             "Qibla: ${qiblaAngle.toStringAsFixed(0)}°",
+                             'Qibla: ${qiblaAngle.toStringAsFixed(0)}°',
                              style: const TextStyle(color: Colors.grey),
                            ),
                            const SizedBox(height: 50),
@@ -111,7 +112,7 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
                                children: [
                                  // Rotating Dial (North)
                                  Transform.rotate(
-                                   angle: ((direction) * (math.pi / 180) * -1),
+                                   angle: direction * (math.pi / 180) * -1,
                                    child: Image.asset('assets/images/compass_dial.png', errorBuilder: (_,__,___) => _buildCompassFallback()),
                                  ),
                                  
@@ -122,14 +123,14 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
                                  // Then we place Qibla icon at the Qibla angle on that dial.
                                  
                                  Transform.rotate(
-                                   angle: ((direction - qiblaAngle) * (math.pi / 180) * -1), 
+                                   angle: (direction - qiblaAngle) * (math.pi / 180) * -1, 
                                    // Wait, if I rotate the needle, it should point to Qibla.
                                    // Formula: (QiblaAngle - PhoneHeading)
                                    
                                    child: Transform.rotate(
                                       angle: 0, // Reset logic
                                       child: Transform.rotate(
-                                        angle: ((qiblaAngle - direction) * (math.pi / 180)),
+                                        angle: (qiblaAngle - direction) * (math.pi / 180),
                                         child: const Icon(Icons.navigation, size: 50, color: Colors.green),
                                         // This icon points UP by default. We want it to point towards Qibla.
                                         // Logic: Phone Heading = 0 (North). Qibla = 130. Arrow should point 130 deg right.
@@ -168,7 +169,7 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.grey, width: 2),
         ),
-        child: const Center(child: Text("N", style: TextStyle(fontWeight: FontWeight.bold))),
+        child: const Center(child: Text('N', style: TextStyle(fontWeight: FontWeight.bold))),
       );
   }
 }

@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 
 class TasmiWordChip extends StatelessWidget {
-  final String label;
-  final bool isError;
 
   const TasmiWordChip({super.key, required this.label, this.isError = false});
+  final String label;
+  final bool isError;
 
   @override
   Widget build(BuildContext context) {

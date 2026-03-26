@@ -15,15 +15,15 @@ class PrayerRepositoryImpl extends PrayerRepository {
     final locService = LocationService();
     final prefs = PrefsService();
 
-    double lat = _defaultLat;
-    double long = _defaultLong;
-    String city = _defaultCity;
-    String countryCode = 'TR';
+    var lat = _defaultLat;
+    var long = _defaultLong;
+    var city = _defaultCity;
+    var countryCode = 'TR';
 
     // Get location
     try {
       final isAuto = await prefs.isAutoLocation();
-      String? oldCountryCode = await prefs.getCountryCode();
+      final oldCountryCode = await prefs.getCountryCode();
 
       if (isAuto) {
         final position = await locService.determinePosition();
@@ -105,8 +105,8 @@ class PrayerRepositoryImpl extends PrayerRepository {
     final prefs = PrefsService();
     final locService = LocationService();
 
-    double lat = _defaultLat;
-    double long = _defaultLong;
+    var lat = _defaultLat;
+    var long = _defaultLong;
 
     try {
       final isAuto = await prefs.isAutoLocation();

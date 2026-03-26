@@ -47,7 +47,7 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   Future<void> _load() async {
     final enabled = await _prefs.isAdhanNotificationsEnabled();
     final sound = await _prefs.getAdhanSound();
-    final Map<String, bool> settings = {};
+    final settings = <String, bool>{};
     for (final p in _prayerList) {
       settings[p['key'] as String] =
           await _prefs.isAdhanEnabled(p['key'] as String);
@@ -128,7 +128,7 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                    style: GoogleFonts.cairo(color: Colors.white38, fontSize: 12)),
                value: _adhanEnabled,
                onChanged: _toggleGlobal,
-               activeColor: const Color(0xFF43A047),
+               activeThumbColor: const Color(0xFF43A047),
              ),
            ),
 
@@ -192,7 +192,7 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                       onChanged: _adhanEnabled
                           ? (v) => _togglePrayer(key, v)
                           : null,
-                      activeColor: const Color(0xFF43A047),
+                      activeThumbColor: const Color(0xFF43A047),
                     ),
                     if (i < _prayerList.length - 1)
                       Divider(color: Colors.white.withOpacity(0.06), height: 1,

@@ -4,9 +4,9 @@ import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
 import 'package:sila_app/features/vefa/domain/repositories/vefa_repository.dart';
 
 class GetVefaListUseCase {
-  final VefaRepository repository;
 
   GetVefaListUseCase(this.repository);
+  final VefaRepository repository;
 
   Future<Either<Failure, List<VefaPerson>>> call() {
     return repository.getVefaList();
@@ -14,9 +14,9 @@ class GetVefaListUseCase {
 }
 
 class AddVefaPersonUseCase {
-  final VefaRepository repository;
 
   AddVefaPersonUseCase(this.repository);
+  final VefaRepository repository;
 
   Future<Either<Failure, int>> call(VefaPerson person) {
     return repository.addPerson(person);
@@ -24,9 +24,9 @@ class AddVefaPersonUseCase {
 }
 
 class DeleteVefaPersonUseCase {
-   final VefaRepository repository;
 
   DeleteVefaPersonUseCase(this.repository);
+   final VefaRepository repository;
 
   Future<Either<Failure, void>> call(int id) {
     return repository.deletePerson(id);
@@ -34,9 +34,9 @@ class DeleteVefaPersonUseCase {
 }
 
 class GiftThawabUseCase {
-  final VefaRepository repository;
 
   GiftThawabUseCase(this.repository);
+  final VefaRepository repository;
 
   Future<Either<Failure, void>> call(int id) {
     return repository.incrementGiftCount(id);

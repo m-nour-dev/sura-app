@@ -1,19 +1,19 @@
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 /// Service for handling timezone operations
 /// Provides timezone lookup from coordinates and conversion utilities
 class TimezoneService {
-  static TimezoneService? _instance;
-  bool _initialized = false;
-
-  TimezoneService._();
 
   /// Get singleton instance
   factory TimezoneService() {
     _instance ??= TimezoneService._();
     return _instance!;
   }
+
+  TimezoneService._();
+  static TimezoneService? _instance;
+  bool _initialized = false;
 
   /// Initialize timezone database
   /// Call this once during app startup

@@ -1,14 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:sila_app/features/quran/domain/entities/ayah.dart';
 
-class Surah extends Equatable {
-  final int number;
-  final String nameArabic;
-  final String nameTurkish; // For localized UI
-  final String englishName; // Fallback/System
-  final int numberOfAyahs;
-  final String revelationType; // Meccan or Medinan
-  final List<Ayah>? ayahs; // Nullable, loaded only when reading
+class Surah extends Equatable { // Nullable, loaded only when reading
 
   const Surah({
     required this.number,
@@ -19,6 +12,13 @@ class Surah extends Equatable {
     required this.revelationType,
     this.ayahs,
   });
+  final int number;
+  final String nameArabic;
+  final String nameTurkish; // For localized UI
+  final String englishName; // Fallback/System
+  final int numberOfAyahs;
+  final String revelationType; // Meccan or Medinan
+  final List<Ayah>? ayahs;
 
   @override
   List<Object?> get props => [

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SilaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final List<Widget>? actions;
-  final bool showBack;
 
   const SilaAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.actions,
     this.showBack = true,
-  }) : super(key: key);
+  });
+  final String title;
+  final List<Widget>? actions;
+  final bool showBack;
 
   @override
   Widget build(BuildContext context) {

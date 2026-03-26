@@ -4,17 +4,6 @@ import 'package:sila_app/core/services/audio_download_service.dart';
 import 'package:sila_app/core/services/reciter_service.dart';
 
 class AudioDownloadState {
-  final bool isDownloading;
-  final bool isCompleted;
-  final bool isCancelled;
-  final String? errorMessage;
-  final int completed;
-  final int total;
-  final int surah;
-  final int ayah;
-  final String? reciterId;
-  final int completedReciters;
-  final int totalReciters;
 
   const AudioDownloadState({
     required this.isDownloading,
@@ -45,6 +34,17 @@ class AudioDownloadState {
       totalReciters: 0,
     );
   }
+  final bool isDownloading;
+  final bool isCompleted;
+  final bool isCancelled;
+  final String? errorMessage;
+  final int completed;
+  final int total;
+  final int surah;
+  final int ayah;
+  final String? reciterId;
+  final int completedReciters;
+  final int totalReciters;
 
   double get progress => total == 0 ? 0 : completed / total;
 
@@ -86,7 +86,7 @@ class AudioDownloadController extends StateNotifier<AudioDownloadState> {
   Future<void> downloadForAllReciters() async {
     if (state.isDownloading) return;
 
-    final reciters = ReciterService.availableReciters;
+    const reciters = ReciterService.availableReciters;
     final totalAyahs = await AudioDownloadService.totalAyahCount();
     final totalGlobal = totalAyahs * reciters.length;
 

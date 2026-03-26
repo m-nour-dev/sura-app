@@ -22,10 +22,10 @@ enum _IbadahSignalType {
 }
 
 class _SmartMessage {
-  final String title;
-  final String body;
 
   const _SmartMessage({required this.title, required this.body});
+  final String title;
+  final String body;
 }
 
 class AdhanSchedulerService {
@@ -328,14 +328,6 @@ class AdhanSchedulerService {
 }
 
 class _PlannedNotification {
-  final int id;
-  final DateTime when;
-  final String title;
-  final String body;
-  final String? payload;
-  final int priority;
-  final String? selectedContentId;
-  final String? category;
 
   _PlannedNotification({
     required this.id,
@@ -347,6 +339,14 @@ class _PlannedNotification {
     this.selectedContentId,
     this.category,
   });
+  final int id;
+  final DateTime when;
+  final String title;
+  final String body;
+  final String? payload;
+  final int priority;
+  final String? selectedContentId;
+  final String? category;
 
   _PlannedNotification copyWith({int? priority}) {
     return _PlannedNotification(

@@ -2,6 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
 
 class TasmiPreferencesRepository {
+
+  TasmiPreferencesRepository(this._prefs);
   static const _keyOnError = 'tasmi_on_error';
   static const _keyAttempts = 'tasmi_attempts';
   static const _keyTts = 'tasmi_tts';
@@ -9,8 +11,6 @@ class TasmiPreferencesRepository {
   static const _keyDone = 'tasmi_onboarding_done';
 
   final SharedPreferences _prefs;
-
-  TasmiPreferencesRepository(this._prefs);
 
   TasmiPreferences load() {
     final done = _prefs.getBool(_keyDone) ?? false;

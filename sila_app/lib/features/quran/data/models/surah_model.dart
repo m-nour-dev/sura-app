@@ -6,7 +6,6 @@ part 'surah_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class SurahModel extends Surah {
-  final List<AyahModel>? ayahs;
 
   const SurahModel({
     required super.number,
@@ -20,6 +19,8 @@ class SurahModel extends Surah {
 
   factory SurahModel.fromJson(Map<String, dynamic> json) =>
       _$SurahModelFromJson(json);
+  @override
+  final List<AyahModel>? ayahs;
 
   Map<String, dynamic> toJson() => _$SurahModelToJson(this);
 }

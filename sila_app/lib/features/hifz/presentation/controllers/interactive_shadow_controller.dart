@@ -2,32 +2,28 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/hifz_settings_controller.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
 import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
 import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
 import 'package:sila_app/features/hifz/domain/smart_word_matcher.dart';
 import 'package:sila_app/features/hifz/domain/spaced_repetition_engine.dart';
+import 'package:sila_app/features/hifz/presentation/controllers/hifz_settings_controller.dart';
 import 'package:sila_app/features/hifz/services/hifz_audio_session_manager.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
+import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
 part 'interactive_shadow_controller.g.dart';
 
 class ShadowWordEntry {
-  final String word;
-  final bool isAyahMarker;
-  final bool isHidden;
-  final bool revealedCorrectly;
 
   const ShadowWordEntry({
     required this.word,
@@ -35,6 +31,10 @@ class ShadowWordEntry {
     required this.isHidden,
     required this.revealedCorrectly,
   });
+  final String word;
+  final bool isAyahMarker;
+  final bool isHidden;
+  final bool revealedCorrectly;
 
   ShadowWordEntry copyWith({
     String? word,
@@ -52,36 +52,18 @@ class ShadowWordEntry {
 }
 
 class StageResult {
-  final int totalWords;
-  final int correctWords;
-  final int wrongWords;
 
   const StageResult({
     required this.totalWords,
     required this.correctWords,
     required this.wrongWords,
   });
+  final int totalWords;
+  final int correctWords;
+  final int wrongWords;
 }
 
 class InteractiveShadowState {
-  final int surahNumber;
-  final int fromVerse;
-  final int toVerse;
-  final int currentVerseIndex;
-  final int currentStage;
-  final List<ShadowWordEntry> words;
-  final bool isPlaying;
-  final bool isMicListening;
-  final int sessionHashanat;
-  final Map<int, StageResult> stageResults;
-  final int correctWords;
-  final int wrongWords;
-  final bool showMomentPrompt;
-  final bool finished;
-  final double accuracy;
-  final String? errorMessage;
-  final String reflectionText;
-  final List<HifzMoment> sessionMoments;
 
   const InteractiveShadowState({
     required this.surahNumber,
@@ -126,6 +108,24 @@ class InteractiveShadowState {
       sessionMoments: [],
     );
   }
+  final int surahNumber;
+  final int fromVerse;
+  final int toVerse;
+  final int currentVerseIndex;
+  final int currentStage;
+  final List<ShadowWordEntry> words;
+  final bool isPlaying;
+  final bool isMicListening;
+  final int sessionHashanat;
+  final Map<int, StageResult> stageResults;
+  final int correctWords;
+  final int wrongWords;
+  final bool showMomentPrompt;
+  final bool finished;
+  final double accuracy;
+  final String? errorMessage;
+  final String reflectionText;
+  final List<HifzMoment> sessionMoments;
 
   InteractiveShadowState copyWith({
     int? surahNumber,
@@ -347,7 +347,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     final hiddenIndexes = <int>[];
     final hiddenWords = <String>[];
 
-    for (int i = 0; i < words.length; i++) {
+    for (var i = 0; i < words.length; i++) {
       if (!words[i].isHidden || words[i].isAyahMarker) {
         continue;
       }
@@ -365,7 +365,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     var correct = 0;
     var wrong = 0;
 
-    for (int i = 0; i < hiddenIndexes.length; i++) {
+    for (var i = 0; i < hiddenIndexes.length; i++) {
       final result = match.wordResults[i];
       final isCorrect = result != HifzWordMatchResult.incorrect;
       if (isCorrect) {
@@ -508,7 +508,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     final suffix = <int>[];
     final root = <int>[];
 
-    for (int i = 0; i < words.length; i++) {
+    for (var i = 0; i < words.length; i++) {
       final w = TajweedNormalizer.normalize(words[i]);
       if (w.isEmpty) {
         continue;
@@ -545,7 +545,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
 
     if (state.currentStage <= 2) {
       final repeats = _settings.listenRepeats.clamp(1, 3);
-      for (int i = 0; i < repeats; i++) {
+      for (var i = 0; i < repeats; i++) {
         await _playVerseAudio();
       }
       if (state.currentStage == 2) {
@@ -585,7 +585,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     final attempts = state.currentStage <= 2 ? 2 : 3;
     final listenPerAttempt = (_settings.hintDelaySeconds + 4).clamp(5, 12);
 
-    for (int attempt = 1; attempt <= attempts; attempt++) {
+    for (var attempt = 1; attempt <= attempts; attempt++) {
       final started = await _audioSessionManager!.startMic(autoRestart: true);
       state = state.copyWith(isMicListening: started);
       if (!started) {
@@ -684,7 +684,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     _wordAttempts.clear();
 
     final next = <ShadowWordEntry>[];
-    for (int i = 0; i < base.length; i++) {
+    for (var i = 0; i < base.length; i++) {
       final prev = base[i];
       if (prev.revealedCorrectly) {
         next.add(prev.copyWith(isHidden: false));

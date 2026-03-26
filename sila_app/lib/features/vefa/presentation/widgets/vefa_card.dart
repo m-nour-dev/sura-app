@@ -1,14 +1,9 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
 
 class VefaCard extends StatelessWidget {
-  final VefaPerson person;
-  final VoidCallback? onTap; 
-  final VoidCallback onDelete;
-  final bool isSelectionMode;
 
   const VefaCard({
     super.key,
@@ -17,6 +12,10 @@ class VefaCard extends StatelessWidget {
     required this.onDelete,
     this.isSelectionMode = false,
   });
+  final VefaPerson person;
+  final VoidCallback? onTap; 
+  final VoidCallback onDelete;
+  final bool isSelectionMode;
 
   @override
   Widget build(BuildContext context) {

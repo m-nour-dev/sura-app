@@ -1,37 +1,33 @@
-import 'dart:convert';
 import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/wird_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
-import 'package:sila_app/features/quran/presentation/widgets/quran_details_sheet.dart';
+import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
 import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
+import 'package:sila_app/features/quran/presentation/widgets/quran_details_sheet.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
-import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 
 class WirdReaderPage extends ConsumerStatefulWidget {
-  final int startPage;
-  final int endPage;
 
   const WirdReaderPage({
     super.key,
     required this.startPage,
     required this.endPage,
   });
+  final int startPage;
+  final int endPage;
 
   @override
   ConsumerState<WirdReaderPage> createState() => _WirdReaderPageState();
@@ -59,7 +55,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
            SnackBar(
              content: Row(
                children: [
-                 Icon(Icons.touch_app, color: Colors.white, size: 20),
+                 const Icon(Icons.touch_app, color: Colors.white, size: 20),
                  const SizedBox(width: 12),
                  Text('wird_hint_text'.tr(), style: GoogleFonts.cairo(fontSize: 13)),
                ],
@@ -139,7 +135,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
           ),
         );
       },
-      error: (e, s) => Scaffold(body: Center(child: Text("Error: $e"))),
+      error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
@@ -336,11 +332,11 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     final accentColor = _getAccentColor(settings.themeMode);
 
     // Build one continuous text block with tap per ayah
-    final List<InlineSpan> spans = [];
-    for (int i = startAyah; i <= endAyah; i++) {
-      final int ayahIndex = i; // capture for closure
+    final spans = <InlineSpan>[];
+    for (var i = startAyah; i <= endAyah; i++) {
+      final ayahIndex = i; // capture for closure
       final verse = quran.getVerse(surahNum, ayahIndex);
-      final bool isSelected = _selectedSurah == surahNum && _selectedAyah == ayahIndex;
+      final isSelected = _selectedSurah == surahNum && _selectedAyah == ayahIndex;
       final verseSymbol = quran.getVerseEndSymbol(ayahIndex, arabicNumeral: true);
 
       final recognizer = TapGestureRecognizer()
@@ -378,7 +374,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
             Padding(
               padding: const EdgeInsets.only(bottom: 20),
               child: Text(
-                "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+                'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Amiri',
@@ -459,8 +455,8 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       child: Column(
         children: [
           Text(
-            "سورة ${quran.getSurahNameArabic(surahNum)}",
-            style: TextStyle(
+            'سورة ${quran.getSurahNameArabic(surahNum)}',
+            style: const TextStyle(
               fontFamily: 'Amiri',
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -484,27 +480,27 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text("إعدادات القراءة", textAlign: TextAlign.center, style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold, color: _getTextColor(settings.themeMode))),
+            Text('إعدادات القراءة', textAlign: TextAlign.center, style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold, color: _getTextColor(settings.themeMode))),
             const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
                   child: Consumer(builder: (context, ref, child) {
-                    final reciterName = ref.watch(reciterControllerProvider).when(data: (r) => r.nameArabic, loading: () => "جاري...", error: (e, s) => "القارئ");
+                    final reciterName = ref.watch(reciterControllerProvider).when(data: (r) => r.nameArabic, loading: () => 'جاري...', error: (e, s) => 'القارئ');
                     return _buildSettingTile(icon: Icons.mic_rounded, label: reciterName, onTap: () => showReciterPickerSheet(context), settings: settings);
                   }),
                 ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildSettingTile(icon: Icons.notifications_active_rounded, label: "التنبيهات", onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WirdNotificationSettings())), settings: settings)),
+                Expanded(child: _buildSettingTile(icon: Icons.notifications_active_rounded, label: 'التنبيهات', onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WirdNotificationSettings())), settings: settings)),
               ],
             ),
             const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildThemeOption(ref, QuranThemeMode.light, "فاتح", settings),
-                _buildThemeOption(ref, QuranThemeMode.sepia, "كتابي", settings),
-                _buildThemeOption(ref, QuranThemeMode.dark, "داكن", settings),
+                _buildThemeOption(ref, QuranThemeMode.light, 'فاتح', settings),
+                _buildThemeOption(ref, QuranThemeMode.sepia, 'كتابي', settings),
+                _buildThemeOption(ref, QuranThemeMode.dark, 'داكن', settings),
               ],
             ),
             const SizedBox(height: 24),

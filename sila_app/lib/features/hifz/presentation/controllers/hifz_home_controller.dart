@@ -14,17 +14,6 @@ import 'package:sila_app/features/hifz/domain/plan_generator.dart';
 part 'hifz_home_controller.g.dart';
 
 class HifzHomeState {
-  final bool isLoading;
-  final HifzUserProfile? profile;
-  final HifzDailyPlan? plan;
-  final int doneAyahsToday;
-  final int targetAyahsToday;
-  final int reviewDueCount;
-  final int streakDays;
-  final int hasanatToday;
-  final List<HifzMoment> recentMoments;
-  final HifzSession? activeSession;
-  final String? errorMessage;
 
   const HifzHomeState({
     required this.isLoading,
@@ -55,6 +44,17 @@ class HifzHomeState {
       errorMessage: null,
     );
   }
+  final bool isLoading;
+  final HifzUserProfile? profile;
+  final HifzDailyPlan? plan;
+  final int doneAyahsToday;
+  final int targetAyahsToday;
+  final int reviewDueCount;
+  final int streakDays;
+  final int hasanatToday;
+  final List<HifzMoment> recentMoments;
+  final HifzSession? activeSession;
+  final String? errorMessage;
 
   HifzHomeState copyWith({
     bool? isLoading,
@@ -190,7 +190,7 @@ class HifzHomeController extends _$HifzHomeController {
   int _countDoneAyahs(List<HifzSession> sessions) {
     var total = 0;
     for (final session in sessions) {
-      total += (session.toVerse - session.fromVerse + 1);
+      total += session.toVerse - session.fromVerse + 1;
     }
     return total;
   }

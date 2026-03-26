@@ -127,9 +127,9 @@ class ReciterPickerSheet extends ConsumerWidget {
 }
 
 class _StyleBadge extends StatelessWidget {
-  final String style;
 
   const _StyleBadge({required this.style});
+  final String style;
 
   @override
   Widget build(BuildContext context) {

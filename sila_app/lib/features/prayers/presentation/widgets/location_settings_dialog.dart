@@ -1,10 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:sila_app/core/services/location_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
-import 'package:geocoding/geocoding.dart';
 
 class LocationSettingsDialog extends StatefulWidget {
   const LocationSettingsDialog({super.key});
@@ -86,12 +84,12 @@ class _LocationSettingsDialogState extends State<LocationSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("location_settings".tr()),
+      title: Text('location_settings'.tr()),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SwitchListTile(
-            title: Text("auto_location".tr()),
+            title: Text('auto_location'.tr()),
             value: _isAuto,
             onChanged: _toggleAuto,
           ),
@@ -100,7 +98,7 @@ class _LocationSettingsDialogState extends State<LocationSettingsDialog> {
             TextField(
               controller: _cityController,
               decoration: InputDecoration(
-                labelText: "enter_city".tr(),
+                labelText: 'enter_city'.tr(),
                 border: const OutlineInputBorder(),
                 suffixIcon: _isLoading ? const Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator(strokeWidth: 2)) : null,
               ),
@@ -108,7 +106,7 @@ class _LocationSettingsDialogState extends State<LocationSettingsDialog> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _isLoading ? null : _saveManual,
-              child: Text("save".tr()),
+              child: Text('save'.tr()),
             ),
           ],
         ],

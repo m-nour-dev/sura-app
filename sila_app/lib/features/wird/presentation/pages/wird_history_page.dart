@@ -16,7 +16,7 @@ class WirdHistoryPage extends ConsumerWidget {
     // Global Sila Colors
     final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final primaryColor = const Color(0xFF064E3B);
+    const primaryColor = Color(0xFF064E3B);
     final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
     final subtitleColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
@@ -79,7 +79,7 @@ class WirdHistoryPage extends ConsumerWidget {
                           ),
                           Text(
                             '${historyItem.startPage} ',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Cairo',
                               color: primaryColor,
                               fontWeight: FontWeight.bold,
@@ -97,7 +97,7 @@ class WirdHistoryPage extends ConsumerWidget {
                           ),
                           Text(
                             '${historyItem.endPage}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Cairo',
                               color: primaryColor,
                               fontWeight: FontWeight.bold,
@@ -128,8 +128,8 @@ class WirdHistoryPage extends ConsumerWidget {
               },
             );
           },
-          loading: () => Center(child: CircularProgressIndicator(color: primaryColor)),
-          error: (err, stack) => Center(child: Text('Error: $err', style: TextStyle(fontFamily: 'Cairo', color: Colors.redAccent))),
+          loading: () => const Center(child: CircularProgressIndicator(color: primaryColor)),
+          error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(fontFamily: 'Cairo', color: Colors.redAccent))),
         ),
       ),
     );

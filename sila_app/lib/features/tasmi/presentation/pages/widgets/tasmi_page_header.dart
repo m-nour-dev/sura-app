@@ -8,17 +8,13 @@ String _toArabicNumber(BuildContext context, String input) {
   if (context.locale.languageCode != 'ar') return input;
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  for (int i = 0; i < english.length; i++) {
+  for (var i = 0; i < english.length; i++) {
     input = input.replaceAll(english[i], arabic[i]);
   }
   return input;
 }
 
 class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
-  final String surahName;
-  final int fromAya;
-  final int toAya;
-  final bool isListening;
 
   const TasmiPageHeader({
     super.key,
@@ -27,11 +23,15 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
     required this.toAya,
     required this.isListening,
   });
+  final String surahName;
+  final int fromAya;
+  final int toAya;
+  final bool isListening;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF064E3B);
+    const primaryColor = Color(0xFF064E3B);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subtitleColor = isDark ? Colors.white70 : Colors.black54;
@@ -65,7 +65,7 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: primaryColor, size: 20),
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: primaryColor, size: 20),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -123,7 +123,7 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
                           ),
                           const SizedBox(width: 8),
                         ] else ...[
-                          Icon(Icons.mic_none_rounded, 
+                          const Icon(Icons.mic_none_rounded, 
                             size: 14, 
                             color: primaryColor,
                           ),
@@ -154,7 +154,7 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.mic_rounded, color: primaryColor, size: 14),
+                          const Icon(Icons.mic_rounded, color: primaryColor, size: 14),
                           const SizedBox(width: 4),
                           Text(
                             ref
@@ -170,7 +170,7 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
                               fontFamily: 'Cairo',
                             ),
                           ),
-                          Icon(Icons.arrow_drop_down, color: primaryColor, size: 16),
+                          const Icon(Icons.arrow_drop_down, color: primaryColor, size: 16),
                         ],
                       ),
                     ),

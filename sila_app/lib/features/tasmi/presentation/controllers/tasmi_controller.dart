@@ -2,13 +2,11 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/providers/reciter_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
+import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
 import 'package:sila_app/features/tasmi/data/repositories/i_tasmi_error_repository.dart';
@@ -24,14 +22,6 @@ part 'tasmi_controller.g.dart';
 enum TasmiStatus { idle, listening, waitingForUser, finished, error }
 
 class TasmiState extends Equatable {
-  final TasmiStatus status;
-  final List<TasmiWordEntry> words;
-  final int currentIndex;
-  final String? correctionWord;
-  final TasmiSessionStats stats;
-  final String? errorMessage;
-  final bool isMicListening;
-  final int currentWordAttempts;
 
   const TasmiState({
     required this.status,
@@ -47,13 +37,21 @@ class TasmiState extends Equatable {
   factory TasmiState.initial() {
     return TasmiState(
       status: TasmiStatus.idle,
-        words: [],
+        words: const [],
         currentIndex: 0,
         stats: TasmiSessionStats.initial(),
         isMicListening: false,
         currentWordAttempts: 0,
       );
   }
+  final TasmiStatus status;
+  final List<TasmiWordEntry> words;
+  final int currentIndex;
+  final String? correctionWord;
+  final TasmiSessionStats stats;
+  final String? errorMessage;
+  final bool isMicListening;
+  final int currentWordAttempts;
 
   TasmiState copyWith({
     TasmiStatus? status,
@@ -136,11 +134,11 @@ class TasmiController extends _$TasmiController {
     _sessionErrors.clear();
 
     // 1. Load verses
-    final List<TasmiWordEntry> allWords = [];
-    for (int i = fromAya; i <= toAya; i++) {
-      String verseText = quran.getVerse(surahNumber, i, verseEndSymbol: false);
-      List<String> wordsInVerse = verseText.split(' ');
-      for (String word in wordsInVerse) {
+    final allWords = <TasmiWordEntry>[];
+    for (var i = fromAya; i <= toAya; i++) {
+      final verseText = quran.getVerse(surahNumber, i, verseEndSymbol: false);
+      final wordsInVerse = verseText.split(' ');
+      for (var word in wordsInVerse) {
         if (word.isNotEmpty) {
           allWords.add(TasmiWordEntry(verseNumber: i, word: word));
         }
@@ -361,10 +359,10 @@ class TasmiController extends _$TasmiController {
     _speechSubscription?.cancel();
     ref.read(tasmiTtsServiceProvider).stop(); // ← ADDED: TTS stop
 
-    int correct = 0;
-    int close = 0;
-    int wrong = 0;
-    int skipped = 0;
+    var correct = 0;
+    var close = 0;
+    var wrong = 0;
+    var skipped = 0;
 
     for (final entry in state.words) {
       switch (entry.status) {

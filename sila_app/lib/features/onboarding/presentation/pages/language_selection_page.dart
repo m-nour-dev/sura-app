@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
 
 class LanguageSelectionPage extends StatelessWidget {
   const LanguageSelectionPage({super.key});
@@ -143,10 +142,6 @@ class LanguageSelectionPage extends StatelessWidget {
 }
 
 class _LanguageOptionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String flag;
-  final VoidCallback onTap;
 
   const _LanguageOptionCard({
     required this.title,
@@ -154,6 +149,10 @@ class _LanguageOptionCard extends StatelessWidget {
     required this.flag,
     required this.onTap,
   });
+  final String title;
+  final String subtitle;
+  final String flag;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

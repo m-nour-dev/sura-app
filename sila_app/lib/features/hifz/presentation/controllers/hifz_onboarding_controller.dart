@@ -10,16 +10,6 @@ import 'package:sila_app/features/hifz/domain/plan_generator.dart';
 part 'hifz_onboarding_controller.g.dart';
 
 class HifzOnboardingState {
-  final int currentPage;
-  final int? ageGroup;
-  final int? dailyMinutes;
-  final int? goal;
-  final int? learningStyle;
-  final bool autoAdapt;
-  final bool isSaving;
-  final bool onboardingDone;
-  final String? errorMessage;
-  final HifzDailyPlan? previewPlan;
 
   const HifzOnboardingState({
     required this.currentPage,
@@ -48,6 +38,16 @@ class HifzOnboardingState {
       previewPlan: null,
     );
   }
+  final int currentPage;
+  final int? ageGroup;
+  final int? dailyMinutes;
+  final int? goal;
+  final int? learningStyle;
+  final bool autoAdapt;
+  final bool isSaving;
+  final bool onboardingDone;
+  final String? errorMessage;
+  final HifzDailyPlan? previewPlan;
 
   HifzOnboardingState copyWith({
     int? currentPage,

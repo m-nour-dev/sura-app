@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SilaCtaButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
 
   const SilaCtaButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
-  }) : super(key: key);
+  });
+  final String text;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {

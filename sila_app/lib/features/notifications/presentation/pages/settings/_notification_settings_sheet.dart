@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
-import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_settings_controller.dart';
+import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 
 class NotificationSettingsSheet extends ConsumerStatefulWidget {
-  final String featureKey;
 
   const NotificationSettingsSheet({
     super.key,
     required this.featureKey,
   });
+  final String featureKey;
 
   @override
   ConsumerState<NotificationSettingsSheet> createState() =>
@@ -435,15 +435,15 @@ class _NotificationSettingsSheetState
 
 
 class _TypeChip extends ConsumerWidget {
-  final String featureKey;
-  final String type;
-  final String label;
 
   const _TypeChip({
     required this.featureKey,
     required this.type,
     required this.label,
   });
+  final String featureKey;
+  final String type;
+  final String label;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

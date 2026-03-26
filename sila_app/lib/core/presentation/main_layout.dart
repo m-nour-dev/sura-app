@@ -1,27 +1,27 @@
 import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
+import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
-import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/features/azkar/presentation/pages/azkar_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
 import 'package:sila_app/features/home/presentation/pages/home_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
 import 'package:sila_app/features/quran/presentation/pages/quran_page.dart';
-
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+
 import 'widgets/sila_bottom_bar.dart';
-import 'widgets/language_switcher.dart';
 
 // State provider for Bottom Navigation Index
 final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
@@ -63,7 +63,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     await showDialog(
       context: context,
       barrierDismissible: false,
-       builder: (BuildContext dialogContext) {
+       builder: (dialogContext) {
          return AlertDialog(
            backgroundColor: const Color(0xFF0A0F1E),
            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -105,7 +105,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                              style: GoogleFonts.cairo()),
                          action: SnackBarAction(
                            label: 'notification_settings_label'.tr(),
-                           onPressed: () => openAppSettings(),
+                           onPressed: openAppSettings,
                          ),
                        ),
                      );

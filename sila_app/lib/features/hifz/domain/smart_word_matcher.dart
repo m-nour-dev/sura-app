@@ -11,9 +11,9 @@ enum HifzWordMatchResult {
 }
 
 class HifzMatchResult {
-  final List<HifzWordMatchResult> wordResults;
 
   const HifzMatchResult({required this.wordResults});
+  final List<HifzWordMatchResult> wordResults;
 
   bool get allCorrect =>
       wordResults.every((r) => r != HifzWordMatchResult.incorrect);

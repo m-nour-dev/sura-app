@@ -6,13 +6,13 @@ import 'package:sila_app/features/notifications/data/repositories/i_notification
 import 'package:sila_app/features/notifications/domain/content_selector.dart';
 
 class SmartNotificationEngine {
-  final INotificationRepository repository;
-  final ContentSelector selector;
 
   SmartNotificationEngine({
     required this.repository,
     ContentSelector? selector,
   }) : selector = selector ?? ContentSelector();
+  final INotificationRepository repository;
+  final ContentSelector selector;
 
   Future<NotificationContent?> selectContent({
     required String featureKey,

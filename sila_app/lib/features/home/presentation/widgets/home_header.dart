@@ -1,15 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class HomeHeader extends StatelessWidget {
-  final VoidCallback? onNotificationTap;
 
   const HomeHeader({
     super.key,
     this.onNotificationTap,
   });
+  final VoidCallback? onNotificationTap;
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -191,7 +191,7 @@ class _LanguageHeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<Locale>(
-      onSelected: (Locale locale) {
+      onSelected: (locale) {
         context.setLocale(locale);
       },
       elevation: 8,
@@ -200,7 +200,7 @@ class _LanguageHeaderButton extends StatelessWidget {
       ),
       offset: const Offset(0, 50),
       color: Colors.white,
-      itemBuilder: (BuildContext context) {
+      itemBuilder: (context) {
         return context.supportedLocales.map((locale) {
           final isSelected = context.locale == locale;
           final langName = locale.languageCode == 'ar'

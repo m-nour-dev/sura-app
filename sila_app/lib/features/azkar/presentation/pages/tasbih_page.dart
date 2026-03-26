@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/tasbih_notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 
 // Simple StateProvider for the counter
 final tasbihCounterProvider = StateProvider.autoDispose<int>((ref) => 0);
@@ -60,14 +60,14 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
     // Sila Global Colors
     final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final primaryColor = const Color(0xFF064E3B);
-    final accentColor = const Color(0xFFD97706);
+    const primaryColor = Color(0xFF064E3B);
+    const accentColor = Color(0xFFD97706);
     final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
 
     // Calculate progress (e.g., target 33)
-    final int target = 33;
-    final int progressCount = count % target;
-    final double progress = progressCount / target;
+    const target = 33;
+    final progressCount = count % target;
+    final progress = progressCount / target;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -84,7 +84,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                 MaterialPageRoute(builder: (_) => const TasbihNotificationSettings()),
               );
             },
-            icon: Icon(Icons.notifications_active_rounded, color: primaryColor),
+            icon: const Icon(Icons.notifications_active_rounded, color: primaryColor),
             tooltip: 'إعدادات التذكير',
           ),
           IconButton(
@@ -92,7 +92,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
               ref.read(tasbihCounterProvider.notifier).state = 0;
               HapticFeedback.heavyImpact();
             },
-            icon: Icon(Icons.refresh_rounded, color: primaryColor),
+            icon: const Icon(Icons.refresh_rounded, color: primaryColor),
             tooltip: 'Reset',
           ),
           const SizedBox(width: 8),
@@ -135,7 +135,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "$count",
+                            '$count',
                             style: TextStyle(
                               fontFamily: 'Cairo',
                               fontSize: 72,
@@ -146,7 +146,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "Round ${count ~/ target + 1}",
+                            'Round ${count ~/ target + 1}',
                             style: TextStyle(
                               fontFamily: 'Cairo',
                               fontSize: 16,
@@ -185,7 +185,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "Tap anywhere to count", // Ideally localizable
+                    'Tap anywhere to count', // Ideally localizable
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Cairo',
@@ -196,7 +196,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Target is 33", 
+                    'Target is 33', 
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Cairo',

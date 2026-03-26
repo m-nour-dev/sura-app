@@ -1,11 +1,11 @@
 import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:sila_app/core/utils/time_utils.dart';
+import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class NextPrayerCard extends ConsumerStatefulWidget {
   const NextPrayerCard({super.key});
@@ -52,7 +52,7 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
           (key: 'isha', time: entity.isha),
         ];
 
-        String nextKey = 'fajr';
+        var nextKey = 'fajr';
         DateTime? nextTime;
         for (final p in prayers) {
           if (p.time.isAfter(now)) {
@@ -63,7 +63,7 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
         }
         nextTime ??= entity.fajr.add(const Duration(days: 1));
 
-        Duration timeLeft = nextTime.difference(now);
+        var timeLeft = nextTime.difference(now);
         if (timeLeft.isNegative) timeLeft = Duration.zero;
         if (timeLeft.inHours > 24) timeLeft = Duration.zero;
 
@@ -74,7 +74,7 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
 
         final nextPrayerName = nextKey.tr();
         
-        String formattedNextTime = TimeUtils.formatPrayerTime(nextTime, context);
+        final formattedNextTime = TimeUtils.formatPrayerTime(nextTime, context);
 
         return Container(
           padding: const EdgeInsets.all(16),

@@ -52,7 +52,7 @@ class SunanListPage extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.brightness_3_rounded, 
                         color: AppTheme.accentColor, 
                         size: 20
@@ -137,8 +137,8 @@ class SunanListPage extends StatelessWidget {
                                  ),
                                );
                             },
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4.0),
                               child: Icon(Icons.info_outline, size: 22, color: AppTheme.accentColor),
                             ),
                           )

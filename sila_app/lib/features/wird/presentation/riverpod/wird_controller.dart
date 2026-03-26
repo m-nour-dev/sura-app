@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 import 'package:sila_app/features/wird/data/datasources/wird_service.dart';
-import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 import 'package:sila_app/features/wird/data/models/wird_history.dart';
+import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 
 // Provider for WirdService
 final wirdServiceProvider = FutureProvider<WirdService>((ref) async {
@@ -14,20 +13,6 @@ final wirdServiceProvider = FutureProvider<WirdService>((ref) async {
 
 // State class for the Wird
 class WirdState {
-  final int currentPage;
-  final WirdGoalType goalType;
-  final int goalValue;
-  final int targetPage;
-  final bool isCompletedToday;
-  final DateTime? khatmaStart;
-  final int daysDifference;
-  final double khatmaProgress;
-  final double dailyProgress;
-  final List<WirdHistory> history;
-  final int completedWirdsCount;
-  final int remainingWirdsCount;
-  final int? bookmarkPage;
-  final bool hasConfiguredGoal;
 
   WirdState({
     required this.currentPage,
@@ -45,19 +30,33 @@ class WirdState {
     this.bookmarkPage,
     required this.hasConfiguredGoal,
   });
+  final int currentPage;
+  final WirdGoalType goalType;
+  final int goalValue;
+  final int targetPage;
+  final bool isCompletedToday;
+  final DateTime? khatmaStart;
+  final int daysDifference;
+  final double khatmaProgress;
+  final double dailyProgress;
+  final List<WirdHistory> history;
+  final int completedWirdsCount;
+  final int remainingWirdsCount;
+  final int? bookmarkPage;
+  final bool hasConfiguredGoal;
 
   String get progressText => 'من صفحة $currentPage إلى صفحة $targetPage';
 }
 
 // Controller
 class WirdController extends StateNotifier<AsyncValue<WirdState>> {
-  final WirdService _service;
-  final Ref _ref;
-  bool _isDisposed = false;
 
   WirdController(this._service, this._ref) : super(const AsyncValue.loading()) {
     _loadSettings();
   }
+  final WirdService _service;
+  final Ref _ref;
+  bool _isDisposed = false;
 
   @override
   void dispose() {
@@ -72,7 +71,7 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       final now = DateTime.now();
 
       // Check if completed today
-      bool completed = false;
+      var completed = false;
       if (settings.lastCompletionDate != null) {
         final last = settings.lastCompletionDate!;
         if (last.year == now.year &&
@@ -83,20 +82,20 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       }
 
       final targetPage = settings.targetPageForToday;
-      final totalQuranPages = WirdSettings.totalQuranPages;
+      const totalQuranPages = WirdSettings.totalQuranPages;
 
       // Progress calculations
-      double progress = settings.currentPage / totalQuranPages;
+      final progress = settings.currentPage / totalQuranPages;
       
       // Daily progress
-      double dailyProgress = 0.0;
+      var dailyProgress = 0.0;
       if (settings.hasConfiguredGoal) {
         if (completed) {
           dailyProgress = 1.0;
         } else {
           // Calculate how many pages were already read towards the goal today
           // Since we don't have 'startPageOfToday', we use the distance to targetPage
-          int increment = 0;
+          var increment = 0;
           switch (settings.goalType) {
             case WirdGoalType.page: increment = settings.goalValue; break;
             case WirdGoalType.juz: increment = settings.goalValue * 20; break;
@@ -110,9 +109,9 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       }
 
       // Calculate Khatma Stats
-      int daysDifference = 0;
-      int completedWirdsCount = history.length;
-      int remainingWirdsCount = 0;
+      var daysDifference = 0;
+      final completedWirdsCount = history.length;
+      var remainingWirdsCount = 0;
       
       if (settings.khatmaStartDate != null) {
         // Fix: Use normalized dates for comparison
@@ -121,7 +120,7 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
         final elapsedDays = today.difference(start).inDays; // 0 if started today
 
         // Calculate increment (pages per day)
-        int increment = 0;
+        var increment = 0;
         switch (settings.goalType) {
           case WirdGoalType.page: increment = settings.goalValue; break;
           case WirdGoalType.juz: increment = settings.goalValue * 20; break;

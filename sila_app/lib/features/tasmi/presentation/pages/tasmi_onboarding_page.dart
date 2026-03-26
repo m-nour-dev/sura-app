@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,9 +7,9 @@ import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
 import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
 
 class TasmiOnboardingPage extends ConsumerStatefulWidget {
-  final VoidCallback onDone;
 
   const TasmiOnboardingPage({super.key, required this.onDone});
+  final VoidCallback onDone;
 
   @override
   ConsumerState<TasmiOnboardingPage> createState() => _TasmiOnboardingPageState();
@@ -210,10 +209,10 @@ class _TasmiOnboardingPageState extends ConsumerState<TasmiOnboardingPage> {
 }
 
 class _SectionTitle extends StatelessWidget {
-  final String text;
-  final bool isDark;
 
   const _SectionTitle(this.text, this.isDark);
+  final String text;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -229,12 +228,6 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _ChoiceCard extends StatelessWidget {
-  final bool selected;
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  final bool isDark;
 
   const _ChoiceCard({
     required this.selected,
@@ -244,10 +237,16 @@ class _ChoiceCard extends StatelessWidget {
     required this.onTap,
     required this.isDark,
   });
+  final bool selected;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = AppTheme.accentColor;
+    const activeColor = AppTheme.accentColor;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -290,7 +289,7 @@ class _ChoiceCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (selected) Icon(Icons.check_circle_rounded, color: activeColor, size: 24),
+            if (selected) const Icon(Icons.check_circle_rounded, color: activeColor, size: 24),
           ],
         ),
       ),
@@ -299,10 +298,6 @@ class _ChoiceCard extends StatelessWidget {
 }
 
 class _AttemptsChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final bool isDark;
 
   const _AttemptsChip({
     required this.label,
@@ -310,10 +305,14 @@ class _AttemptsChip extends StatelessWidget {
     required this.onTap,
     required this.isDark,
   });
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = AppTheme.accentColor;
+    const activeColor = AppTheme.accentColor;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,

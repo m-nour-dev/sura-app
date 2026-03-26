@@ -35,7 +35,7 @@ class LocationService {
         final place = placemarks.first;
 
         // Try progressively broader area names if specific ones are null/empty
-        String? city = place.locality;
+        var city = place.locality;
         if (city == null || city.isEmpty) city = place.subAdministrativeArea;
         if (city == null || city.isEmpty) city = place.administrativeArea;
         if (city == null || city.isEmpty) city = place.name;

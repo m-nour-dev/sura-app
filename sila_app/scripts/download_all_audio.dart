@@ -53,7 +53,7 @@ Future<void> main(List<String> args) async {
 }
 
 List<ReciterModel> _parseReciters(List<String> args) {
-  final all = ReciterService.availableReciters;
+  const all = ReciterService.availableReciters;
   final idsArg = args.where((e) => e.startsWith('--reciters=')).map((e) => e.substring('--reciters='.length)).toList();
   if (idsArg.isEmpty) {
     return all;
