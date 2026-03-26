@@ -10,28 +10,28 @@ class DailyStatusCalculator {
   static final Random _random = Random();
   static final Map<String, String> _dailyTextCache = {};
 
-  static int completedCount(IbadahRecord r, {required bool isMale}) {
+  static int completedCount(IbadahRecord record, {required bool isMale}) {
     int count = 0;
-    if (r.fajrStatus > 0) count++;
-    if (r.dhuhrStatus > 0) count++;
-    if (r.asrStatus > 0) count++;
-    if (r.maghribStatus > 0) count++;
-    if (r.ishaStatus > 0) count++;
-
+    if (record.fajrStatus > 0) count++;
+    if (record.dhuhrStatus > 0) count++;
+    if (record.asrStatus > 0) count++;
+    if (record.maghribStatus > 0) count++;
+    if (record.ishaStatus > 0) count++;
+    
     if (isMale) {
-      if (r.fajrInMasjid == true) count++;
-      if (r.dhuhrInMasjid == true) count++;
-      if (r.asrInMasjid == true) count++;
-      if (r.maghribInMasjid == true) count++;
-      if (r.ishaInMasjid == true) count++;
+      if (record.fajrInMasjid == true) count++;
+      if (record.dhuhrInMasjid == true) count++;
+      if (record.asrInMasjid == true) count++;
+      if (record.maghribInMasjid == true) count++;
+      if (record.ishaInMasjid == true) count++;
     }
-
-    if (r.readWird) count++;
-    if (r.readAzkarSabah) count++;
-    if (r.readAzkarMasa) count++;
-    if (r.didTasbih) count++;
-    if (r.didHifz || r.didTasmi) count++;
-    if (r.rememberedAllah) count++;
+    
+    if (record.readWird) count++;
+    if (record.readAzkarSabah) count++;
+    if (record.readAzkarMasa) count++;
+    if (record.didTasbih) count++;
+    if (record.didHifz || record.didTasmi) count++;
+    if (record.rememberedAllah) count++;
     return count;
   }
 

@@ -45,34 +45,7 @@ class LanguageSelectionPage extends StatelessWidget {
               
               // Title
               Text(
-                'اختر اللغة',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.cairo(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF064E3B),
-                ),
-              ),
-              Text(
-                'Dil Seçin',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.cairo(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF064E3B),
-                ),
-              ),
-              Text(
-                'Choose Language',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.cairo(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF064E3B),
-                ),
-              ),
-              Text(
-                'Choisissez la langue',
+                'choose_language'.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.cairo(
                   fontSize: 22,

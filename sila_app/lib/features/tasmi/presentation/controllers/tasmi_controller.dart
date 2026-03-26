@@ -109,6 +109,8 @@ class TasmiState extends Equatable {
 
 @riverpod
 class TasmiController extends _$TasmiController {
+  static const String _errorMicFinal = 'error_mic_final';
+
   late final TasmiSpeechService _speechService;
   StreamSubscription<String>? _speechSubscription;
   int? _surahNumber;
@@ -193,8 +195,8 @@ class TasmiController extends _$TasmiController {
       onError: (error) async {
         final errorString = error.toString();
         
-        if (errorString.contains('error_mic_final')) {
-           state = state.copyWith(warningMessage: 'error_mic_final');
+        if (errorString.contains(_errorMicFinal)) {
+           state = state.copyWith(warningMessage: _errorMicFinal);
            return;
         }
 
@@ -389,8 +391,8 @@ class TasmiController extends _$TasmiController {
       _onWordSpoken,
       onError: (error) async {
         final errorString = error.toString();
-        if (errorString.contains('error_mic_final')) {
-          state = state.copyWith(warningMessage: 'error_mic_final');
+        if (errorString.contains(_errorMicFinal)) {
+          state = state.copyWith(warningMessage: _errorMicFinal);
           return;
         }
         state = state.copyWith(
