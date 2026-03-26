@@ -10,9 +10,44 @@ class DailyStatusCalculator {
   static final Random _random = Random();
   static final Map<int, String> _dailyTextCache = {};
 
-  static String getDailyQuote(IbadahRecord record, String languageCode) {
+  static int completedCount(IbadahRecord r, {required bool isMale}) {
+    int count = 0;
+    if (r.fajrStatus > 0) count++;
+    if (r.dhuhrStatus > 0) count++;
+    if (r.asrStatus > 0) count++;
+    if (r.maghribStatus > 0) count++;
+    if (r.ishaStatus > 0) count++;
+
+    if (isMale) {
+      if (r.fajrInMasjid == true) count++;
+      if (r.dhuhrInMasjid == true) count++;
+      if (r.asrInMasjid == true) count++;
+      if (r.maghribInMasjid == true) count++;
+      if (r.ishaInMasjid == true) count++;
+    }
+
+    if (r.readWird) count++;
+    if (r.readAzkarSabah) count++;
+    if (r.readAzkarMasa) count++;
+    if (r.didTasbih) count++;
+    if (r.didHifz || r.didTasmi) count++;
+    if (r.rememberedAllah) count++;
+    return count;
+  }
+
+  static int totalCount({required bool isMale}) {
+    return isMale ? 16 : 11; // 5 prayers + 5 masjid + 6 others VS 5 prayers + 6 others
+  }
+
+  static double completionRatio(IbadahRecord record, {required bool isMale}) {
+    final total = totalCount(isMale: isMale);
+    if (total == 0) return 0.0;
+    return completedCount(record, isMale: isMale) / total;
+  }
+
+  static String getDailyStatusText(IbadahRecord record, {required bool isMale, required String languageCode}) {
     var texts = <String>[];
-    final double ratio = record.completionRatio;
+    final double ratio = completionRatio(record, isMale: isMale);
 
     if (languageCode == 'ar') {
       if (ratio >= 0.8) {
@@ -59,5 +94,10 @@ class DailyStatusCalculator {
     final selected = texts[idx];
     _dailyTextCache[dayKey] = selected;
     return selected;
+  }
+
+  // Backward compatibility or alternative name
+  static String getDailyQuote(IbadahRecord record, String languageCode) {
+    return getDailyStatusText(record, isMale: true, languageCode: languageCode);
   }
 }

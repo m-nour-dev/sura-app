@@ -628,6 +628,18 @@
     "dhikr": "Allah'ı Anma",
     "general_start": "Bugün bereketli bir başlangıç"
   },
+  "tracker_statuses": {
+    "saved_successfully": "Başarıyla Kaydedildi",
+    "how_did_you_pray": "Namazını nasıl kıldın?",
+    "on_time": "Vaktinde",
+    "late": "Kaza / Geç",
+    "missed": "Kılmadım",
+    "where_did_you_pray": "Nerede kıldın?",
+    "in_masjid": "Camide",
+    "at_home": "Evde",
+    "yes": "Evet",
+    "no": "Hayır"
+  },
   "press_start_tasmi": "Dinlemeye başlamak için Başlat'a basın",
   "speak_clearly_hint": "Daha iyi sonuçlar için net ve duyulur bir sesle okuyun",
   "close_match_label": "Yakın",

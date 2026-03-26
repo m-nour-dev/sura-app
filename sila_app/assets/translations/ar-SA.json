@@ -637,6 +637,18 @@
     "dhikr": "ذكر الله",
     "general_start": "بداية مباركة اليوم"
   },
+  "tracker_statuses": {
+    "saved_successfully": "تم الحفظ بنجاح",
+    "how_did_you_pray": "كيف كانت صلاتك؟",
+    "on_time": "في وقتها",
+    "late": "قضاء / متأخر",
+    "missed": "لم أصلِ",
+    "where_did_you_pray": "أين صليت؟",
+    "in_masjid": "في المسجد",
+    "at_home": "في البيت",
+    "yes": "نعم",
+    "no": "لا"
+  },
   "press_start_tasmi": "اضغط ابدأ للبدء بالتسميع",
   "speak_clearly_hint": "اقرأ بوضوح وصوت مسموع لنتائج أفضل",
   "close_match_label": "قريب",
