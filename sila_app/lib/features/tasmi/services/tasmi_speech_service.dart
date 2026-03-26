@@ -304,10 +304,16 @@ class TasmiSpeechService {
     _isRestarting = true;
     _restartTimer?.cancel();
     _restartTimer = Timer(delay, () async {
-      if (!_isManuallyStopped && !_speech.isListening) {
-        await _startInternal();
-      }
       _isRestarting = false;
+      // FIX: Re-evaluate all conditions before calling _startInternal
+      if (_isManuallyStopped ||
+          _isPausedForTts ||
+          !_canAutoRestart() ||
+          _wordController.isClosed ||
+          _speech.isListening) {
+        return;
+      }
+      await _startInternal();
     });
   }
 

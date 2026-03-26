@@ -53,6 +53,24 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
   }
 
   Future<void> _submit() async {
+    // FIX: Prevent empty feedback writes
+    final hasRating = _rating > 0;
+    final hasText = _problemController.text.trim().isNotEmpty ||
+        _suggestionController.text.trim().isNotEmpty ||
+        _nextUpdateController.text.trim().isNotEmpty ||
+        _favoriteController.text.trim().isNotEmpty;
+    final hasUsage = _usageFrequency != null;
+    if (!hasRating && !hasText && !hasUsage) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'feedback_placeholder_suggestion'.tr()), // "Write something..."
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSending = true);
 
     try {

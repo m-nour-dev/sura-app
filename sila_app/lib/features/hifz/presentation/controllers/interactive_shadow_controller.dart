@@ -810,11 +810,16 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     final lastVerseCompleted = state.fromVerse + state.currentVerseIndex;
     final isAllDone = lastVerseCompleted >= state.toVerse;
     if (!isAllDone) {
-      final nextVerse = lastVerseCompleted + 1;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('hifz_resume_surah', state.surahNumber);
-      await prefs.setInt('hifz_resume_from', nextVerse);
-      await prefs.setInt('hifz_resume_to', state.toVerse);
+      // If finished early, resume from the current verse (it may be incomplete)
+      // If finished normally, resume from the next verse
+      final resumeVerse =
+          state.finishedEarly ? lastVerseCompleted : lastVerseCompleted + 1;
+      if (resumeVerse <= state.toVerse) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('hifz_resume_surah', state.surahNumber);
+        await prefs.setInt('hifz_resume_from', resumeVerse);
+        await prefs.setInt('hifz_resume_to', state.toVerse);
+      }
     } else {
       // All verses completed — clear resume point
       final prefs = await SharedPreferences.getInstance();

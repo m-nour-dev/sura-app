@@ -840,6 +840,5 @@
     "finish_session_title": "هل تريد إنهاء الجلسة؟",
     "finish_session_desc": "سيتم حفظ تقدمك حتى هذه الآية.",
     "finish_session_btn": "إنهاء",
-    "continue_from_verse": "أكمل من الآية {}",
-    "cancel": "إلغاء"
+    "continue_from_verse": "أكمل من الآية {}"
 }

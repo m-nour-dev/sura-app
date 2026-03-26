@@ -163,14 +163,14 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                           );
                         },
                         onContinue: () {
-                          final nextVerse =
-                              state.fromVerse + state.currentVerseIndex + 1;
-                          if (nextVerse <= state.toVerse) {
+                          final resumeVerse =
+                              state.fromVerse + state.currentVerseIndex;
+                          if (resumeVerse <= state.toVerse) {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                 builder: (_) => InteractiveShadowPage(
                                   surahNumber: state.surahNumber,
-                                  fromVerse: nextVerse,
+                                  fromVerse: resumeVerse,
                                   toVerse: state.toVerse,
                                 ),
                               ),

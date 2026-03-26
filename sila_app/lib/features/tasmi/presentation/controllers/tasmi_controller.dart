@@ -495,12 +495,21 @@ class TasmiController extends _$TasmiController {
     // Save to Hifz history
     try {
       final repository = await ref.read(hifzRepositoryProvider.future);
+
+      // FIX: Skip saving if nothing was attempted
+      if (state.currentIndex <= 0 || state.words.isEmpty) return;
+
       final hasFinishedNormally = state.currentIndex >= state.words.length;
+
+      // FIX: Use actual last processed verse, not always the range end
+      final actualToVerse = hasFinishedNormally
+          ? state.words.last.verseNumber
+          : state.words[state.currentIndex - 1].verseNumber;
 
       final session = HifzSession()
         ..surahIndex = _surahNumber ?? 1
         ..fromVerse = state.words.first.verseNumber
-        ..toVerse = state.words.last.verseNumber
+        ..toVerse = actualToVerse
         ..method = 'listening'
         ..date = DateTime.now()
         ..correctWords = correct

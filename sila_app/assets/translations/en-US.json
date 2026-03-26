@@ -839,6 +839,5 @@
   "finish_session_title": "End this session?",
   "finish_session_desc": "Your progress up to this verse will be saved.",
   "finish_session_btn": "End",
-  "continue_from_verse": "Continue from verse {}",
-  "cancel": "Cancel"
+  "continue_from_verse": "Continue from verse {}"
 }

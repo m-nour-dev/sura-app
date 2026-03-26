@@ -825,6 +825,5 @@
   "finish_session_title": "Terminer cette session ?",
   "finish_session_desc": "Votre progression jusqu'à ce verset sera enregistrée.",
   "finish_session_btn": "Terminer",
-  "continue_from_verse": "Continuer depuis le verset {}",
-  "cancel": "Annuler"
+  "continue_from_verse": "Continuer depuis le verset {}"
 }

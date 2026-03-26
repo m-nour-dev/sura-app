@@ -64,7 +64,11 @@ class HifzHomeState {
   final int resumeToVerse;
   final String? errorMessage;
 
-  bool get hasResumePoint => resumeSurah > 0 && resumeFromVerse > 0;
+  bool get hasResumePoint =>
+      resumeSurah > 0 &&
+      resumeFromVerse > 0 &&
+      resumeToVerse > 0 &&
+      resumeFromVerse <= resumeToVerse;
 
   HifzHomeState copyWith({
     bool? isLoading,
@@ -257,12 +261,24 @@ class HifzHomeController extends _$HifzHomeController {
   }
 
   Future<Map<String, int>> _loadResumePoint() async {
+    const empty = {'surah': 0, 'fromVerse': 0, 'toVerse': 0};
     final prefs = await SharedPreferences.getInstance();
-    return {
-      'surah': prefs.getInt(_resumeSurahKey) ?? 0,
-      'fromVerse': prefs.getInt(_resumeFromVerseKey) ?? 0,
-      'toVerse': prefs.getInt(_resumeToVerseKey) ?? 0,
-    };
+    if (!prefs.containsKey(_resumeSurahKey) ||
+        !prefs.containsKey(_resumeFromVerseKey) ||
+        !prefs.containsKey(_resumeToVerseKey)) {
+      return empty;
+    }
+    final surah = prefs.getInt(_resumeSurahKey)!;
+    final from = prefs.getInt(_resumeFromVerseKey)!;
+    final to = prefs.getInt(_resumeToVerseKey)!;
+    if (surah < 1 || from < 1 || to < 1 || from > to) {
+      // Invalid data — clean up
+      await prefs.remove(_resumeSurahKey);
+      await prefs.remove(_resumeFromVerseKey);
+      await prefs.remove(_resumeToVerseKey);
+      return empty;
+    }
+    return {'surah': surah, 'fromVerse': from, 'toVerse': to};
   }
 
   Future<void> saveResumePoint({
@@ -274,6 +290,12 @@ class HifzHomeController extends _$HifzHomeController {
     await prefs.setInt(_resumeSurahKey, surah);
     await prefs.setInt(_resumeFromVerseKey, fromVerse);
     await prefs.setInt(_resumeToVerseKey, toVerse);
+    // FIX: Update in-memory state so UI refreshes immediately
+    state = state.copyWith(
+      resumeSurah: surah,
+      resumeFromVerse: fromVerse,
+      resumeToVerse: toVerse,
+    );
   }
 
   Future<void> clearResumePoint() async {
