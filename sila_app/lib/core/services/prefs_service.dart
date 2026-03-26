@@ -7,29 +7,38 @@ class PrefsService {
   static const String _keyCity = 'city_name';
   static const String _keyCountryCode = 'country_code';
   static const String _keyCalculationMethod = 'calculation_method';
-  static const String _keyAdhanNotificationsEnabled = 'adhan_notifications_enabled';
+  static const String _keyAdhanNotificationsEnabled =
+      'adhan_notifications_enabled';
   static const String _keyAdhanSound = 'adhan_sound';
-  static const String _keyNeverShowNotificationPrompt = 'never_show_notification_prompt';
+  static const String _keyNeverShowNotificationPrompt =
+      'never_show_notification_prompt';
+
+  // PERF FIX 4: Cache SharedPreferences instance to avoid re-fetching on every call
+  static SharedPreferences? _prefs;
+  Future<SharedPreferences> get _instance async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
 
   Future<bool> getNeverShowNotificationPrompt() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getBool(_keyNeverShowNotificationPrompt) ?? false;
   }
 
   Future<void> setNeverShowNotificationPrompt(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setBool(_keyNeverShowNotificationPrompt, value);
   }
 
   // ─── Location ────────────────────────────────────────────────────────────
 
   Future<void> setAutoLocation(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setBool(_keyIsAutoLocation, value);
   }
 
   Future<bool> isAutoLocation() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getBool(_keyIsAutoLocation) ?? true;
   }
 
@@ -39,7 +48,7 @@ class PrefsService {
     String cityName, {
     String countryCode = 'XX',
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setDouble(_keyLat, lat);
     await prefs.setDouble(_keyLong, long);
     await prefs.setString(_keyCity, cityName);
@@ -48,7 +57,7 @@ class PrefsService {
   }
 
   Future<Map<String, dynamic>?> getStoredLocation() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     if (!prefs.containsKey(_keyLat)) return null;
     return {
       'lat': prefs.getDouble(_keyLat),
@@ -59,56 +68,56 @@ class PrefsService {
   }
 
   Future<void> saveCountryCode(String code) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setString(_keyCountryCode, code);
   }
 
   Future<String> getCountryCode() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getString(_keyCountryCode) ?? 'XX';
   }
 
   // ─── Calculation Method ───────────────────────────────────────────────────
 
   Future<String> getCalculationMethod() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getString(_keyCalculationMethod) ?? 'turkey';
   }
 
   Future<void> setCalculationMethod(String method) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setString(_keyCalculationMethod, method);
   }
 
   // ─── Adhan Settings ───────────────────────────────────────────────────────
 
   Future<bool> isAdhanNotificationsEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getBool(_keyAdhanNotificationsEnabled) ?? true;
   }
 
   Future<void> setAdhanNotificationsEnabled(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setBool(_keyAdhanNotificationsEnabled, enabled);
   }
 
   Future<bool> isAdhanEnabled(String prayerName) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getBool('adhan_enabled_${prayerName.toLowerCase()}') ?? true;
   }
 
   Future<void> setAdhanEnabled(String prayerName, bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setBool('adhan_enabled_${prayerName.toLowerCase()}', enabled);
   }
 
   Future<String> getAdhanSound() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getString(_keyAdhanSound) ?? 'adhan_egypt.mp3';
   }
 
   Future<void> setAdhanSound(String soundFile) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setString(_keyAdhanSound, soundFile);
   }
 
@@ -117,12 +126,12 @@ class PrefsService {
   static const String _keyPlannedNotifications = 'planned_notifications_cache';
 
   Future<void> savePlannedNotifications(String json) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     await prefs.setString(_keyPlannedNotifications, json);
   }
 
   Future<String?> getPlannedNotifications() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _instance; // PERF FIX 4
     return prefs.getString(_keyPlannedNotifications);
   }
 }

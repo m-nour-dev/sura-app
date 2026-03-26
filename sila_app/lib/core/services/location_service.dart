@@ -25,7 +25,17 @@ class LocationService {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    return await Geolocator.getCurrentPosition();
+    // PERF FIX 2: Add timeout and fallback to last known position
+    Position? position;
+    try {
+      position = await Geolocator.getCurrentPosition(
+        timeLimit: const Duration(seconds: 5),
+      );
+    } catch (_) {
+      position = await Geolocator.getLastKnownPosition();
+    }
+    if (position == null) throw Exception('Could not determine location');
+    return position;
   }
 
   /// Returns a map with 'city', 'country', 'countryCode' keys.
@@ -41,7 +51,7 @@ class LocationService {
         if (city == null || city.isEmpty) city = place.administrativeArea;
         if (city == null || city.isEmpty) city = place.name;
         if (city == null || city.isEmpty) city = place.thoroughfare;
-        
+
         city ??= 'unknown_location'.tr(); // Fallback Arabic
 
         final country = place.country ?? '';
@@ -56,10 +66,18 @@ class LocationService {
           'countryCode': countryCode,
         };
       }
-      return {'city': 'unknown_location'.tr(), 'country': '', 'countryCode': 'XX'};
+      return {
+        'city': 'unknown_location'.tr(),
+        'country': '',
+        'countryCode': 'XX'
+      };
     } catch (e) {
       print('Geocoding Error: $e');
-       return {'city': 'unknown_location'.tr(), 'country': '', 'countryCode': 'XX'};
+      return {
+        'city': 'unknown_location'.tr(),
+        'country': '',
+        'countryCode': 'XX'
+      };
     }
   }
 

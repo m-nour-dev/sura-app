@@ -35,9 +35,6 @@ class AdhanSchedulerService {
   Future<void> scheduleAllPrayers(PrayerTimesEntity prayerTimes) async {
     print('Scheduling all prayers for ${prayerTimes.locationName}');
 
-    // FIXED: Bug 1 — Removed cancelAllNotifications() from the top.
-    // Each prayer now cancels its own old notification before rescheduling.
-
     // Check if Adhan is enabled globally
     final isAdhanEnabled = await _prefsService.isAdhanNotificationsEnabled();
     if (!isAdhanEnabled) {
@@ -48,12 +45,14 @@ class AdhanSchedulerService {
     // Get selected Adhan sound
     final adhanSound = await _prefsService.getAdhanSound();
 
-    // Schedule each prayer if enabled
-    await _scheduleIfEnabled('fajr', prayerTimes.fajr, adhanSound);
-    await _scheduleIfEnabled('dhuhr', prayerTimes.dhuhr, adhanSound);
-    await _scheduleIfEnabled('asr', prayerTimes.asr, adhanSound);
-    await _scheduleIfEnabled('maghrib', prayerTimes.maghrib, adhanSound);
-    await _scheduleIfEnabled('isha', prayerTimes.isha, adhanSound);
+    // PERF FIX 5: Schedule all 5 prayers in parallel instead of sequentially
+    await Future.wait([
+      _scheduleIfEnabled('fajr', prayerTimes.fajr, adhanSound),
+      _scheduleIfEnabled('dhuhr', prayerTimes.dhuhr, adhanSound),
+      _scheduleIfEnabled('asr', prayerTimes.asr, adhanSound),
+      _scheduleIfEnabled('maghrib', prayerTimes.maghrib, adhanSound),
+      _scheduleIfEnabled('isha', prayerTimes.isha, adhanSound),
+    ]);
 
     await _scheduleSmartReminders(prayerTimes);
 
@@ -161,7 +160,7 @@ class AdhanSchedulerService {
               ? '${selected.arabicText.substring(0, 97)}...'
               : selected.arabicText,
           payload: payload,
-          priority: 10, // Base priority for fixed slots
+          priority: 10,
           selectedContentId: selected.contentId,
           category: selected.category,
         ));
@@ -245,8 +244,7 @@ class AdhanSchedulerService {
 
       // Actually schedule
       for (final item in planned) {
-        await _notificationService.cancelNotification(item
-            .id); // FIXED: Bug 1 — Cancel old notification by ID before rescheduling
+        await _notificationService.cancelNotification(item.id);
         await _notificationService.scheduleOneShot(
           id: item.id,
           title: item.title,
@@ -254,16 +252,13 @@ class AdhanSchedulerService {
           dateTime: item.when,
           payload: item.payload,
         );
-
-        // FIXED: Bug 4 — Removed shownCount increment from here.
-        // It now happens in handleNotificationPayload() when the user actually sees the notification.
       }
 
-      // Add back the Daily Report as a bonus (not one of the 6 fixed content slots)
+      // Add back the Daily Report as a bonus
       final reportTime =
           normalizeToNext(prayerTimes.maghrib.add(const Duration(minutes: 30)));
-      await _notificationService.cancelNotification(NotificationIds
-          .dailyReport); // FIXED: Bug 1 — Cancel old daily report before rescheduling
+      await _notificationService
+          .cancelNotification(NotificationIds.dailyReport);
       await _notificationService.scheduleOneShot(
         id: NotificationIds.dailyReport,
         title: 'تقريرك اليومي جاهز 📋',
@@ -291,8 +286,7 @@ class AdhanSchedulerService {
           : prayerTime.add(const Duration(days: 1));
 
       final id = NotificationService.getNotificationId(prayerName);
-      await _notificationService.cancelNotification(
-          id); // FIXED: Bug 1 — Cancel old notification before rescheduling
+      await _notificationService.cancelNotification(id);
       await _notificationService.scheduleNotification(
         id: id,
         prayerName: prayerName,

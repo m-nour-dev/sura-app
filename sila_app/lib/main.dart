@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
+import 'package:sila_app/core/presentation/splash_page.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/services/timezone_service.dart';
@@ -24,34 +27,13 @@ void main() async {
     }
     FlutterError.presentError(details);
   };
+
   await EasyLocalization.ensureInitialized();
-
-  // Initialize timezone service for prayer time calculations
-  final timezoneService = TimezoneService();
-  await timezoneService.initialize();
-
+  await TimezoneService().initialize();
   await Firebase.initializeApp();
 
   NotificationService().setNavigatorKey(appNavigatorKey);
-  final notificationService = NotificationService();
-  try {
-    await notificationService.initialize();
 
-    // FIX 5: Schedule adhan notifications
-    try {
-      final prayerRepo = PrayerRepositoryImpl();
-      final prayerTimes = await prayerRepo.getPrayerTimes();
-      final adhanScheduler = AdhanSchedulerService();
-      await adhanScheduler.scheduleAllPrayers(prayerTimes);
-      debugPrint('✅ Adhan and Smart Reminders scheduled');
-    } catch (e) {
-      debugPrint('❌ Scheduling failed: $e');
-    }
-  } catch (error) {
-    debugPrint('NotificationService init failed: $error');
-  }
-
-  // Check language selection
   final prefs = await SharedPreferences.getInstance();
   final isLanguageSelected = prefs.getBool('is_language_selected') ?? false;
 
@@ -71,15 +53,35 @@ void main() async {
       ),
     ),
   );
+
+  unawaited(_initBackgroundServices());
 }
 
-class SilaApp extends StatelessWidget {
+Future<void> _initBackgroundServices() async {
+  try {
+    final notificationService = NotificationService();
+    await notificationService.initialize();
 
-  const SilaApp({
-    super.key,
-    required this.isLanguageSelected,
-  });
+    final prayerRepo = PrayerRepositoryImpl();
+    final prayerTimes = await prayerRepo.getPrayerTimes();
+    final adhanScheduler = AdhanSchedulerService();
+    await adhanScheduler.scheduleAllPrayers(prayerTimes);
+    debugPrint('✅ Background services initialized');
+  } catch (e) {
+    debugPrint('❌ Background init failed: $e');
+  }
+}
+
+class SilaApp extends StatefulWidget {
+  const SilaApp({super.key, required this.isLanguageSelected});
   final bool isLanguageSelected;
+
+  @override
+  State<SilaApp> createState() => _SilaAppState();
+}
+
+class _SilaAppState extends State<SilaApp> {
+  bool _showSplash = true;
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +95,13 @@ class SilaApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: isLanguageSelected
-          ? const MainLayout()
-          : const LanguageSelectionPage(),
+      home: _showSplash
+          ? SplashPage(
+              onComplete: () => setState(() => _showSplash = false),
+            )
+          : widget.isLanguageSelected
+              ? const MainLayout()
+              : const LanguageSelectionPage(),
     );
   }
 }
