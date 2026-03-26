@@ -14,7 +14,6 @@ import 'package:sila_app/features/hifz/domain/plan_generator.dart';
 part 'hifz_home_controller.g.dart';
 
 class HifzHomeState {
-
   const HifzHomeState({
     required this.isLoading,
     required this.profile,
@@ -26,6 +25,9 @@ class HifzHomeState {
     required this.hasanatToday,
     required this.recentMoments,
     required this.activeSession,
+    required this.resumeSurah,
+    required this.resumeFromVerse,
+    required this.resumeToVerse,
     required this.errorMessage,
   });
 
@@ -41,6 +43,9 @@ class HifzHomeState {
       hasanatToday: 0,
       recentMoments: [],
       activeSession: null,
+      resumeSurah: 0,
+      resumeFromVerse: 0,
+      resumeToVerse: 0,
       errorMessage: null,
     );
   }
@@ -54,7 +59,12 @@ class HifzHomeState {
   final int hasanatToday;
   final List<HifzMoment> recentMoments;
   final HifzSession? activeSession;
+  final int resumeSurah;
+  final int resumeFromVerse;
+  final int resumeToVerse;
   final String? errorMessage;
+
+  bool get hasResumePoint => resumeSurah > 0 && resumeFromVerse > 0;
 
   HifzHomeState copyWith({
     bool? isLoading,
@@ -68,6 +78,10 @@ class HifzHomeState {
     List<HifzMoment>? recentMoments,
     HifzSession? activeSession,
     bool clearActiveSession = false,
+    int? resumeSurah,
+    int? resumeFromVerse,
+    int? resumeToVerse,
+    bool clearResumePoint = false,
     String? errorMessage,
     bool clearErrorMessage = false,
   }) {
@@ -81,8 +95,14 @@ class HifzHomeState {
       streakDays: streakDays ?? this.streakDays,
       hasanatToday: hasanatToday ?? this.hasanatToday,
       recentMoments: recentMoments ?? this.recentMoments,
-      activeSession: clearActiveSession ? null : activeSession ?? this.activeSession,
-      errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+      activeSession:
+          clearActiveSession ? null : activeSession ?? this.activeSession,
+      resumeSurah: clearResumePoint ? 0 : resumeSurah ?? this.resumeSurah,
+      resumeFromVerse:
+          clearResumePoint ? 0 : resumeFromVerse ?? this.resumeFromVerse,
+      resumeToVerse: clearResumePoint ? 0 : resumeToVerse ?? this.resumeToVerse,
+      errorMessage:
+          clearErrorMessage ? null : errorMessage ?? this.errorMessage,
     );
   }
 }
@@ -92,6 +112,9 @@ class HifzHomeController extends _$HifzHomeController {
   static const _notificationId = 7001;
   static const _streakKey = 'hifz_streak_days';
   static const _streakDateKey = 'hifz_streak_last_date';
+  static const _resumeSurahKey = 'hifz_resume_surah';
+  static const _resumeFromVerseKey = 'hifz_resume_from';
+  static const _resumeToVerseKey = 'hifz_resume_to';
 
   @override
   HifzHomeState build() {
@@ -120,6 +143,7 @@ class HifzHomeController extends _$HifzHomeController {
       final dueReviews = await repository.getDueReviews(DateTime.now());
       final activeSession = await _findActiveSession(repository);
       final streak = await _calculateStreak(todaySessions.isNotEmpty);
+      final resumePoint = await _loadResumePoint();
 
       final doneAyahs = _countDoneAyahs(todaySessions);
       final targetAyahs = plan.newAyahsTarget;
@@ -136,6 +160,9 @@ class HifzHomeController extends _$HifzHomeController {
         hasanatToday: hasanat,
         recentMoments: recentMoments,
         activeSession: activeSession,
+        resumeSurah: resumePoint['surah'],
+        resumeFromVerse: resumePoint['fromVerse'],
+        resumeToVerse: resumePoint['toVerse'],
       );
 
       await _scheduleDailyHifzReminder(
@@ -204,11 +231,15 @@ class HifzHomeController extends _$HifzHomeController {
     return hasanat;
   }
 
-  Future<List<HifzSession>> _getTodaySessions(IHifzRepository repository) async {
+  Future<List<HifzSession>> _getTodaySessions(
+      IHifzRepository repository) async {
     final recent = await repository.getRecentSessions(50);
     final now = DateTime.now();
     return recent
-        .where((s) => s.date.year == now.year && s.date.month == now.month && s.date.day == now.day)
+        .where((s) =>
+            s.date.year == now.year &&
+            s.date.month == now.month &&
+            s.date.day == now.day)
         .toList();
   }
 
@@ -223,6 +254,34 @@ class HifzHomeController extends _$HifzHomeController {
       return latest;
     }
     return null;
+  }
+
+  Future<Map<String, int>> _loadResumePoint() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'surah': prefs.getInt(_resumeSurahKey) ?? 0,
+      'fromVerse': prefs.getInt(_resumeFromVerseKey) ?? 0,
+      'toVerse': prefs.getInt(_resumeToVerseKey) ?? 0,
+    };
+  }
+
+  Future<void> saveResumePoint({
+    required int surah,
+    required int fromVerse,
+    required int toVerse,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_resumeSurahKey, surah);
+    await prefs.setInt(_resumeFromVerseKey, fromVerse);
+    await prefs.setInt(_resumeToVerseKey, toVerse);
+  }
+
+  Future<void> clearResumePoint() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_resumeSurahKey);
+    await prefs.remove(_resumeFromVerseKey);
+    await prefs.remove(_resumeToVerseKey);
+    state = state.copyWith(clearResumePoint: true);
   }
 
   Future<int> _calculateStreak(bool hasSessionToday) async {

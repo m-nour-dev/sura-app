@@ -22,7 +22,6 @@ const Color _hasanatGold = Color(0xFFFCD34D);
 const Color _errorColor = Color(0xFFF87171);
 
 class InteractiveShadowPage extends ConsumerStatefulWidget {
-
   const InteractiveShadowPage({
     super.key,
     this.surahNumber = 1,
@@ -34,7 +33,8 @@ class InteractiveShadowPage extends ConsumerStatefulWidget {
   final int toVerse;
 
   @override
-  ConsumerState<InteractiveShadowPage> createState() => _InteractiveShadowPageState();
+  ConsumerState<InteractiveShadowPage> createState() =>
+      _InteractiveShadowPageState();
 }
 
 class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
@@ -50,8 +50,10 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
   @override
   void initState() {
     super.initState();
-    _flashController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
-    _waveController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
+    _flashController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    _waveController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1100));
     _waveController.repeat(reverse: true);
 
     Future<void>.microtask(() {
@@ -80,8 +82,8 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
   void _syncInlineInputs(List<ShadowWordEntry> words) {
     final currentHash = Object.hashAll(
       words.asMap().entries.map(
-        (entry) => Object.hash(entry.key, entry.value.word),
-      ),
+            (entry) => Object.hash(entry.key, entry.value.word),
+          ),
     );
     final verseChanged = currentHash != _lastInputsStateHash;
     _lastInputsStateHash = currentHash;
@@ -100,7 +102,9 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
       _inlineFocusNodes.putIfAbsent(i, FocusNode.new);
     }
 
-    final stale = _inlineControllers.keys.where((k) => !validIndexes.contains(k)).toList();
+    final stale = _inlineControllers.keys
+        .where((k) => !validIndexes.contains(k))
+        .toList();
     for (final key in stale) {
       _inlineControllers.remove(key)?.dispose();
       _inlineFocusNodes.remove(key)?.dispose();
@@ -143,8 +147,10 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                 state.finished
                     ? _SessionResultsView(
                         state: state,
-                        onHome: () => Navigator.popUntil(context, (r) => r.isFirst),
-                        onDedicate: () => controller.openThawaabDedication(context),
+                        onHome: () =>
+                            Navigator.popUntil(context, (r) => r.isFirst),
+                        onDedicate: () =>
+                            controller.openThawaabDedication(context),
                         onRestart: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
@@ -156,121 +162,237 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                             ),
                           );
                         },
+                        onContinue: () {
+                          final nextVerse =
+                              state.fromVerse + state.currentVerseIndex + 1;
+                          if (nextVerse <= state.toVerse) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => InteractiveShadowPage(
+                                  surahNumber: state.surahNumber,
+                                  fromVerse: nextVerse,
+                                  toVerse: state.toVerse,
+                                ),
+                              ),
+                            );
+                          } else {
+                            Navigator.of(context).pop();
+                          }
+                        },
                       )
                     : Column(
                         children: [
-                        _TopHeader(
-                        surahName: SurahUtils.getLocalizedSurahName(context, state.surahNumber),
-                        stage: state.currentStage,
-                        reciterLabel: reciter?.nameArabic.split(' ').last ?? 'default_reciter_name'.tr(),
-                        onReciterTap: () => showReciterPickerSheet(context),
-                        onMomentTap: () {
-                          final verseIndex = state.fromVerse + state.currentVerseIndex;
-                          _showMomentCapture(
-                            context,
-                            quran.getVerse(
-                              state.surahNumber,
-                              verseIndex,
-                              verseEndSymbol: false,
-                            ),
-                            SurahUtils.getLocalizedSurahName(context, state.surahNumber),
-                          );
-                        },
-                      ),
-                      _StageBanner(stage: state.currentStage),
-                      Expanded(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 350),
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0, 0.05),
-                                  end: Offset.zero,
-                                ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _StageContent(
-                            key: ValueKey(state.currentStage * 100 + state.currentVerseIndex),
-                            state: state,
-                            flashController: _flashController,
-                          ),
-                        ),
-                      ),
-                      if (state.currentStage <= 2)
-                        _AudioBar(
-                          isPlaying: state.isPlaying,
-                          waveController: _waveController,
-                          onToggle: controller.toggleAudio,
-                          reciterLabel: reciter?.nameArabic.split(' ').last ?? 'default_reciter_name'.tr(),
-                        ),
-                      const SizedBox(height: 8),
-                      _MicBar(
-                        isListening: state.isMicListening,
-                        onToggle: controller.toggleMic,
-                      ),
-                      if (state.errorMessage != null) ...[
-                        const SizedBox(height: 8),
-                        _InlineStatusMessage(message: state.errorMessage!),
-                      ],
-                      if (state.currentStage >= 3) ...[
-                        const SizedBox(height: 8),
-                        const _WritingModeBar(),
-                      ],
-                      const SizedBox(height: 10),
-                      _StatsRow(
-                        correct: state.correctWords,
-                        wrong: state.wrongWords,
-                        hasanat: state.sessionHashanat,
-                      ),
-                      const SizedBox(height: 10),
-                      _InstructionCard(stage: state.currentStage),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: _isNextBusy
-                            ? null
-                            : () async {
-                                setState(() => _isNextBusy = true);
-                                try {
-                                  await controller.nextStage();
-                                } finally {
-                                  if (mounted) {
-                                    setState(() => _isNextBusy = false);
-                                  }
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        child: _isNextBusy
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
+                          _TopHeader(
+                            surahName: SurahUtils.getLocalizedSurahName(
+                                context, state.surahNumber),
+                            stage: state.currentStage,
+                            reciterLabel: reciter?.nameArabic.split(' ').last ??
+                                'default_reciter_name'.tr(),
+                            onReciterTap: () => showReciterPickerSheet(context),
+                            onMomentTap: () {
+                              final verseIndex =
+                                  state.fromVerse + state.currentVerseIndex;
+                              _showMomentCapture(
+                                context,
+                                quran.getVerse(
+                                  state.surahNumber,
+                                  verseIndex,
+                                  verseEndSymbol: false,
                                 ),
-                              )
-                            : Text(
-                                'next'.tr(),
-                                style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.w700),
-                              ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (state.currentStage >= 3)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            'shadow_hint_text'.tr(),
-                            style: GoogleFonts.cairo(fontSize: 11, color: Colors.white54),
+                                SurahUtils.getLocalizedSurahName(
+                                    context, state.surahNumber),
+                              );
+                            },
                           ),
-                        ),
-                      const SizedBox(height: 8),
+                          _StageBanner(stage: state.currentStage),
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 350),
+                              transitionBuilder: (child, animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(0, 0.05),
+                                      end: Offset.zero,
+                                    ).animate(CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.easeOut)),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: _StageContent(
+                                key: ValueKey(state.currentStage * 100 +
+                                    state.currentVerseIndex),
+                                state: state,
+                                flashController: _flashController,
+                              ),
+                            ),
+                          ),
+                          if (state.currentStage <= 2)
+                            _AudioBar(
+                              isPlaying: state.isPlaying,
+                              waveController: _waveController,
+                              onToggle: controller.toggleAudio,
+                              reciterLabel:
+                                  reciter?.nameArabic.split(' ').last ??
+                                      'default_reciter_name'.tr(),
+                            ),
+                          const SizedBox(height: 8),
+                          _MicBar(
+                            isListening: state.isMicListening,
+                            onToggle: controller.toggleMic,
+                          ),
+                          if (state.errorMessage != null) ...[
+                            const SizedBox(height: 8),
+                            _InlineStatusMessage(message: state.errorMessage!),
+                          ],
+                          if (state.currentStage >= 3) ...[
+                            const SizedBox(height: 8),
+                            const _WritingModeBar(),
+                          ],
+                          const SizedBox(height: 10),
+                          _StatsRow(
+                            correct: state.correctWords,
+                            wrong: state.wrongWords,
+                            hasanat: state.sessionHashanat,
+                          ),
+                          const SizedBox(height: 10),
+                          _InstructionCard(stage: state.currentStage),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: _isNextBusy
+                                      ? null
+                                      : () async {
+                                          setState(() => _isNextBusy = true);
+                                          try {
+                                            await controller.nextStage();
+                                          } finally {
+                                            if (mounted) {
+                                              setState(
+                                                  () => _isNextBusy = false);
+                                            }
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                  ),
+                                  child: _isNextBusy
+                                      ? const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : Text(
+                                          'next'.tr(),
+                                          style: GoogleFonts.cairo(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () async {
+                                    final confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        backgroundColor:
+                                            AppTheme.darkSurfaceColor,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16)),
+                                        title: Text(
+                                          'finish_session_title'.tr(),
+                                          style: GoogleFonts.cairo(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        content: Text(
+                                          'finish_session_desc'.tr(),
+                                          style: GoogleFonts.cairo(
+                                              color: Colors.white70,
+                                              fontSize: 13),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        actionsAlignment:
+                                            MainAxisAlignment.center,
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(ctx, false),
+                                            child: Text('cancel'.tr(),
+                                                style: GoogleFonts.cairo(
+                                                    color: Colors.white54)),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () =>
+                                                Navigator.pop(ctx, true),
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color(0xFFEF4444)),
+                                            child: Text(
+                                                'finish_session_btn'.tr(),
+                                                style: GoogleFonts.cairo(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.w700)),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirmed == true && context.mounted) {
+                                      await controller.finishEarly();
+                                    }
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    side:
+                                        const BorderSide(color: Colors.white24),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                  ),
+                                  child: Text(
+                                    'finish_session'.tr(),
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white54,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          if (state.currentStage >= 3)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                'shadow_hint_text'.tr(),
+                                style: GoogleFonts.cairo(
+                                    fontSize: 11, color: Colors.white54),
+                              ),
+                            ),
+                          const SizedBox(height: 8),
                         ],
                       ),
               ],
@@ -310,7 +432,6 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
 }
 
 class _TopHeader extends StatelessWidget {
-
   const _TopHeader({
     required this.surahName,
     required this.stage,
@@ -331,7 +452,9 @@ class _TopHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: AppTheme.darkBackgroundColor,
-        border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 0.5)),
+        border: Border(
+            bottom: BorderSide(
+                color: Colors.white.withValues(alpha: 0.08), width: 0.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -341,24 +464,28 @@ class _TopHeader extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
           Row(
-            children: List.generate(5, (index) {
-              final current = index + 1;
-              final color = current < stage
-                  ? AppTheme.accentColor
-                  : current == stage
-                      ? AppTheme.primaryColor
-                      : Colors.white.withValues(alpha: 0.15);
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                width: 24,
-                height: 4,
-                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
-              );
-            }),
+            children: [
+              ...List.generate(5, (index) {
+                final current = index + 1;
+                final color = current < stage
+                    ? AppTheme.accentColor
+                    : current == stage
+                        ? AppTheme.primaryColor
+                        : Colors.white.withValues(alpha: 0.15);
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                  width: 24,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: color, borderRadius: BorderRadius.circular(2)),
+                );
+              }),
+            ],
           ),
           Text(
             surahName,
-            style: GoogleFonts.cairo(fontSize: 11, color: Colors.white.withValues(alpha: 0.5)),
+            style: GoogleFonts.cairo(
+                fontSize: 11, color: Colors.white.withValues(alpha: 0.5)),
           ),
           const SizedBox(width: 6),
           GestureDetector(
@@ -372,11 +499,13 @@ class _TopHeader extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.mic_rounded, color: Colors.white70, size: 13),
+                  const Icon(Icons.mic_rounded,
+                      color: Colors.white70, size: 13),
                   const SizedBox(width: 3),
                   Text(
                     reciterLabel,
-                    style: GoogleFonts.cairo(fontSize: 10, color: Colors.white70),
+                    style:
+                        GoogleFonts.cairo(fontSize: 10, color: Colors.white70),
                   ),
                 ],
               ),
@@ -405,7 +534,6 @@ class _TopHeader extends StatelessWidget {
 }
 
 class _StageBanner extends StatelessWidget {
-
   const _StageBanner({required this.stage});
   final int stage;
 
@@ -445,15 +573,17 @@ class _StageBanner extends StatelessWidget {
 }
 
 class _StageContent extends StatelessWidget {
-
-  const _StageContent({super.key, required this.state, required this.flashController});
+  const _StageContent(
+      {super.key, required this.state, required this.flashController});
   final InteractiveShadowState state;
   final AnimationController flashController;
 
   @override
   Widget build(BuildContext context) {
-    final pageState = context.findAncestorStateOfType<_InteractiveShadowPageState>();
-    final controller = pageState?.ref.read(interactiveShadowControllerProvider.notifier);
+    final pageState =
+        context.findAncestorStateOfType<_InteractiveShadowPageState>();
+    final controller =
+        pageState?.ref.read(interactiveShadowControllerProvider.notifier);
 
     final color = ColorTween(
       begin: Colors.transparent,
@@ -467,54 +597,56 @@ class _StageContent extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           color: color.value,
-            child: Directionality(
-              textDirection: ui.TextDirection.rtl,
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
-                children: state.words.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final word = entry.value;
+          child: Directionality(
+            textDirection: ui.TextDirection.rtl,
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: state.words.asMap().entries.map((entry) {
+                final index = entry.key;
+                final word = entry.value;
 
-                  if (!word.isHidden || word.isAyahMarker || pageState == null || controller == null) {
-                    return _WordChip(entry: word);
-                  }
+                if (!word.isHidden ||
+                    word.isAyahMarker ||
+                    pageState == null ||
+                    controller == null) {
+                  return _WordChip(entry: word);
+                }
 
-                  final textController = pageState._inlineControllers[index]!;
-                  final focusNode = pageState._inlineFocusNodes[index]!;
-                  final validation = controller.inlineWordValidation(index);
+                final textController = pageState._inlineControllers[index]!;
+                final focusNode = pageState._inlineFocusNodes[index]!;
+                final validation = controller.inlineWordValidation(index);
 
-                  return _InlineWordInput(
-                    index: index,
-                    hiddenWord: word.word,
-                    controller: textController,
-                    focusNode: focusNode,
-                    isCorrect: word.revealedCorrectly
-                        ? true
-                        : validation,
-                    onChanged: (value) async {
-                      await controller.onWordTyped(index, value);
-                      final updated = pageState.ref.read(interactiveShadowControllerProvider);
-                      final nextIndex = pageState._findNextHiddenIndex(updated.words, index);
-                      if (nextIndex != null &&
-                          controller.inlineWordValidation(index) == true &&
-                          pageState._inlineFocusNodes[nextIndex] != null) {
-                        pageState._inlineFocusNodes[nextIndex]!.requestFocus();
-                      }
-                    },
-                  );
-                }).toList(),
-              ),
+                return _InlineWordInput(
+                  index: index,
+                  hiddenWord: word.word,
+                  controller: textController,
+                  focusNode: focusNode,
+                  isCorrect: word.revealedCorrectly ? true : validation,
+                  onChanged: (value) async {
+                    await controller.onWordTyped(index, value);
+                    final updated =
+                        pageState.ref.read(interactiveShadowControllerProvider);
+                    final nextIndex =
+                        pageState._findNextHiddenIndex(updated.words, index);
+                    if (nextIndex != null &&
+                        controller.inlineWordValidation(index) == true &&
+                        pageState._inlineFocusNodes[nextIndex] != null) {
+                      pageState._inlineFocusNodes[nextIndex]!.requestFocus();
+                    }
+                  },
+                );
+              }).toList(),
             ),
-          );
+          ),
+        );
       },
     );
   }
 }
 
 class _WordChip extends StatelessWidget {
-
   const _WordChip({required this.entry});
   final ShadowWordEntry entry;
 
@@ -544,7 +676,8 @@ class _WordChip extends StatelessWidget {
         ),
         child: Text(
           entry.word,
-          style: GoogleFonts.amiri(fontSize: 20, color: const Color(0xFFE2E8F0), height: 1.5),
+          style: GoogleFonts.amiri(
+              fontSize: 20, color: const Color(0xFFE2E8F0), height: 1.5),
         ),
       );
     }
@@ -557,11 +690,13 @@ class _WordChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.primaryColor.withValues(alpha: 0.35),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.6), width: 0.5),
+          border: Border.all(
+              color: AppTheme.primaryColor.withValues(alpha: 0.6), width: 0.5),
         ),
         child: Text(
           entry.word,
-          style: GoogleFonts.amiri(fontSize: 20, color: const Color(0xFF6EE7B7), height: 1.5),
+          style: GoogleFonts.amiri(
+              fontSize: 20, color: const Color(0xFF6EE7B7), height: 1.5),
         ),
       );
     }
@@ -573,18 +708,22 @@ class _WordChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(8),
-        border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.25), width: 1.5)),
+        border: Border(
+            bottom: BorderSide(
+                color: Colors.white.withValues(alpha: 0.25), width: 1.5)),
       ),
       child: Text(
         '—' * dashCount,
-        style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.2), letterSpacing: 3),
+        style: TextStyle(
+            fontSize: 14,
+            color: Colors.white.withValues(alpha: 0.2),
+            letterSpacing: 3),
       ),
     );
   }
 }
 
 class _AudioBar extends StatelessWidget {
-
   const _AudioBar({
     required this.isPlaying,
     required this.waveController,
@@ -604,7 +743,8 @@ class _AudioBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
       ),
       child: Row(
         children: [
@@ -613,7 +753,8 @@ class _AudioBar extends StatelessWidget {
             child: Container(
               width: 38,
               height: 38,
-              decoration: const BoxDecoration(color: AppTheme.accentColor, shape: BoxShape.circle),
+              decoration: const BoxDecoration(
+                  color: AppTheme.accentColor, shape: BoxShape.circle),
               child: Icon(
                 isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                 color: Colors.white,
@@ -622,9 +763,12 @@ class _AudioBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(child: _AudioWaveform(isPlaying: isPlaying, controller: waveController)),
+          Expanded(
+              child: _AudioWaveform(
+                  isPlaying: isPlaying, controller: waveController)),
           const SizedBox(width: 10),
-          Text(reciterLabel, style: GoogleFonts.cairo(fontSize: 9, color: Colors.white38)),
+          Text(reciterLabel,
+              style: GoogleFonts.cairo(fontSize: 9, color: Colors.white38)),
         ],
       ),
     );
@@ -707,7 +851,6 @@ class _InlineWordInput extends StatelessWidget {
 }
 
 class _AudioWaveform extends StatelessWidget {
-
   const _AudioWaveform({required this.isPlaying, required this.controller});
   final bool isPlaying;
   final AnimationController controller;
@@ -721,7 +864,9 @@ class _AudioWaveform extends StatelessWidget {
         return Row(
           children: List.generate(heights.length, (i) {
             final base = heights[i].toDouble();
-            final amp = isPlaying ? (0.4 + (0.6 * ((controller.value + (i * 0.06)) % 1.0))) : 0.4;
+            final amp = isPlaying
+                ? (0.4 + (0.6 * ((controller.value + (i * 0.06)) % 1.0)))
+                : 0.4;
             final h = base * amp;
             final active = i >= 3 && i <= 10;
             return Padding(
@@ -730,7 +875,9 @@ class _AudioWaveform extends StatelessWidget {
                 width: 2.8,
                 height: h,
                 decoration: BoxDecoration(
-                  color: active ? AppTheme.accentColor : Colors.white.withValues(alpha: 0.3),
+                  color: active
+                      ? AppTheme.accentColor
+                      : Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(5),
                 ),
               ),
@@ -753,7 +900,8 @@ class _WritingModeBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
       ),
       child: Row(
         children: [
@@ -765,7 +913,8 @@ class _WritingModeBar extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white24, width: 1.5),
             ),
-            child: const Icon(Icons.edit_note_rounded, color: Colors.white70, size: 20),
+            child: const Icon(Icons.edit_note_rounded,
+                color: Colors.white70, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -813,7 +962,8 @@ class _InlineStatusMessage extends StatelessWidget {
     final borderColor = isError
         ? const Color(0xFFEF4444).withValues(alpha: 0.45)
         : const Color(0xFF6EE7B7).withValues(alpha: 0.45);
-    final textColor = isError ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0);
+    final textColor =
+        isError ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -827,7 +977,8 @@ class _InlineStatusMessage extends StatelessWidget {
         ),
         child: Text(
           message,
-          style: GoogleFonts.cairo(fontSize: 10.5, color: textColor, fontWeight: FontWeight.w600),
+          style: GoogleFonts.cairo(
+              fontSize: 10.5, color: textColor, fontWeight: FontWeight.w600),
           textAlign: TextAlign.center,
         ),
       ),
@@ -836,7 +987,6 @@ class _InlineStatusMessage extends StatelessWidget {
 }
 
 class _MicBar extends StatelessWidget {
-
   const _MicBar({required this.isListening, required this.onToggle});
   final bool isListening;
   final Future<void> Function() onToggle;
@@ -849,7 +999,8 @@ class _MicBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1220).withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.6),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.6),
       ),
       child: Row(
         children: [
@@ -860,11 +1011,20 @@ class _MicBar extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: isListening ? _successColor.withValues(alpha: 0.16) : Colors.white.withValues(alpha: 0.06),
+                color: isListening
+                    ? _successColor.withValues(alpha: 0.16)
+                    : Colors.white.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
-                border: Border.all(color: isListening ? _successColor : Colors.white24, width: 1.3),
+                border: Border.all(
+                    color: isListening ? _successColor : Colors.white24,
+                    width: 1.3),
               ),
-              child: Icon(isListening ? Icons.graphic_eq_rounded : Icons.mic_none_rounded, color: isListening ? _successColor : Colors.white54, size: 18),
+              child: Icon(
+                  isListening
+                      ? Icons.graphic_eq_rounded
+                      : Icons.mic_none_rounded,
+                  color: isListening ? _successColor : Colors.white54,
+                  size: 18),
             ),
           ),
           const SizedBox(width: 12),
@@ -873,8 +1033,9 @@ class _MicBar extends StatelessWidget {
               stream: TasmiSpeechService().micHealthStream,
               initialData: MicHealthStatus.active,
               builder: (context, snapshot) {
-                final status =
-                    isListening ? (snapshot.data ?? MicHealthStatus.active) : null;
+                final status = isListening
+                    ? (snapshot.data ?? MicHealthStatus.active)
+                    : null;
                 final statusColor = switch (status) {
                   null => Colors.white54,
                   MicHealthStatus.active => const Color(0xFF1D9E75),
@@ -915,14 +1076,18 @@ class _MicBar extends StatelessWidget {
                         if (status == MicHealthStatus.stalled)
                           IconButton(
                             icon: const Icon(Icons.refresh, size: 16),
-                            onPressed: () => TasmiSpeechService().forceRestart(),
+                            onPressed: () =>
+                                TasmiSpeechService().forceRestart(),
                           ),
                       ],
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      isListening ? 'speak_clearly'.tr() : 'tap_to_start_mic'.tr(),
-                      style: GoogleFonts.cairo(fontSize: 9.5, color: Colors.white38),
+                      isListening
+                          ? 'speak_clearly'.tr()
+                          : 'tap_to_start_mic'.tr(),
+                      style: GoogleFonts.cairo(
+                          fontSize: 9.5, color: Colors.white38),
                     ),
                     const SizedBox(height: 5),
                     ClipRRect(
@@ -931,7 +1096,9 @@ class _MicBar extends StatelessWidget {
                         value: isListening ? null : 0,
                         backgroundColor: Colors.white.withValues(alpha: 0.1),
                         valueColor: AlwaysStoppedAnimation(
-                          isListening ? const Color(0xFF6EE7B7) : Colors.white24,
+                          isListening
+                              ? const Color(0xFF6EE7B7)
+                              : Colors.white24,
                         ),
                         minHeight: 3,
                       ),
@@ -948,8 +1115,8 @@ class _MicBar extends StatelessWidget {
 }
 
 class _StatsRow extends StatelessWidget {
-
-  const _StatsRow({required this.correct, required this.wrong, required this.hasanat});
+  const _StatsRow(
+      {required this.correct, required this.wrong, required this.hasanat});
   final int correct;
   final int wrong;
   final int hasanat;
@@ -960,11 +1127,20 @@ class _StatsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          _StatChip(value: _toArabicIndic(context, correct), label: 'correct_label'.tr(), valueColor: _successColor),
+          _StatChip(
+              value: _toArabicIndic(context, correct),
+              label: 'correct_label'.tr(),
+              valueColor: _successColor),
           const SizedBox(width: 8),
-          _StatChip(value: _toArabicIndic(context, wrong), label: 'wrong_label'.tr(), valueColor: _errorColor),
+          _StatChip(
+              value: _toArabicIndic(context, wrong),
+              label: 'wrong_label'.tr(),
+              valueColor: _errorColor),
           const SizedBox(width: 8),
-          _StatChip(value: _toArabicIndic(context, hasanat), label: 'hasanah_label'.tr(), valueColor: _hasanatGold),
+          _StatChip(
+              value: _toArabicIndic(context, hasanat),
+              label: 'hasanah_label'.tr(),
+              valueColor: _hasanatGold),
         ],
       ),
     );
@@ -972,8 +1148,8 @@ class _StatsRow extends StatelessWidget {
 }
 
 class _StatChip extends StatelessWidget {
-
-  const _StatChip({required this.value, required this.label, required this.valueColor});
+  const _StatChip(
+      {required this.value, required this.label, required this.valueColor});
   final String value;
   final String label;
   final Color valueColor;
@@ -989,8 +1165,13 @@ class _StatChip extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(value, style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w800, color: valueColor)),
-            Text(label, style: GoogleFonts.cairo(fontSize: 10, color: Colors.white38)),
+            Text(value,
+                style: GoogleFonts.cairo(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: valueColor)),
+            Text(label,
+                style: GoogleFonts.cairo(fontSize: 10, color: Colors.white38)),
           ],
         ),
       ),
@@ -999,7 +1180,6 @@ class _StatChip extends StatelessWidget {
 }
 
 class _InstructionCard extends StatelessWidget {
-
   const _InstructionCard({required this.stage});
   final int stage;
 
@@ -1011,14 +1191,20 @@ class _InstructionCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppTheme.primaryColor.withValues(alpha: 0.15),
-        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.4), width: 0.5),
+        border: Border.all(
+            color: AppTheme.primaryColor.withValues(alpha: 0.4), width: 0.5),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         children: [
-          Text(pair.$1, style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF6EE7B7))),
+          Text(pair.$1,
+              style: GoogleFonts.cairo(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF6EE7B7))),
           const SizedBox(height: 3),
-          Text(pair.$2, style: GoogleFonts.cairo(fontSize: 10, color: Colors.white38)),
+          Text(pair.$2,
+              style: GoogleFonts.cairo(fontSize: 10, color: Colors.white38)),
         ],
       ),
     );
@@ -1037,20 +1223,22 @@ class _InstructionCard extends StatelessWidget {
 }
 
 class _SessionResultsView extends ConsumerStatefulWidget {
-
   const _SessionResultsView({
     required this.state,
     required this.onHome,
     required this.onDedicate,
     required this.onRestart,
+    required this.onContinue,
   });
   final InteractiveShadowState state;
   final VoidCallback onHome;
   final VoidCallback onDedicate;
   final VoidCallback onRestart;
+  final VoidCallback onContinue;
 
   @override
-  ConsumerState<_SessionResultsView> createState() => _SessionResultsViewState();
+  ConsumerState<_SessionResultsView> createState() =>
+      _SessionResultsViewState();
 }
 
 class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
@@ -1080,21 +1268,24 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
     final to = widget.state.toVerse;
 
     final items = <_ReviewAyahItem>[];
-    
+
     // Fetch all verse records in parallel for better performance
     final futures = [
       for (var ayah = from; ayah <= to; ayah++)
-        repo.getVerseRecord(surah, ayah).then((record) => (ayah: ayah, record: record))
+        repo
+            .getVerseRecord(surah, ayah)
+            .then((record) => (ayah: ayah, record: record))
     ];
-    
+
     final results = await Future.wait(futures);
-    
+
     for (final result in results) {
       final ayah = result.ayah;
       final record = result.record;
-      
+
       final needsReview = record != null &&
-          (record.intervalDays <= 1 || record.correctSessions < record.totalSessions);
+          (record.intervalDays <= 1 ||
+              record.correctSessions < record.totalSessions);
       if (!needsReview) {
         continue;
       }
@@ -1146,12 +1337,14 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final onSurfaceMuted = colors.onSurface.withValues(alpha: 0.65);
-     final totalWords = widget.state.correctWords + widget.state.wrongWords;
-     final accuracyValue = totalWords == 0 ? 0.0 : widget.state.correctWords / totalWords;
-     final accuracyPercent = (accuracyValue * 100).round();
+    final totalWords = widget.state.correctWords + widget.state.wrongWords;
+    final accuracyValue =
+        totalWords == 0 ? 0.0 : widget.state.correctWords / totalWords;
+    final accuracyPercent = (accuracyValue * 100).round();
 
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 20 + MediaQuery.of(context).padding.bottom),
+      padding: EdgeInsets.fromLTRB(
+          16, 16, 16, 20 + MediaQuery.of(context).padding.bottom),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1163,7 +1356,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppTheme.primaryColor.withValues(alpha: theme.brightness == Brightness.dark ? 0.24 : 0.08),
+                  AppTheme.primaryColor.withValues(
+                      alpha: theme.brightness == Brightness.dark ? 0.24 : 0.08),
                   Colors.transparent,
                 ],
               ),
@@ -1202,25 +1396,25 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
             ),
           ),
           const SizedBox(height: 14),
-           Row(
-             children: [
-               Expanded(
-                 child: _ResultsStatCard(
-                   value: _toArabicIndic(context, widget.state.correctWords),
-                   label: 'correct_long'.tr(),
-                   color: Colors.green,
-                 ),
-               ),
-               const SizedBox(width: 10),
-               Expanded(
-                 child: _ResultsStatCard(
-                   value: _toArabicIndic(context, widget.state.wrongWords),
-                   label: 'wrong_long'.tr(),
-                   color: colors.error,
-                 ),
-               ),
-             ],
-           ),
+          Row(
+            children: [
+              Expanded(
+                child: _ResultsStatCard(
+                  value: _toArabicIndic(context, widget.state.correctWords),
+                  label: 'correct_long'.tr(),
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ResultsStatCard(
+                  value: _toArabicIndic(context, widget.state.wrongWords),
+                  label: 'wrong_long'.tr(),
+                  color: colors.error,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 14),
           FutureBuilder<HifzUserProfile?>(
             future: _profileFuture,
@@ -1250,7 +1444,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
             const SizedBox(height: 14),
             Row(
               children: [
-                const Icon(Icons.bookmark_added_rounded, color: AppTheme.primaryColor, size: 18),
+                const Icon(Icons.bookmark_added_rounded,
+                    color: AppTheme.primaryColor, size: 18),
                 const SizedBox(width: 6),
                 Text(
                   'words_needing_review'.tr(),
@@ -1269,7 +1464,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 18),
-                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: Center(
+                        child: CircularProgressIndicator(strokeWidth: 2)),
                   );
                 }
 
@@ -1280,7 +1476,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                 if (shown.isEmpty) {
                   return Text(
                     'no_review_items'.tr(),
-                    style: GoogleFonts.cairo(fontSize: 12, color: onSurfaceMuted),
+                    style:
+                        GoogleFonts.cairo(fontSize: 12, color: onSurfaceMuted),
                   );
                 }
 
@@ -1309,8 +1506,11 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                             Row(
                               children: [
                                 Icon(
-                                  item.severe ? Icons.cancel_rounded : Icons.warning_amber_rounded,
-                                  color: item.severe ? colors.error : Colors.amber,
+                                  item.severe
+                                      ? Icons.cancel_rounded
+                                      : Icons.warning_amber_rounded,
+                                  color:
+                                      item.severe ? colors.error : Colors.amber,
                                   size: 18,
                                 ),
                                 const SizedBox(width: 10),
@@ -1320,21 +1520,27 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                                     textAlign: TextAlign.center,
                                     style: GoogleFonts.amiri(
                                       fontSize: 20,
-                                      color: item.severe ? colors.error : colors.onSurface,
+                                      color: item.severe
+                                          ? colors.error
+                                          : colors.onSurface,
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
                                   '${'surah_label'.tr()} ${SurahUtils.getLocalizedSurahName(context, widget.state.surahNumber)} • ${'ayah_label'.tr()} ${_toArabicIndic(context, item.ayahNumber)}',
-                                  style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
+                                  style: GoogleFonts.cairo(
+                                      fontSize: 11, color: onSurfaceMuted),
                                 ),
                               ],
                             ),
                             if (index != shown.length - 1)
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
-                                child: Divider(height: 1, color: colors.onSurface.withValues(alpha: 0.08)),
+                                child: Divider(
+                                    height: 1,
+                                    color: colors.onSurface
+                                        .withValues(alpha: 0.08)),
                               ),
                           ],
                         ),
@@ -1344,8 +1550,10 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(
-                          'and_x_more_ayahs'.tr(args: [_toArabicIndic(context, hiddenCount)]),
-                          style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
+                          'and_x_more_ayahs'
+                              .tr(args: [_toArabicIndic(context, hiddenCount)]),
+                          style: GoogleFonts.cairo(
+                              fontSize: 11, color: onSurfaceMuted),
                         ),
                       ),
                   ],
@@ -1362,7 +1570,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.auto_awesome_rounded, color: AppTheme.accentColor, size: 24),
+                const Icon(Icons.auto_awesome_rounded,
+                    color: AppTheme.accentColor, size: 24),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -1370,7 +1579,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                     children: [
                       Text(
                         'hasanat_earned_title'.tr(),
-                        style: GoogleFonts.cairo(fontSize: 12, color: onSurfaceMuted),
+                        style: GoogleFonts.cairo(
+                            fontSize: 12, color: onSurfaceMuted),
                       ),
                       Text(
                         _toArabicIndic(context, widget.state.sessionHashanat),
@@ -1382,7 +1592,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                       ),
                       Text(
                         'inshaallah'.tr(),
-                        style: GoogleFonts.cairo(fontSize: 11, color: onSurfaceMuted),
+                        style: GoogleFonts.cairo(
+                            fontSize: 11, color: onSurfaceMuted),
                       ),
                     ],
                   ),
@@ -1398,17 +1609,48 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
               icon: const Text('💛', style: TextStyle(fontSize: 16)),
               label: Text(
                 'gift_thawab'.tr(),
-                style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w700),
+                style: GoogleFonts.cairo(
+                    fontSize: 15, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accentColor,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
             ),
           ),
           const SizedBox(height: 12),
+          if (widget.state.finishedEarly) ...[
+            SizedBox(
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: widget.onContinue,
+                icon: const Icon(Icons.play_arrow_rounded,
+                    color: Colors.white, size: 22),
+                label: Text(
+                  'continue_from_verse'.tr(args: [
+                    _toArabicIndic(
+                        context,
+                        widget.state.fromVerse +
+                            widget.state.currentVerseIndex +
+                            1)
+                  ]),
+                  style: GoogleFonts.cairo(
+                      fontSize: 15, fontWeight: FontWeight.w700),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           Row(
             children: [
               Expanded(
@@ -1418,7 +1660,8 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                     onPressed: widget.onRestart,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.primaryColor),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
                       'restart_button'.tr(),
@@ -1441,11 +1684,13 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                       backgroundColor: AppTheme.primaryColor,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
                       'home_button'.tr(),
-                      style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w700),
+                      style: GoogleFonts.cairo(
+                          fontSize: 14, fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -1459,7 +1704,6 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
 }
 
 class _ReviewAyahItem {
-
   const _ReviewAyahItem({
     required this.ayahNumber,
     required this.displayText,
@@ -1521,7 +1765,6 @@ class _ResultsStatCard extends StatelessWidget {
 }
 
 class _MomentCaptureSheet extends StatefulWidget {
-
   const _MomentCaptureSheet({
     required this.surahName,
     required this.verseText,
@@ -1544,7 +1787,8 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
     Widget feelingChip(String emoji, String label) {
       final selected = _selectedFeeling == label;
       return ChoiceChip(
-        label: Text('$emoji ${label.tr()}', style: GoogleFonts.cairo(fontSize: 11)),
+        label: Text('$emoji ${label.tr()}',
+            style: GoogleFonts.cairo(fontSize: 11)),
         selected: selected,
         showCheckmark: false,
         onSelected: (_) => setState(() => _selectedFeeling = label),
@@ -1564,7 +1808,9 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
-        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 0.5)),
+        border: Border(
+            top: BorderSide(
+                color: Colors.white.withValues(alpha: 0.1), width: 0.5)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       child: Column(
@@ -1574,7 +1820,9 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
             child: Container(
               width: 40,
               height: 4,
-              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2)),
             ),
           ),
           const SizedBox(height: 10),
@@ -1587,7 +1835,8 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
             textDirection: ui.TextDirection.rtl,
             child: Text(
               widget.verseText,
-              style: GoogleFonts.amiri(fontSize: 14, color: Colors.white60, height: 2.0),
+              style: GoogleFonts.amiri(
+                  fontSize: 14, color: Colors.white60, height: 2.0),
               textAlign: TextAlign.center,
             ),
           ),
@@ -1596,7 +1845,10 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
             alignment: Alignment.centerRight,
             child: Text(
               'moment_prompt'.tr(),
-              style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+              style: GoogleFonts.cairo(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
           ),
           const SizedBox(height: 10),
@@ -1632,7 +1884,8 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppTheme.accentColor, width: 1),
+                borderSide:
+                    const BorderSide(color: AppTheme.accentColor, width: 1),
               ),
               contentPadding: const EdgeInsets.all(12),
             ),
@@ -1646,25 +1899,33 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.white24),
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: Text('skip'.tr(), style: GoogleFonts.cairo(fontSize: 12, color: Colors.white60)),
+                  child: Text('skip'.tr(),
+                      style: GoogleFonts.cairo(
+                          fontSize: 12, color: Colors.white60)),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 flex: 2,
                 child: ElevatedButton(
-                  onPressed: () async => widget.onSave(_selectedFeeling, _note.trim()),
+                  onPressed: () async =>
+                      widget.onSave(_selectedFeeling, _note.trim()),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.accentColor,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                     elevation: 0,
                   ),
                   child: Text(
                     'save_moment_button'.tr(),
-                    style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: GoogleFonts.cairo(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white),
                   ),
                 ),
               ),
@@ -1677,9 +1938,7 @@ class _MomentCaptureSheetState extends State<_MomentCaptureSheet> {
 }
 
 String _toArabicIndic(BuildContext context, int value) {
-  if (context.locale.languageCode != 'ar') {
-    return value.toString();
-  }
+  // Always use Arabic numerals for this Islamic memorization app
   final western = value.toString();
   const digits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
   final buffer = StringBuffer();

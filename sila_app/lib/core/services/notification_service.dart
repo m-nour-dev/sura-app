@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -215,10 +216,11 @@ class NotificationService {
 
     // Try exact alarm first
     try {
+      final localizedPrayerName = _localizedPrayerName(prayerName);
       await _notifications.zonedSchedule(
         id,
-        'حان وقت $prayerName 🕌',
-        'حان وقت الصلاة — $prayerName',
+        '🕌 حان وقت $localizedPrayerName',
+        'حان وقت الصلاة — $localizedPrayerName',
         scheduledTime,
         details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -234,10 +236,11 @@ class NotificationService {
 
     // Fallback: inexact alarm
     try {
+      final localizedPrayerName = _localizedPrayerName(prayerName);
       await _notifications.zonedSchedule(
         id,
-        'حان وقت $prayerName 🕌',
-        'حان وقت الصلاة — $prayerName',
+        '🕌 حان وقت $localizedPrayerName',
+        'حان وقت الصلاة — $localizedPrayerName',
         scheduledTime,
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
@@ -782,6 +785,47 @@ class NotificationService {
       // ignore malformed payloads
     }
   }
+
+  /// Get prayer name in current app locale for notifications
+  String _localizedPrayerName(String key) {
+    final navigatorContext = _navigatorKey?.currentContext;
+    final locale = navigatorContext != null
+        ? EasyLocalization.of(navigatorContext)?.locale.languageCode ?? 'ar'
+        : 'ar';
+    final map = _prayerNames[locale] ?? _prayerNames['ar']!;
+    return map[key.toLowerCase()] ?? key;
+  }
+
+  static const _prayerNames = {
+    'ar': {
+      'fajr': 'الفجر',
+      'dhuhr': 'الظهر',
+      'asr': 'العصر',
+      'maghrib': 'المغرب',
+      'isha': 'العشاء'
+    },
+    'en': {
+      'fajr': 'Fajr',
+      'dhuhr': 'Dhuhr',
+      'asr': 'Asr',
+      'maghrib': 'Maghrib',
+      'isha': 'Isha'
+    },
+    'tr': {
+      'fajr': 'İmsak',
+      'dhuhr': 'Öğle',
+      'asr': 'İkindi',
+      'maghrib': 'Akşam',
+      'isha': 'Yatsı'
+    },
+    'fr': {
+      'fajr': 'Fajr',
+      'dhuhr': 'Dhuhr',
+      'asr': 'Asr',
+      'maghrib': 'Maghrib',
+      'isha': 'Isha'
+    },
+  };
 
   String _getPrayerNameArabic(String name) {
     const map = {

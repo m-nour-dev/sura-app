@@ -1,11 +1,17 @@
-
 import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import 'package:sila_app/core/services/analytics_service.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
+import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
+import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
+import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
@@ -15,19 +21,14 @@ import 'package:sila_app/features/tasmi/data/repositories/isar_tasmi_error_repos
 import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_tts_service.dart'; // ← ADDED: TTS service import
+import 'package:sila_app/features/tasmi/services/tasmi_tts_service.dart';
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
-import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
-import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
 
 part 'tasmi_controller.g.dart';
 
 enum TasmiStatus { idle, listening, waitingForUser, finished, error }
 
 class TasmiState extends Equatable {
-
   const TasmiState({
     required this.status,
     required this.words,
@@ -44,13 +45,13 @@ class TasmiState extends Equatable {
   factory TasmiState.initial() {
     return TasmiState(
       status: TasmiStatus.idle,
-        words: const [],
-        currentIndex: 0,
-        stats: TasmiSessionStats.initial(),
-        isMicListening: false,
-        currentWordAttempts: 0,
-        sessionStartTime: null,
-      );
+      words: const [],
+      currentIndex: 0,
+      stats: TasmiSessionStats.initial(),
+      isMicListening: false,
+      currentWordAttempts: 0,
+      sessionStartTime: null,
+    );
   }
   final TasmiStatus status;
   final List<TasmiWordEntry> words;
@@ -82,10 +83,13 @@ class TasmiState extends Equatable {
       status: status ?? this.status,
       words: words ?? this.words,
       currentIndex: currentIndex ?? this.currentIndex,
-      correctionWord: clearCorrectionWord ? null : correctionWord ?? this.correctionWord,
+      correctionWord:
+          clearCorrectionWord ? null : correctionWord ?? this.correctionWord,
       stats: stats ?? this.stats,
-      errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
-      warningMessage: clearWarningMessage ? null : warningMessage ?? this.warningMessage,
+      errorMessage:
+          clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+      warningMessage:
+          clearWarningMessage ? null : warningMessage ?? this.warningMessage,
       isMicListening: isMicListening ?? this.isMicListening,
       currentWordAttempts: currentWordAttempts ?? this.currentWordAttempts,
       sessionStartTime: sessionStartTime ?? this.sessionStartTime,
@@ -120,6 +124,16 @@ class TasmiController extends _$TasmiController {
   @override
   TasmiState build() {
     _speechService = TasmiSpeechService();
+    _speechService
+        .setActive(true); // FIX 3: Page is active — enable STT watchdog/restart
+    // FIX 1: Wire audio playing check — if audio is playing, STT won't auto-restart
+    _speechService.setAudioPlayingCheck(() {
+      try {
+        return ref.read(audioControllerProvider).playing;
+      } catch (_) {
+        return false;
+      }
+    });
     _speechService.initialize().then((available) {
       if (!available) {
         state = state.copyWith(
@@ -131,6 +145,8 @@ class TasmiController extends _$TasmiController {
 
     ref.onDispose(() {
       _speechSubscription?.cancel();
+      _speechService
+          .setActive(false); // FIX 3: Page left — disable STT watchdog/restart
       _speechService.dispose();
     });
 
@@ -194,10 +210,10 @@ class TasmiController extends _$TasmiController {
       _onWordSpoken,
       onError: (error) async {
         final errorString = error.toString();
-        
+
         if (errorString.contains(_errorMicFinal)) {
-           state = state.copyWith(warningMessage: _errorMicFinal);
-           return;
+          state = state.copyWith(warningMessage: _errorMicFinal);
+          return;
         }
 
         state = state.copyWith(
@@ -233,7 +249,6 @@ class TasmiController extends _$TasmiController {
 
     _isProcessingWord = true;
     try {
-
       final prefs = ref.read(tasmiPreferencesNotifierProvider);
 
       final currentEntry = state.words[state.currentIndex];
@@ -296,9 +311,10 @@ class TasmiController extends _$TasmiController {
     TasmiPreferences prefs,
   ) async {
     final updatedWords = List<TasmiWordEntry>.from(state.words);
-    updatedWords[state.currentIndex].status = result == WordMatchResult.closeError
-        ? WordEntryStatus.closeError
-        : WordEntryStatus.wrongWord;
+    updatedWords[state.currentIndex].status =
+        result == WordMatchResult.closeError
+            ? WordEntryStatus.closeError
+            : WordEntryStatus.wrongWord;
 
     _saveError(spokenWord, entry, result);
 
@@ -345,7 +361,8 @@ class TasmiController extends _$TasmiController {
 
   Future<void> resumeAfterUserPrompt() async {
     if (state.status != TasmiStatus.waitingForUser) return;
-    state = state.copyWith(status: TasmiStatus.listening, clearCorrectionWord: true);
+    state = state.copyWith(
+        status: TasmiStatus.listening, clearCorrectionWord: true);
     await _speechService.resumeAfterTts();
     state = state.copyWith(isMicListening: true);
 
@@ -354,7 +371,8 @@ class TasmiController extends _$TasmiController {
     }
   }
 
-  void _saveError(String spokenWord, TasmiWordEntry entry, WordMatchResult result) {
+  void _saveError(
+      String spokenWord, TasmiWordEntry entry, WordMatchResult result) {
     final errorModel = TasmiWordError()
       ..surahIndex = _surahNumber!
       ..verseNumber = entry.verseNumber
@@ -382,7 +400,7 @@ class TasmiController extends _$TasmiController {
 
   Future<void> resumeSession() async {
     if (state.status == TasmiStatus.listening) return;
-    
+
     _isProcessingWord = false;
 
     // Re-establish subscription because it's cancelled in _finish/_stop
@@ -427,7 +445,7 @@ class TasmiController extends _$TasmiController {
     _isProcessingWord = false;
     _speechService.stopListening();
     _speechSubscription?.cancel();
-    ref.read(tasmiTtsServiceProvider).stop(); 
+    ref.read(tasmiTtsServiceProvider).stop();
 
     var correct = 0;
     var close = 0;
@@ -457,7 +475,7 @@ class TasmiController extends _$TasmiController {
     }
 
     final hasanat = HasanatCalculator.calculate(correctTextBuffer.toString());
-    final duration = state.sessionStartTime != null 
+    final duration = state.sessionStartTime != null
         ? DateTime.now().difference(state.sessionStartTime!).inSeconds
         : 0;
 
@@ -478,7 +496,7 @@ class TasmiController extends _$TasmiController {
     try {
       final repository = await ref.read(hifzRepositoryProvider.future);
       final hasFinishedNormally = state.currentIndex >= state.words.length;
-      
+
       final session = HifzSession()
         ..surahIndex = _surahNumber ?? 1
         ..fromVerse = state.words.first.verseNumber
@@ -490,7 +508,7 @@ class TasmiController extends _$TasmiController {
         ..durationSeconds = duration;
 
       await repository.saveSession(session);
-      
+
       // Refresh Hifz dashboard
       ref.invalidate(hifzHomeControllerProvider);
     } catch (e) {
@@ -518,7 +536,8 @@ class TasmiController extends _$TasmiController {
   }
 }
 
-final tasmiErrorRepositoryProvider = FutureProvider<ITasmiErrorRepository>((ref) async {
+final tasmiErrorRepositoryProvider =
+    FutureProvider<ITasmiErrorRepository>((ref) async {
   try {
     final isar = await ref.watch(isarInstanceProvider.future);
     return IsarTasmiErrorRepository(isar);

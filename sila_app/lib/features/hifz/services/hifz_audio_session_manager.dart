@@ -6,7 +6,16 @@ import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.d
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
 
 class HifzAudioSessionManager {
-  HifzAudioSessionManager(this._ref, this._speechService);
+  HifzAudioSessionManager(this._ref, this._speechService) {
+    // FIX 1: Wire audio playing check from AudioController
+    _speechService.setAudioPlayingCheck(() {
+      try {
+        return _ref.read(audioControllerProvider).playing;
+      } catch (_) {
+        return false;
+      }
+    });
+  }
 
   final Ref _ref;
   final TasmiSpeechService _speechService;
@@ -32,7 +41,10 @@ class HifzAudioSessionManager {
       _audioActive = true;
       final completer = Completer<void>();
       late final StreamSubscription<void> sub;
-      sub = _ref.read(audioControllerProvider.notifier).onPlayerComplete.listen((_) {
+      sub = _ref
+          .read(audioControllerProvider.notifier)
+          .onPlayerComplete
+          .listen((_) {
         if (!completer.isCompleted) {
           completer.complete();
         }
@@ -69,7 +81,8 @@ class HifzAudioSessionManager {
     try {
       await stopAudio();
       await Future<void>.delayed(const Duration(milliseconds: 500));
-      final started = await _speechService.startListening(autoRestart: autoRestart);
+      final started =
+          await _speechService.startListening(autoRestart: autoRestart);
       _micActive = started;
       return started;
     } finally {

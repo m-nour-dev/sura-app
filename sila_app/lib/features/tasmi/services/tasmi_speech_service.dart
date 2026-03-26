@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
@@ -30,6 +29,38 @@ class TasmiSpeechService {
   bool _isWatchdogHealing = false;
   bool _disposed = false;
 
+  // ─── FIX 1+3: Audio focus conflict prevention ──────────────────────
+  bool _isActive = false;
+  bool Function()? _isAudioPlayingCheck;
+
+  /// Set this to true only when a Tasmi/Hifz page is active.
+  /// When false, watchdog and auto-restart are fully disabled.
+  void setActive(bool active) {
+    _isActive = active;
+    debugPrint('STT setActive: $active');
+    if (!active) {
+      // Page left — stop watchdog and restart timers immediately
+      _restartTimer?.cancel();
+      _watchdogTimer?.cancel();
+      _watchdogTimer = null;
+      _isRestarting = false;
+    }
+  }
+
+  /// Provide a callback that returns true if audio is currently playing.
+  /// When audio is playing, STT will not auto-restart (avoids Audio Focus conflict).
+  void setAudioPlayingCheck(bool Function() check) {
+    _isAudioPlayingCheck = check;
+  }
+
+  /// Returns true if STT should be allowed to auto-restart right now.
+  bool _canAutoRestart() {
+    if (!_isActive) return false;
+    if (_isAudioPlayingCheck?.call() == true) return false;
+    return _autoRestartEnabled;
+  }
+  // ───────────────────────────────────────────────────────────────────
+
   static const _watchdogInterval = Duration(seconds: 8);
   static const _silenceThreshold = Duration(seconds: 8);
 
@@ -44,7 +75,7 @@ class TasmiSpeechService {
       debugPrint('TasmiSpeechService: Cannot initialize after disposal');
       return false;
     }
-    
+
     try {
       final status = await Permission.microphone.request();
       if (status != PermissionStatus.granted) {
@@ -68,7 +99,7 @@ class TasmiSpeechService {
       debugPrint('TasmiSpeechService: Cannot start listening after disposal');
       return false;
     }
-    
+
     if (!_speech.isAvailable) {
       final available = await initialize();
       if (!available) {
@@ -178,13 +209,12 @@ class TasmiSpeechService {
     }
 
     if (currentWords.length > _lastRecognizedWords.length) {
-      final newPart = currentWords.substring(_lastRecognizedWords.length).trim();
+      final newPart =
+          currentWords.substring(_lastRecognizedWords.length).trim();
 
       if (newPart.isNotEmpty) {
-        final newWords = newPart
-            .split(RegExp(r'\s+'))
-            .where((w) => w.isNotEmpty)
-            .toList();
+        final newWords =
+            newPart.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
 
         for (final word in newWords) {
           _wordController.add(word);
@@ -197,18 +227,23 @@ class TasmiSpeechService {
 
   void _onStatus(String status) {
     debugPrint('STT Status: $status');
-    if (_autoRestartEnabled && (status == 'done' || status == 'notListening')) {
+    // FIX 1+3: Only auto-restart if page is active AND audio is not playing
+    if (_canAutoRestart() && (status == 'done' || status == 'notListening')) {
       _isRestarting = false;
       _scheduleRestart();
     }
   }
 
   void _onError(SpeechRecognitionError error) {
-    if (error.errorMsg != 'error_client' && error.errorMsg != 'error_speech_timeout' && error.errorMsg != 'error_no_match') {
+    if (error.errorMsg != 'error_client' &&
+        error.errorMsg != 'error_speech_timeout' &&
+        error.errorMsg != 'error_no_match') {
       debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
     }
 
-    if (!_autoRestartEnabled && error.errorMsg == 'error_network' && !_wordController.isClosed) {
+    if (!_autoRestartEnabled &&
+        error.errorMsg == 'error_network' &&
+        !_wordController.isClosed) {
       _wordController.addError('يرجى التحقق من الاتصال بالإنترنت');
     }
 
@@ -216,8 +251,11 @@ class TasmiSpeechService {
       _wordController.addError('error_mic_final');
     }
 
-    if (!_autoRestartEnabled) {
-      if (error.permanent && error.errorMsg == 'error_permission' && !_wordController.isClosed) {
+    // FIX 1+3: Check _canAutoRestart() before scheduling restart on errors
+    if (!_canAutoRestart()) {
+      if (error.permanent &&
+          error.errorMsg == 'error_permission' &&
+          !_wordController.isClosed) {
         _wordController.addError('يرجى السماح بصلاحية الميكروفون');
       }
       return;
@@ -254,10 +292,11 @@ class TasmiSpeechService {
   }
 
   void _scheduleRestart({Duration delay = const Duration(milliseconds: 350)}) {
+    // FIX 1+3: Check all conditions before scheduling restart
     if (_isManuallyStopped ||
         _isPausedForTts ||
         _isRestarting ||
-        !_autoRestartEnabled ||
+        !_canAutoRestart() ||
         _wordController.isClosed) {
       return;
     }
@@ -291,6 +330,9 @@ class TasmiSpeechService {
       return;
     }
 
+    // FIX 1+3: Skip watchdog entirely if page is not active or audio is playing
+    if (!_isActive) return;
+    if (_isAudioPlayingCheck?.call() == true) return;
     if (_isManuallyStopped || _isPausedForTts || _wordController.isClosed) {
       return;
     }
@@ -338,7 +380,8 @@ class TasmiSpeechService {
       await _speech.cancel();
       await Future.delayed(const Duration(milliseconds: 400));
     } catch (e, st) {
-      debugPrint('tasmi_speech_service _hardReset failed during cancel: $e\n$st');
+      debugPrint(
+          'tasmi_speech_service _hardReset failed during cancel: $e\n$st');
     }
 
     if (!_isManuallyStopped && !_isPausedForTts && !_wordController.isClosed) {
@@ -372,13 +415,13 @@ class TasmiSpeechService {
     if (_disposed) {
       return;
     }
-    
+
     _restartTimer?.cancel();
     _watchdogTimer?.cancel();
     _watchdogTimer = null;
     _isWatchdogHealing = false;
     _speech.cancel();
-    
+
     if (!_wordController.isClosed) {
       _wordController.close();
     }
@@ -388,7 +431,7 @@ class TasmiSpeechService {
     if (!_micHealthController.isClosed) {
       _micHealthController.close();
     }
-    
+
     _disposed = true;
     _instance = null;
   }

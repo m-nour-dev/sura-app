@@ -12,7 +12,8 @@ import 'package:sila_app/features/hifz/presentation/pages/methods/interactive_sh
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/hifz_notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart' as import_tasmi;
+import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart'
+    as import_tasmi;
 
 const Color _hasanatGold = Color(0xFFFCD34D);
 const Color _errorColor = Color(0xFFF87171);
@@ -63,86 +64,89 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                   _selectionOption(
-                     icon: '🎯',
-                     title: 'daily_plan'.tr(),
-                     subtitle: plan != null
-                         ? '${plan.newAyahsTarget} ${'ayah_label'.tr()}s ${'from_verse'.tr()}'
-                         : 'hifz_start'.tr(),
-                     recommended: true,
-                     onTap: () {
-                       const surahNumber = 1;
-                       final maxAyahs = quran.getVerseCount(surahNumber);
-                       final target = (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
-                       Navigator.pop(
-                         context,
-                         HifzSelection(
-                           surahNumber: surahNumber,
-                           fromVerse: 1,
-                           toVerse: target,
-                           type: HifzSelectionType.dailyPlan,
-                         ),
-                       );
-                     },
-                   ),
-                   const SizedBox(height: 10),
-                   _selectionOption(
-                     icon: '📖',
-                     title: 'complete_surah'.tr(),
-                     subtitle: 'complete_surah_subtitle'.tr(),
-                     onTap: () async {
-                       Navigator.pop(context);
-                       final result = await Navigator.push<HifzSelection>(
-                         context,
-                         MaterialPageRoute(
-                           builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
-                             forHifz: true,
-                             showAyahRange: false,
-                           ),
-                         ),
-                       );
-                       if (!mounted || result == null) return;
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(
-                           builder: (_) => InteractiveShadowPage(
-                             surahNumber: result.surahNumber,
-                             fromVerse: result.fromVerse,
-                             toVerse: result.toVerse,
-                           ),
-                         ),
-                       );
-                     },
-                   ),
-                   const SizedBox(height: 10),
-                   _selectionOption(
-                     icon: '✂️',
-                     title: 'verse_range'.tr(),
-                     subtitle: 'verse_range_subtitle'.tr(args: ['X', 'Y']),
-                     onTap: () async {
-                       Navigator.pop(context);
-                       final result = await Navigator.push<HifzSelection>(
-                         context,
-                         MaterialPageRoute(
-                           builder: (_) => const import_tasmi.TasmiSurahSelectionPage(
-                             forHifz: true,
-                             showAyahRange: true,
-                           ),
-                         ),
-                       );
-                       if (!mounted || result == null) return;
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(
-                           builder: (_) => InteractiveShadowPage(
-                             surahNumber: result.surahNumber,
-                             fromVerse: result.fromVerse,
-                             toVerse: result.toVerse,
-                           ),
-                         ),
-                       );
-                     },
-                   ),
+                  _selectionOption(
+                    icon: '🎯',
+                    title: 'daily_plan'.tr(),
+                    subtitle: plan != null
+                        ? '${plan.newAyahsTarget} ${'ayah_label'.tr()}s ${'from_verse'.tr()}'
+                        : 'hifz_start'.tr(),
+                    recommended: true,
+                    onTap: () {
+                      const surahNumber = 1;
+                      final maxAyahs = quran.getVerseCount(surahNumber);
+                      final target =
+                          (plan?.newAyahsTarget ?? 5).clamp(1, maxAyahs);
+                      Navigator.pop(
+                        context,
+                        HifzSelection(
+                          surahNumber: surahNumber,
+                          fromVerse: 1,
+                          toVerse: target,
+                          type: HifzSelectionType.dailyPlan,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _selectionOption(
+                    icon: '📖',
+                    title: 'complete_surah'.tr(),
+                    subtitle: 'complete_surah_subtitle'.tr(),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final result = await Navigator.push<HifzSelection>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const import_tasmi.TasmiSurahSelectionPage(
+                            forHifz: true,
+                            showAyahRange: false,
+                          ),
+                        ),
+                      );
+                      if (!mounted || result == null) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InteractiveShadowPage(
+                            surahNumber: result.surahNumber,
+                            fromVerse: result.fromVerse,
+                            toVerse: result.toVerse,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _selectionOption(
+                    icon: '✂️',
+                    title: 'verse_range'.tr(),
+                    subtitle: 'verse_range_subtitle'.tr(args: ['X', 'Y']),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final result = await Navigator.push<HifzSelection>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const import_tasmi.TasmiSurahSelectionPage(
+                            forHifz: true,
+                            showAyahRange: true,
+                          ),
+                        ),
+                      );
+                      if (!mounted || result == null) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => InteractiveShadowPage(
+                            surahNumber: result.surahNumber,
+                            fromVerse: result.fromVerse,
+                            toVerse: result.toVerse,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -198,7 +202,8 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
           color: recommended ? const Color(0xFFF0FDF4) : Colors.grey[50],
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: recommended ? const Color(0xFFBBF7D0) : const Color(0xFFE2E8F0),
+            color:
+                recommended ? const Color(0xFFBBF7D0) : const Color(0xFFE2E8F0),
           ),
         ),
         child: Row(
@@ -270,201 +275,213 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
     final controller = ref.read(hifzHomeControllerProvider.notifier);
 
     return Scaffold(
-        backgroundColor: AppTheme.backgroundColor,
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 180,
-              pinned: true,
-              backgroundColor: AppTheme.primaryColor,
-              elevation: 0,
-              flexibleSpace: FlexibleSpaceBar(background: _Header(state: state)),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (state.errorMessage != null)
-                      _ErrorCard(message: state.errorMessage!),
-                    if (state.errorMessage != null) const SizedBox(height: 12),
-                    _DailyPlanCard(state: state),
-                    const SizedBox(height: 16),
-                    // ==========================================
-                    // TASMI3 MAIN HERO CARD (NEW PROMINENT LOCATION)
-                    // ==========================================
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const import_tasmi.TasmiSurahSelectionPage(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF064E3B), Color(0xFF0a6b52)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF064E3B).withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
+      backgroundColor: AppTheme.backgroundColor,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 180,
+            pinned: true,
+            backgroundColor: AppTheme.primaryColor,
+            elevation: 0,
+            flexibleSpace: FlexibleSpaceBar(background: _Header(state: state)),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (state.errorMessage != null)
+                    _ErrorCard(message: state.errorMessage!),
+                  if (state.errorMessage != null) const SizedBox(height: 12),
+                  _DailyPlanCard(state: state),
+                  const SizedBox(height: 16),
+                  // ==========================================
+                  // TASMI3 MAIN HERO CARD (NEW PROMINENT LOCATION)
+                  // ==========================================
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const import_tasmi.TasmiSurahSelectionPage(),
                         ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFCD34D).withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      'main_feature'.tr(),
-                                      style: GoogleFonts.cairo(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFFFCD34D),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'ai_tasmi_title'.tr(),
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.white,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'ai_tasmi_desc'.tr(),
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 12,
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.mic_rounded,
-                                color: Colors.white,
-                                size: 32,
-                              ),
-                            ),
-                          ],
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF064E3B), Color(0xFF0a6b52)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                const Color(0xFF064E3B).withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    _HasanatCard(hasanat: state.hasanatToday),
-                    const SizedBox(height: 24),
-                    Text(
-                      'hifz_methods'.tr(),
-                      style: GoogleFonts.cairo(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _MethodsGrid(
-                      dueReviewCount: state.reviewDueCount,
-                      onInteractiveShadow: () async {
-                        final selection = await _showHifzSelectionDialog(state);
-                        if (selection == null || !mounted) return;
-                        controller.startSession('interactive_shadow');
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => InteractiveShadowPage(
-                              surahNumber: selection.surahNumber,
-                              fromVerse: selection.fromVerse,
-                              toVerse: selection.toVerse,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFCD34D)
+                                        .withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    'main_feature'.tr(),
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFFFCD34D),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'ai_tasmi_title'.tr(),
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    height: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'ai_tasmi_desc'.tr(),
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 12,
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      },
-                      onSmartReview: () => _showComingSoon('smart_review'.tr()),
-                      onListening: () => _showComingSoon('listening_method'.tr()),
-                      onRepetition: () => _showComingSoon('repetition_method'.tr()),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'my_moments'.tr(),
-                      style: GoogleFonts.cairo(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _MomentsSection(moments: state.recentMoments),
-                    if (state.activeSession != null) ...[
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            controller.continueSession();
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const InteractiveShadowPage()),
-                            );
-                          },
-                          icon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
-                          label: Text(
-                            'continue_session'.tr(),
-                            style: GoogleFonts.cairo(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                          const SizedBox(width: 16),
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.mic_rounded,
                               color: Colors.white,
+                              size: 32,
                             ),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                            elevation: 0,
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _HasanatCard(hasanat: state.hasanatToday),
+                  const SizedBox(height: 24),
+                  Text(
+                    'hifz_methods'.tr(),
+                    style: GoogleFonts.cairo(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _MethodsGrid(
+                    dueReviewCount: state.reviewDueCount,
+                    onInteractiveShadow: () async {
+                      final selection = await _showHifzSelectionDialog(state);
+                      if (selection == null || !mounted) return;
+                      controller.startSession('interactive_shadow');
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => InteractiveShadowPage(
+                            surahNumber: selection.surahNumber,
+                            fromVerse: selection.fromVerse,
+                            toVerse: selection.toVerse,
                           ),
                         ),
+                      );
+                    },
+                    onSmartReview: () => _showComingSoon('smart_review'.tr()),
+                    onListening: () => _showComingSoon('listening_method'.tr()),
+                    onRepetition: () =>
+                        _showComingSoon('repetition_method'.tr()),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'my_moments'.tr(),
+                    style: GoogleFonts.cairo(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _MomentsSection(moments: state.recentMoments),
+                  if (state.hasResumePoint) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => InteractiveShadowPage(
+                                surahNumber: state.resumeSurah,
+                                fromVerse: state.resumeFromVerse,
+                                toVerse: state.resumeToVerse,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.play_arrow_rounded,
+                            color: Colors.white, size: 20),
+                        label: Text(
+                          'continue_from_verse'.tr(
+                              args: [_toArabicIndic(state.resumeFromVerse)]),
+                          style: GoogleFonts.cairo(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          elevation: 0,
+                        ),
                       ),
-                    ],
+                    ),
                   ],
-                ),
+                ],
               ),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 }
 
 class _Header extends StatelessWidget {
-
   const _Header({required this.state});
   final HifzHomeState state;
 
@@ -485,7 +502,8 @@ class _Header extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const HifzNotificationSettings()),
+                        MaterialPageRoute(
+                            builder: (_) => const HifzNotificationSettings()),
                       );
                     },
                     child: Container(
@@ -495,14 +513,16 @@ class _Header extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 16),
+                      child: const Icon(Icons.notifications_active_rounded,
+                          color: Colors.white, size: 16),
                     ),
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const HifzSettingsPage()),
+                        MaterialPageRoute(
+                            builder: (_) => const HifzSettingsPage()),
                       );
                     },
                     child: Container(
@@ -512,7 +532,8 @@ class _Header extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: const Icon(Icons.tune_rounded, color: Colors.white, size: 16),
+                      child: const Icon(Icons.tune_rounded,
+                          color: Colors.white, size: 16),
                     ),
                   ),
                   const Spacer(),
@@ -549,7 +570,6 @@ class _Header extends StatelessWidget {
 }
 
 class _DailyPlanCard extends StatelessWidget {
-
   const _DailyPlanCard({required this.state});
   final HifzHomeState state;
 
@@ -560,7 +580,8 @@ class _DailyPlanCard extends StatelessWidget {
     final now = DateTime.now();
     final isArabic = context.locale.languageCode == 'ar';
     final dayStr = isArabic ? _toArabicIndic(now.day) : now.day.toString();
-    final monthStr = isArabic ? _toArabicIndic(now.month) : now.month.toString();
+    final monthStr =
+        isArabic ? _toArabicIndic(now.month) : now.month.toString();
     final yearStr = isArabic ? _toArabicIndic(now.year) : now.year.toString();
     final todayDate = '$dayStr/$monthStr/$yearStr';
 
@@ -614,7 +635,8 @@ class _DailyPlanCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: value,
                         backgroundColor: const Color(0xFFE2E8F0),
-                        valueColor: const AlwaysStoppedAnimation(AppTheme.primaryColor),
+                        valueColor:
+                            const AlwaysStoppedAnimation(AppTheme.primaryColor),
                         minHeight: 6,
                       ),
                     ),
@@ -644,14 +666,19 @@ class _DailyPlanCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0FDF4),
                   border: Border.all(color: const Color(0xFFBBF7D0)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'review_label'.tr(args: [isArabic ? _toArabicIndic(state.reviewDueCount) : state.reviewDueCount.toString()]),
+                  'review_label'.tr(args: [
+                    isArabic
+                        ? _toArabicIndic(state.reviewDueCount)
+                        : state.reviewDueCount.toString()
+                  ]),
                   style: GoogleFonts.cairo(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -668,7 +695,6 @@ class _DailyPlanCard extends StatelessWidget {
 }
 
 class _HasanatCard extends StatelessWidget {
-
   const _HasanatCard({required this.hasanat});
   final int hasanat;
 
@@ -722,7 +748,6 @@ class _HasanatCard extends StatelessWidget {
 }
 
 class _MethodsGrid extends StatelessWidget {
-
   const _MethodsGrid({
     required this.dueReviewCount,
     required this.onInteractiveShadow,
@@ -739,8 +764,9 @@ class _MethodsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isArabic = context.locale.languageCode == 'ar';
-    final countStr = isArabic ? _toArabicIndic(dueReviewCount) : dueReviewCount.toString();
-    
+    final countStr =
+        isArabic ? _toArabicIndic(dueReviewCount) : dueReviewCount.toString();
+
     final cards = [
       (
         title: 'interactive_shadow'.tr(),
@@ -788,7 +814,8 @@ class _MethodsGrid extends StatelessWidget {
               color: c.featured ? const Color(0xFFFFFBF0) : Colors.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: c.featured ? AppTheme.accentColor : const Color(0xFFE2E8F0),
+                color:
+                    c.featured ? AppTheme.accentColor : const Color(0xFFE2E8F0),
                 width: c.featured ? 1.5 : 0.5,
               ),
               boxShadow: [
@@ -803,7 +830,8 @@ class _MethodsGrid extends StatelessWidget {
               children: [
                 if (c.featured)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: AppTheme.accentColor,
                       borderRadius: BorderRadius.circular(8),
@@ -846,7 +874,6 @@ class _MethodsGrid extends StatelessWidget {
 }
 
 class _MomentsSection extends StatelessWidget {
-
   const _MomentsSection({required this.moments});
   final List<dynamic> moments;
 
@@ -856,7 +883,8 @@ class _MomentsSection extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFFF8FAFF), Color(0xFFF0F9FF)]),
+          gradient: const LinearGradient(
+              colors: [Color(0xFFF8FAFF), Color(0xFFF0F9FF)]),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFBFDBFE), width: 0.5),
         ),
@@ -893,9 +921,10 @@ class _MomentsSection extends StatelessWidget {
         itemBuilder: (_, index) {
           final moment = moments[index];
           // Use localized helper
-          final surahName = SurahUtils.getLocalizedSurahName(context, moment.surahIndex);
+          final surahName =
+              SurahUtils.getLocalizedSurahName(context, moment.surahIndex);
           final reflection = (moment.reflection ?? '').toString().trim();
-          
+
           return Container(
             width: 200,
             padding: const EdgeInsets.all(12),
@@ -950,7 +979,6 @@ class _MomentsSection extends StatelessWidget {
 }
 
 class _ErrorCard extends StatelessWidget {
-
   const _ErrorCard({required this.message});
   final String message;
 

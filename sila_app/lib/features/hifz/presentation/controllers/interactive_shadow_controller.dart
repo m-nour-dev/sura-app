@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
@@ -24,7 +25,6 @@ import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 part 'interactive_shadow_controller.g.dart';
 
 class ShadowWordEntry {
-
   const ShadowWordEntry({
     required this.word,
     required this.isAyahMarker,
@@ -52,7 +52,6 @@ class ShadowWordEntry {
 }
 
 class StageResult {
-
   const StageResult({
     required this.totalWords,
     required this.correctWords,
@@ -64,7 +63,6 @@ class StageResult {
 }
 
 class InteractiveShadowState {
-
   const InteractiveShadowState({
     required this.surahNumber,
     required this.fromVerse,
@@ -84,6 +82,7 @@ class InteractiveShadowState {
     required this.errorMessage,
     required this.reflectionText,
     required this.sessionMoments,
+    required this.finishedEarly,
   });
 
   factory InteractiveShadowState.initial() {
@@ -106,6 +105,7 @@ class InteractiveShadowState {
       errorMessage: null,
       reflectionText: '',
       sessionMoments: [],
+      finishedEarly: false,
     );
   }
   final int surahNumber;
@@ -126,6 +126,7 @@ class InteractiveShadowState {
   final String? errorMessage;
   final String reflectionText;
   final List<HifzMoment> sessionMoments;
+  final bool finishedEarly;
 
   InteractiveShadowState copyWith({
     int? surahNumber,
@@ -147,6 +148,7 @@ class InteractiveShadowState {
     bool clearErrorMessage = false,
     String? reflectionText,
     List<HifzMoment>? sessionMoments,
+    bool? finishedEarly,
   }) {
     return InteractiveShadowState(
       surahNumber: surahNumber ?? this.surahNumber,
@@ -164,9 +166,11 @@ class InteractiveShadowState {
       showMomentPrompt: showMomentPrompt ?? this.showMomentPrompt,
       finished: finished ?? this.finished,
       accuracy: accuracy ?? this.accuracy,
-      errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+      errorMessage:
+          clearErrorMessage ? null : errorMessage ?? this.errorMessage,
       reflectionText: reflectionText ?? this.reflectionText,
       sessionMoments: sessionMoments ?? this.sessionMoments,
+      finishedEarly: finishedEarly ?? this.finishedEarly,
     );
   }
 }
@@ -192,6 +196,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     ref.onDispose(() async {
       await _speechSubscription?.cancel();
       await _audioSessionManager?.dispose();
+      _speechService?.setActive(false); // FIX 3: Hifz shadow page left
       _speechService?.dispose();
     });
     return InteractiveShadowState.initial();
@@ -203,10 +208,13 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     required int toVerse,
   }) async {
     unawaited(
-      ref.read(analyticsServiceProvider).logHifzSessionStart(
+      ref
+          .read(analyticsServiceProvider)
+          .logHifzSessionStart(
             surahName: quran.getSurahNameArabic(surahNumber),
             method: 'interactive_shadow',
-          ).catchError((_) {}),
+          )
+          .catchError((_) {}),
     );
 
     state = state.copyWith(
@@ -221,6 +229,7 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       wrongWords: 0,
       showMomentPrompt: false,
       finished: false,
+      finishedEarly: false,
       accuracy: 0,
       clearErrorMessage: true,
       sessionMoments: const [],
@@ -232,7 +241,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
 
     final repository = await ref.read(hifzRepositoryProvider.future);
     _settings = await repository.getSettings();
-    _settings = ref.read(hifzSettingsControllerProvider).valueOrNull ?? _settings;
+    _settings =
+        ref.read(hifzSettingsControllerProvider).valueOrNull ?? _settings;
 
     await _loadCurrentVerseWords();
     await _runCurrentStage();
@@ -242,31 +252,31 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     if (_isAdvancing) return;
     _isAdvancing = true;
     try {
-    _captureStageStats();
-    if (state.currentStage < 5) {
-      state = state.copyWith(currentStage: state.currentStage + 1);
-      await _applyHidingForStage();
+      _captureStageStats();
+      if (state.currentStage < 5) {
+        state = state.copyWith(currentStage: state.currentStage + 1);
+        await _applyHidingForStage();
+        await _runCurrentStage();
+        return;
+      }
+
+      final lastVerseIndex = state.toVerse - state.fromVerse;
+      if (state.currentVerseIndex >= lastVerseIndex) {
+        await _finishSession();
+        return;
+      }
+
+      state = state.copyWith(
+        currentVerseIndex: state.currentVerseIndex + 1,
+        currentStage: 1,
+        showMomentPrompt: false,
+        reflectionText: '',
+        isMicListening: false,
+        isPlaying: false,
+      );
+      _alreadyHidden.clear();
+      await _loadCurrentVerseWords();
       await _runCurrentStage();
-      return;
-    }
-
-    final lastVerseIndex = state.toVerse - state.fromVerse;
-    if (state.currentVerseIndex >= lastVerseIndex) {
-      await _finishSession();
-      return;
-    }
-
-    state = state.copyWith(
-      currentVerseIndex: state.currentVerseIndex + 1,
-      currentStage: 1,
-      showMomentPrompt: false,
-      reflectionText: '',
-      isMicListening: false,
-      isPlaying: false,
-    );
-    _alreadyHidden.clear();
-    await _loadCurrentVerseWords();
-    await _runCurrentStage();
     } finally {
       _isAdvancing = false;
     }
@@ -275,7 +285,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
   Future<void> saveMoment({String? reflection, String? feeling}) async {
     final effectiveReflection = (reflection ?? state.reflectionText).trim();
     final effectiveFeeling = (feeling ?? '').trim();
-    final didSave = effectiveReflection.isNotEmpty || effectiveFeeling.isNotEmpty;
+    final didSave =
+        effectiveReflection.isNotEmpty || effectiveFeeling.isNotEmpty;
     if (effectiveReflection.isNotEmpty || effectiveFeeling.isNotEmpty) {
       final repository = await ref.read(hifzRepositoryProvider.future);
       final moment = HifzMoment()
@@ -328,6 +339,12 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     await nextStageOrVerse();
   }
 
+  Future<void> finishEarly() async {
+    if (state.finished) return;
+    state = state.copyWith(finishedEarly: true);
+    await _finishSession();
+  }
+
   void openThawaabDedication(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const VefaPage(isSelectionMode: true)),
@@ -343,57 +360,58 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     if (_isEvaluatingRecitation) return;
     _isEvaluatingRecitation = true;
     try {
-    final words = List<ShadowWordEntry>.from(state.words);
-    final hiddenIndexes = <int>[];
-    final hiddenWords = <String>[];
+      final words = List<ShadowWordEntry>.from(state.words);
+      final hiddenIndexes = <int>[];
+      final hiddenWords = <String>[];
 
-    for (var i = 0; i < words.length; i++) {
-      if (!words[i].isHidden || words[i].isAyahMarker) {
-        continue;
+      for (var i = 0; i < words.length; i++) {
+        if (!words[i].isHidden || words[i].isAyahMarker) {
+          continue;
+        }
+        hiddenIndexes.add(i);
+        hiddenWords.add(words[i].word);
       }
-      hiddenIndexes.add(i);
-      hiddenWords.add(words[i].word);
-    }
 
-    final match = SmartWordMatcher.matchHiddenWords(
-      spokenText: recitedText,
-      hiddenWords: hiddenWords,
-      mode: _settings.readVerificationMode(),
-      ignoreDiacritics: _settings.hideVisibleDiacritics,
-    );
+      final match = SmartWordMatcher.matchHiddenWords(
+        spokenText: recitedText,
+        hiddenWords: hiddenWords,
+        mode: _settings.readVerificationMode(),
+        ignoreDiacritics: _settings.hideVisibleDiacritics,
+      );
 
-    var correct = 0;
-    var wrong = 0;
+      var correct = 0;
+      var wrong = 0;
 
-    for (var i = 0; i < hiddenIndexes.length; i++) {
-      final result = match.wordResults[i];
-      final isCorrect = result != HifzWordMatchResult.incorrect;
-      if (isCorrect) {
-        final idx = hiddenIndexes[i];
-        words[idx] = words[idx].copyWith(isHidden: false, revealedCorrectly: true);
-        correct++;
-      } else {
-        wrong++;
+      for (var i = 0; i < hiddenIndexes.length; i++) {
+        final result = match.wordResults[i];
+        final isCorrect = result != HifzWordMatchResult.incorrect;
+        if (isCorrect) {
+          final idx = hiddenIndexes[i];
+          words[idx] =
+              words[idx].copyWith(isHidden: false, revealedCorrectly: true);
+          correct++;
+        } else {
+          wrong++;
+        }
       }
-    }
 
-    _stageCorrect += correct;
-    _stageWrong += wrong;
-    final verseText = _verseText;
-    final hasanat = HasanatCalculator.calculate(verseText);
-    state = state.copyWith(
-      words: words,
-      sessionHashanat: state.sessionHashanat + hasanat,
-      correctWords: state.correctWords + correct,
-      wrongWords: state.wrongWords + wrong,
-      clearErrorMessage: true,
-    );
+      _stageCorrect += correct;
+      _stageWrong += wrong;
+      final verseText = _verseText;
+      final hasanat = HasanatCalculator.calculate(verseText);
+      state = state.copyWith(
+        words: words,
+        sessionHashanat: state.sessionHashanat + hasanat,
+        correctWords: state.correctWords + correct,
+        wrongWords: state.wrongWords + wrong,
+        clearErrorMessage: true,
+      );
 
-    if (_settings.playCorrectOnError && wrong > 0) {
-      await _playVerseAudio();
-    }
+      if (_settings.playCorrectOnError && wrong > 0) {
+        await _playVerseAudio();
+      }
 
-    await nextStageOrVerse();
+      await nextStageOrVerse();
     } finally {
       _isEvaluatingRecitation = false;
     }
@@ -423,7 +441,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     }
 
     final targetWord = entry.word;
-    final isCorrect = TajweedNormalizer.compareIgnoringDiacritics(value, targetWord);
+    final isCorrect =
+        TajweedNormalizer.compareIgnoringDiacritics(value, targetWord);
 
     if (isCorrect) {
       final updatedWords = List<ShadowWordEntry>.from(state.words);
@@ -434,9 +453,13 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       _inlineValidation[wordIndex] = true;
       _wordAttempts.remove(wordIndex);
 
+      // FIX: Add hasanat for each correct typed word
+      final wordHasanat = HasanatCalculator.calculate(targetWord);
+
       state = state.copyWith(
         words: updatedWords,
         correctWords: state.correctWords + 1,
+        sessionHashanat: state.sessionHashanat + wordHasanat,
         clearErrorMessage: true,
       );
 
@@ -478,7 +501,9 @@ class InteractiveShadowController extends _$InteractiveShadowController {
         }
       } else {
         final left = attemptsBeforeHint - currentAttempts;
-        state = state.copyWith(errorMessage: 'error_try_again_attempts'.tr(args: [left.toString()]));
+        state = state.copyWith(
+            errorMessage:
+                'error_try_again_attempts'.tr(args: [left.toString()]));
       }
       return;
     }
@@ -594,7 +619,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       }
 
       final startedAt = DateTime.now();
-      while (DateTime.now().difference(startedAt).inSeconds < listenPerAttempt) {
+      while (
+          DateTime.now().difference(startedAt).inSeconds < listenPerAttempt) {
         await Future<void>.delayed(const Duration(milliseconds: 250));
         if (!_speechService!.isListening) {
           break;
@@ -625,7 +651,9 @@ class InteractiveShadowController extends _$InteractiveShadowController {
   Future<void> _playVerseAudio() async {
     await _ensureAudioSessionManager();
     final ayah = state.fromVerse + state.currentVerseIndex;
-    final url = ref.read(reciterControllerProvider.notifier).buildAyahUrl(state.surahNumber, ayah);
+    final url = ref
+        .read(reciterControllerProvider.notifier)
+        .buildAyahUrl(state.surahNumber, ayah);
     state = state.copyWith(isPlaying: true);
 
     try {
@@ -642,12 +670,14 @@ class InteractiveShadowController extends _$InteractiveShadowController {
 
   Future<void> _ensureAudioSessionManager() async {
     _speechService ??= TasmiSpeechService();
+    _speechService!.setActive(true); // FIX 3: Hifz shadow page is active
     _audioSessionManager ??= HifzAudioSessionManager(ref, _speechService!);
   }
 
   Future<void> _loadCurrentVerseWords() async {
     final ayah = state.fromVerse + state.currentVerseIndex;
-    final verse = quran.getVerse(state.surahNumber, ayah, verseEndSymbol: false);
+    final verse =
+        quran.getVerse(state.surahNumber, ayah, verseEndSymbol: false);
     final words = verse
         .split(' ')
         .where((w) => w.trim().isNotEmpty)
@@ -669,7 +699,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
   Future<void> _applyHidingForStage() async {
     final base = List<ShadowWordEntry>.from(state.words);
     if (state.currentStage <= 2) {
-      state = state.copyWith(words: base.map((e) => e.copyWith(isHidden: false)).toList());
+      state = state.copyWith(
+          words: base.map((e) => e.copyWith(isHidden: false)).toList());
       return;
     }
 
@@ -705,7 +736,8 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     );
     state = state.copyWith(stageResults: updated);
 
-    final duration = DateTime.now().difference(_stageStartedAt ?? DateTime.now());
+    final duration =
+        DateTime.now().difference(_stageStartedAt ?? DateTime.now());
     if (state.currentStage == 5) {
       final ayah = state.fromVerse + state.currentVerseIndex;
       _sessionRows.add(
@@ -731,20 +763,21 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       totalCorrect += session.correctWords;
       totalWrong += session.wrongWords;
       await repository.saveSession(session);
-      final record =
-          await repository.getVerseRecord(session.surahIndex, session.fromVerse) ??
-              (HifzVerseRecord()
-                ..surahIndex = session.surahIndex
-                ..verseNumber = session.fromVerse
-                ..intervalDays = 1
-                ..easinessFactor = 2.5
-                ..nextReviewDate = DateTime.now()
-                ..lastReviewDate = DateTime.now()
-                ..totalSessions = 0
-                ..correctSessions = 0
-                ..lastMethodUsed = 'interactive_shadow');
+      final record = await repository.getVerseRecord(
+              session.surahIndex, session.fromVerse) ??
+          (HifzVerseRecord()
+            ..surahIndex = session.surahIndex
+            ..verseNumber = session.fromVerse
+            ..intervalDays = 1
+            ..easinessFactor = 2.5
+            ..nextReviewDate = DateTime.now()
+            ..lastReviewDate = DateTime.now()
+            ..totalSessions = 0
+            ..correctSessions = 0
+            ..lastMethodUsed = 'interactive_shadow');
 
-      final quality = session.wrongWords == 0 ? 5 : (session.wrongWords <= 2 ? 3 : 1);
+      final quality =
+          session.wrongWords == 0 ? 5 : (session.wrongWords <= 2 ? 3 : 1);
       final schedule = SpacedRepetitionEngine.calculateNext(
         currentIntervalDays: record.intervalDays,
         easinessFactor: record.easinessFactor,
@@ -773,12 +806,32 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       accuracy: accuracy,
     );
 
+    // Save resume point to SharedPreferences
+    final lastVerseCompleted = state.fromVerse + state.currentVerseIndex;
+    final isAllDone = lastVerseCompleted >= state.toVerse;
+    if (!isAllDone) {
+      final nextVerse = lastVerseCompleted + 1;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('hifz_resume_surah', state.surahNumber);
+      await prefs.setInt('hifz_resume_from', nextVerse);
+      await prefs.setInt('hifz_resume_to', state.toVerse);
+    } else {
+      // All verses completed — clear resume point
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('hifz_resume_surah');
+      await prefs.remove('hifz_resume_from');
+      await prefs.remove('hifz_resume_to');
+    }
+
     unawaited(
-      ref.read(analyticsServiceProvider).logHifzSessionComplete(
+      ref
+          .read(analyticsServiceProvider)
+          .logHifzSessionComplete(
             ayahsCount: _sessionRows.length,
             accuracy: accuracy,
             hasanat: state.sessionHashanat,
-          ).catchError((_) {}),
+          )
+          .catchError((_) {}),
     );
 
     await ref.read(audioControllerProvider.notifier).disposeSession();

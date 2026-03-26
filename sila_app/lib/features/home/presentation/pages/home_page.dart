@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
+import 'package:sila_app/features/home/presentation/pages/feedback_sheet.dart';
 import 'package:sila_app/features/home/presentation/providers/last_notification_provider.dart';
 import 'package:sila_app/features/home/presentation/widgets/daily_content_card.dart';
 import 'package:sila_app/features/home/presentation/widgets/home_header.dart';
@@ -31,7 +32,8 @@ class HomePage extends ConsumerWidget {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => done ? const HifzHomePage() : const HifzOnboardingPage(),
+        builder: (_) =>
+            done ? const HifzHomePage() : const HifzOnboardingPage(),
       ),
     );
   }
@@ -56,8 +58,12 @@ class HomePage extends ConsumerWidget {
               background: HomeHeader(
                 onNotificationTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const NotificationHubPage()),
+                    MaterialPageRoute(
+                        builder: (_) => const NotificationHubPage()),
                   );
+                },
+                onFeedbackTap: () {
+                  FeedbackSheet.show(context);
                 },
               ),
             ),
@@ -70,7 +76,7 @@ class HomePage extends ConsumerWidget {
                 // ── Next Prayer Card ──
                 const NextPrayerCard(),
                 const SizedBox(height: 24),
-                
+
                 // ── Streak Summary ──
                 const StreakSummaryCard(),
                 const SizedBox(height: 32),
@@ -304,7 +310,9 @@ class _NotificationInboxCard extends ConsumerWidget {
 
   String _formatTime(DateTime time) {
     final now = DateTime.now();
-    if (time.year == now.year && time.month == now.month && time.day == now.day) {
+    if (time.year == now.year &&
+        time.month == now.month &&
+        time.day == now.day) {
       final hour = time.hour.toString().padLeft(2, '0');
       final minute = time.minute.toString().padLeft(2, '0');
       return '$hour:$minute';

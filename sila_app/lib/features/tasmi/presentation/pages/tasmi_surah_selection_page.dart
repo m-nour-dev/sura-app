@@ -8,23 +8,124 @@ import 'package:sila_app/features/tasmi/presentation/pages/widgets/search_and_fi
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/surah_list_item.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_selection_header.dart';
 
-const List<bool> _isMakki = [ 
-  true, false, false, false, false, true, true, false, false, true, 
-  true, true, true, true, true, true, true, true, true, true, 
-  true, false, true, false, true, true, true, true, true, true, 
-  true, false, false, true, true, true, true, true, true, true, 
-  true, false, true, true, true, true, true, false, false, true, 
-  true, true, true, true, false, false, false, false, false, false, 
-  true, false, false, false, false, false, true, true, true, true, 
-  true, true, true, true, true, false, true, true, true, true, 
-  true, true, true, true, true, true, true, true, true, true, 
-  true, true, true, true, true, true, false, true, true, true, 
-  true, true, true, true, false, true, true, true, true, true, 
-  true, true, true, true
+const List<bool> _isMakki = [
+  true,
+  false,
+  false,
+  false,
+  false,
+  true,
+  true,
+  false,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  true,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  true,
+  false,
+  false,
+  false,
+  false,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true
 ];
 
 class TasmiSurahSelectionPage extends StatefulWidget {
-
   const TasmiSurahSelectionPage({
     super.key,
     this.forHifz = false,
@@ -34,7 +135,8 @@ class TasmiSurahSelectionPage extends StatefulWidget {
   final bool showAyahRange;
 
   @override
-  State<TasmiSurahSelectionPage> createState() => _TasmiSurahSelectionPageState();
+  State<TasmiSurahSelectionPage> createState() =>
+      _TasmiSurahSelectionPageState();
 }
 
 String _toArabicNumber(String input) {
@@ -89,9 +191,10 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
       if (normalizedQuery.isEmpty) {
         matchesSearch = true;
       } else {
-        matchesSearch = TajweedNormalizer.normalize(quran.getSurahNameArabic(i)).contains(normalizedQuery) ||
-                        i.toString().contains(normalizedQuery) ||
-                        _toArabicNumber(i.toString()).contains(normalizedQuery);
+        matchesSearch = TajweedNormalizer.normalize(quran.getSurahNameArabic(i))
+                .contains(normalizedQuery) ||
+            i.toString().contains(normalizedQuery) ||
+            _toArabicNumber(i.toString()).contains(normalizedQuery);
       }
 
       if (matchesFilter && matchesSearch) {
@@ -116,6 +219,24 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
       return;
     }
 
+    if (widget.forHifz) {
+      // FIX: await the bottom sheet so we capture the HifzSelection result
+      showModalBottomSheet<HifzSelection>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => AyahRangeBottomSheet(
+          surahNumber: surahNumber,
+          returnSelectionOnly: true,
+        ),
+      ).then((result) {
+        if (result != null && mounted) {
+          Navigator.pop(context, result);
+        }
+      });
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -133,8 +254,11 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
       body: Column(
         children: [
           TasmiSelectionHeader(
-            title: widget.forHifz ? 'hifz_label'.tr() : 'tasmi_header_title'.tr(),
-            subtitle: widget.forHifz ? 'hifz_header_subtitle'.tr() : 'tasmi_header_subtitle'.tr(),
+            title:
+                widget.forHifz ? 'hifz_label'.tr() : 'tasmi_header_title'.tr(),
+            subtitle: widget.forHifz
+                ? 'hifz_header_subtitle'.tr()
+                : 'tasmi_header_subtitle'.tr(),
           ),
           SearchAndFilterBar(
             onSearchChanged: _updateSearchQuery,
@@ -156,7 +280,8 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
             child: _filteredSurahs.isEmpty
                 ? Center(child: Text('no_results_found'.tr()))
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: _filteredSurahs.length,
                     itemBuilder: (context, index) {
                       final surahNumber = _filteredSurahs[index];
@@ -193,7 +318,9 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(
-          color: isActive ? theme.primaryColor : theme.dividerColor.withOpacity(0.5),
+          color: isActive
+              ? theme.primaryColor
+              : theme.dividerColor.withOpacity(0.5),
           width: isActive ? 1.5 : 1,
         ),
       ),
