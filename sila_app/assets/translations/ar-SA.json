@@ -13,7 +13,7 @@
   "maghrib": "المغرب",
   "isha": "العشاء",
   "remaining_time": "متبقي",
-  "location_mock": "اسطنبول، تركيا",
+  "unknown_location": "موقع غير معروف",
   "last_read": "آخر قراءة",
   "continue_reading": "تابِع القراءة",
   "daily_content": "حديث اليوم",
@@ -774,5 +774,9 @@
    "wird_hint_text": "اضغط على أي آية للتفسير أو الاستماع",
    "tafsir_label": "التفسير:",
    "translation_label": "الترجمة:",
-   "verse_copied_success": "تم نسخ الآية"
+   "verse_copied_success": "تم نسخ الآية",
+    "resume": "إكمال",
+    "hasanat_label": "حسنات",
+    "hasanat_earned": "الحسنات المكتسبة",
+    "mic_error": "تعذر تشغيل الميكروفون. تأكد من الإذن ثم حاول مرة أخرى."
 }

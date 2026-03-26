@@ -10,6 +10,7 @@ class TasmiSessionStats extends Equatable {
     required this.wrongCount,
     required this.skippedCount,
     required this.errorList,
+    required this.hasanatEarned,
   });
 
   factory TasmiSessionStats.initial() => const TasmiSessionStats(
@@ -18,12 +19,14 @@ class TasmiSessionStats extends Equatable {
         wrongCount: 0,
         skippedCount: 0,
         errorList: [],
+        hasanatEarned: 0,
       );
   final int correctCount;
   final int closeErrorCount;
   final int wrongCount;
   final int skippedCount;
   final List<TasmiWordError> errorList;
+  final int hasanatEarned;
 
   int get totalErrors => closeErrorCount + wrongCount;
 
@@ -44,5 +47,6 @@ class TasmiSessionStats extends Equatable {
         wrongCount,
         skippedCount,
         errorList,
+        hasanatEarned,
       ];
 }

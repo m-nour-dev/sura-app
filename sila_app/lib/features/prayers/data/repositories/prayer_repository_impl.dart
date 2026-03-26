@@ -1,4 +1,5 @@
 import 'package:adhan/adhan.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:sila_app/core/services/location_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
@@ -8,7 +9,7 @@ class PrayerRepositoryImpl extends PrayerRepository {
   // Default Location: Istanbul, Turkey (fallback)
   static const double _defaultLat = 41.0082;
   static const double _defaultLong = 28.9784;
-  static const String _defaultCity = 'İstanbul, Türkiye';
+  static String get _defaultCity => 'unknown_location'.tr();
 
   @override
   Future<PrayerTimesEntity> getPrayerTimes() async {

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -41,7 +42,7 @@ class LocationService {
         if (city == null || city.isEmpty) city = place.name;
         if (city == null || city.isEmpty) city = place.thoroughfare;
         
-        city ??= 'موقع غير معروف'; // Fallback Arabic
+        city ??= 'unknown_location'.tr(); // Fallback Arabic
 
         final country = place.country ?? '';
         final countryCode = place.isoCountryCode ?? 'XX';
@@ -55,10 +56,10 @@ class LocationService {
           'countryCode': countryCode,
         };
       }
-      return {'city': 'موقع غير معروف', 'country': '', 'countryCode': 'XX'};
+      return {'city': 'unknown_location'.tr(), 'country': '', 'countryCode': 'XX'};
     } catch (e) {
       print('Geocoding Error: $e');
-       return {'city': 'موقع غير معروف', 'country': '', 'countryCode': 'XX'};
+       return {'city': 'unknown_location'.tr(), 'country': '', 'countryCode': 'XX'};
     }
   }
 

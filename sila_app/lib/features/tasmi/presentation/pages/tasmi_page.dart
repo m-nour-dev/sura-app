@@ -252,15 +252,53 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                                 ],
                               ),
                             ),
+                          if (state.currentIndex > 0 && state.currentIndex < state.words.length && state.status != TasmiStatus.listening)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 24),
+                              child: SizedBox(
+                                width: 180,
+                                height: 50,
+                                child: ElevatedButton.icon(
+                                  onPressed: controller.resumeSession,
+                                  icon: const Icon(Icons.play_arrow_rounded),
+                                  label: Text('resume'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: accentColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     if (state.status == TasmiStatus.listening ||
                         state.status == TasmiStatus.waitingForUser ||
                         state.status == TasmiStatus.finished)
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          return const MushafTasmiView();
-                        },
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const MushafTasmiView(),
+                          if (state.status == TasmiStatus.finished && state.currentIndex < state.words.length)
+                            Positioned(
+                              bottom: 24,
+                              child: SizedBox(
+                                width: 180,
+                                height: 50,
+                                child: ElevatedButton.icon(
+                                  onPressed: controller.resumeSession,
+                                  icon: const Icon(Icons.play_arrow_rounded),
+                                  label: Text('resume'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: accentColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                   ],
                 ),
@@ -319,8 +357,9 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        builder: (sheetContext) => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        builder: (sheetContext) => SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -425,6 +464,14 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                         value: state.stats.wrongCount,
                         color: Colors.red,
                         icon: Icons.cancel_rounded,
+                        isDark: isDark,
+                      ),
+                      Container(width: 1, height: 40, color: isDark ? Colors.white10 : Colors.grey[300]),
+                      _StatChip(
+                        label: 'hasanat_label'.tr(),
+                        value: state.stats.hasanatEarned,
+                        color: const Color(0xFFFCD34D),
+                        icon: Icons.stars_rounded,
                         isDark: isDark,
                       ),
                     ],
@@ -563,6 +610,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
               ],
             ),
           ),
+        ),
       );
     } catch (e) {
 

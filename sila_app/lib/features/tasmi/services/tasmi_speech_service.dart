@@ -204,7 +204,9 @@ class TasmiSpeechService {
   }
 
   void _onError(SpeechRecognitionError error) {
-    debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
+    if (error.errorMsg != 'error_client' && error.errorMsg != 'error_speech_timeout' && error.errorMsg != 'error_no_match') {
+      debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
+    }
 
     if (!_autoRestartEnabled && error.errorMsg == 'error_network' && !_wordController.isClosed) {
       _wordController.addError('يرجى التحقق من الاتصال بالإنترنت');
@@ -222,7 +224,6 @@ class TasmiSpeechService {
     }
 
     if (error.errorMsg == 'error_client') {
-      debugPrint('⚠️ error_client — treating as temporary, retrying in 1500ms');
       _scheduleRestart(delay: const Duration(milliseconds: 1500));
       return;
     }

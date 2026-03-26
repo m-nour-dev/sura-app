@@ -13,9 +13,10 @@
   "maghrib": "Akşam",
   "isha": "Yatsı",
   "remaining_time": "Kalan Süre",
-  "location_mock": "İstanbul, Türkiye",
+  "unknown_location": "Bilinmeyen Konum",
   "last_read": "Son Okunan",
   "continue_reading": "Okumaya Devam Et",
+  "resume": "Devam Et",
   "daily_content": "Günün Hadisi",
   "ayah_label": "Ayet",
   "azkar_morning": "Sabah Zikirleri",
@@ -766,5 +767,8 @@
       "tafsir_label": "Tefsir:",
       "translation_label": "Çeviri:",
       "verse_copied_success": "Ayet kopyalandı",
-      "error_mic_final": "Okuma algılanamadı. Lütfen durduğunuz ayetten veya kelimeden tekrar deneyin."
+      "error_mic_final": "Okuma algılanamadı. Lütfen durduğunuz ayetten veya kelimeden tekrar deneyin.",
+      "mic_error": "Mikrofon başlatılamadı. Lütfen izinleri kontrol edip tekrar deneyin.",
+      "hasanat_earned": "Kazanılan Sevaplar",
+      "hasanat_label": "Sevaplar"
 }

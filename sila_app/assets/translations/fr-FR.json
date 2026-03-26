@@ -13,9 +13,10 @@
   "maghrib": "Maghrib",
   "isha": "Isha",
   "remaining_time": "Temps Restant",
-  "location_mock": "Istanbul, Turquie",
+  "unknown_location": "Emplacement inconnu",
   "last_read": "Dernière Lecture",
   "continue_reading": "Continuer la Lecture",
+  "resume": "Reprendre",
   "daily_content": "Hadith du Jour",
   "ayah_label": "Verset",
   "azkar_morning": "Adhkar du Matin",
@@ -773,5 +774,8 @@
   "wird_hint_text": "Appuyez sur un verset pour commencer",
   "tafsir_label": "Tafsir :",
   "translation_label": "Traduction :",
-  "verse_copied_success": "Verset copié"
+  "verse_copied_success": "Verset copié",
+  "mic_error": "Le microphone n'a pas pu démarrer. Veuillez vérifier les autorisations et réessayer.",
+  "hasanat_earned": "Hasanat Gagnées",
+  "hasanat_label": "Hasanat"
 }
