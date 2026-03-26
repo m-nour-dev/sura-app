@@ -53,6 +53,23 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<TasmiState>(tasmiControllerProvider, (previous, next) {
+      if (next.warningMessage != null && next.warningMessage != previous?.warningMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              next.warningMessage!.tr(),
+              style: const TextStyle(color: Colors.white, fontFamily: 'Cairo', fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.orange[800],
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(tasmiControllerProvider.notifier).clearWarning();
+      }
+    });
+
     final prefs = ref.watch(tasmiPreferencesNotifierProvider);
     if (!prefs.isOnboardingDone) {
       return TasmiOnboardingPage(

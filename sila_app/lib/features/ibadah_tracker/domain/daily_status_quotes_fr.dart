@@ -10,6 +10,12 @@ class DailyStatusQuotesFr {
     'Faites des dernières heures de la journée les meilleures.',
     'Il reste peu de choses, ne reculez pas.',
     'Si vous avez bien fait la majeure partie de la journée, terminez-la avec excellence.',
+    'Il reste encore de la place pour le bien dans votre journée, terminez-la.',
+    'Allah regarde votre cœur sincère, alors finissez le travail avec amour.',
+    'Vous avez accompli la partie la plus difficile, ne vous arrêtez pas maintenant.',
+    'Tout ce que vous avez fait aujourd\'hui est magnifique, ne le gâchez pas par de la paresse à la fin.',
+    'Hâtez-vous vers les bonnes actions ce soir, pour compléter la splendeur de votre journée.',
+    'Chaque pas en avant vous rapproche des degrés du Paradis.',
   ];
 
   static const List<String> average = [
@@ -29,7 +35,13 @@ class DailyStatusQuotesFr {
     'Le meilleur n\'est pas passé, le meilleur commence maintenant.',
     'Cherchez l\'aide d\'Allah et ne soyez pas incapable du premier pas.',
     'Chaque retour vers Allah est compté et aimé.',
-    'Commencez par ce qui est disponible aujourd\'hui, et Allah le bénira.',
+    'Commencez par ce que est disponible aujourd\'hui, et Allah le bénira.',
+    'La journée n\'est pas encore finie, rattrapez ce que vous avez manqué.',
+    'La nuit est une couverture et une opportunité de rattrapage et de recueillement.',
+    'C\'est maintenant le bon moment pour réparer votre journée par l\'obéissance.',
+    'Ne vous contentez pas du milieu, élevez-vous pour atteindre la perfection possible.',
+    'Éveillez votre détermination, vous pouvez encore rendre cette journée grandiose.',
+    'Vous avez le pouvoir d\'effacer une mauvaise action par une bonne.',
   ];
 
   static const List<String> poor = [
@@ -50,5 +62,11 @@ class DailyStatusQuotesFr {
     'Ne laissez pas Satan vous priver d\'un début sincère.',
     'Celui qui réussit est celui qui revient rapidement chaque fois qu\'il faiblit.',
     'Soyez optimiste, car Allah accepte le repentir et aime ceux qui se repentent.',
+    'Même si vous péchez à plusieurs reprises, revenez vers Allah à plusieurs reprises.',
+    'Allah est plus heureux du repentir d\'un serviteur après qu\'il s\'est détourné.',
+    'Chaque fois que vous vous éloignez, soyez sûr que votre Seigneur vous appelle.',
+    'Votre trébuchement aujourd\'hui ne signifie pas votre échec, levez-vous et résistez.',
+    'N\'abandonnez jamais, car Allah ne se lasse pas tant que vous ne vous lassez pas.',
+    'À tout moment, n\'importe où, dites "Ô Seigneur" et Il est avec vous.',
   ];
 }

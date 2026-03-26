@@ -142,6 +142,7 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
         }
       }
 
+      if (_isDisposed) return;
       state = AsyncValue.data(WirdState(
         currentPage: settings.currentPage,
         goalType: settings.goalType,
@@ -159,6 +160,7 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
         hasConfiguredGoal: settings.hasConfiguredGoal,
       ));
     } catch (e, st) {
+      if (_isDisposed) return;
       state = AsyncValue.error(e, st);
     }
   }

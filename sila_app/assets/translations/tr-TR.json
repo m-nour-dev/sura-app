@@ -5,7 +5,7 @@
   "azkar": "Zikirler",
   "prayers": "Namaz Vakitleri",
   "next_prayer": "Sonraki Vakit",
-  "next_prayer_after": "{0} için {1}",
+  "next_prayer_after": "{} için {}",
   "fajr": "İmsak",
   "sunrise": "Güneş",
   "dhuhr": "Öğle",
@@ -643,6 +643,7 @@
   "press_start_tasmi": "Dinlemeye başlamak için Başlat'a basın",
   "speak_clearly_hint": "Daha iyi sonuçlar için net ve duyulur bir sesle okuyun",
   "close_match_label": "Yakın",
+  "review_label": "Tekrar ({})",
   "view_all_errors": "Tüm hataları görüntüle ({})",
   "tasmi_onboarding_title": "Tasmi deneyimini nasıl istersiniz?",
   "tasmi_onboarding_subtitle": "Bunu daha sonra ayarlardan değiştirebilirsiniz",
@@ -764,5 +765,6 @@
       "wird_hint_text": "Tefsir veya dinlemek için herhangi bir ayete dokunun",
       "tafsir_label": "Tefsir:",
       "translation_label": "Çeviri:",
-      "verse_copied_success": "Ayet kopyalandı"
+      "verse_copied_success": "Ayet kopyalandı",
+      "error_mic_final": "Okuma algılanamadı. Lütfen durduğunuz ayetten veya kelimeden tekrar deneyin."
 }

@@ -107,7 +107,7 @@ class LanguageSelectionPage extends StatelessWidget {
               _LanguageOptionCard(
                 title: 'English',
                 subtitle: 'English',
-                flag: '🇬🇧',
+                flag: '🇺🇸',
                 onTap: () => _selectLanguage(context, const Locale('en', 'US')),
               ),
 

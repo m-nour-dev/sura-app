@@ -8,7 +8,7 @@ import 'package:sila_app/features/ibadah_tracker/domain/daily_status_quotes_tr.d
 
 class DailyStatusCalculator {
   static final Random _random = Random();
-  static final Map<int, String> _dailyTextCache = {};
+  static final Map<String, String> _dailyTextCache = {};
 
   static int completedCount(IbadahRecord r, {required bool isMale}) {
     int count = 0;
@@ -86,13 +86,14 @@ class DailyStatusCalculator {
     if (texts.isEmpty) return '';
 
     final dayKey = record.date.year * 10000 + record.date.month * 100 + record.date.day;
-    final cached = _dailyTextCache[dayKey];
+    final cacheKey = '${dayKey}_$languageCode';
+    final cached = _dailyTextCache[cacheKey];
     if (cached != null && texts.contains(cached)) return cached;
 
     final baseSeed = record.date.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
     final idx = (baseSeed + (baseSeed % 13) + _random.nextInt(texts.length)) % texts.length;
     final selected = texts[idx];
-    _dailyTextCache[dayKey] = selected;
+    _dailyTextCache[cacheKey] = selected;
     return selected;
   }
 

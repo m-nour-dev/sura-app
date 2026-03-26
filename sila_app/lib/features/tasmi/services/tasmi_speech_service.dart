@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
@@ -210,7 +211,7 @@ class TasmiSpeechService {
     }
 
     if (error.errorMsg == 'error_no_match' && !_wordController.isClosed) {
-      _wordController.addError('لم يتم التقاط التلاوة. حاول التحدث بوضوح.');
+      _wordController.addError('error_mic_final');
     }
 
     if (!_autoRestartEnabled) {

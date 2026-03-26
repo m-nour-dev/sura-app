@@ -30,6 +30,7 @@ class TasmiState extends Equatable {
     this.correctionWord,
     required this.stats,
     this.errorMessage,
+    this.warningMessage,
     required this.isMicListening,
     required this.currentWordAttempts,
   });
@@ -50,6 +51,7 @@ class TasmiState extends Equatable {
   final String? correctionWord;
   final TasmiSessionStats stats;
   final String? errorMessage;
+  final String? warningMessage;
   final bool isMicListening;
   final int currentWordAttempts;
 
@@ -62,6 +64,8 @@ class TasmiState extends Equatable {
     TasmiSessionStats? stats,
     String? errorMessage,
     bool clearErrorMessage = false,
+    String? warningMessage,
+    bool clearWarningMessage = false,
     bool? isMicListening,
     int? currentWordAttempts,
   }) {
@@ -72,6 +76,7 @@ class TasmiState extends Equatable {
       correctionWord: clearCorrectionWord ? null : correctionWord ?? this.correctionWord,
       stats: stats ?? this.stats,
       errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+      warningMessage: clearWarningMessage ? null : warningMessage ?? this.warningMessage,
       isMicListening: isMicListening ?? this.isMicListening,
       currentWordAttempts: currentWordAttempts ?? this.currentWordAttempts,
     );
@@ -85,6 +90,7 @@ class TasmiState extends Equatable {
         correctionWord,
         stats,
         errorMessage,
+        warningMessage,
         isMicListening,
         currentWordAttempts,
       ];
@@ -173,9 +179,16 @@ class TasmiController extends _$TasmiController {
     _speechSubscription = _speechService.wordStream.listen(
       _onWordSpoken,
       onError: (error) async {
+        final errorString = error.toString();
+        
+        if (errorString.contains('error_mic_final')) {
+           state = state.copyWith(warningMessage: 'error_mic_final');
+           return;
+        }
+
         state = state.copyWith(
           status: TasmiStatus.error,
-          errorMessage: error.toString(),
+          errorMessage: errorString,
           isMicListening: false,
         );
         await _stopServicesOnly();
@@ -401,6 +414,10 @@ class TasmiController extends _$TasmiController {
           accuracy: accuracy,
           errorsCount: _sessionErrors.length,
         );
+  }
+
+  void clearWarning() {
+    state = state.copyWith(clearWarningMessage: true);
   }
 
   Future<void> _stopServicesOnly() async {
