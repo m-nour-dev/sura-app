@@ -56,7 +56,8 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
           final engine = ComparisonEngine();
           final dailyStatusText = DailyStatusCalculator.getDailyStatusText(
               today,
-              isMale: data.isMale);
+              isMale: data.isMale,
+              languageCode: context.locale.languageCode);
           final ratioToday =
               DailyStatusCalculator.completionRatio(today, isMale: data.isMale);
           final ratioYesterday = hasYesterday

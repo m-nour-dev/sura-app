@@ -49,7 +49,7 @@ class LanguageSelectionPage extends StatelessWidget {
                 'اختر اللغة',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.cairo(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF064E3B),
                 ),
@@ -58,7 +58,25 @@ class LanguageSelectionPage extends StatelessWidget {
                 'Dil Seçin',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.cairo(
-                  fontSize: 24,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF064E3B),
+                ),
+              ),
+              Text(
+                'Choose Language',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cairo(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF064E3B),
+                ),
+              ),
+              Text(
+                'Choisissez la langue',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cairo(
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF064E3B),
                 ),
@@ -82,6 +100,26 @@ class LanguageSelectionPage extends StatelessWidget {
                 subtitle: 'Turkish',
                 flag: '🇹🇷',
                 onTap: () => _selectLanguage(context, const Locale('tr', 'TR')),
+              ),
+
+              const SizedBox(height: 16),
+
+              // English Option
+              _LanguageOptionCard(
+                title: 'English',
+                subtitle: 'English',
+                flag: '🇬🇧',
+                onTap: () => _selectLanguage(context, const Locale('en', 'US')),
+              ),
+
+              const SizedBox(height: 16),
+
+              // French Option
+              _LanguageOptionCard(
+                title: 'Français',
+                subtitle: 'French',
+                flag: '🇫🇷',
+                onTap: () => _selectLanguage(context, const Locale('fr', 'FR')),
               ),
 
               const Spacer(),

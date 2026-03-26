@@ -40,6 +40,32 @@ class HomeHeader extends StatelessWidget {
       'Şevval',
       'Zilkade',
       'Zilhicce',
+    ] : locale.languageCode == 'en' ? [
+      'Muharram',
+      'Safar',
+      "Rabi' Al-Awwal",
+      "Rabi' Al-Akhir",
+      'Jumada Al-Ula',
+      'Jumada Al-Akhira',
+      'Rajab',
+      "Sha'ban",
+      'Ramadan',
+      'Shawwal',
+      "Dhul Qi'dah",
+      'Dhul Hijjah',
+    ] : locale.languageCode == 'fr' ? [
+      'Mouharram',
+      'Safar',
+      'Rabi\' Al-Awwal',
+      'Rabi\' Al-Akhir',
+      'Joumada Al-Oula',
+      'Joumada Al-Akhira',
+      'Rajab',
+      'Cha\'bane',
+      'Ramadan',
+      'Chawwal',
+      'Dhoul Qi\'dah',
+      'Dhoul Hijjah',
     ] : [
       'محرم',
       'صفر',
@@ -56,6 +82,10 @@ class HomeHeader extends StatelessWidget {
     ];
     final month = months[(hijriDate.hMonth - 1).clamp(0, 11)];
     final hijriText = locale.languageCode == 'tr'
+        ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
+        : locale.languageCode == 'en'
+        ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
+        : locale.languageCode == 'fr'
         ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
         : '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
 
@@ -173,7 +203,13 @@ class _LanguageHeaderButton extends StatelessWidget {
       itemBuilder: (BuildContext context) {
         return context.supportedLocales.map((locale) {
           final isSelected = context.locale == locale;
-          final langName = locale.languageCode == 'ar' ? 'العربية' : 'Türkçe';
+          final langName = locale.languageCode == 'ar'
+              ? 'العربية'
+              : locale.languageCode == 'tr'
+              ? 'Türkçe'
+              : locale.languageCode == 'fr'
+              ? 'Français'
+              : 'English';
           
           return PopupMenuItem<Locale>(
             value: locale,
@@ -212,4 +248,3 @@ class _LanguageHeaderButton extends StatelessWidget {
     );
   }
 }
-

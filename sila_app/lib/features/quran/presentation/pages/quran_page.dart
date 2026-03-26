@@ -128,6 +128,8 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                 surahNumber: surah.number,
                                 surahName: context.locale.languageCode == 'ar'
                                     ? surah.nameArabic
+                                    : context.locale.languageCode == 'en'
+                                    ? surah.englishName
                                     : surah.nameTurkish,
                               ),
                             ),
@@ -175,10 +177,12 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                  child: Column(
                                    crossAxisAlignment: CrossAxisAlignment.start,
                                    children: [
-                                     Text(
-                                       context.locale.languageCode == 'tr'
-                                           ? surah.nameTurkish
-                                           : surah.nameArabic,
+                                   Text(
+                                       context.locale.languageCode == 'ar'
+                                           ? surah.nameArabic
+                                           : context.locale.languageCode == 'en'
+                                           ? surah.englishName
+                                           : surah.nameTurkish,
                                        style: GoogleFonts.amiri(
                                          fontSize: 18,
                                          fontWeight: FontWeight.bold,
@@ -186,9 +190,11 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                        ),
                                      ),
                                      Text(
-                                       context.locale.languageCode == 'tr'
-                                           ? '${surah.numberOfAyahs} ${surah.revelationType == 'Meccan' ? 'Mecci' : 'Medini'}'
-                                           : '${surah.numberOfAyahs} آية · ${surah.revelationType}',
+                                       context.locale.languageCode == 'ar'
+                                           ? '${surah.numberOfAyahs} آية · ${surah.revelationType}'
+                                           : context.locale.languageCode == 'en'
+                                           ? '${surah.numberOfAyahs} Verses · ${surah.revelationType}'
+                                           : '${surah.numberOfAyahs} ${surah.revelationType == 'Meccan' ? 'Mecci' : 'Medini'}',
                                        style: GoogleFonts.cairo(
                                          fontSize: 11,
                                          color: txtS,
@@ -199,9 +205,11 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                ),
                                // Large decorative name
                                Text(
-                                 context.locale.languageCode == 'tr'
-                                     ? surah.nameTurkish
-                                     : surah.nameArabic,
+                                 context.locale.languageCode == 'ar'
+                                     ? surah.nameArabic
+                                     : context.locale.languageCode == 'en'
+                                     ? surah.englishName
+                                     : surah.nameTurkish,
                                  style: GoogleFonts.amiri(
                                    fontSize: 22,
                                    color: primaryColor.withOpacity(0.4),

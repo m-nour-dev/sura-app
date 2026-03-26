@@ -14,6 +14,7 @@ import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/salah_notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sila_app/core/utils/time_utils.dart';
 
 class PrayersPage extends ConsumerStatefulWidget {
   const PrayersPage({super.key, this.initialTabIndex = 0});
@@ -77,8 +78,10 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFFD97706);
 
+    final isArabic = context.locale.languageCode == 'ar';
+
     return Directionality(
-      textDirection: ui.TextDirection.ltr,
+      textDirection: isArabic ? ui.TextDirection.rtl : ui.TextDirection.ltr,
       child: DefaultTabController(
         initialIndex: widget.initialTabIndex.clamp(0, 1),
         length: 2,
@@ -290,7 +293,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                       final time = prayersList[i].time;
                       final isNext = i == nextIdx;
                       
-                      final formattedTime = DateFormat('hh:mm a').format(time);
+                      final formattedTime = TimeUtils.formatPrayerTime(time, context);
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),

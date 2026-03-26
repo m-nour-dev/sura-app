@@ -38,7 +38,7 @@ void main() async {
   final notificationService = NotificationService();
   try {
     await notificationService.initialize();
-    
+
     // FIX 5: Schedule adhan notifications
     try {
       final prayerRepo = PrayerRepositoryImpl();
@@ -49,7 +49,6 @@ void main() async {
     } catch (e) {
       debugPrint('❌ Scheduling failed: $e');
     }
-
   } catch (error) {
     debugPrint('NotificationService init failed: $error');
   }
@@ -64,6 +63,8 @@ void main() async {
         supportedLocales: const [
           Locale('ar', 'SA'),
           Locale('tr', 'TR'),
+          Locale('en', 'US'),
+          Locale('fr', 'FR'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('ar', 'SA'),
@@ -94,7 +95,9 @@ class SilaApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: isLanguageSelected ? const MainLayout() : const LanguageSelectionPage(),
+      home: isLanguageSelected
+          ? const MainLayout()
+          : const LanguageSelectionPage(),
     );
   }
 }

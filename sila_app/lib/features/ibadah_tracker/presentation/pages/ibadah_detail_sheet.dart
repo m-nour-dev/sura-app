@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
 
 Future<void> showIbadahDetailSheet({
@@ -53,7 +54,7 @@ class _IbadahDetailSheet extends ConsumerWidget {
             ..showSnackBar(
               SnackBar(
                 content: Text(
-                  'تم الحفظ',
+                  'tracker_statuses.saved_successfully'.tr(),
                   style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700),
                 ),
                 duration: const Duration(milliseconds: 700),
@@ -138,14 +139,14 @@ class _IbadahDetailSheet extends ConsumerWidget {
                 const SizedBox(height: 20),
                 if (isPrayer) ...[
                   Text(
-                    'كيف صليت؟',
+                    'tracker_statuses.how_did_you_pray'.tr(),
                     style: GoogleFonts.getFont('Cairo', fontSize: 13, color: Colors.grey[500]),
                   ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
                       _StatusOption(
-                        label: 'في وقتها',
+                        label: 'tracker_statuses.on_time'.tr(),
                         emoji: '✅',
                         selected: prayerStatus == 1,
                         onTap: () async {
@@ -160,7 +161,7 @@ class _IbadahDetailSheet extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       _StatusOption(
-                        label: 'متأخرة',
+                        label: 'tracker_statuses.late'.tr(),
                         emoji: '🕐',
                         selected: prayerStatus == 2,
                         onTap: () async {
@@ -175,7 +176,7 @@ class _IbadahDetailSheet extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       _StatusOption(
-                        label: 'لم أصل',
+                        label: 'tracker_statuses.missed'.tr(),
                         emoji: '❌',
                         selected: prayerStatus == 0,
                         onTap: () => saveAndClose(
@@ -187,14 +188,14 @@ class _IbadahDetailSheet extends ConsumerWidget {
                   if (isMale) ...[
                     const SizedBox(height: 16),
                     Text(
-                      'أين صليت؟',
+                      'tracker_statuses.where_did_you_pray'.tr(),
                       style: GoogleFonts.getFont('Cairo', fontSize: 13, color: Colors.grey[500]),
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
                         _StatusOption(
-                          label: 'في المسجد',
+                          label: 'tracker_statuses.in_masjid'.tr(),
                           emoji: '🕌',
                           selected: inMasjid == true,
                           onTap: () => saveAndClose(
@@ -203,7 +204,7 @@ class _IbadahDetailSheet extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         _StatusOption(
-                          label: 'في البيت',
+                          label: 'tracker_statuses.at_home'.tr(),
                           emoji: '🏠',
                           selected: inMasjid == false,
                           onTap: () => saveAndClose(
@@ -218,7 +219,7 @@ class _IbadahDetailSheet extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _BigToggle(
-                          label: 'نعم ✅',
+                          label: '${'tracker_statuses.yes'.tr()} ✅',
                           selected: boolStatus == true,
                           color: const Color(0xFF064E3B),
                           onTap: () => saveAndClose(
@@ -229,7 +230,7 @@ class _IbadahDetailSheet extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _BigToggle(
-                          label: 'لا ❌',
+                          label: '${'tracker_statuses.no'.tr()} ❌',
                           selected: boolStatus == false,
                           color: Colors.red.shade400,
                           onTap: () => saveAndClose(

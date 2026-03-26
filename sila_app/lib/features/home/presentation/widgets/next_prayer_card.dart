@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sila_app/core/utils/time_utils.dart';
 
 class NextPrayerCard extends ConsumerStatefulWidget {
   const NextPrayerCard({super.key});
@@ -73,7 +74,7 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
 
         final nextPrayerName = nextKey.tr();
         
-        String formattedNextTime = DateFormat('hh:mm a').format(nextTime);
+        String formattedNextTime = TimeUtils.formatPrayerTime(nextTime, context);
 
         return Container(
           padding: const EdgeInsets.all(16),
