@@ -8,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/services/isar_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
@@ -116,7 +115,7 @@ class NotificationService {
 
   Future<void> _createNotificationChannel() async {
     const androidChannel = AndroidNotificationChannel(
-      'adhan_channel',
+      'adhan_channel_v2',
       'أذان الصلاة',
       description: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -192,7 +191,7 @@ class NotificationService {
     final soundName = soundFile.split('.').first;
 
     final androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
+      'adhan_channel_v2',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -265,7 +264,7 @@ class NotificationService {
     final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
+      'adhan_channel_v2',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -329,7 +328,7 @@ class NotificationService {
     final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
+      'adhan_channel_v2',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -392,7 +391,7 @@ class NotificationService {
     if (!_initialized) await initialize();
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
+      'adhan_channel_v2',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -528,7 +527,7 @@ class NotificationService {
 
   Future<void> _showAdhanPlaybackNotification() async {
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
+      'adhan_channel_v2',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -604,7 +603,7 @@ class NotificationService {
         'إذا وصلك هذا الإشعار فالنظام يعمل بشكل صحيح',
         const NotificationDetails(
           android: AndroidNotificationDetails(
-            'adhan_channel',
+            'adhan_channel_v2',
             'أذان الصلاة',
             channelDescription: 'إشعارات أذان الصلاة',
             importance: Importance.max,
@@ -632,8 +631,16 @@ class NotificationService {
 
     debugPrint('📅 Scheduling daily: $title at $hour:$minute');
 
+    // FIXED: Bug 2 — Build TZDateTime at the correct hour/minute, then use zonedSchedule with matchDateTimeComponents
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+    if (scheduled.isBefore(now) || scheduled.isAtSameMomentAs(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
+      'adhan_channel_v2',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -641,21 +648,55 @@ class NotificationService {
       icon: '@mipmap/ic_launcher',
     );
 
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
     try {
-      await _notifications.periodicallyShow(
+      await _notifications.zonedSchedule(
         id,
         title,
         body,
-        RepeatInterval.daily,
-        const NotificationDetails(android: androidDetails),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        scheduled,
+        notificationDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents
+            .time, // FIXED: Bug 2 — Repeats daily at exact hour:minute
         payload: payload,
       );
-      debugPrint('✅ Daily reminder scheduled: $title');
+      debugPrint('✅ Daily reminder scheduled: $title at $hour:$minute');
       return true;
     } catch (e) {
-      debugPrint('❌ Daily reminder failed: $e');
-      return false;
+      debugPrint('⚠️ Exact daily reminder failed, trying inexact: $e');
+      try {
+        await _notifications.zonedSchedule(
+          id,
+          title,
+          body,
+          scheduled,
+          notificationDetails,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time, // FIXED: Bug 2
+          payload: payload,
+        );
+        debugPrint(
+            '✅ Inexact daily reminder scheduled: $title at $hour:$minute');
+        return true;
+      } catch (e2) {
+        debugPrint('❌ Daily reminder failed: $e / fallback: $e2');
+        return false;
+      }
     }
   }
 
@@ -673,11 +714,18 @@ class NotificationService {
     if (payload == null || payload.trim().isEmpty) return;
 
     final normalized = payload.trim();
+
+    // FIXED: Bug 3 — Removed playAdhan() for prayer payloads.
+    // The OS already plays the adhan sound natively via RawResourceAndroidNotificationSound on the channel.
+    // On tap, we only navigate to the prayers page so the user can see prayer info.
     final adhanPayloads = {'fajr', 'dhuhr', 'asr', 'maghrib', 'isha'};
     if (adhanPayloads.contains(normalized.toLowerCase())) {
-      final prefs = PrefsService();
-      final sound = await prefs.getAdhanSound();
-      await playAdhan(sound);
+      final nav = _navigatorKey?.currentState;
+      if (nav == null) {
+        _deferredPayload = normalized;
+        return;
+      }
+      nav.push(MaterialPageRoute(builder: (_) => const PrayersPage()));
       return;
     }
 
@@ -692,6 +740,21 @@ class NotificationService {
       if (decoded is Map<String, dynamic> &&
           decoded.containsKey('content_id') &&
           decoded.containsKey('category')) {
+        // FIXED: Bug 4 — Increment shownCount when the user actually taps the notification
+        try {
+          final isar = await IsarService().db;
+          final repo = IsarNotificationRepository(isar);
+          final content = await repo
+              .getContentByContentId(decoded['content_id'].toString());
+          if (content != null) {
+            content.shownCount = content.shownCount + 1;
+            content.lastShown = DateTime.now();
+            await repo.saveContent(content);
+          }
+        } catch (e) {
+          debugPrint('Failed to update shownCount: $e');
+        }
+
         nav.push(
           MaterialPageRoute(
             builder: (_) => NotificationDetailPage(

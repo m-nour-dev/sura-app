@@ -22,7 +22,6 @@ enum _IbadahSignalType {
 }
 
 class _SmartMessage {
-
   const _SmartMessage({required this.title, required this.body});
   final String title;
   final String body;
@@ -36,8 +35,8 @@ class AdhanSchedulerService {
   Future<void> scheduleAllPrayers(PrayerTimesEntity prayerTimes) async {
     print('Scheduling all prayers for ${prayerTimes.locationName}');
 
-    // Cancel existing notifications first
-    await _notificationService.cancelAllNotifications();
+    // FIXED: Bug 1 — Removed cancelAllNotifications() from the top.
+    // Each prayer now cancels its own old notification before rescheduling.
 
     // Check if Adhan is enabled globally
     final isAdhanEnabled = await _prefsService.isAdhanNotificationsEnabled();
@@ -90,19 +89,26 @@ class AdhanSchedulerService {
       bool isCompleted(_IbadahSignalType type) {
         if (record == null) return false;
         switch (type) {
-          case _IbadahSignalType.wird: return record.readWird;
-          case _IbadahSignalType.azkarSabah: return record.readAzkarSabah;
-          case _IbadahSignalType.azkarMasa: return record.readAzkarMasa;
-          case _IbadahSignalType.tasbih: return record.didTasbih;
-          case _IbadahSignalType.hifz: return record.didHifz || record.didTasmi;
-          case _IbadahSignalType.dhikr: return record.rememberedAllah;
+          case _IbadahSignalType.wird:
+            return record.readWird;
+          case _IbadahSignalType.azkarSabah:
+            return record.readAzkarSabah;
+          case _IbadahSignalType.azkarMasa:
+            return record.readAzkarMasa;
+          case _IbadahSignalType.tasbih:
+            return record.didTasbih;
+          case _IbadahSignalType.hifz:
+            return record.didHifz || record.didTasmi;
+          case _IbadahSignalType.dhikr:
+            return record.rememberedAllah;
           case _IbadahSignalType.prayer:
             return record.fajrStatus != 0 &&
-                   record.dhuhrStatus != 0 &&
-                   record.asrStatus != 0 &&
-                   record.maghribStatus != 0 &&
-                   record.ishaStatus != 0;
-          default: return false;
+                record.dhuhrStatus != 0 &&
+                record.asrStatus != 0 &&
+                record.maghribStatus != 0 &&
+                record.ishaStatus != 0;
+          default:
+            return false;
         }
       }
 
@@ -140,7 +146,8 @@ class AdhanSchedulerService {
 
         if (selected == null) return;
 
-        final when = normalizeToNext(DateTime(now.year, now.month, now.day, hour, minute));
+        final when = normalizeToNext(
+            DateTime(now.year, now.month, now.day, hour, minute));
         final payload = jsonEncode({
           'content_id': selected.contentId,
           'category': selected.category,
@@ -150,8 +157,8 @@ class AdhanSchedulerService {
           id: slotId,
           when: when,
           title: defaultTitle,
-          body: selected.arabicText.length > 100 
-              ? '${selected.arabicText.substring(0, 97)}...' 
+          body: selected.arabicText.length > 100
+              ? '${selected.arabicText.substring(0, 97)}...'
               : selected.arabicText,
           payload: payload,
           priority: 10, // Base priority for fixed slots
@@ -164,7 +171,8 @@ class AdhanSchedulerService {
       await addCandidate(
         featureKey: 'azkar',
         slotId: NotificationIds.dailySlot1,
-        hour: 7, minute: 0,
+        hour: 7,
+        minute: 0,
         defaultTitle: 'أذكار الصباح 🌅',
         signalType: _IbadahSignalType.azkarSabah,
       );
@@ -173,7 +181,8 @@ class AdhanSchedulerService {
       await addCandidate(
         featureKey: 'tasbih',
         slotId: NotificationIds.dailySlot2,
-        hour: 9, minute: 0,
+        hour: 9,
+        minute: 0,
         defaultTitle: 'لحظة تسبيح وذكر 💎',
         signalType: _IbadahSignalType.tasbih,
       );
@@ -182,7 +191,8 @@ class AdhanSchedulerService {
       await addCandidate(
         featureKey: 'salah',
         slotId: NotificationIds.dailySlot3,
-        hour: 12, minute: 0,
+        hour: 12,
+        minute: 0,
         defaultTitle: 'صلاة الظهر والسنن 🕌',
         signalType: _IbadahSignalType.prayer,
       );
@@ -191,7 +201,8 @@ class AdhanSchedulerService {
       await addCandidate(
         featureKey: 'wird',
         slotId: NotificationIds.dailySlot4,
-        hour: 15, minute: 0,
+        hour: 15,
+        minute: 0,
         defaultTitle: 'وردك من الكتاب 📖',
         signalType: _IbadahSignalType.wird,
       );
@@ -200,7 +211,8 @@ class AdhanSchedulerService {
       await addCandidate(
         featureKey: 'scholars',
         slotId: NotificationIds.dailySlot5,
-        hour: 17, minute: 0,
+        hour: 17,
+        minute: 0,
         defaultTitle: 'من أقوال العلماء ✨',
         signalType: _IbadahSignalType.dhikr,
       );
@@ -209,7 +221,8 @@ class AdhanSchedulerService {
       await addCandidate(
         featureKey: 'azkar',
         slotId: NotificationIds.dailySlot6,
-        hour: 21, minute: 0,
+        hour: 21,
+        minute: 0,
         defaultTitle: 'أذكار المساء 🌆',
         signalType: _IbadahSignalType.azkarMasa,
       );
@@ -218,19 +231,22 @@ class AdhanSchedulerService {
       planned.sort((a, b) => a.when.compareTo(b.when));
 
       // Save to cache for Home card
-      final cacheData = planned.map((p) => {
-        'id': p.id,
-        'time': p.when.toIso8601String(),
-        'title': p.title,
-        'body': p.body,
-        'category': p.category,
-        'contentId': p.selectedContentId,
-      }).toList();
+      final cacheData = planned
+          .map((p) => {
+                'id': p.id,
+                'time': p.when.toIso8601String(),
+                'title': p.title,
+                'body': p.body,
+                'category': p.category,
+                'contentId': p.selectedContentId,
+              })
+          .toList();
       await _prefsService.savePlannedNotifications(jsonEncode(cacheData));
 
       // Actually schedule
       for (final item in planned) {
-        await _notificationService.cancelNotification(item.id);
+        await _notificationService.cancelNotification(item
+            .id); // FIXED: Bug 1 — Cancel old notification by ID before rescheduling
         await _notificationService.scheduleOneShot(
           id: item.id,
           title: item.title,
@@ -239,19 +255,15 @@ class AdhanSchedulerService {
           payload: item.payload,
         );
 
-        // Track shown count
-        if (item.selectedContentId != null) {
-          final content = await repo.getContentByContentId(item.selectedContentId!);
-          if (content != null) {
-            content.shownCount = content.shownCount + 1;
-            content.lastShown = DateTime.now();
-            await repo.saveContent(content);
-          }
-        }
+        // FIXED: Bug 4 — Removed shownCount increment from here.
+        // It now happens in handleNotificationPayload() when the user actually sees the notification.
       }
 
       // Add back the Daily Report as a bonus (not one of the 6 fixed content slots)
-      final reportTime = normalizeToNext(prayerTimes.maghrib.add(const Duration(minutes: 30)));
+      final reportTime =
+          normalizeToNext(prayerTimes.maghrib.add(const Duration(minutes: 30)));
+      await _notificationService.cancelNotification(NotificationIds
+          .dailyReport); // FIXED: Bug 1 — Cancel old daily report before rescheduling
       await _notificationService.scheduleOneShot(
         id: NotificationIds.dailyReport,
         title: 'تقريرك اليومي جاهز 📋',
@@ -259,7 +271,6 @@ class AdhanSchedulerService {
         dateTime: reportTime,
         payload: jsonEncode({'route': 'daily_report'}),
       );
-
     } catch (e) {
       print('Error scheduling smart reminders: $e');
     }
@@ -279,8 +290,11 @@ class AdhanSchedulerService {
           ? prayerTime
           : prayerTime.add(const Duration(days: 1));
 
+      final id = NotificationService.getNotificationId(prayerName);
+      await _notificationService.cancelNotification(
+          id); // FIXED: Bug 1 — Cancel old notification before rescheduling
       await _notificationService.scheduleNotification(
-        id: NotificationService.getNotificationId(prayerName),
+        id: id,
         prayerName: prayerName,
         prayerTime: nextPrayerTime,
         soundFile: soundFile,
@@ -328,7 +342,6 @@ class AdhanSchedulerService {
 }
 
 class _PlannedNotification {
-
   _PlannedNotification({
     required this.id,
     required this.when,
