@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,9 +20,9 @@ const LinearGradient _ctaGradient = LinearGradient(
 );
 
 class HifzOnboardingPage extends ConsumerStatefulWidget {
-  final VoidCallback? onCompleted;
 
   const HifzOnboardingPage({super.key, this.onCompleted});
+  final VoidCallback? onCompleted;
 
   @override
   ConsumerState<HifzOnboardingPage> createState() => _HifzOnboardingPageState();
@@ -147,15 +146,15 @@ class _HifzOnboardingPageState extends ConsumerState<HifzOnboardingPage> {
 }
 
 class _TopProgressBar extends StatelessWidget {
+
+  const _TopProgressBar({required this.previousPage, required this.currentPage});
   final int previousPage;
   final int currentPage;
 
-  const _TopProgressBar({required this.previousPage, required this.currentPage});
-
   @override
   Widget build(BuildContext context) {
-    final start = ((previousPage) / 4).clamp(0.0, 1.0);
-    final end = ((currentPage) / 4).clamp(0.0, 1.0);
+    final start = (previousPage / 4).clamp(0.0, 1.0);
+    final end = (currentPage / 4).clamp(0.0, 1.0);
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: start, end: end),
       duration: const Duration(milliseconds: 400),
@@ -186,9 +185,9 @@ class _TopProgressBar extends StatelessWidget {
 }
 
 class _WelcomeScreen extends StatelessWidget {
-  final VoidCallback onStart;
 
   const _WelcomeScreen({required this.onStart});
+  final VoidCallback onStart;
 
   @override
   Widget build(BuildContext context) {
@@ -266,10 +265,10 @@ class _WelcomeDots extends StatelessWidget {
 }
 
 class _AgeScreen extends StatelessWidget {
-  final int? selected;
-  final ValueChanged<int> onSelect;
 
   const _AgeScreen({required this.selected, required this.onSelect});
+  final int? selected;
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -341,11 +340,6 @@ class _AgeScreen extends StatelessWidget {
 }
 
 class _TimeGoalScreen extends StatelessWidget {
-  final int? selectedMinutes;
-  final int? selectedGoal;
-  final ValueChanged<int> onMinutesSelect;
-  final ValueChanged<int> onGoalSelect;
-  final VoidCallback onNext;
 
   const _TimeGoalScreen({
     required this.selectedMinutes,
@@ -354,6 +348,11 @@ class _TimeGoalScreen extends StatelessWidget {
     required this.onGoalSelect,
     required this.onNext,
   });
+  final int? selectedMinutes;
+  final int? selectedGoal;
+  final ValueChanged<int> onMinutesSelect;
+  final ValueChanged<int> onGoalSelect;
+  final VoidCallback onNext;
 
   @override
   Widget build(BuildContext context) {
@@ -496,10 +495,10 @@ class _TimeGoalScreen extends StatelessWidget {
 }
 
 class _LearningStyleScreen extends StatelessWidget {
-  final int? selected;
-  final ValueChanged<int> onSelect;
 
   const _LearningStyleScreen({required this.selected, required this.onSelect});
+  final int? selected;
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -561,15 +560,15 @@ class _LearningStyleScreen extends StatelessWidget {
 }
 
 class _SmartPlanScreen extends StatelessWidget {
-  final HifzOnboardingState state;
-  final ValueChanged<bool> onToggle;
-  final Future<void> Function() onComplete;
 
   const _SmartPlanScreen({
     required this.state,
     required this.onToggle,
     required this.onComplete,
   });
+  final HifzOnboardingState state;
+  final ValueChanged<bool> onToggle;
+  final Future<void> Function() onComplete;
 
   @override
   Widget build(BuildContext context) {
@@ -672,7 +671,7 @@ class _SmartPlanScreen extends StatelessWidget {
           const Spacer(),
           InkWell(
             borderRadius: BorderRadius.circular(50),
-            onTap: state.isSaving ? null : () => onComplete(),
+            onTap: state.isSaving ? null : onComplete,
             child: Ink(
               decoration: BoxDecoration(
                 gradient: _ctaGradient,
@@ -704,11 +703,11 @@ class _SmartPlanScreen extends StatelessWidget {
 }
 
 class _QuestionLayout extends StatelessWidget {
+
+  const _QuestionLayout({required this.title, required this.hint, required this.child});
   final String title;
   final String hint;
   final Widget child;
-
-  const _QuestionLayout({required this.title, required this.hint, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -743,11 +742,11 @@ class _QuestionLayout extends StatelessWidget {
 }
 
 class _SelectionCard extends StatelessWidget {
+
+  const _SelectionCard({required this.selected, required this.onTap, required this.child});
   final bool selected;
   final VoidCallback onTap;
   final Widget child;
-
-  const _SelectionCard({required this.selected, required this.onTap, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -781,10 +780,6 @@ class _SelectionCard extends StatelessWidget {
 }
 
 class _InfoBanner extends StatelessWidget {
-  final Color color;
-  final Color border;
-  final Color textColor;
-  final String message;
 
   const _InfoBanner({
     required this.color,
@@ -792,6 +787,10 @@ class _InfoBanner extends StatelessWidget {
     required this.textColor,
     required this.message,
   });
+  final Color color;
+  final Color border;
+  final Color textColor;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -817,10 +816,10 @@ class _InfoBanner extends StatelessWidget {
 }
 
 class _ScaleTapButton extends StatefulWidget {
-  final String label;
-  final VoidCallback onTap;
 
   const _ScaleTapButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
 
   @override
   State<_ScaleTapButton> createState() => _ScaleTapButtonState();

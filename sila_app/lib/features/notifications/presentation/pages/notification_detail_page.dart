@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:sila_app/features/azkar/presentation/pages/azkar_page.dart';
 import 'package:sila_app/features/azkar/presentation/pages/tasbih_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
@@ -12,14 +13,14 @@ import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection
 import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart';
 
 class NotificationDetailPage extends ConsumerWidget {
-  final String contentId;
-  final String category;
 
   const NotificationDetailPage({
     super.key,
     required this.contentId,
     required this.category,
   });
+  final String contentId;
+  final String category;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -288,14 +289,14 @@ class NotificationDetailPage extends ConsumerWidget {
 }
 
 class _TafsirCard extends StatefulWidget {
-  final int surahNumber;
-  final int ayahNumber;
 
   const _TafsirCard({
     required super.key,
     required this.surahNumber,
     required this.ayahNumber,
   });
+  final int surahNumber;
+  final int ayahNumber;
 
   @override
   State<_TafsirCard> createState() => _TafsirCardState();

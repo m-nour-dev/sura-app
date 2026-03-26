@@ -2,13 +2,13 @@ import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
 
 class StreakTracker {
-  final INotificationRepository repository;
-  final NotificationService notificationService;
 
   StreakTracker({
     required this.repository,
     required this.notificationService,
   });
+  final INotificationRepository repository;
+  final NotificationService notificationService;
 
   Future<void> logActivity(String featureKey) async {
     final log = await repository.getActivityLog(featureKey);

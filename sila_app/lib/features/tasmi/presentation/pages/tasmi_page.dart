@@ -1,25 +1,23 @@
 import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
-import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/mushaf_tasmi_view.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_action_button.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_correction_bubble.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_page_header.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_stats_row.dart';
+import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
 class TasmiPage extends ConsumerStatefulWidget {
-  final int surahNumber;
-  final int fromAya;
-  final int toAya;
 
   const TasmiPage({
     super.key,
@@ -27,6 +25,9 @@ class TasmiPage extends ConsumerStatefulWidget {
     required this.fromAya,
     required this.toAya,
   });
+  final int surahNumber;
+  final int fromAya;
+  final int toAya;
 
   @override
   ConsumerState<TasmiPage> createState() => _TasmiPageState();
@@ -52,6 +53,23 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<TasmiState>(tasmiControllerProvider, (previous, next) {
+      if (next.warningMessage != null && next.warningMessage != previous?.warningMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              next.warningMessage!.tr(),
+              style: const TextStyle(color: Colors.white, fontFamily: 'Cairo', fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.orange[800],
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        ref.read(tasmiControllerProvider.notifier).clearWarning();
+      }
+    });
+
     final prefs = ref.watch(tasmiPreferencesNotifierProvider);
     if (!prefs.isOnboardingDone) {
       return TasmiOnboardingPage(
@@ -68,8 +86,8 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
     final state = ref.watch(tasmiControllerProvider);
     final controller = ref.read(tasmiControllerProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF064E3B);
-    final accentColor = const Color(0xFFD97706);
+    const primaryColor = Color(0xFF064E3B);
+    const accentColor = Color(0xFFD97706);
     final bgColor = isDark ? const Color(0xFF0F172A) : Colors.grey[50];
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
 
@@ -129,7 +147,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                             if (status == MicHealthStatus.stalled)
                               IconButton(
                                 icon: const Icon(Icons.refresh, size: 16),
-                                onPressed: () => _speechService.forceRestart(),
+                                onPressed: _speechService.forceRestart,
                               ),
                           ],
                         );
@@ -189,7 +207,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                               color: primaryColor.withOpacity(isDark ? 0.2 : 0.05),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.mic_none_rounded, size: 64, color: primaryColor),
+                            child: const Icon(Icons.mic_none_rounded, size: 64, color: primaryColor),
                           ),
                           const SizedBox(height: 24),
                           Text(
@@ -234,15 +252,53 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                                 ],
                               ),
                             ),
+                          if (state.currentIndex > 0 && state.currentIndex < state.words.length && state.status != TasmiStatus.listening)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 24),
+                              child: SizedBox(
+                                width: 180,
+                                height: 50,
+                                child: ElevatedButton.icon(
+                                  onPressed: controller.resumeSession,
+                                  icon: const Icon(Icons.play_arrow_rounded),
+                                  label: Text('resume'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: accentColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     if (state.status == TasmiStatus.listening ||
                         state.status == TasmiStatus.waitingForUser ||
                         state.status == TasmiStatus.finished)
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          return const MushafTasmiView();
-                        },
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const MushafTasmiView(),
+                          if (state.status == TasmiStatus.finished && state.currentIndex < state.words.length)
+                            Positioned(
+                              bottom: 24,
+                              child: SizedBox(
+                                width: 180,
+                                height: 50,
+                                child: ElevatedButton.icon(
+                                  onPressed: controller.resumeSession,
+                                  icon: const Icon(Icons.play_arrow_rounded),
+                                  label: Text('resume'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: accentColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                   ],
                 ),
@@ -301,8 +357,9 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
-        builder: (sheetContext) => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        builder: (sheetContext) => SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -407,6 +464,14 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                         value: state.stats.wrongCount,
                         color: Colors.red,
                         icon: Icons.cancel_rounded,
+                        isDark: isDark,
+                      ),
+                      Container(width: 1, height: 40, color: isDark ? Colors.white10 : Colors.grey[300]),
+                      _StatChip(
+                        label: 'hasanat_label'.tr(),
+                        value: state.stats.hasanatEarned,
+                        color: const Color(0xFFFCD34D),
+                        icon: Icons.stars_rounded,
                         isDark: isDark,
                       ),
                     ],
@@ -545,6 +610,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
               ],
             ),
           ),
+        ),
       );
     } catch (e) {
 
@@ -554,11 +620,6 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
 }
 
 class _StatChip extends StatelessWidget {
-  final String label;
-  final int value;
-  final Color color;
-  final IconData icon;
-  final bool isDark;
 
   const _StatChip({
     required this.label, 
@@ -567,6 +628,11 @@ class _StatChip extends StatelessWidget {
     required this.icon,
     required this.isDark,
   });
+  final String label;
+  final int value;
+  final Color color;
+  final IconData icon;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {

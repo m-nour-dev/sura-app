@@ -2,10 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
+import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/ayah_range_bottom_sheet.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/search_and_filter_bar.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/surah_list_item.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_selection_header.dart';
 
 const List<bool> _isMakki = [ 
@@ -24,14 +24,14 @@ const List<bool> _isMakki = [
 ];
 
 class TasmiSurahSelectionPage extends StatefulWidget {
-  final bool forHifz;
-  final bool showAyahRange;
 
   const TasmiSurahSelectionPage({
     super.key,
     this.forHifz = false,
     this.showAyahRange = true,
   });
+  final bool forHifz;
+  final bool showAyahRange;
 
   @override
   State<TasmiSurahSelectionPage> createState() => _TasmiSurahSelectionPageState();
@@ -40,7 +40,7 @@ class TasmiSurahSelectionPage extends StatefulWidget {
 String _toArabicNumber(String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  for (int i = 0; i < english.length; i++) {
+  for (var i = 0; i < english.length; i++) {
     input = input.replaceAll(english[i], arabic[i]);
   }
   return input;
@@ -72,10 +72,10 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
   }
 
   void _applyFilters() {
-    final List<int> results = [];
+    final results = <int>[];
     final normalizedQuery = TajweedNormalizer.normalize(_searchQuery);
 
-    for (int i = 1; i <= quran.totalSurahCount; i++) {
+    for (var i = 1; i <= quran.totalSurahCount; i++) {
       final bool matchesFilter;
       if (_filterIndex == 1) {
         matchesFilter = _isMakki[i - 1];
@@ -174,7 +174,7 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
   }
 
   Widget _buildFilterChip(int index, String label) {
-    final bool isActive = _filterIndex == index;
+    final isActive = _filterIndex == index;
     final theme = Theme.of(context);
     return ChoiceChip(
       label: Text(label),

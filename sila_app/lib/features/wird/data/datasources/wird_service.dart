@@ -1,12 +1,12 @@
 import 'package:isar/isar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 import 'package:sila_app/features/wird/data/models/wird_history.dart';
+import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 
 class WirdService {
-  final Isar _isar;
 
   WirdService(this._isar);
+  final Isar _isar;
 
   static const String _goalTypeKey = 'wird_goal_type';
   static const String _goalValueKey = 'wird_goal_value';
@@ -36,11 +36,11 @@ class WirdService {
     final lastCalcStr = prefs.getString(_lastTargetCalcDateKey);
     final todayStr = DateTime.now().toIso8601String().split('T')[0];
     
-    int? stableTarget = prefs.getInt(_targetPageKey);
+    var stableTarget = prefs.getInt(_targetPageKey);
     
     if (lastCalcStr != todayStr || stableTarget == null) {
       // It's a new day or no target set yet, calculate new target
-      int increment = 0;
+      var increment = 0;
       switch (settings.goalType) {
         case WirdGoalType.page: increment = settings.goalValue; break;
         case WirdGoalType.juz: increment = settings.goalValue * 20; break;
@@ -109,7 +109,7 @@ class WirdService {
     settings.currentPage = (endPage + 1).clamp(1, 604); // Advance to the next fresh page
     
     // Increment the stable target for today so the user can continue to the next portion
-    int increment = 0;
+    var increment = 0;
     switch (settings.goalType) {
       case WirdGoalType.page: increment = settings.goalValue; break;
       case WirdGoalType.juz: increment = settings.goalValue * 20; break;

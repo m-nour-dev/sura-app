@@ -1,14 +1,13 @@
 
 import 'dart:async';
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/providers/reciter_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
+import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
 import 'package:sila_app/features/tasmi/data/repositories/i_tasmi_error_repository.dart';
@@ -18,20 +17,16 @@ import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
 import 'package:sila_app/features/tasmi/services/tasmi_tts_service.dart'; // ← ADDED: TTS service import
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
+import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
+import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
+import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
 
 part 'tasmi_controller.g.dart';
 
 enum TasmiStatus { idle, listening, waitingForUser, finished, error }
 
 class TasmiState extends Equatable {
-  final TasmiStatus status;
-  final List<TasmiWordEntry> words;
-  final int currentIndex;
-  final String? correctionWord;
-  final TasmiSessionStats stats;
-  final String? errorMessage;
-  final bool isMicListening;
-  final int currentWordAttempts;
 
   const TasmiState({
     required this.status,
@@ -40,20 +35,33 @@ class TasmiState extends Equatable {
     this.correctionWord,
     required this.stats,
     this.errorMessage,
+    this.warningMessage,
     required this.isMicListening,
     required this.currentWordAttempts,
+    this.sessionStartTime,
   });
 
   factory TasmiState.initial() {
     return TasmiState(
       status: TasmiStatus.idle,
-        words: [],
+        words: const [],
         currentIndex: 0,
         stats: TasmiSessionStats.initial(),
         isMicListening: false,
         currentWordAttempts: 0,
+        sessionStartTime: null,
       );
   }
+  final TasmiStatus status;
+  final List<TasmiWordEntry> words;
+  final int currentIndex;
+  final String? correctionWord;
+  final TasmiSessionStats stats;
+  final String? errorMessage;
+  final String? warningMessage;
+  final bool isMicListening;
+  final int currentWordAttempts;
+  final DateTime? sessionStartTime;
 
   TasmiState copyWith({
     TasmiStatus? status,
@@ -64,8 +72,11 @@ class TasmiState extends Equatable {
     TasmiSessionStats? stats,
     String? errorMessage,
     bool clearErrorMessage = false,
+    String? warningMessage,
+    bool clearWarningMessage = false,
     bool? isMicListening,
     int? currentWordAttempts,
+    DateTime? sessionStartTime,
   }) {
     return TasmiState(
       status: status ?? this.status,
@@ -74,8 +85,10 @@ class TasmiState extends Equatable {
       correctionWord: clearCorrectionWord ? null : correctionWord ?? this.correctionWord,
       stats: stats ?? this.stats,
       errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+      warningMessage: clearWarningMessage ? null : warningMessage ?? this.warningMessage,
       isMicListening: isMicListening ?? this.isMicListening,
       currentWordAttempts: currentWordAttempts ?? this.currentWordAttempts,
+      sessionStartTime: sessionStartTime ?? this.sessionStartTime,
     );
   }
 
@@ -87,13 +100,17 @@ class TasmiState extends Equatable {
         correctionWord,
         stats,
         errorMessage,
+        warningMessage,
         isMicListening,
         currentWordAttempts,
+        sessionStartTime,
       ];
 }
 
 @riverpod
 class TasmiController extends _$TasmiController {
+  static const String _errorMicFinal = 'error_mic_final';
+
   late final TasmiSpeechService _speechService;
   StreamSubscription<String>? _speechSubscription;
   int? _surahNumber;
@@ -136,11 +153,11 @@ class TasmiController extends _$TasmiController {
     _sessionErrors.clear();
 
     // 1. Load verses
-    final List<TasmiWordEntry> allWords = [];
-    for (int i = fromAya; i <= toAya; i++) {
-      String verseText = quran.getVerse(surahNumber, i, verseEndSymbol: false);
-      List<String> wordsInVerse = verseText.split(' ');
-      for (String word in wordsInVerse) {
+    final allWords = <TasmiWordEntry>[];
+    for (var i = fromAya; i <= toAya; i++) {
+      final verseText = quran.getVerse(surahNumber, i, verseEndSymbol: false);
+      final wordsInVerse = verseText.split(' ');
+      for (var word in wordsInVerse) {
         if (word.isNotEmpty) {
           allWords.add(TasmiWordEntry(verseNumber: i, word: word));
         }
@@ -164,6 +181,7 @@ class TasmiController extends _$TasmiController {
       stats: TasmiSessionStats.initial(),
       isMicListening: false,
       currentWordAttempts: 0,
+      sessionStartTime: DateTime.now(),
     );
 
     // 4. Start support services
@@ -175,9 +193,16 @@ class TasmiController extends _$TasmiController {
     _speechSubscription = _speechService.wordStream.listen(
       _onWordSpoken,
       onError: (error) async {
+        final errorString = error.toString();
+        
+        if (errorString.contains(_errorMicFinal)) {
+           state = state.copyWith(warningMessage: _errorMicFinal);
+           return;
+        }
+
         state = state.copyWith(
           status: TasmiStatus.error,
-          errorMessage: error.toString(),
+          errorMessage: errorString,
           isMicListening: false,
         );
         await _stopServicesOnly();
@@ -192,7 +217,7 @@ class TasmiController extends _$TasmiController {
         status: TasmiStatus.error,
         currentIndex: 0,
         clearCorrectionWord: true,
-        errorMessage: 'تعذر تشغيل الميكروفون. تأكد من الإذن ثم حاول مرة أخرى.',
+        errorMessage: 'mic_error'.tr(),
         isMicListening: false,
         currentWordAttempts: 0,
       );
@@ -233,7 +258,7 @@ class TasmiController extends _$TasmiController {
       if (newAttempts < maxAttempts) {
         state = state.copyWith(currentWordAttempts: newAttempts);
 
-        if (newAttempts == maxAttempts - 1 && prefs.ttsEnabled) {
+        if (prefs.ttsEnabled) {
           await _speechService.pauseForTts();
           state = state.copyWith(isMicListening: false);
           await ref.read(tasmiTtsServiceProvider).speakWord(currentEntry.word);
@@ -355,21 +380,67 @@ class TasmiController extends _$TasmiController {
     unawaited(_stopServicesOnly());
   }
 
-  void _finish() {
+  Future<void> resumeSession() async {
+    if (state.status == TasmiStatus.listening) return;
+    
+    _isProcessingWord = false;
+
+    // Re-establish subscription because it's cancelled in _finish/_stop
+    await _speechSubscription?.cancel();
+    _speechSubscription = _speechService.wordStream.listen(
+      _onWordSpoken,
+      onError: (error) async {
+        final errorString = error.toString();
+        if (errorString.contains(_errorMicFinal)) {
+          state = state.copyWith(warningMessage: _errorMicFinal);
+          return;
+        }
+        state = state.copyWith(
+          status: TasmiStatus.error,
+          errorMessage: errorString,
+          isMicListening: false,
+        );
+        await _stopServicesOnly();
+      },
+    );
+
+    state = state.copyWith(
+      status: TasmiStatus.listening,
+      clearCorrectionWord: true,
+      clearErrorMessage: true,
+      isMicListening: false,
+      sessionStartTime: state.sessionStartTime ?? DateTime.now(),
+    );
+
+    final startedListening = await _speechService.startListening();
+    if (!startedListening) {
+      state = state.copyWith(
+        status: TasmiStatus.error,
+        errorMessage: 'mic_error'.tr(),
+      );
+      return;
+    }
+    state = state.copyWith(isMicListening: true);
+  }
+
+  void _finish() async {
     _isProcessingWord = false;
     _speechService.stopListening();
     _speechSubscription?.cancel();
-    ref.read(tasmiTtsServiceProvider).stop(); // ← ADDED: TTS stop
+    ref.read(tasmiTtsServiceProvider).stop(); 
 
-    int correct = 0;
-    int close = 0;
-    int wrong = 0;
-    int skipped = 0;
+    var correct = 0;
+    var close = 0;
+    var wrong = 0;
+    var skipped = 0;
+    var correctTextBuffer = StringBuffer();
 
     for (final entry in state.words) {
       switch (entry.status) {
         case WordEntryStatus.correct:
           correct++;
+          correctTextBuffer.write(entry.word);
+          correctTextBuffer.write(' ');
           break;
         case WordEntryStatus.closeError:
           close++;
@@ -385,6 +456,11 @@ class TasmiController extends _$TasmiController {
       }
     }
 
+    final hasanat = HasanatCalculator.calculate(correctTextBuffer.toString());
+    final duration = state.sessionStartTime != null 
+        ? DateTime.now().difference(state.sessionStartTime!).inSeconds
+        : 0;
+
     state = state.copyWith(
       status: TasmiStatus.finished,
       isMicListening: false,
@@ -394,8 +470,32 @@ class TasmiController extends _$TasmiController {
         wrongCount: wrong,
         skippedCount: skipped,
         errorList: List<TasmiWordError>.from(_sessionErrors),
+        hasanatEarned: hasanat,
       ),
     );
+
+    // Save to Hifz history
+    try {
+      final repository = await ref.read(hifzRepositoryProvider.future);
+      final hasFinishedNormally = state.currentIndex >= state.words.length;
+      
+      final session = HifzSession()
+        ..surahIndex = _surahNumber ?? 1
+        ..fromVerse = state.words.first.verseNumber
+        ..toVerse = state.words.last.verseNumber
+        ..method = 'listening'
+        ..date = DateTime.now()
+        ..correctWords = correct
+        ..wrongWords = wrong + close
+        ..durationSeconds = duration;
+
+      await repository.saveSession(session);
+      
+      // Refresh Hifz dashboard
+      ref.invalidate(hifzHomeControllerProvider);
+    } catch (e) {
+      debugPrint('❌ Error saving tasmi session: $e');
+    }
 
     final total = correct + close + wrong + skipped;
     final accuracy = total == 0 ? 0.0 : correct / total;
@@ -403,6 +503,10 @@ class TasmiController extends _$TasmiController {
           accuracy: accuracy,
           errorsCount: _sessionErrors.length,
         );
+  }
+
+  void clearWarning() {
+    state = state.copyWith(clearWarningMessage: true);
   }
 
   Future<void> _stopServicesOnly() async {

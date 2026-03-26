@@ -1,4 +1,5 @@
 import 'package:adhan/adhan.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:sila_app/core/services/location_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
@@ -8,22 +9,22 @@ class PrayerRepositoryImpl extends PrayerRepository {
   // Default Location: Istanbul, Turkey (fallback)
   static const double _defaultLat = 41.0082;
   static const double _defaultLong = 28.9784;
-  static const String _defaultCity = 'İstanbul, Türkiye';
+  static String get _defaultCity => 'unknown_location'.tr();
 
   @override
   Future<PrayerTimesEntity> getPrayerTimes() async {
     final locService = LocationService();
     final prefs = PrefsService();
 
-    double lat = _defaultLat;
-    double long = _defaultLong;
-    String city = _defaultCity;
-    String countryCode = 'TR';
+    var lat = _defaultLat;
+    var long = _defaultLong;
+    var city = _defaultCity;
+    var countryCode = 'TR';
 
     // Get location
     try {
       final isAuto = await prefs.isAutoLocation();
-      String? oldCountryCode = await prefs.getCountryCode();
+      final oldCountryCode = await prefs.getCountryCode();
 
       if (isAuto) {
         final position = await locService.determinePosition();
@@ -105,8 +106,8 @@ class PrayerRepositoryImpl extends PrayerRepository {
     final prefs = PrefsService();
     final locService = LocationService();
 
-    double lat = _defaultLat;
-    double long = _defaultLong;
+    var lat = _defaultLat;
+    var long = _defaultLong;
 
     try {
       final isAuto = await prefs.isAutoLocation();

@@ -1,11 +1,10 @@
-import 'package:sila_app/core/utils/surah_utils.dart';
-import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_settings_page.dart';
@@ -465,9 +464,9 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
 }
 
 class _Header extends StatelessWidget {
-  final HifzHomeState state;
 
   const _Header({required this.state});
+  final HifzHomeState state;
 
   @override
   Widget build(BuildContext context) {
@@ -550,9 +549,9 @@ class _Header extends StatelessWidget {
 }
 
 class _DailyPlanCard extends StatelessWidget {
-  final HifzHomeState state;
 
   const _DailyPlanCard({required this.state});
+  final HifzHomeState state;
 
   @override
   Widget build(BuildContext context) {
@@ -669,9 +668,9 @@ class _DailyPlanCard extends StatelessWidget {
 }
 
 class _HasanatCard extends StatelessWidget {
-  final int hasanat;
 
   const _HasanatCard({required this.hasanat});
+  final int hasanat;
 
   @override
   Widget build(BuildContext context) {
@@ -723,11 +722,6 @@ class _HasanatCard extends StatelessWidget {
 }
 
 class _MethodsGrid extends StatelessWidget {
-  final int dueReviewCount;
-  final VoidCallback onInteractiveShadow;
-  final VoidCallback onSmartReview;
-  final VoidCallback onListening;
-  final VoidCallback onRepetition;
 
   const _MethodsGrid({
     required this.dueReviewCount,
@@ -736,6 +730,11 @@ class _MethodsGrid extends StatelessWidget {
     required this.onListening,
     required this.onRepetition,
   });
+  final int dueReviewCount;
+  final VoidCallback onInteractiveShadow;
+  final VoidCallback onSmartReview;
+  final VoidCallback onListening;
+  final VoidCallback onRepetition;
 
   @override
   Widget build(BuildContext context) {
@@ -847,9 +846,9 @@ class _MethodsGrid extends StatelessWidget {
 }
 
 class _MomentsSection extends StatelessWidget {
-  final List<dynamic> moments;
 
   const _MomentsSection({required this.moments});
+  final List<dynamic> moments;
 
   @override
   Widget build(BuildContext context) {
@@ -951,9 +950,9 @@ class _MomentsSection extends StatelessWidget {
 }
 
 class _ErrorCard extends StatelessWidget {
-  final String message;
 
   const _ErrorCard({required this.message});
+  final String message;
 
   @override
   Widget build(BuildContext context) {

@@ -51,7 +51,7 @@ class TajweedNormalizer {
     String text, {
     bool ignoreDiacritics = true,
   }) {
-    String result = text;
+    var result = text;
 
     if (ignoreDiacritics) {
       result = stripDiacritics(result);
@@ -149,18 +149,18 @@ class TajweedNormalizer {
     if (s1.isEmpty) return s2.length;
     if (s2.isEmpty) return s1.length;
 
-    List<int> v0 = List<int>.generate(s2.length + 1, (i) => i, growable: false);
-    List<int> v1 = List<int>.filled(s2.length + 1, 0);
+    final v0 = List<int>.generate(s2.length + 1, (i) => i, growable: false);
+    final v1 = List<int>.filled(s2.length + 1, 0);
 
-    for (int i = 0; i < s1.length; i++) {
+    for (var i = 0; i < s1.length; i++) {
       v1[0] = i + 1;
 
-      for (int j = 0; j < s2.length; j++) {
-        int cost = (s1[i] == s2[j]) ? 0 : 1;
+      for (var j = 0; j < s2.length; j++) {
+        final cost = (s1[i] == s2[j]) ? 0 : 1;
         v1[j + 1] = min(v1[j] + 1, min(v0[j + 1] + 1, v0[j] + cost));
       }
 
-      for (int j = 0; j < s2.length + 1; j++) {
+      for (var j = 0; j < s2.length + 1; j++) {
         v0[j] = v1[j];
       }
     }

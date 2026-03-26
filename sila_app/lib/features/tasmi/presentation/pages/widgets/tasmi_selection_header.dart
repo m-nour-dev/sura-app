@@ -4,14 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 
 class TasmiSelectionHeader extends StatelessWidget {
-  final String title;
-  final String subtitle;
 
   const TasmiSelectionHeader({
     super.key,
     required this.title,
     required this.subtitle,
   });
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {

@@ -4,9 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class QuranData {
-  final Map<String, String> tafsir;
-  final Map<String, String> tajweed;
-  final Map<String, String> translation;
 
   QuranData({
     required this.tafsir,
@@ -15,6 +12,9 @@ class QuranData {
   });
 
   factory QuranData.empty() => QuranData(tafsir: {}, tajweed: {}, translation: {});
+  final Map<String, String> tafsir;
+  final Map<String, String> tajweed;
+  final Map<String, String> translation;
 }
 
 final quranDataProvider = FutureProvider<QuranData>((ref) async {
@@ -23,7 +23,7 @@ final quranDataProvider = FutureProvider<QuranData>((ref) async {
     final isTurkish = languageCode.startsWith('tr');
 
     // Load Quran translation
-    final quranTranslationPath = 'assets/data/quran_tr.json';
+    const quranTranslationPath = 'assets/data/quran_tr.json';
     
     // Load Tafseer based on language
     final tafseerPath = isTurkish ? 'assets/data/tafseer_tr.json' : 'assets/data/tafseer.json';
@@ -42,16 +42,16 @@ final quranDataProvider = FutureProvider<QuranData>((ref) async {
     final Map<String, dynamic> trRaw = json.decode(results[2]);
 
     // Robustly convert to Map<String, String>
-    final Map<String, String> processedTafsir = tafsirRaw.map(
+    final processedTafsir = tafsirRaw.map(
       (key, value) => MapEntry(key.toString(), value.toString()),
     );
-    final Map<String, String> processedTajweed = tajweedRaw.map(
+    final processedTajweed = tajweedRaw.map(
       (key, value) => MapEntry(key.toString(), value.toString()),
     );
 
     // Translation is a list of objects with 'chapter', 'verse', 'text'
     final List<dynamic> trList = trRaw['quran'] ?? [];
-    final Map<String, String> processedTr = {};
+    final processedTr = <String, String>{};
     for (var item in trList) {
       if (item['chapter'] != null && item['verse'] != null) {
         processedTr['${item['chapter']}_${item['verse']}'] = (item['text'] ?? '').toString();

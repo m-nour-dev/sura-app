@@ -95,7 +95,7 @@ class _AddVefaContactSheetState extends ConsumerState<AddVefaContactSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.accentColor, width: 2),
+                  borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
                 ),
                 alignLabelWithHint: true,
               ),
@@ -124,7 +124,7 @@ class _AddVefaContactSheetState extends ConsumerState<AddVefaContactSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.accentColor, width: 2),
+                  borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
                 ),
                 alignLabelWithHint: true,
               ),

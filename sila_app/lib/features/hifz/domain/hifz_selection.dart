@@ -5,10 +5,6 @@ enum HifzSelectionType {
 }
 
 class HifzSelection {
-  final int surahNumber;
-  final int fromVerse;
-  final int toVerse;
-  final HifzSelectionType type;
 
   const HifzSelection({
     required this.surahNumber,
@@ -16,4 +12,8 @@ class HifzSelection {
     required this.toVerse,
     required this.type,
   });
+  final int surahNumber;
+  final int fromVerse;
+  final int toVerse;
+  final HifzSelectionType type;
 }

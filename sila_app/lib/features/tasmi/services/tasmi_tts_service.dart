@@ -124,6 +124,6 @@ class TasmiTtsService {
 @riverpod
 TasmiTtsService tasmiTtsService(TasmiTtsServiceRef ref) {
   final service = TasmiTtsService();
-  ref.onDispose(() => service.dispose());
+  ref.onDispose(service.dispose);
   return service;
 }

@@ -41,7 +41,7 @@ class WirdSettings {
   int get targetPageForToday {
     if (_stableTargetPage != null) return _stableTargetPage!;
     
-    int increment = 0;
+    var increment = 0;
     switch (goalType) {
       case WirdGoalType.page:
         increment = goalValue;

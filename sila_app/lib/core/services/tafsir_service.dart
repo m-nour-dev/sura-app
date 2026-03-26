@@ -10,7 +10,7 @@ class TafsirService {
       final isTurkish = languageCode.startsWith('tr');
       final filePath = isTurkish ? 'assets/data/tafseer_tr.json' : 'assets/data/tafseer.json';
       
-      final String jsonString = await rootBundle.loadString(filePath);
+      final jsonString = await rootBundle.loadString(filePath);
       // Parse JSON and cache by surah number
       // Format: {"1": {"1": "تفسير الآية 1", "2": "تفسير الآية 2"}}
     } catch (e) {

@@ -12,7 +12,6 @@ import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
 import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/interactive_shadow_controller.dart';
 import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
@@ -23,9 +22,6 @@ const Color _hasanatGold = Color(0xFFFCD34D);
 const Color _errorColor = Color(0xFFF87171);
 
 class InteractiveShadowPage extends ConsumerStatefulWidget {
-  final int surahNumber;
-  final int fromVerse;
-  final int toVerse;
 
   const InteractiveShadowPage({
     super.key,
@@ -33,6 +29,9 @@ class InteractiveShadowPage extends ConsumerStatefulWidget {
     this.fromVerse = 1,
     this.toVerse = 5,
   });
+  final int surahNumber;
+  final int fromVerse;
+  final int toVerse;
 
   @override
   ConsumerState<InteractiveShadowPage> createState() => _InteractiveShadowPageState();
@@ -88,7 +87,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
     _lastInputsStateHash = currentHash;
 
     final validIndexes = <int>{};
-    for (int i = 0; i < words.length; i++) {
+    for (var i = 0; i < words.length; i++) {
       final w = words[i];
       if (!w.isHidden || w.isAyahMarker) {
         continue;
@@ -98,7 +97,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
         _inlineControllers.remove(i)?.dispose();
         _inlineControllers[i] = TextEditingController();
       }
-      _inlineFocusNodes.putIfAbsent(i, () => FocusNode());
+      _inlineFocusNodes.putIfAbsent(i, FocusNode.new);
     }
 
     final stale = _inlineControllers.keys.where((k) => !validIndexes.contains(k)).toList();
@@ -109,7 +108,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
   }
 
   int? _findNextHiddenIndex(List<ShadowWordEntry> words, int fromIndex) {
-    for (int i = fromIndex + 1; i < words.length; i++) {
+    for (var i = fromIndex + 1; i < words.length; i++) {
       final w = words[i];
       if (w.isHidden && !w.isAyahMarker && !w.revealedCorrectly) {
         return i;
@@ -311,11 +310,6 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
 }
 
 class _TopHeader extends StatelessWidget {
-  final String surahName;
-  final int stage;
-  final String reciterLabel;
-  final VoidCallback onReciterTap;
-  final VoidCallback onMomentTap;
 
   const _TopHeader({
     required this.surahName,
@@ -324,6 +318,11 @@ class _TopHeader extends StatelessWidget {
     required this.onReciterTap,
     required this.onMomentTap,
   });
+  final String surahName;
+  final int stage;
+  final String reciterLabel;
+  final VoidCallback onReciterTap;
+  final VoidCallback onMomentTap;
 
   @override
   Widget build(BuildContext context) {
@@ -406,9 +405,9 @@ class _TopHeader extends StatelessWidget {
 }
 
 class _StageBanner extends StatelessWidget {
-  final int stage;
 
   const _StageBanner({required this.stage});
+  final int stage;
 
   @override
   Widget build(BuildContext context) {
@@ -446,17 +445,15 @@ class _StageBanner extends StatelessWidget {
 }
 
 class _StageContent extends StatelessWidget {
-  final InteractiveShadowState state;
-  final AnimationController flashController;
 
   const _StageContent({super.key, required this.state, required this.flashController});
+  final InteractiveShadowState state;
+  final AnimationController flashController;
 
   @override
   Widget build(BuildContext context) {
     final pageState = context.findAncestorStateOfType<_InteractiveShadowPageState>();
-    final controller = pageState == null
-        ? null
-        : pageState.ref.read(interactiveShadowControllerProvider.notifier);
+    final controller = pageState?.ref.read(interactiveShadowControllerProvider.notifier);
 
     final color = ColorTween(
       begin: Colors.transparent,
@@ -517,9 +514,9 @@ class _StageContent extends StatelessWidget {
 }
 
 class _WordChip extends StatelessWidget {
-  final ShadowWordEntry entry;
 
   const _WordChip({required this.entry});
+  final ShadowWordEntry entry;
 
   @override
   Widget build(BuildContext context) {
@@ -587,10 +584,6 @@ class _WordChip extends StatelessWidget {
 }
 
 class _AudioBar extends StatelessWidget {
-  final bool isPlaying;
-  final AnimationController waveController;
-  final Future<void> Function() onToggle;
-  final String reciterLabel;
 
   const _AudioBar({
     required this.isPlaying,
@@ -598,6 +591,10 @@ class _AudioBar extends StatelessWidget {
     required this.onToggle,
     required this.reciterLabel,
   });
+  final bool isPlaying;
+  final AnimationController waveController;
+  final Future<void> Function() onToggle;
+  final String reciterLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -612,7 +609,7 @@ class _AudioBar extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => onToggle(),
+            onTap: onToggle,
             child: Container(
               width: 38,
               height: 38,
@@ -710,10 +707,10 @@ class _InlineWordInput extends StatelessWidget {
 }
 
 class _AudioWaveform extends StatelessWidget {
-  final bool isPlaying;
-  final AnimationController controller;
 
   const _AudioWaveform({required this.isPlaying, required this.controller});
+  final bool isPlaying;
+  final AnimationController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -839,10 +836,10 @@ class _InlineStatusMessage extends StatelessWidget {
 }
 
 class _MicBar extends StatelessWidget {
-  final bool isListening;
-  final Future<void> Function() onToggle;
 
   const _MicBar({required this.isListening, required this.onToggle});
+  final bool isListening;
+  final Future<void> Function() onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -857,7 +854,7 @@ class _MicBar extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => onToggle(),
+            onTap: onToggle,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 40,
@@ -876,7 +873,7 @@ class _MicBar extends StatelessWidget {
               stream: TasmiSpeechService().micHealthStream,
               initialData: MicHealthStatus.active,
               builder: (context, snapshot) {
-                final MicHealthStatus? status =
+                final status =
                     isListening ? (snapshot.data ?? MicHealthStatus.active) : null;
                 final statusColor = switch (status) {
                   null => Colors.white54,
@@ -951,11 +948,11 @@ class _MicBar extends StatelessWidget {
 }
 
 class _StatsRow extends StatelessWidget {
+
+  const _StatsRow({required this.correct, required this.wrong, required this.hasanat});
   final int correct;
   final int wrong;
   final int hasanat;
-
-  const _StatsRow({required this.correct, required this.wrong, required this.hasanat});
 
   @override
   Widget build(BuildContext context) {
@@ -975,11 +972,11 @@ class _StatsRow extends StatelessWidget {
 }
 
 class _StatChip extends StatelessWidget {
+
+  const _StatChip({required this.value, required this.label, required this.valueColor});
   final String value;
   final String label;
   final Color valueColor;
-
-  const _StatChip({required this.value, required this.label, required this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -1002,9 +999,9 @@ class _StatChip extends StatelessWidget {
 }
 
 class _InstructionCard extends StatelessWidget {
-  final int stage;
 
   const _InstructionCard({required this.stage});
+  final int stage;
 
   @override
   Widget build(BuildContext context) {
@@ -1040,10 +1037,6 @@ class _InstructionCard extends StatelessWidget {
 }
 
 class _SessionResultsView extends ConsumerStatefulWidget {
-  final InteractiveShadowState state;
-  final VoidCallback onHome;
-  final VoidCallback onDedicate;
-  final VoidCallback onRestart;
 
   const _SessionResultsView({
     required this.state,
@@ -1051,6 +1044,10 @@ class _SessionResultsView extends ConsumerStatefulWidget {
     required this.onDedicate,
     required this.onRestart,
   });
+  final InteractiveShadowState state;
+  final VoidCallback onHome;
+  final VoidCallback onDedicate;
+  final VoidCallback onRestart;
 
   @override
   ConsumerState<_SessionResultsView> createState() => _SessionResultsViewState();
@@ -1234,7 +1231,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border(
+                  border: const Border(
                     left: BorderSide(color: AppTheme.accentColor, width: 4),
                   ),
                 ),
@@ -1253,7 +1250,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
             const SizedBox(height: 14),
             Row(
               children: [
-                Icon(Icons.bookmark_added_rounded, color: AppTheme.primaryColor, size: 18),
+                const Icon(Icons.bookmark_added_rounded, color: AppTheme.primaryColor, size: 18),
                 const SizedBox(width: 6),
                 Text(
                   'words_needing_review'.tr(),
@@ -1365,7 +1362,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
             ),
             child: Row(
               children: [
-                Icon(Icons.auto_awesome_rounded, color: AppTheme.accentColor, size: 24),
+                const Icon(Icons.auto_awesome_rounded, color: AppTheme.accentColor, size: 24),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -1462,15 +1459,15 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
 }
 
 class _ReviewAyahItem {
-  final int ayahNumber;
-  final String displayText;
-  final bool severe;
 
   const _ReviewAyahItem({
     required this.ayahNumber,
     required this.displayText,
     required this.severe,
   });
+  final int ayahNumber;
+  final String displayText;
+  final bool severe;
 }
 
 class _ResultsStatCard extends StatelessWidget {
@@ -1524,15 +1521,15 @@ class _ResultsStatCard extends StatelessWidget {
 }
 
 class _MomentCaptureSheet extends StatefulWidget {
-  final String surahName;
-  final String verseText;
-  final Future<void> Function(String feeling, String note) onSave;
 
   const _MomentCaptureSheet({
     required this.surahName,
     required this.verseText,
     required this.onSave,
   });
+  final String surahName;
+  final String verseText;
+  final Future<void> Function(String feeling, String note) onSave;
 
   @override
   State<_MomentCaptureSheet> createState() => _MomentCaptureSheetState();

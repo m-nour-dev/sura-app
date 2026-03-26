@@ -6,11 +6,11 @@ import 'package:sila_app/core/presentation/widgets/audio_storage_sheet.dart';
 import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/adhan_settings_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:sila_app/features/prayers/presentation/widgets/location_settings_dialog.dart';
+import 'package:sila_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
 
 // ── All supported calculation methods ────────────────────────────────────────
 const _methods = {
@@ -101,7 +101,7 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
               subtitle: _isAuto ? 'auto_detect_enabled'.tr() : 'auto_detect_disabled'.tr(),
               trailing: Switch(
                 value: _isAuto,
-                activeColor: const Color(0xFF43A047),
+                activeThumbColor: const Color(0xFF43A047),
                 onChanged: (v) async {
                   await _prefs.setAutoLocation(v);
                   setState(() => _isAuto = v);
@@ -218,9 +218,9 @@ class _PrayerSettingsPageState extends ConsumerState<PrayerSettingsPage> {
 // ── Helper widgets ────────────────────────────────────────────────────────────
 
 class _Section extends StatelessWidget {
+  const _Section({required this.label, required this.children});
   final String label;
   final List<Widget> children;
-  const _Section({required this.label, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -253,11 +253,6 @@ class _Section extends StatelessWidget {
 }
 
 class _Tile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onTap;
-  final Widget? trailing;
 
   const _Tile({
     required this.icon,
@@ -266,6 +261,11 @@ class _Tile extends StatelessWidget {
     this.onTap,
     this.trailing,
   });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -295,8 +295,8 @@ class _Tile extends StatelessWidget {
 // ── Method picker dialog ───────────────────────────────────────────────────
 
 class _MethodDialog extends StatelessWidget {
-  final String current;
   const _MethodDialog({required this.current});
+  final String current;
 
   @override
   Widget build(BuildContext context) {

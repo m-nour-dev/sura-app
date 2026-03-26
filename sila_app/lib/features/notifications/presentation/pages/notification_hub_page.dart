@@ -90,13 +90,6 @@ class NotificationHubPage extends StatelessWidget {
 }
 
 class _HubTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color card;
-  final Color border;
-  final Color titleColor;
-  final VoidCallback onTap;
 
   const _HubTile({
     required this.title,
@@ -107,6 +100,13 @@ class _HubTile extends StatelessWidget {
     required this.titleColor,
     required this.onTap,
   });
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color card;
+  final Color border;
+  final Color titleColor;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

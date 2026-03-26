@@ -59,7 +59,7 @@ void main() {
       const spokenClose = 'العلمين';
       const expectedClose = 'الْعَالَمِينَ'; // Normalized: العالمين
       final resultClose = TajweedNormalizer.compareWord(spoken: spokenClose, expected: expectedClose);
-      expect(resultClose, WordMatchResult.closeError, reason: "Similarity should be high");
+      expect(resultClose, WordMatchResult.closeError, reason: 'Similarity should be high');
 
     });
     

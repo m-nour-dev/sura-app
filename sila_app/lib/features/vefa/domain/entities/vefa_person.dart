@@ -1,9 +1,4 @@
-class VefaPerson {
-  final int? id;
-  final String name;
-  final String? relation; // e.g., Father, Friend
-  final DateTime? deathDate;
-  final int giftCount; // How many times user donated thawab to this person
+class VefaPerson { // How many times user donated thawab to this person
 
   VefaPerson({
     this.id,
@@ -12,6 +7,11 @@ class VefaPerson {
     this.deathDate,
     this.giftCount = 0,
   });
+  final int? id;
+  final String name;
+  final String? relation; // e.g., Father, Friend
+  final DateTime? deathDate;
+  final int giftCount;
 
   VefaPerson copyWith({
     int? id,

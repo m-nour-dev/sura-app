@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/wird/data/models/wird_settings.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
 
@@ -220,8 +219,8 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
   }
 
   Widget _buildValueSelector() {
-    String unit = '';
-    int maxVal = 30;
+    var unit = '';
+    var maxVal = 30;
     switch (_selectedType) {
       case WirdGoalType.page: unit = 'صفحة'; maxVal = 604; break;
       case WirdGoalType.juz: unit = 'جزء'; maxVal = 30; break;

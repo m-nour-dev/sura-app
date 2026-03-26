@@ -9,9 +9,9 @@ abstract class QuranLocalDataSource {
 }
 
 class QuranLocalDataSourceImpl implements QuranLocalDataSource {
-  final AssetBundle assetBundle;
 
   QuranLocalDataSourceImpl({required this.assetBundle});
+  final AssetBundle assetBundle;
 
   @override
   Future<List<SurahModel>> getSurahs() async {

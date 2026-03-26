@@ -15,7 +15,9 @@ class SpacedRepetitionEngine {
     required int currentIntervalDays,
     required double easinessFactor,
     required int quality,
+    DateTime? currentTime,
   }) {
+    final now = currentTime ?? DateTime.now();
     final q = quality.clamp(0, 5);
 
     var newEf = easinessFactor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
@@ -35,7 +37,7 @@ class SpacedRepetitionEngine {
     return ReviewSchedule(
       nextIntervalDays: nextInterval,
       newEasinessFactor: newEf,
-      nextReviewDate: DateTime.now().add(Duration(days: nextInterval)),
+      nextReviewDate: now.add(Duration(days: nextInterval)),
     );
   }
 }

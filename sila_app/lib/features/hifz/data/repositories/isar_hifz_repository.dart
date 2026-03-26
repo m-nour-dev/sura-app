@@ -1,17 +1,17 @@
 import 'package:isar/isar.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
+import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
 import 'package:sila_app/features/hifz/data/repositories/i_hifz_repository.dart';
 
 class IsarHifzRepository implements IHifzRepository {
-  late final Isar _isar;
 
   IsarHifzRepository(Isar isar) {
     _isar = isar;
   }
+  late final Isar _isar;
 
   @override
   Future<HifzUserProfile?> getProfile() async {

@@ -3,16 +3,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class TasmiCorrectionBubble extends StatelessWidget {
-  final String? word;
 
   const TasmiCorrectionBubble({super.key, this.word});
+  final String? word;
 
   @override
   Widget build(BuildContext context) {
     if (word == null) return const SizedBox.shrink();
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accentColor = const Color(0xFFD97706);
+    const accentColor = Color(0xFFD97706);
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -38,7 +38,7 @@ class TasmiCorrectionBubble extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.lightbulb_outline_rounded, size: 16, color: accentColor),
+              const Icon(Icons.lightbulb_outline_rounded, size: 16, color: accentColor),
               const SizedBox(width: 6),
               Text(
                 'tasmi_correct_word_label'.tr(),
@@ -54,7 +54,7 @@ class TasmiCorrectionBubble extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             word!,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 36,
               fontFamily: 'Amiri',
               fontWeight: FontWeight.bold,
@@ -71,7 +71,7 @@ class TasmiCorrectionBubble extends StatelessWidget {
             ),
             child: Text(
               'tasmi_resuming_label'.tr(),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11,
                 fontFamily: 'Cairo',
                 fontWeight: FontWeight.bold,

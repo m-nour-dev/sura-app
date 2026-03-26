@@ -52,11 +52,6 @@ final giftThawabUseCaseProvider = Provider<GiftThawabUseCase>((ref) {
 
 // Controller / State Management
 class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
-  final GetVefaListUseCase _getVefaList;
-  final AddVefaPersonUseCase _addVefaPerson;
-  final DeleteVefaPersonUseCase _deleteVefaPerson;
-  final GiftThawabUseCase _giftThawab;
-  final Ref _ref;
 
   VefaListController({
     required GetVefaListUseCase getVefaList,
@@ -72,6 +67,11 @@ class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
         super(const AsyncValue.loading()) {
     loadVefaList();
   }
+  final GetVefaListUseCase _getVefaList;
+  final AddVefaPersonUseCase _addVefaPerson;
+  final DeleteVefaPersonUseCase _deleteVefaPerson;
+  final GiftThawabUseCase _giftThawab;
+  final Ref _ref;
 
   Future<void> loadVefaList() async {
     state = const AsyncValue.loading();

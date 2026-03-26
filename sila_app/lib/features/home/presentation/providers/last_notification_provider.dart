@@ -1,17 +1,10 @@
 import 'dart:convert';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 
 part 'last_notification_provider.g.dart';
 
 class LastNotification {
-  final int id;
-  final DateTime time;
-  final String title;
-  final String body;
-  final String? category;
-  final String? contentId;
 
   LastNotification({
     required this.id,
@@ -32,6 +25,12 @@ class LastNotification {
       contentId: json['contentId'],
     );
   }
+  final int id;
+  final DateTime time;
+  final String title;
+  final String body;
+  final String? category;
+  final String? contentId;
 }
 
 @riverpod

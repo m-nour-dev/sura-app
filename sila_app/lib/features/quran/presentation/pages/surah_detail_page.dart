@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,20 +13,20 @@ import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
-import 'package:sila_app/features/quran/presentation/widgets/quran_details_sheet.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
 import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
+import 'package:sila_app/features/quran/presentation/widgets/quran_details_sheet.dart';
 
 class SurahDetailPage extends ConsumerStatefulWidget {
-  final int surahNumber;
-  final String surahName;
 
   const SurahDetailPage({
     super.key,
     required this.surahNumber,
     required this.surahName,
   });
+  final int surahNumber;
+  final String surahName;
 
   @override
   ConsumerState<SurahDetailPage> createState() => _SurahDetailPageState();
@@ -118,7 +119,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
           ),
         );
       },
-      error: (e, s) => Scaffold(body: Center(child: Text("Error: $e"))),
+      error: (e, s) => Scaffold(body: Center(child: Text('Error: $e'))),
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
@@ -238,7 +239,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
-                "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+                'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
                 style: TextStyle(
                     fontFamily: 'Amiri',
                     fontSize: 24,
@@ -263,11 +264,11 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
 
   Widget _buildAyahItem(int surahNum, int ayahNum, QuranSettings settings, Map<String, String> tajweedData) {
     final key = '${surahNum}_$ayahNum';
-    String rawVerse = tajweedData.containsKey(key) ? tajweedData[key]! : quran.getVerse(surahNum, ayahNum);
-    rawVerse = "$rawVerse ﴿${QuranUIUtils.toArabicNumber(ayahNum)}﴾ ";
+    var rawVerse = tajweedData.containsKey(key) ? tajweedData[key]! : quran.getVerse(surahNum, ayahNum);
+    rawVerse = '$rawVerse ﴿${QuranUIUtils.toArabicNumber(ayahNum)}﴾ ';
     final spans = QuranUIUtils.buildTajweedSpans(rawVerse, settings.themeMode);
 
-    final bool isSelected = _selectedSurah == surahNum && _selectedAyah == ayahNum;
+    final isSelected = _selectedSurah == surahNum && _selectedAyah == ayahNum;
 
     return GestureDetector(
       onTap: () {
@@ -330,21 +331,21 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text("إعدادات القراءة", textAlign: TextAlign.center, style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold, color: QuranUIUtils.getTextColor(settings.themeMode))),
+            Text('إعدادات القراءة', textAlign: TextAlign.center, style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold, color: QuranUIUtils.getTextColor(settings.themeMode))),
             const SizedBox(height: 24),
             Row(children: [
               Expanded(child: Consumer(builder: (context, ref, child) {
-                final reciterName = ref.watch(reciterControllerProvider).when(data: (r) => r.nameArabic, loading: () => "جاري...", error: (e, s) => "القارئ");
+                final reciterName = ref.watch(reciterControllerProvider).when(data: (r) => r.nameArabic, loading: () => 'جاري...', error: (e, s) => 'القارئ');
                 return _buildSettingTile(icon: Icons.mic_rounded, label: reciterName, onTap: () => showReciterPickerSheet(context), settings: settings);
               })),
               const SizedBox(width: 12),
-              Expanded(child: _buildSettingTile(icon: Icons.info_outline, label: "عن السورة", onTap: () {}, settings: settings)),
+              Expanded(child: _buildSettingTile(icon: Icons.info_outline, label: 'عن السورة', onTap: () {}, settings: settings)),
             ]),
             const SizedBox(height: 32),
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              _buildThemeOption(ref, QuranThemeMode.light, "فاتح", settings),
-              _buildThemeOption(ref, QuranThemeMode.sepia, "كتابي", settings),
-              _buildThemeOption(ref, QuranThemeMode.dark, "داكن", settings),
+              _buildThemeOption(ref, QuranThemeMode.light, 'فاتح', settings),
+              _buildThemeOption(ref, QuranThemeMode.sepia, 'كتابي', settings),
+              _buildThemeOption(ref, QuranThemeMode.dark, 'داكن', settings),
             ]),
             const SizedBox(height: 24),
             Row(children: [Icon(Icons.format_size, color: QuranUIUtils.getTextColor(settings.themeMode)), Expanded(child: Slider(value: settings.fontSize.clamp(16.0, 44.0), min: 16, max: 44, activeColor: QuranUIUtils.getAccentColor(settings.themeMode), onChanged: (v) => ref.read(quranSettingsControllerProvider.notifier).updateFontSize(v)))]),
@@ -368,7 +369,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
      if (!isAnySelected) return const SizedBox.shrink();
      return Container(
        height: 60, margin: const EdgeInsets.all(16),
-       decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))]),
+       decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(20), boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))]),
        child: Row(
          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
          children: [

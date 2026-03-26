@@ -6,9 +6,9 @@ import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
 import 'package:sila_app/features/vefa/domain/repositories/vefa_repository.dart';
 
 class VefaRepositoryImpl implements VefaRepository {
-  final VefaLocalDataSource localDataSource;
 
   VefaRepositoryImpl(this.localDataSource);
+  final VefaLocalDataSource localDataSource;
 
   @override
   Future<Either<Failure, List<VefaPerson>>> getVefaList() async {
@@ -17,7 +17,7 @@ class VefaRepositoryImpl implements VefaRepository {
       final entities = models.map((e) => e.toEntity()).toList();
       return Right(entities);
     } catch (e) {
-      return Left(CacheFailure());
+      return const Left(CacheFailure());
     }
   }
 
@@ -28,7 +28,7 @@ class VefaRepositoryImpl implements VefaRepository {
       final id = await localDataSource.addPerson(model);
       return Right(id);
     } catch (e) {
-      return Left(CacheFailure());
+      return const Left(CacheFailure());
     }
   }
 
@@ -38,7 +38,7 @@ class VefaRepositoryImpl implements VefaRepository {
       await localDataSource.deletePerson(id);
       return const Right(null);
     } catch (e) {
-      return Left(CacheFailure());
+      return const Left(CacheFailure());
     }
   }
 
@@ -49,7 +49,7 @@ class VefaRepositoryImpl implements VefaRepository {
       await localDataSource.updatePerson(model);
       return const Right(null);
     } catch (e) {
-      return Left(CacheFailure());
+      return const Left(CacheFailure());
     }
   }
 
@@ -59,7 +59,7 @@ class VefaRepositoryImpl implements VefaRepository {
       await localDataSource.incrementGiftCount(id);
       return const Right(null);
     } catch (e) {
-      return Left(CacheFailure());
+      return const Left(CacheFailure());
     }
   }
 }

@@ -30,7 +30,7 @@ class _LanguageSwitcherState extends State<LanguageSwitcher> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return PopupMenuButton<Locale>(
-      onSelected: (Locale locale) {
+      onSelected: (locale) {
         context.setLocale(locale);
       },
       elevation: 8,
@@ -39,7 +39,7 @@ class _LanguageSwitcherState extends State<LanguageSwitcher> {
       ),
       color: isDark ? LanguageSwitcher.darkSurfaceColor : LanguageSwitcher.surfaceColor,
       offset: const Offset(0, 50),
-      itemBuilder: (BuildContext context) {
+      itemBuilder: (context) {
         return context.supportedLocales.map((locale) {
           final isSelected = context.locale == locale;
           final langName = LanguageSwitcher._languageNames[locale.languageCode] ?? 
@@ -59,7 +59,7 @@ class _LanguageSwitcherState extends State<LanguageSwitcher> {
                     ? (isDark ? LanguageSwitcher.primaryColor : LanguageSwitcher.primaryColor.withOpacity(0.05))
                     : Colors.transparent,
                 border: isSelected
-                    ? Border(
+                    ? const Border(
                         left: BorderSide(
                           color: LanguageSwitcher.accentColor,
                           width: 3,

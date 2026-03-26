@@ -1,7 +1,7 @@
 import 'package:adhan/adhan.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
 

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AzkarCategoryCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final VoidCallback onTap;
 
   const AzkarCategoryCard({
     super.key,
@@ -11,6 +8,9 @@ class AzkarCategoryCard extends StatelessWidget {
     required this.icon,
     required this.onTap,
   });
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +18,8 @@ class AzkarCategoryCard extends StatelessWidget {
     
     // Sila Global Colors
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final primaryColor = const Color(0xFF064E3B);
-    final accentColor = const Color(0xFFD97706);
+    const primaryColor = Color(0xFF064E3B);
+    const accentColor = Color(0xFFD97706);
     final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
 
     return InkWell(

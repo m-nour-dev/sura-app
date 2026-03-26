@@ -6,9 +6,9 @@ import 'package:sila_app/features/quran/domain/entities/surah.dart';
 import 'package:sila_app/features/quran/domain/repositories/quran_repository.dart';
 
 class QuranRepositoryImpl implements QuranRepository {
-  final QuranLocalDataSource localDataSource;
 
   QuranRepositoryImpl({required this.localDataSource});
+  final QuranLocalDataSource localDataSource;
 
   @override
   Future<Either<Failure, List<Surah>>> getSurahs() async {

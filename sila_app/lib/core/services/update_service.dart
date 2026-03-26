@@ -17,9 +17,9 @@ UpdateService updateService(UpdateServiceRef ref) {
 }
 
 class UpdateService {
-  final AnalyticsService analytics;
 
   UpdateService({required this.analytics});
+  final AnalyticsService analytics;
 
   Future<void> downloadAndInstall({
     required String apkUrl,

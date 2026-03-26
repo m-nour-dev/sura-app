@@ -20,10 +20,12 @@ class ComparisonEngine {
         DailyStatusCalculator.completionRatio(today, isMale: isMale);
     final yesterdayRatio =
         DailyStatusCalculator.completionRatio(yesterday, isMale: isMale);
-    if (todayRatio > yesterdayRatio)
+    if (todayRatio > yesterdayRatio) {
       return 'أنت أفضل من أمس — بارك الله فيك 🌟';
-    if (todayRatio == yesterdayRatio)
+    }
+    if (todayRatio == yesterdayRatio) {
       return 'ثبات جميل — الاستمرار هو سر التميز 🌿';
+    }
     return 'فرصة جديدة غدًا — والله يعينك على الأحسن 🌅';
   }
 }

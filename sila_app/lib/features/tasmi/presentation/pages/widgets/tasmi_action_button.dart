@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
 class TasmiActionButton extends StatelessWidget {
-  final TasmiState state;
-  final VoidCallback onStart;
-  final VoidCallback onStop;
-  final VoidCallback onRestart;
-  final VoidCallback onShowResults;
 
   const TasmiActionButton({
     super.key,
@@ -17,6 +12,11 @@ class TasmiActionButton extends StatelessWidget {
     required this.onRestart,
     required this.onShowResults,
   });
+  final TasmiState state;
+  final VoidCallback onStart;
+  final VoidCallback onStop;
+  final VoidCallback onRestart;
+  final VoidCallback onShowResults;
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +28,8 @@ class TasmiActionButton extends StatelessWidget {
   }
 
   Widget _buildButton(BuildContext context, TasmiStatus status) {
-    final primaryColor = const Color(0xFF064E3B);
-    final accentColor = const Color(0xFFD97706);
+    const primaryColor = Color(0xFF064E3B);
+    const accentColor = Color(0xFFD97706);
     
     switch (status) {
       case TasmiStatus.listening:

@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'remote_config_service.g.dart';
@@ -72,13 +72,6 @@ class RemoteConfigService {
 }
 
 class UpdateCheckResult {
-  final bool hasUpdate;
-  final bool isForced;
-  final int latestVersion;
-  final String apkUrl;
-  final String title;
-  final String message;
-  final String releaseNotes;
 
   const UpdateCheckResult({
     required this.hasUpdate,
@@ -89,4 +82,11 @@ class UpdateCheckResult {
     this.message = '',
     this.releaseNotes = '',
   });
+  final bool hasUpdate;
+  final bool isForced;
+  final int latestVersion;
+  final String apkUrl;
+  final String title;
+  final String message;
+  final String releaseNotes;
 }

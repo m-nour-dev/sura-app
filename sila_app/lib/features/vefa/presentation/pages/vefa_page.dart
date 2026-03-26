@@ -10,12 +10,12 @@ import 'package:sila_app/features/vefa/presentation/widgets/add_vefa_contact_she
 import 'package:sila_app/features/vefa/presentation/widgets/vefa_card.dart';
 
 class VefaPage extends ConsumerWidget {
-  final bool isSelectionMode;
 
   const VefaPage({
     super.key, 
     this.isSelectionMode = false,
   });
+  final bool isSelectionMode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -159,7 +159,7 @@ class VefaPage extends ConsumerWidget {
     );
   }
 
-  void _showDuaBottomSheet(BuildContext context, WidgetRef ref, dynamic person) {
+  void _showDuaBottomSheet(BuildContext context, WidgetRef ref, person) {
     final duaaText = 'duaa_safe_template'.tr(args: [person.name]);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
@@ -231,7 +231,7 @@ class VefaPage extends ConsumerWidget {
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: AppTheme.accentColor),
+                        side: const BorderSide(color: AppTheme.accentColor),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -251,7 +251,7 @@ class VefaPage extends ConsumerWidget {
                           ),
                         );
                       },
-                      icon: Icon(Icons.copy, color: AppTheme.accentColor),
+                      icon: const Icon(Icons.copy, color: AppTheme.accentColor),
                       label: Text(
                         'copy_duaa'.tr(),
                         style: GoogleFonts.cairo(

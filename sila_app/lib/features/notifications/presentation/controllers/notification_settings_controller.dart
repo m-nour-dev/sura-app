@@ -1,5 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 
@@ -12,13 +12,13 @@ final notificationSettingsProvider = StateNotifierProvider.family<
 
 class NotificationSettingsController
     extends StateNotifier<AsyncValue<NotificationSettings>> {
-  final Ref _ref;
-  final String _featureKey;
 
   NotificationSettingsController(this._ref, this._featureKey)
       : super(const AsyncValue.loading()) {
     _load();
   }
+  final Ref _ref;
+  final String _featureKey;
 
   Future<void> _load() async {
     Object? lastError;

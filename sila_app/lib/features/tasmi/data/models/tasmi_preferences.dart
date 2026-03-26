@@ -19,11 +19,6 @@ enum StrictnessLevel {
 }
 
 class TasmiPreferences extends Equatable {
-  final OnErrorBehavior onErrorBehavior;
-  final AttemptsMode attemptsMode;
-  final bool ttsEnabled;
-  final StrictnessLevel strictness;
-  final bool isOnboardingDone;
 
   const TasmiPreferences({
     required this.onErrorBehavior,
@@ -40,6 +35,11 @@ class TasmiPreferences extends Equatable {
         strictness: StrictnessLevel.medium,
         isOnboardingDone: false,
       );
+  final OnErrorBehavior onErrorBehavior;
+  final AttemptsMode attemptsMode;
+  final bool ttsEnabled;
+  final StrictnessLevel strictness;
+  final bool isOnboardingDone;
 
   TasmiPreferences copyWith({
     OnErrorBehavior? onErrorBehavior,

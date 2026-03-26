@@ -6,10 +6,6 @@ import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/services/reciter_service.dart';
 
 class AudioDownloadProgress {
-  final int completed;
-  final int total;
-  final int surah;
-  final int ayah;
 
   const AudioDownloadProgress({
     required this.completed,
@@ -17,6 +13,10 @@ class AudioDownloadProgress {
     required this.surah,
     required this.ayah,
   });
+  final int completed;
+  final int total;
+  final int surah;
+  final int ayah;
 }
 
 class AudioDownloadService {

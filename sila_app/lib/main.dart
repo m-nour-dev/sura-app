@@ -1,16 +1,14 @@
-import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/features/onboarding/presentation/pages/language_selection_page.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/core/services/timezone_service.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
+import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/core/services/timezone_service.dart';
+import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/features/onboarding/presentation/pages/language_selection_page.dart';
 import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
@@ -18,7 +16,7 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  FlutterError.onError = (FlutterErrorDetails details) {
+  FlutterError.onError = (details) {
     final text = details.exceptionAsString();
     if (text.contains('MdbxError (11)')) {
       debugPrint('Ignored transient Isar lock: $text');
@@ -38,7 +36,7 @@ void main() async {
   final notificationService = NotificationService();
   try {
     await notificationService.initialize();
-    
+
     // FIX 5: Schedule adhan notifications
     try {
       final prayerRepo = PrayerRepositoryImpl();
@@ -49,7 +47,6 @@ void main() async {
     } catch (e) {
       debugPrint('❌ Scheduling failed: $e');
     }
-
   } catch (error) {
     debugPrint('NotificationService init failed: $error');
   }
@@ -64,6 +61,8 @@ void main() async {
         supportedLocales: const [
           Locale('ar', 'SA'),
           Locale('tr', 'TR'),
+          Locale('en', 'US'),
+          Locale('fr', 'FR'),
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('ar', 'SA'),
@@ -75,12 +74,12 @@ void main() async {
 }
 
 class SilaApp extends StatelessWidget {
-  final bool isLanguageSelected;
 
   const SilaApp({
     super.key,
     required this.isLanguageSelected,
   });
+  final bool isLanguageSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +93,9 @@ class SilaApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: isLanguageSelected ? const MainLayout() : const LanguageSelectionPage(),
+      home: isLanguageSelected
+          ? const MainLayout()
+          : const LanguageSelectionPage(),
     );
   }
 }

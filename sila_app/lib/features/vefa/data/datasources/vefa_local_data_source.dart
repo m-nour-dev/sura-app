@@ -1,6 +1,5 @@
 import 'package:isar/isar.dart';
 import 'package:sila_app/features/vefa/data/models/vefa_person_model.dart';
-import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
 
 abstract class VefaLocalDataSource {
   Future<List<VefaPersonModel>> getVefaList();
@@ -11,9 +10,9 @@ abstract class VefaLocalDataSource {
 }
 
 class VefaLocalDataSourceImpl implements VefaLocalDataSource {
-  final Isar isar;
 
   VefaLocalDataSourceImpl(this.isar);
+  final Isar isar;
 
   @override
   Future<List<VefaPersonModel>> getVefaList() async {

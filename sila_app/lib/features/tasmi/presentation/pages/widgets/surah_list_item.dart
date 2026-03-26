@@ -1,25 +1,22 @@
 
-import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/utils/surah_utils.dart';
 
 String _toArabicNumber(BuildContext context, String input) {
   if (context.locale.languageCode != 'ar') return input;
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  for (int i = 0; i < english.length; i++) {
+  for (var i = 0; i < english.length; i++) {
     input = input.replaceAll(english[i], arabic[i]);
   }
   return input;
 }
 
 class SurahListItem extends StatelessWidget {
-  final int surahNumber;
-  final bool isMakki;
-  final VoidCallback onTap;
 
   const SurahListItem({
     super.key,
@@ -27,6 +24,9 @@ class SurahListItem extends StatelessWidget {
     required this.isMakki,
     required this.onTap,
   });
+  final int surahNumber;
+  final bool isMakki;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
 
 class LanguageSelectionPage extends StatelessWidget {
   const LanguageSelectionPage({super.key});
@@ -46,19 +45,10 @@ class LanguageSelectionPage extends StatelessWidget {
               
               // Title
               Text(
-                'اختر اللغة',
+                'choose_language'.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.cairo(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF064E3B),
-                ),
-              ),
-              Text(
-                'Dil Seçin',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.cairo(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF064E3B),
                 ),
@@ -84,6 +74,26 @@ class LanguageSelectionPage extends StatelessWidget {
                 onTap: () => _selectLanguage(context, const Locale('tr', 'TR')),
               ),
 
+              const SizedBox(height: 16),
+
+              // English Option
+              _LanguageOptionCard(
+                title: 'English',
+                subtitle: 'English',
+                flag: '🇺🇸',
+                onTap: () => _selectLanguage(context, const Locale('en', 'US')),
+              ),
+
+              const SizedBox(height: 16),
+
+              // French Option
+              _LanguageOptionCard(
+                title: 'Français',
+                subtitle: 'French',
+                flag: '🇫🇷',
+                onTap: () => _selectLanguage(context, const Locale('fr', 'FR')),
+              ),
+
               const Spacer(),
               
               // Footer text
@@ -105,10 +115,6 @@ class LanguageSelectionPage extends StatelessWidget {
 }
 
 class _LanguageOptionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String flag;
-  final VoidCallback onTap;
 
   const _LanguageOptionCard({
     required this.title,
@@ -116,6 +122,10 @@ class _LanguageOptionCard extends StatelessWidget {
     required this.flag,
     required this.onTap,
   });
+  final String title;
+  final String subtitle;
+  final String flag;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

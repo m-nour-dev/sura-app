@@ -1,15 +1,15 @@
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 
 class HifzDailyPlan {
-  final int newAyahsTarget;
-  final int reviewAyahsTarget;
-  final String estimatedCompletion;
 
   const HifzDailyPlan({
     required this.newAyahsTarget,
     required this.reviewAyahsTarget,
     required this.estimatedCompletion,
   });
+  final int newAyahsTarget;
+  final int reviewAyahsTarget;
+  final String estimatedCompletion;
 }
 
 class PlanGenerator {

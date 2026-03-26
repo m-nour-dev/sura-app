@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui' as ui;
 import 'package:sila_app/features/quran/presentation/pages/surah_detail_page.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_controller.dart';
 
@@ -128,6 +127,8 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                 surahNumber: surah.number,
                                 surahName: context.locale.languageCode == 'ar'
                                     ? surah.nameArabic
+                                    : context.locale.languageCode == 'en'
+                                    ? surah.englishName
                                     : surah.nameTurkish,
                               ),
                             ),
@@ -175,10 +176,12 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                  child: Column(
                                    crossAxisAlignment: CrossAxisAlignment.start,
                                    children: [
-                                     Text(
-                                       context.locale.languageCode == 'tr'
-                                           ? surah.nameTurkish
-                                           : surah.nameArabic,
+                                   Text(
+                                       context.locale.languageCode == 'ar'
+                                           ? surah.nameArabic
+                                           : context.locale.languageCode == 'en'
+                                           ? surah.englishName
+                                           : surah.nameTurkish,
                                        style: GoogleFonts.amiri(
                                          fontSize: 18,
                                          fontWeight: FontWeight.bold,
@@ -186,9 +189,11 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                        ),
                                      ),
                                      Text(
-                                       context.locale.languageCode == 'tr'
-                                           ? '${surah.numberOfAyahs} ${surah.revelationType == 'Meccan' ? 'Mecci' : 'Medini'}'
-                                           : '${surah.numberOfAyahs} آية · ${surah.revelationType}',
+                                       context.locale.languageCode == 'ar'
+                                           ? '${surah.numberOfAyahs} آية · ${surah.revelationType}'
+                                           : context.locale.languageCode == 'en'
+                                           ? '${surah.numberOfAyahs} Verses · ${surah.revelationType}'
+                                           : '${surah.numberOfAyahs} ${surah.revelationType == 'Meccan' ? 'Mecci' : 'Medini'}',
                                        style: GoogleFonts.cairo(
                                          fontSize: 11,
                                          color: txtS,
@@ -199,9 +204,11 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                ),
                                // Large decorative name
                                Text(
-                                 context.locale.languageCode == 'tr'
-                                     ? surah.nameTurkish
-                                     : surah.nameArabic,
+                                 context.locale.languageCode == 'ar'
+                                     ? surah.nameArabic
+                                     : context.locale.languageCode == 'en'
+                                     ? surah.englishName
+                                     : surah.nameTurkish,
                                  style: GoogleFonts.amiri(
                                    fontSize: 22,
                                    color: primaryColor.withOpacity(0.4),
@@ -222,7 +229,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
         error: (error, stackTrace) => Center(
           child: Text('Error: $error', style: TextStyle(color: txtP)),
         ),
-        loading: () => Center(
+        loading: () => const Center(
           child: CircularProgressIndicator(color: primaryColor),
         ),
       ),
@@ -248,7 +255,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-               "quran_settings".tr(),
+               'quran_settings'.tr(),
                style: GoogleFonts.cairo(
                  fontSize: 18,
                  fontWeight: FontWeight.bold,
@@ -257,7 +264,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
              const SizedBox(height: 24),
              ListTile(
                leading: Icon(Icons.palette_outlined, color: primaryColor),
-               title: Text("appearance".tr(), style: GoogleFonts.cairo()),
+               title: Text('appearance'.tr(), style: GoogleFonts.cairo()),
                trailing: Icon(isDark ? Icons.dark_mode : Icons.light_mode, color: primaryColor),
                onTap: () {
                  // Toggle theme or show options
@@ -265,7 +272,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
              ),
              ListTile(
                leading: Icon(Icons.text_fields, color: primaryColor),
-               title: Text("text_settings".tr(), style: GoogleFonts.cairo()),
+               title: Text('text_settings'.tr(), style: GoogleFonts.cairo()),
                onTap: () {
                  // Navigate to a dedicated settings page if available
                },

@@ -6,14 +6,13 @@ import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/azkar/data/models/azkar_model.dart';
 import 'package:sila_app/features/azkar/presentation/riverpod/azkar_controller.dart';
-import 'package:sila_app/features/azkar/data/repositories/azkar_repository.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
 class AzkarDetailPage extends ConsumerStatefulWidget {
-  final String categoryId;
-  final String title;
 
   const AzkarDetailPage({super.key, required this.categoryId, required this.title});
+  final String categoryId;
+  final String title;
 
   @override
   ConsumerState<AzkarDetailPage> createState() => _AzkarDetailPageState();
@@ -27,8 +26,8 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
     if (items.isEmpty) return;
 
     // Check if all items are completed
-    bool allCompleted = true;
-    for (int i = 0; i < items.length; i++) {
+    var allCompleted = true;
+    for (var i = 0; i < items.length; i++) {
       final requiredCount = items[i].count;
       final currentCount = _counts[i] ?? 0;
       if (currentCount < requiredCount) {
@@ -50,7 +49,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
 
   void _showVefaDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF064E3B);
+    const primaryColor = Color(0xFF064E3B);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
 
@@ -185,7 +184,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              "${item.count}",
+                              '${item.count}',
                               style: TextStyle(
                                 fontFamily: 'Cairo',
                                 fontWeight: FontWeight.w700,
@@ -204,7 +203,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                         item.text,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: "Amiri", // Use Arabic font for Zikr
+                          fontFamily: 'Amiri', // Use Arabic font for Zikr
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
                           height: 1.8,
@@ -242,7 +241,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                         lineWidth: 6.0,
                         percent: progress > 1.0 ? 1.0 : progress,
                         center: Text(
-                          "${item.count - currentCount}",
+                          '${item.count - currentCount}',
                           style: TextStyle(
                             fontFamily: 'Cairo',
                             fontWeight: FontWeight.w700,
@@ -258,7 +257,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        "tap_to_count".tr(),
+                        'tap_to_count'.tr(),
                         style: TextStyle(
                           fontFamily: 'Cairo',
                           fontSize: 12,
@@ -289,8 +288,8 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final primaryColor = const Color(0xFF064E3B);
-    final accentColor = const Color(0xFFD97706);
+    const primaryColor = Color(0xFF064E3B);
+    const accentColor = Color(0xFFD97706);
     final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
     final subtitleColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
@@ -363,22 +362,22 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                          width: 1,
                        ),
                      ),
-                     child: Row(
+                     child: const Row(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                         const Icon(
+                         Icon(
                            Icons.info_outline,
                            color: Color(0xFFF59E0B),
                            size: 24,
                          ),
-                         const SizedBox(width: 12),
+                         SizedBox(width: 12),
                          Expanded(
                            child: Text(
                              'Türkçe çevirisi, Arapça orijinal metni içermektedir. Faydaları Türkçedir.',
                              style: TextStyle(
                                fontFamily: 'Cairo',
                                fontSize: 13,
-                               color: const Color(0xFF92400E),
+                               color: Color(0xFF92400E),
                                height: 1.4,
                              ),
                            ),
@@ -397,11 +396,11 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
         },
         error: (e, st) => Center(
           child: Text(
-            "Error: $e",
-            style: TextStyle(color: Colors.redAccent, fontFamily: 'Cairo'),
+            'Error: $e',
+            style: const TextStyle(color: Colors.redAccent, fontFamily: 'Cairo'),
           ),
         ),
-        loading: () => Center(
+        loading: () => const Center(
           child: CircularProgressIndicator(color: primaryColor),
         ),
       ),

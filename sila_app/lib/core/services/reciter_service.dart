@@ -1,12 +1,4 @@
 class ReciterModel {
-  final String id;
-  final String nameArabic;
-  final String nameEnglish;
-  final String folderName;
-  final String baseUrl;
-  final String quality;
-  final String style;
-  final bool isRecommendedForHifz;
 
   const ReciterModel({
     required this.id,
@@ -18,6 +10,14 @@ class ReciterModel {
     required this.style,
     required this.isRecommendedForHifz,
   });
+  final String id;
+  final String nameArabic;
+  final String nameEnglish;
+  final String folderName;
+  final String baseUrl;
+  final String quality;
+  final String style;
+  final bool isRecommendedForHifz;
 
   String buildAyahUrl(int surahNumber, int ayahNumber) {
     final surahStr = surahNumber.toString().padLeft(3, '0');

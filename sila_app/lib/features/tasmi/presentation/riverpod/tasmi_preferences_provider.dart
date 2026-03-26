@@ -9,7 +9,7 @@ final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) async 
 
 final tasmiPreferencesRepositoryProvider = Provider<TasmiPreferencesRepository?>((ref) {
   final prefsAsync = ref.watch(sharedPreferencesProvider);
-  return prefsAsync.whenOrNull(data: (prefs) => TasmiPreferencesRepository(prefs));
+  return prefsAsync.whenOrNull(data: TasmiPreferencesRepository.new);
 });
 
 final tasmiPreferencesNotifierProvider =

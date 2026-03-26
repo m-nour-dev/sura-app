@@ -8,21 +8,21 @@ String _toArabicNumber(BuildContext context, String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 
-  for (int i = 0; i < english.length; i++) {
+  for (var i = 0; i < english.length; i++) {
     input = input.replaceAll(english[i], arabic[i]);
   }
   return input;
 }
 
 class TasmiStatsRow extends StatelessWidget {
-  final TasmiState state;
   const TasmiStatsRow({super.key, required this.state});
+  final TasmiState state;
 
   @override
   Widget build(BuildContext context) {
-    int correctCount = state.words.where((w) => w.status == WordEntryStatus.correct).length;
-    int errorCount = state.words.where((w) => w.status == WordEntryStatus.closeError || w.status == WordEntryStatus.wrongWord).length;
-    int currentAyah = state.words.isEmpty || state.currentIndex >= state.words.length
+    final correctCount = state.words.where((w) => w.status == WordEntryStatus.correct).length;
+    final errorCount = state.words.where((w) => w.status == WordEntryStatus.closeError || w.status == WordEntryStatus.wrongWord).length;
+    final currentAyah = state.words.isEmpty || state.currentIndex >= state.words.length
         ? 0
         : state.words[state.currentIndex].verseNumber;
 
@@ -42,17 +42,17 @@ class TasmiStatsRow extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
+
+  const _StatCard({required this.label, required this.value, this.color, required this.icon});
   final String label;
   final String value;
   final Color? color;
   final IconData icon;
 
-  const _StatCard({required this.label, required this.value, this.color, required this.icon});
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = const Color(0xFF064E3B);
+    const primaryColor = Color(0xFF064E3B);
     final displayColor = color ?? primaryColor;
     
     return Container(

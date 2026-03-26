@@ -1,19 +1,20 @@
 import 'dart:async';
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'dart:ui' as ui;
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/core/utils/time_utils.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/ibadah_tracker_tab.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sila_app/features/notifications/presentation/pages/settings/salah_notification_settings.dart';
+import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayer_settings_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/salah_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class PrayersPage extends ConsumerStatefulWidget {
   const PrayersPage({super.key, this.initialTabIndex = 0});
@@ -77,8 +78,10 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFFD97706);
 
+    final isArabic = context.locale.languageCode == 'ar';
+
     return Directionality(
-      textDirection: ui.TextDirection.ltr,
+      textDirection: isArabic ? ui.TextDirection.rtl : ui.TextDirection.ltr,
       child: DefaultTabController(
         initialIndex: widget.initialTabIndex.clamp(0, 1),
         length: 2,
@@ -112,9 +115,9 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
             (key: 'isha', time: entity.isha),
           ];
 
-          int nextIdx = 0;
+          var nextIdx = 0;
           DateTime? nextTime;
-          for (int i = 0; i < prayersList.length; i++) {
+          for (var i = 0; i < prayersList.length; i++) {
             if (prayersList[i].time.isAfter(now)) {
               nextTime = prayersList[i].time;
               nextIdx = i;
@@ -123,7 +126,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
           }
           nextTime ??= entity.fajr.add(const Duration(days: 1));
 
-          Duration timeLeft = nextTime.difference(now);
+          var timeLeft = nextTime.difference(now);
           if (timeLeft.isNegative) timeLeft = Duration.zero;
           if (timeLeft.inHours > 24) timeLeft = Duration.zero;
 
@@ -290,7 +293,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                       final time = prayersList[i].time;
                       final isNext = i == nextIdx;
                       
-                      final formattedTime = DateFormat('hh:mm a').format(time);
+                      final formattedTime = TimeUtils.formatPrayerTime(time, context);
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),

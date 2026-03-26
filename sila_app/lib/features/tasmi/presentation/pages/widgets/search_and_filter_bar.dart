@@ -3,12 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SearchAndFilterBar extends StatefulWidget {
-  final ValueChanged<String> onSearchChanged;
 
   const SearchAndFilterBar({
     super.key,
     required this.onSearchChanged,
   });
+  final ValueChanged<String> onSearchChanged;
 
   @override
   State<SearchAndFilterBar> createState() => _SearchAndFilterBarState();

@@ -25,9 +25,9 @@ Future<void> main() async {
 
   // 4. Merge Data
   print('🔄 Merging Data...');
-  final List<Map<String, dynamic>> finalSurahs = [];
+  final finalSurahs = <Map<String, dynamic>>[];
 
-  for (int i = 0; i < 114; i++) {
+  for (var i = 0; i < 114; i++) {
     final meta = metaData[i];
     final textSurah = textData[i];
     final trSurah = trData[i];
@@ -36,7 +36,7 @@ Future<void> main() async {
     final textAyahs = textSurah['ayahs'] as List;
     final trAyahs = trSurah['ayahs'] as List;
 
-    for (int j = 0; j < textAyahs.length; j++) {
+    for (var j = 0; j < textAyahs.length; j++) {
       final textAyah = textAyahs[j];
       final trAyah = trAyahs[j];
       final number = textAyah['numberInSurah'];
@@ -44,24 +44,24 @@ Future<void> main() async {
       // Generate Audio URL (EveryAyah format: surah (3 digits) + ayah (3 digits))
       final surahPad = (i + 1).toString().padLeft(3, '0');
       final ayahPad = number.toString().padLeft(3, '0');
-      final audioUrl = "https://everyayah.com/data/Husary_128kbps/$surahPad$ayahPad.mp3";
+      final audioUrl = 'https://everyayah.com/data/Husary_128kbps/$surahPad$ayahPad.mp3';
 
       ayahs.add({
-        "number": number,
-        "text": textAyah['text'],
-        "translation": trAyah['text'],
-        "audioUrl": audioUrl
+        'number': number,
+        'text': textAyah['text'],
+        'translation': trAyah['text'],
+        'audioUrl': audioUrl
       });
     }
 
     finalSurahs.add({
-      "number": meta['number'],
-      "nameArabic": meta['name'],
-      "nameTurkish": meta['englishName'], // Fallback (API doesn't strictly have Turkish names in this endpoint, usually uses English transliteration)
-      "englishName": meta['englishName'],
-      "numberOfAyahs": meta['numberOfAyahs'],
-      "revelationType": meta['revelationType'],
-      "ayahs": ayahs,
+      'number': meta['number'],
+      'nameArabic': meta['name'],
+      'nameTurkish': meta['englishName'], // Fallback (API doesn't strictly have Turkish names in this endpoint, usually uses English transliteration)
+      'englishName': meta['englishName'],
+      'numberOfAyahs': meta['numberOfAyahs'],
+      'revelationType': meta['revelationType'],
+      'ayahs': ayahs,
     });
   }
 

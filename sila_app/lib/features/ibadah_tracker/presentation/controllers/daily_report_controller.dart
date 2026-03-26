@@ -3,11 +3,11 @@ import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart'
 import 'package:sila_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
 
 class DailyReportState {
+
+  const DailyReportState({required this.today, required this.yesterday, required this.isMale});
   final IbadahRecord today;
   final IbadahRecord? yesterday;
   final bool isMale;
-
-  const DailyReportState({required this.today, required this.yesterday, required this.isMale});
 }
 
 final dailyReportProvider = Provider<AsyncValue<DailyReportState>>((ref) {

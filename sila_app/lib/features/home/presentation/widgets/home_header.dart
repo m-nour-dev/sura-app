@@ -1,15 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class HomeHeader extends StatelessWidget {
-  final VoidCallback? onNotificationTap;
 
   const HomeHeader({
     super.key,
     this.onNotificationTap,
   });
+  final VoidCallback? onNotificationTap;
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -40,6 +40,32 @@ class HomeHeader extends StatelessWidget {
       'Şevval',
       'Zilkade',
       'Zilhicce',
+    ] : locale.languageCode == 'en' ? [
+      'Muharram',
+      'Safar',
+      "Rabi' Al-Awwal",
+      "Rabi' Al-Akhir",
+      'Jumada Al-Ula',
+      'Jumada Al-Akhira',
+      'Rajab',
+      "Sha'ban",
+      'Ramadan',
+      'Shawwal',
+      "Dhul Qi'dah",
+      'Dhul Hijjah',
+    ] : locale.languageCode == 'fr' ? [
+      'Mouharram',
+      'Safar',
+      'Rabi\' Al-Awwal',
+      'Rabi\' Al-Akhir',
+      'Joumada Al-Oula',
+      'Joumada Al-Akhira',
+      'Rajab',
+      'Cha\'bane',
+      'Ramadan',
+      'Chawwal',
+      'Dhoul Qi\'dah',
+      'Dhoul Hijjah',
     ] : [
       'محرم',
       'صفر',
@@ -56,6 +82,10 @@ class HomeHeader extends StatelessWidget {
     ];
     final month = months[(hijriDate.hMonth - 1).clamp(0, 11)];
     final hijriText = locale.languageCode == 'tr'
+        ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
+        : locale.languageCode == 'en'
+        ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
+        : locale.languageCode == 'fr'
         ? '${hijriDate.hDay} $month ${hijriDate.hYear} H'
         : '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
 
@@ -161,7 +191,7 @@ class _LanguageHeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<Locale>(
-      onSelected: (Locale locale) {
+      onSelected: (locale) {
         context.setLocale(locale);
       },
       elevation: 8,
@@ -170,10 +200,16 @@ class _LanguageHeaderButton extends StatelessWidget {
       ),
       offset: const Offset(0, 50),
       color: Colors.white,
-      itemBuilder: (BuildContext context) {
+      itemBuilder: (context) {
         return context.supportedLocales.map((locale) {
           final isSelected = context.locale == locale;
-          final langName = locale.languageCode == 'ar' ? 'العربية' : 'Türkçe';
+          final langName = locale.languageCode == 'ar'
+              ? 'العربية'
+              : locale.languageCode == 'tr'
+              ? 'Türkçe'
+              : locale.languageCode == 'fr'
+              ? 'Français'
+              : 'English';
           
           return PopupMenuItem<Locale>(
             value: locale,
@@ -212,4 +248,3 @@ class _LanguageHeaderButton extends StatelessWidget {
     );
   }
 }
-

@@ -1,16 +1,18 @@
 import 'dart:async';
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 enum MicHealthStatus { active, reconnecting, stalled }
 
 class TasmiSpeechService {
-  static TasmiSpeechService? _instance;
   factory TasmiSpeechService() => _instance ??= TasmiSpeechService._internal();
   TasmiSpeechService._internal();
+  static TasmiSpeechService? _instance;
 
   final stt.SpeechToText _speech = stt.SpeechToText();
   final _wordController = StreamController<String>.broadcast();
@@ -202,14 +204,16 @@ class TasmiSpeechService {
   }
 
   void _onError(SpeechRecognitionError error) {
-    debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
+    if (error.errorMsg != 'error_client' && error.errorMsg != 'error_speech_timeout' && error.errorMsg != 'error_no_match') {
+      debugPrint('STT Error: ${error.errorMsg}, permanent: ${error.permanent}');
+    }
 
     if (!_autoRestartEnabled && error.errorMsg == 'error_network' && !_wordController.isClosed) {
       _wordController.addError('يرجى التحقق من الاتصال بالإنترنت');
     }
 
     if (error.errorMsg == 'error_no_match' && !_wordController.isClosed) {
-      _wordController.addError('لم يتم التقاط التلاوة. حاول التحدث بوضوح.');
+      _wordController.addError('error_mic_final');
     }
 
     if (!_autoRestartEnabled) {
@@ -220,7 +224,6 @@ class TasmiSpeechService {
     }
 
     if (error.errorMsg == 'error_client') {
-      debugPrint('⚠️ error_client — treating as temporary, retrying in 1500ms');
       _scheduleRestart(delay: const Duration(milliseconds: 1500));
       return;
     }
