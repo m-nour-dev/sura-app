@@ -19,13 +19,17 @@ class SilaAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF064E3B),
       elevation: 0,
-      title: Text(
-        title,
-        style: GoogleFonts.getFont(
-          'Cairo',
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
+      centerTitle: false,
+      title: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          title,
+          style: GoogleFonts.getFont(
+            'Cairo',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
         ),
       ),
       leading: showBack
