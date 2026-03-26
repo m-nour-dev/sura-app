@@ -35,7 +35,7 @@ class DailyStatusQuotesFr {
     'Le meilleur n\'est pas passé, le meilleur commence maintenant.',
     'Cherchez l\'aide d\'Allah et ne soyez pas incapable du premier pas.',
     'Chaque retour vers Allah est compté et aimé.',
-    'Commencez par ce que est disponible aujourd\'hui, et Allah le bénira.',
+    'Commencez par ce qui est disponible aujourd\'hui, et Allah le bénira.',
     'La journée n\'est pas encore finie, rattrapez ce que vous avez manqué.',
     'La nuit est une couverture et une opportunité de rattrapage et de recueillement.',
     'C\'est maintenant le bon moment pour réparer votre journée par l\'obéissance.',
