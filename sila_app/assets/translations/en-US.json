@@ -839,5 +839,21 @@
   "finish_session_title": "End this session?",
   "finish_session_desc": "Your progress up to this verse will be saved.",
   "finish_session_btn": "End",
-  "continue_from_verse": "Continue from verse {}"
+  "continue_from_verse": "Continue from verse {}",
+  "update_section_title": "Updates",
+  "update_version": "Version: {}",
+  "update_check": "Check for updates",
+  "update_up_to_date": "App is up to date ✓",
+  "update_downloading_title": "Downloading update...",
+  "update_downloading_body": "{}% downloaded",
+  "update_complete_title": "✅ Update ready",
+  "update_complete_body": "Tap to install",
+  "update_error_title": "❌ Download failed",
+  "update_error_body": "Check your internet connection",
+  "update_error_storage": "Not enough storage space",
+  "update_error_url": "Update link unavailable",
+  "update_waiting": "⏳ Waiting for connection",
+  "update_retrying": "Retrying...",
+  "update_retry": "Retry",
+  "update_install": "Install"
 }

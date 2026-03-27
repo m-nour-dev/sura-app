@@ -840,5 +840,21 @@
     "finish_session_title": "هل تريد إنهاء الجلسة؟",
     "finish_session_desc": "سيتم حفظ تقدمك حتى هذه الآية.",
     "finish_session_btn": "إنهاء",
-    "continue_from_verse": "أكمل من الآية {}"
+    "continue_from_verse": "أكمل من الآية {}",
+    "update_section_title": "التحديثات",
+    "update_version": "رقم الإصدار: {}",
+    "update_check": "تحقق من التحديثات",
+    "update_up_to_date": "التطبيق محدّث ✓",
+    "update_downloading_title": "جاري تحميل التحديث...",
+    "update_downloading_body": "تم تحميل {}%",
+    "update_complete_title": "✅ التحديث جاهز",
+    "update_complete_body": "اضغط للتثبيت",
+    "update_error_title": "❌ فشل التحميل",
+    "update_error_body": "تحقق من الاتصال بالإنترنت",
+    "update_error_storage": "مساحة التخزين غير كافية",
+    "update_error_url": "رابط التحديث غير متاح",
+    "update_waiting": "⏳ بانتظار الاتصال",
+    "update_retrying": "جاري إعادة المحاولة...",
+    "update_retry": "إعادة المحاولة",
+    "update_install": "تثبيت"
 }

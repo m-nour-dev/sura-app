@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
@@ -39,6 +40,13 @@ class NotificationService {
 
   static const int _adhanPlaybackNotificationId = 9090;
   static const String _stopAdhanActionId = 'stop_adhan';
+
+  // Download notification constants
+  static const int downloadNotificationId = 9000;
+  static const String _installApkActionId = 'install_apk';
+  static const String _retryDownloadActionId = 'retry_download';
+  String? _lastDownloadApkPath;
+  String? _lastDownloadUrl;
 
   bool _initialized = false;
 
@@ -115,19 +123,28 @@ class NotificationService {
   }
 
   Future<void> _createNotificationChannel() async {
-    const androidChannel = AndroidNotificationChannel(
-      'adhan_channel_v2',
+    final android = _notifications.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
+    // Adhan channel
+    await android?.createNotificationChannel(const AndroidNotificationChannel(
+      'adhan_channel',
       'أذان الصلاة',
       description: 'إشعارات أذان الصلاة',
       importance: Importance.max,
       playSound: true,
       enableVibration: true,
       enableLights: true,
-    );
-    await _notifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(androidChannel);
+    ));
+
+    // Download channel
+    await android?.createNotificationChannel(const AndroidNotificationChannel(
+      'download_channel',
+      'التحديثات',
+      description: 'إشعارات تحميل التحديثات',
+      importance: Importance.low,
+      playSound: false,
+    ));
   }
 
   Future<bool> requestPermissions() async {
@@ -192,7 +209,7 @@ class NotificationService {
     final soundName = soundFile.split('.').first;
 
     final androidDetails = AndroidNotificationDetails(
-      'adhan_channel_v2',
+      'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -267,7 +284,7 @@ class NotificationService {
     final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel_v2',
+      'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -331,7 +348,7 @@ class NotificationService {
     final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel_v2',
+      'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -394,7 +411,7 @@ class NotificationService {
     if (!_initialized) await initialize();
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel_v2',
+      'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -419,6 +436,224 @@ class NotificationService {
     await _notifications.show(id, title, body, notificationDetails,
         payload: payload);
   }
+
+  // ─── Download Notification Methods ─────────────────────────────────
+
+  /// Localized download texts map
+  static const _dlTexts = {
+    'ar': {
+      'downloading': 'جاري تحميل التحديث...',
+      'body_pct': 'تم تحميل {}%',
+      'complete': '✅ التحديث جاهز',
+      'install': 'اضغط للتثبيت',
+      'error': '❌ فشل التحميل',
+      'error_net': 'تحقق من الاتصال بالإنترنت',
+      'error_storage': 'مساحة التخزين غير كافية',
+      'error_url': 'رابط التحديث غير متاح',
+      'waiting': '⏳ بانتظار الاتصال',
+      'retrying': 'جاري إعادة المحاولة...',
+      'retry': 'إعادة المحاولة',
+    },
+    'en': {
+      'downloading': 'Downloading update...',
+      'body_pct': '{}% downloaded',
+      'complete': '✅ Update ready',
+      'install': 'Tap to install',
+      'error': '❌ Download failed',
+      'error_net': 'Check your internet connection',
+      'error_storage': 'Not enough storage space',
+      'error_url': 'Update link unavailable',
+      'waiting': '⏳ Waiting for connection',
+      'retrying': 'Retrying...',
+      'retry': 'Retry',
+    },
+    'tr': {
+      'downloading': 'Güncelleme indiriliyor...',
+      'body_pct': '%{} indirildi',
+      'complete': '✅ Güncelleme hazır',
+      'install': 'Yüklemek için dokunun',
+      'error': '❌ İndirme başarısız',
+      'error_net': 'İnternet bağlantınızı kontrol edin',
+      'error_storage': 'Yetersiz depolama alanı',
+      'error_url': 'Güncelleme bağlantısı kullanılamıyor',
+      'waiting': '⏳ Bağlantı bekleniyor',
+      'retrying': 'Yeniden deneniyor...',
+      'retry': 'Yeniden dene',
+    },
+    'fr': {
+      'downloading': 'Téléchargement en cours...',
+      'body_pct': '{}% téléchargé',
+      'complete': '✅ Mise à jour prête',
+      'install': 'Appuyez pour installer',
+      'error': '❌ Échec du téléchargement',
+      'error_net': 'Vérifiez votre connexion internet',
+      'error_storage': 'Espace de stockage insuffisant',
+      'error_url': 'Lien de mise à jour indisponible',
+      'waiting': '⏳ En attente de connexion',
+      'retrying': 'Nouvelle tentative...',
+      'retry': 'Réessayer',
+    },
+  };
+
+  String _dl(String key, String locale) {
+    return _dlTexts[locale]?[key] ?? _dlTexts['ar']![key]!;
+  }
+
+  Future<void> showDownloadProgress({
+    required int id,
+    required String locale,
+    required int percent,
+  }) async {
+    if (!_initialized) await initialize();
+    final title = _dl('downloading', locale);
+    final body = _dl('body_pct', locale).replaceFirst('{}', '$percent');
+    final androidDetails = AndroidNotificationDetails(
+      'download_channel',
+      'التحديثات',
+      channelDescription: 'إشعارات تحميل التحديثات',
+      importance: Importance.low,
+      priority: Priority.low,
+      playSound: false,
+      showProgress: true,
+      maxProgress: 100,
+      progress: percent,
+      ongoing: true,
+      autoCancel: false,
+      onlyAlertOnce: true,
+      icon: '@drawable/ic_notification',
+    );
+    final iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: false,
+      presentSound: false,
+    );
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    await _notifications.show(id, title, body, details,
+        payload: 'download_progress');
+  }
+
+  Future<void> showDownloadComplete({
+    required int id,
+    required String locale,
+    required String apkPath,
+  }) async {
+    if (!_initialized) await initialize();
+    _lastDownloadApkPath = apkPath;
+    final title = _dl('complete', locale);
+    final body = _dl('install', locale);
+    final androidDetails = AndroidNotificationDetails(
+      'download_channel',
+      'التحديثات',
+      channelDescription: 'إشعارات تحميل التحديثات',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      icon: '@drawable/ic_notification',
+      actions: [
+        AndroidNotificationAction(
+          _installApkActionId,
+          _dl('install', locale),
+          cancelNotification: true,
+          showsUserInterface: true,
+        ),
+      ],
+    );
+    final iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    await _notifications.show(id, title, body, details,
+        payload: 'install_apk:$apkPath');
+  }
+
+  Future<void> showDownloadError({
+    required int id,
+    required String locale,
+    required String errorType,
+    String? downloadUrl,
+    bool withRetry = false,
+  }) async {
+    if (!_initialized) await initialize();
+    _lastDownloadUrl = downloadUrl;
+    final title = _dl('error', locale);
+    String body;
+    switch (errorType) {
+      case 'storage':
+        body = _dl('error_storage', locale);
+        break;
+      case 'url':
+        body = _dl('error_url', locale);
+        break;
+      default:
+        body = _dl('error_net', locale);
+    }
+    final androidDetails = AndroidNotificationDetails(
+      'download_channel',
+      'التحديثات',
+      channelDescription: 'إشعارات تحميل التحديثات',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+      playSound: true,
+      icon: '@drawable/ic_notification',
+      actions: withRetry
+          ? [
+              AndroidNotificationAction(
+                _retryDownloadActionId,
+                _dl('retry', locale),
+                showsUserInterface: true,
+              ),
+            ]
+          : null,
+    );
+    final iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: false,
+      presentSound: true,
+    );
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    await _notifications.show(id, title, body, details,
+        payload: withRetry ? 'retry_download' : 'download_error');
+  }
+
+  Future<void> showDownloadWaiting({
+    required int id,
+    required String locale,
+  }) async {
+    if (!_initialized) await initialize();
+    final title = _dl('waiting', locale);
+    final body = _dl('retrying', locale);
+    final androidDetails = AndroidNotificationDetails(
+      'download_channel',
+      'التحديثات',
+      channelDescription: 'إشعارات تحميل التحديثات',
+      importance: Importance.low,
+      priority: Priority.low,
+      playSound: false,
+      ongoing: true,
+      autoCancel: false,
+      showProgress: true,
+      indeterminate: true,
+      icon: '@drawable/ic_notification',
+    );
+    final iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: false,
+      presentSound: false,
+    );
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    await _notifications.show(id, title, body, details,
+        payload: 'download_waiting');
+  }
+
+  String? get lastDownloadApkPath => _lastDownloadApkPath;
+  String? get lastDownloadUrl => _lastDownloadUrl;
 
   Future<void> rescheduleAllOnBoot() async {
     if (!_initialized) await initialize();
@@ -530,7 +765,7 @@ class NotificationService {
 
   Future<void> _showAdhanPlaybackNotification() async {
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel_v2',
+      'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -606,7 +841,7 @@ class NotificationService {
         'إذا وصلك هذا الإشعار فالنظام يعمل بشكل صحيح',
         const NotificationDetails(
           android: AndroidNotificationDetails(
-            'adhan_channel_v2',
+            'adhan_channel',
             'أذان الصلاة',
             channelDescription: 'إشعارات أذان الصلاة',
             importance: Importance.max,
@@ -643,7 +878,7 @@ class NotificationService {
     }
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel_v2',
+      'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -710,7 +945,37 @@ class NotificationService {
       return;
     }
 
+    // Handle install APK action
+    if (response.actionId == _installApkActionId ||
+        (response.payload != null &&
+            response.payload!.startsWith('install_apk:'))) {
+      final path = response.actionId == _installApkActionId
+          ? _lastDownloadApkPath
+          : response.payload!.replaceFirst('install_apk:', '');
+      if (path != null) {
+        await OpenFile.open(path);
+      }
+      return;
+    }
+
+    // Handle retry download action — store URL for next launch check
+    if (response.actionId == _retryDownloadActionId ||
+        response.payload == 'retry_download') {
+      // The retry callback will be invoked if set by UpdateService
+      if (_onRetryDownload != null && _lastDownloadUrl != null) {
+        _onRetryDownload!(_lastDownloadUrl!);
+      }
+      return;
+    }
+
     handleNotificationPayload(response.payload);
+  }
+
+  /// Callback invoked when user taps "Retry" on a failed download notification.
+  /// Set by UpdateService.downloadInBackground().
+  void Function(String url)? _onRetryDownload;
+  void setRetryCallback(void Function(String url) callback) {
+    _onRetryDownload = callback;
   }
 
   Future<void> handleNotificationPayload(String? payload) async {

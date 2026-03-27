@@ -825,5 +825,21 @@
   "finish_session_title": "Terminer cette session ?",
   "finish_session_desc": "Votre progression jusqu'à ce verset sera enregistrée.",
   "finish_session_btn": "Terminer",
-  "continue_from_verse": "Continuer depuis le verset {}"
+  "continue_from_verse": "Continuer depuis le verset {}",
+  "update_section_title": "Mises à jour",
+  "update_version": "Version: {}",
+  "update_check": "Vérifier les mises à jour",
+  "update_up_to_date": "L'application est à jour ✓",
+  "update_downloading_title": "Téléchargement en cours...",
+  "update_downloading_body": "{}% téléchargé",
+  "update_complete_title": "✅ Mise à jour prête",
+  "update_complete_body": "Appuyez pour installer",
+  "update_error_title": "❌ Échec du téléchargement",
+  "update_error_body": "Vérifiez votre connexion internet",
+  "update_error_storage": "Espace de stockage insuffisant",
+  "update_error_url": "Lien de mise à jour indisponible",
+  "update_waiting": "⏳ En attente de connexion",
+  "update_retrying": "Nouvelle tentative...",
+  "update_retry": "Réessayer",
+  "update_install": "Installer"
 }

@@ -818,5 +818,21 @@
       "finish_session_title": "Oturumu bitirmek istiyor musunuz?",
       "finish_session_desc": "Bu ayete kadar olan ilerlemeniz kaydedilecek.",
       "finish_session_btn": "Bitir",
-      "continue_from_verse": "{}. ayetten devam et"
+      "continue_from_verse": "{}. ayetten devam et",
+      "update_section_title": "Güncellemeler",
+      "update_version": "Sürüm: {}",
+      "update_check": "Güncellemeleri kontrol et",
+      "update_up_to_date": "Uygulama güncel ✓",
+      "update_downloading_title": "Güncelleme indiriliyor...",
+      "update_downloading_body": "%{} indirildi",
+      "update_complete_title": "✅ Güncelleme hazır",
+      "update_complete_body": "Yüklemek için dokunun",
+      "update_error_title": "❌ İndirme başarısız",
+      "update_error_body": "İnternet bağlantınızı kontrol edin",
+      "update_error_storage": "Yetersiz depolama alanı",
+      "update_error_url": "Güncelleme bağlantısı kullanılamıyor",
+      "update_waiting": "⏳ Bağlantı bekleniyor",
+      "update_retrying": "Yeniden deneniyor...",
+      "update_retry": "Yeniden dene",
+      "update_install": "Yükle"
 }
