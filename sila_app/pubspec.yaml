@@ -56,6 +56,9 @@ dependencies:
   # Adhan Notifications
   flutter_local_notifications: ^17.2.3
   audioplayers: ^6.1.0
+  wakelock_plus: ^1.3.3
+  page_flip_builder: ^0.1.4
+  page_flip: ^0.2.5+1
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +82,13 @@ flutter:
     - assets/audio/
     - assets/icon/
     - assets/images/
+    - assets/fonts/
+
+  fonts:
+    - family: KFGQPCUthmanicScript
+      fonts:
+        - asset: assets/fonts/KFGQPC_Uthmanic_Script.otf
+
 
 flutter_launcher_icons:
   android: "launcher_icon"

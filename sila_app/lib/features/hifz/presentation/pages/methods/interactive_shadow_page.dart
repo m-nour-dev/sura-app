@@ -16,9 +16,13 @@ import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provide
 import 'package:sila_app/features/hifz/presentation/controllers/interactive_shadow_controller.dart';
 import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
 import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
+import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
+import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
 
-const Color _successColor = Color(0xFF10B981);
-const Color _hasanatGold = Color(0xFFFCD34D);
+
+const Color _successColor = AppTheme.successGreen;
+const Color _hasanatGold = AppTheme.goldLight;
 const Color _errorColor = Color(0xFFF87171);
 
 class InteractiveShadowPage extends ConsumerStatefulWidget {
@@ -128,19 +132,20 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
     final reciter = ref.watch(reciterControllerProvider).valueOrNull;
     _syncInlineInputs(state.words);
 
-    return Theme(
-      data: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: AppTheme.darkBackgroundColor,
-        colorScheme: const ColorScheme.dark(
-          primary: AppTheme.primaryColor,
-          secondary: AppTheme.accentColor,
-          surface: AppTheme.darkSurfaceColor,
-        ),
-      ),
-      child: Directionality(
-        textDirection: ui.TextDirection.rtl,
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final bgColor = QuranUIUtils.getBackgroundColor(settings.themeMode);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+
+    return Directionality(
+        textDirection: context.locale.languageCode == 'ar'
+            ? ui.TextDirection.rtl
+            : ui.TextDirection.ltr,
         child: Scaffold(
-          backgroundColor: AppTheme.darkBackgroundColor,
+          backgroundColor: bgColor,
           body: SafeArea(
             child: Stack(
               children: [
@@ -382,21 +387,10 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                             ],
                           ),
                           const SizedBox(height: 8),
-                          if (state.currentStage >= 3)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                'shadow_hint_text'.tr(),
-                                style: GoogleFonts.cairo(
-                                    fontSize: 11, color: Colors.white54),
-                              ),
-                            ),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-              ],
-            ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+            ],
           ),
         ),
       ),
@@ -431,7 +425,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
   }
 }
 
-class _TopHeader extends StatelessWidget {
+class _TopHeader extends ConsumerWidget {
   const _TopHeader({
     required this.surahName,
     required this.stage,
@@ -446,86 +440,109 @@ class _TopHeader extends StatelessWidget {
   final VoidCallback onMomentTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    
     return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackgroundColor,
-        border: Border(
-            bottom: BorderSide(
-                color: Colors.white.withValues(alpha: 0.08), width: 0.5)),
+        gradient: AppTheme.headerGradient,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.chevron_right, color: Colors.white60),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pop(context),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'سورة $surahName',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontFamily: settings.fontFamily,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  ...List.generate(5, (index) {
+                    final current = index + 1;
+                    final color = current < stage
+                        ? Colors.white
+                        : current == stage
+                            ? Colors.white.withOpacity(0.6)
+                            : Colors.white.withOpacity(0.2);
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      width: 20,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: color, borderRadius: BorderRadius.circular(2)),
+                    );
+                  }),
+                ],
+              ),
+            ],
           ),
           Row(
             children: [
-              ...List.generate(5, (index) {
-                final current = index + 1;
-                final color = current < stage
-                    ? AppTheme.accentColor
-                    : current == stage
-                        ? AppTheme.primaryColor
-                        : Colors.white.withValues(alpha: 0.15);
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                  width: 24,
-                  height: 4,
+              GestureDetector(
+                onTap: onReciterTap,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                      color: color, borderRadius: BorderRadius.circular(2)),
-                );
-              }),
-            ],
-          ),
-          Text(
-            surahName,
-            style: GoogleFonts.cairo(
-                fontSize: 11, color: Colors.white.withValues(alpha: 0.5)),
-          ),
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: onReciterTap,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white24),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.mic_rounded,
-                      color: Colors.white70, size: 13),
-                  const SizedBox(width: 3),
-                  Text(
-                    reciterLabel,
-                    style:
-                        GoogleFonts.cairo(fontSize: 10, color: Colors.white70),
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
                   ),
-                ],
+                  child: Row(
+                    children: [
+                      Icon(Icons.mic_rounded,
+                          color: Colors.white.withOpacity(0.9), size: 13),
+                      const SizedBox(width: 3),
+                      Text(
+                        reciterLabel,
+                        style: GoogleFonts.cairo(
+                            fontSize: 10, color: Colors.white.withOpacity(0.9)),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: onMomentTap,
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white24),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: onMomentTap,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  child: const Center(
+                    child: Text('💎', style: TextStyle(fontSize: 14)),
+                  ),
+                ),
               ),
-              child: const Center(
-                child: Text('💎', style: TextStyle(fontSize: 14)),
-              ),
-            ),
+            ],
           ),
         ],
       ),
@@ -533,27 +550,40 @@ class _TopHeader extends StatelessWidget {
   }
 }
 
-class _StageBanner extends StatelessWidget {
+class _StageBanner extends ConsumerWidget {
   const _StageBanner({required this.stage});
   final int stage;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
+    final bgColor = isDark
+        ? const Color(0xFF1E293B)
+        : accentColor.withOpacity(0.12);
+    final textColor = isDark ? accentColor : accentColor;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.accentColor.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(8),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: accentColor.withOpacity(0.2), width: 0.5),
       ),
       child: Center(
         child: Text(
           _stageName(stage),
           style: GoogleFonts.cairo(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.accentColor,
-            letterSpacing: 0.8,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: textColor,
+            letterSpacing: 0.5,
           ),
         ),
       ),
@@ -572,18 +602,18 @@ class _StageBanner extends StatelessWidget {
   }
 }
 
-class _StageContent extends StatelessWidget {
+class _StageContent extends ConsumerWidget {
   const _StageContent(
       {super.key, required this.state, required this.flashController});
   final InteractiveShadowState state;
   final AnimationController flashController;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final pageState =
         context.findAncestorStateOfType<_InteractiveShadowPageState>();
     final controller =
-        pageState?.ref.read(interactiveShadowControllerProvider.notifier);
+        ref.read(interactiveShadowControllerProvider.notifier);
 
     final color = ColorTween(
       begin: Colors.transparent,
@@ -646,22 +676,35 @@ class _StageContent extends StatelessWidget {
   }
 }
 
-class _WordChip extends StatelessWidget {
+class _WordChip extends ConsumerWidget {
   const _WordChip({required this.entry});
   final ShadowWordEntry entry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
+    final textColor = QuranUIUtils.getTextColor(settings.themeMode);
+
     if (entry.isAyahMarker) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: AppTheme.accentColor.withValues(alpha: 0.15),
+          color: accentColor.withOpacity(0.12),
           shape: BoxShape.circle,
         ),
         child: Text(
           entry.word,
-          style: GoogleFonts.amiri(fontSize: 14, color: AppTheme.accentColor),
+          style: TextStyle(
+            fontSize: 16, 
+            color: accentColor,
+            fontFamily: settings.fontFamily,
+            fontWeight: FontWeight.bold
+          ),
         ),
       );
     }
@@ -671,13 +714,18 @@ class _WordChip extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
+          color: textColor.withOpacity(0.04),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           entry.word,
-          style: GoogleFonts.amiri(
-              fontSize: 20, color: const Color(0xFFE2E8F0), height: 1.5),
+          style: TextStyle(
+            fontSize: 22, 
+            color: textColor, 
+            height: 1.4,
+            fontFamily: settings.fontFamily,
+            fontWeight: FontWeight.w500
+          ),
         ),
       );
     }
@@ -688,15 +736,20 @@ class _WordChip extends StatelessWidget {
         curve: Curves.easeOut,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         decoration: BoxDecoration(
-          color: AppTheme.primaryColor.withValues(alpha: 0.35),
+          color: const Color(0xFF10B981).withOpacity(0.15),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-              color: AppTheme.primaryColor.withValues(alpha: 0.6), width: 0.5),
+              color: const Color(0xFF10B981).withOpacity(0.4), width: 0.5),
         ),
         child: Text(
           entry.word,
-          style: GoogleFonts.amiri(
-              fontSize: 20, color: const Color(0xFF6EE7B7), height: 1.5),
+          style: TextStyle(
+            fontSize: 22, 
+            color: const Color(0xFF10B981), 
+            height: 1.4,
+            fontFamily: settings.fontFamily,
+            fontWeight: FontWeight.bold
+          ),
         ),
       );
     }
@@ -706,24 +759,24 @@ class _WordChip extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
+        color: textColor.withOpacity(0.03),
         borderRadius: BorderRadius.circular(8),
         border: Border(
             bottom: BorderSide(
-                color: Colors.white.withValues(alpha: 0.25), width: 1.5)),
+                color: textColor.withOpacity(0.2), width: 1.5)),
       ),
       child: Text(
         '—' * dashCount,
         style: TextStyle(
-            fontSize: 14,
-            color: Colors.white.withValues(alpha: 0.2),
-            letterSpacing: 3),
+            fontSize: 16,
+            color: textColor.withOpacity(0.2),
+            letterSpacing: 4),
       ),
     );
   }
 }
 
-class _AudioBar extends StatelessWidget {
+class _AudioBar extends ConsumerWidget {
   const _AudioBar({
     required this.isPlaying,
     required this.waveController,
@@ -736,29 +789,40 @@ class _AudioBar extends StatelessWidget {
   final String reciterLabel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
+    final containerColor = isDark
+        ? const Color(0xFF1E293B)
+        : QuranUIUtils.getTextColor(settings.themeMode).withOpacity(0.05);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: containerColor,
         borderRadius: BorderRadius.circular(14),
-        border:
-            Border.all(color: Colors.white.withValues(alpha: 0.08), width: 0.5),
+        border: Border.all(
+            color: accentColor.withOpacity(0.1), width: 0.5),
       ),
       child: Row(
         children: [
           GestureDetector(
             onTap: onToggle,
             child: Container(
-              width: 38,
-              height: 38,
-              decoration: const BoxDecoration(
-                  color: AppTheme.accentColor, shape: BoxShape.circle),
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                  color: accentColor, shape: BoxShape.circle),
               child: Icon(
                 isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                 color: Colors.white,
-                size: 20,
+                size: 22,
               ),
             ),
           ),
@@ -766,16 +830,20 @@ class _AudioBar extends StatelessWidget {
           Expanded(
               child: _AudioWaveform(
                   isPlaying: isPlaying, controller: waveController)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Text(reciterLabel,
-              style: GoogleFonts.cairo(fontSize: 9, color: Colors.white38)),
+              style: GoogleFonts.cairo(
+                fontSize: 10, 
+                color: QuranUIUtils.getTextColor(settings.themeMode).withOpacity(0.5),
+                fontWeight: FontWeight.w600
+              )),
         ],
       ),
     );
   }
 }
 
-class _InlineWordInput extends StatelessWidget {
+class _InlineWordInput extends ConsumerWidget {
   const _InlineWordInput({
     required this.index,
     required this.hiddenWord,
@@ -793,28 +861,36 @@ class _InlineWordInput extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    final textColor = QuranUIUtils.getTextColor(settings.themeMode);
+
     final wordLength = TajweedNormalizer.stripDiacritics(hiddenWord).length;
-    final boxWidth = (wordLength * 18.0).clamp(60.0, 180.0);
+    final boxWidth = (wordLength * 20.0).clamp(70.0, 200.0);
 
     Color borderColor;
     Color bgColor;
 
     if (isCorrect == null) {
-      borderColor = Colors.white24;
-      bgColor = Colors.white.withValues(alpha: 0.08);
+      borderColor = textColor.withOpacity(0.2);
+      bgColor = textColor.withOpacity(0.04);
     } else if (isCorrect == true) {
-      borderColor = const Color(0xFF22C55E);
-      bgColor = const Color(0xFF22C55E).withValues(alpha: 0.15);
+      borderColor = const Color(0xFF10B981);
+      bgColor = const Color(0xFF10B981).withOpacity(0.12);
     } else {
       borderColor = const Color(0xFFEF4444);
-      bgColor = const Color(0xFFEF4444).withValues(alpha: 0.15);
+      bgColor = const Color(0xFFEF4444).withOpacity(0.12);
     }
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: boxWidth,
-      height: 42,
+      height: 48,
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8),
@@ -824,10 +900,11 @@ class _InlineWordInput extends StatelessWidget {
           ? Center(
               child: Text(
                 hiddenWord,
-                style: GoogleFonts.amiri(
-                  fontSize: 18,
-                  color: const Color(0xFF22C55E),
-                  fontWeight: FontWeight.w600,
+                style: TextStyle(
+                  fontSize: 22,
+                  color: const Color(0xFF10B981),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: settings.fontFamily,
                 ),
               ),
             )
@@ -836,12 +913,17 @@ class _InlineWordInput extends StatelessWidget {
               focusNode: focusNode,
               textDirection: ui.TextDirection.rtl,
               textAlign: TextAlign.center,
-              style: GoogleFonts.amiri(fontSize: 18, color: Colors.white),
-              decoration: const InputDecoration(
+              style: TextStyle(
+                  fontSize: 22, 
+                  color: textColor, 
+                  fontFamily: settings.fontFamily,
+                  fontWeight: FontWeight.w500
+              ),
+              decoration: InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 hintText: '...',
-                hintStyle: TextStyle(color: Colors.white30, fontSize: 16),
+                hintStyle: TextStyle(color: textColor.withOpacity(0.2), fontSize: 18),
               ),
               onChanged: onChanged,
               textInputAction: TextInputAction.next,
@@ -944,32 +1026,40 @@ class _WritingModeBar extends StatelessWidget {
   }
 }
 
-class _InlineStatusMessage extends StatelessWidget {
+class _InlineStatusMessage extends ConsumerWidget {
   const _InlineStatusMessage({required this.message});
 
   final String message;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    
     final isError = message.contains('تعذر') ||
         message.contains('لم يتم') ||
         message.contains('غير صحيحة') ||
         message.contains('حاول');
 
     final bgColor = isError
-        ? const Color(0xFF7F1D1D).withValues(alpha: 0.28)
-        : const Color(0xFF0E4D35).withValues(alpha: 0.30);
+        ? const Color(0xFF7F1D1D).withValues(alpha: isDark ? 0.4 : 0.2)
+        : QuranUIUtils.getAccentColor(settings.themeMode).withOpacity(isDark ? 0.3 : 0.1);
     final borderColor = isError
         ? const Color(0xFFEF4444).withValues(alpha: 0.45)
-        : const Color(0xFF6EE7B7).withValues(alpha: 0.45);
-    final textColor =
-        isError ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0);
+        : QuranUIUtils.getAccentColor(settings.themeMode).withOpacity(0.4);
+    final textColor = isError 
+        ? (isDark ? const Color(0xFFFECACA) : const Color(0xFFB91C1C))
+        : QuranUIUtils.getAccentColor(settings.themeMode);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(10),
@@ -978,7 +1068,7 @@ class _InlineStatusMessage extends StatelessWidget {
         child: Text(
           message,
           style: GoogleFonts.cairo(
-              fontSize: 10.5, color: textColor, fontWeight: FontWeight.w600),
+              fontSize: 11, color: textColor, fontWeight: FontWeight.w700),
           textAlign: TextAlign.center,
         ),
       ),
@@ -986,21 +1076,33 @@ class _InlineStatusMessage extends StatelessWidget {
   }
 }
 
-class _MicBar extends StatelessWidget {
+class _MicBar extends ConsumerWidget {
   const _MicBar({required this.isListening, required this.onToggle});
   final bool isListening;
   final Future<void> Function() onToggle;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
+    
+    final containerColor = isDark
+        ? const Color(0xFF1E293B)
+        : QuranUIUtils.getTextColor(settings.themeMode).withOpacity(0.05);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1220).withValues(alpha: 0.65),
+        color: containerColor,
         borderRadius: BorderRadius.circular(14),
         border:
-            Border.all(color: Colors.white.withValues(alpha: 0.10), width: 0.6),
+            Border.all(color: accentColor.withValues(alpha: 0.15), width: 0.6),
       ),
       child: Row(
         children: [
@@ -1008,23 +1110,23 @@ class _MicBar extends StatelessWidget {
             onTap: onToggle,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: isListening
-                    ? _successColor.withValues(alpha: 0.16)
-                    : Colors.white.withValues(alpha: 0.06),
+                    ? const Color(0xFF10B981).withValues(alpha: 0.2)
+                    : accentColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: isListening ? _successColor : Colors.white24,
-                    width: 1.3),
+                    color: isListening ? const Color(0xFF10B981) : accentColor.withOpacity(0.3),
+                    width: 1.5),
               ),
               child: Icon(
                   isListening
                       ? Icons.graphic_eq_rounded
-                      : Icons.mic_none_rounded,
-                  color: isListening ? _successColor : Colors.white54,
-                  size: 18),
+                      : Icons.mic_rounded,
+                  color: isListening ? const Color(0xFF10B981) : accentColor,
+                  size: 20),
             ),
           ),
           const SizedBox(width: 12),
@@ -1179,20 +1281,27 @@ class _StatChip extends StatelessWidget {
   }
 }
 
-class _InstructionCard extends StatelessWidget {
+class _InstructionCard extends ConsumerWidget {
   const _InstructionCard({required this.stage});
   final int stage;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
+    
     final pair = _instruction(stage);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withValues(alpha: 0.15),
+        color: accentColor.withOpacity(0.08),
         border: Border.all(
-            color: AppTheme.primaryColor.withValues(alpha: 0.4), width: 0.5),
+            color: accentColor.withOpacity(0.25), width: 0.5),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -1201,10 +1310,14 @@ class _InstructionCard extends StatelessWidget {
               style: GoogleFonts.cairo(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF6EE7B7))),
-          const SizedBox(height: 3),
+                  color: accentColor)),
+          const SizedBox(height: 4),
           Text(pair.$2,
-              style: GoogleFonts.cairo(fontSize: 10, color: Colors.white38)),
+              style: GoogleFonts.cairo(
+                fontSize: 11, 
+                color: QuranUIUtils.getTextColor(settings.themeMode).withOpacity(0.6),
+                fontWeight: FontWeight.w500
+              )),
         ],
       ),
     );
@@ -1370,7 +1483,7 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                 animation: true,
                 animateFromLastPercent: true,
                 circularStrokeCap: CircularStrokeCap.round,
-                progressColor: AppTheme.primaryColor,
+                progressColor: QuranUIUtils.getAccentColor(ref.watch(quranSettingsControllerProvider).valueOrNull?.themeMode ?? QuranThemeMode.sepia),
                 backgroundColor: colors.onSurface.withValues(alpha: 0.15),
                 center: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -46,7 +46,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       _fadeController.forward(),
     ]);
 
-    await Future<void>.delayed(const Duration(milliseconds: 2200));
+    await Future<void>.delayed(const Duration(milliseconds: 900));
 
     if (mounted) widget.onComplete();
   }
@@ -61,7 +61,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF064E3B),
+      backgroundColor: const Color(0xFFFDFBF7), // Parchment background from design system
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -70,8 +70,8 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
               scale: _scaleAnim,
               child: Image.asset(
                 'assets/images/app_logo.png',
-                width: 120,
-                height: 120,
+                width: 220,
+                height: 220,
                 errorBuilder: (_, __, ___) => Container(
                   width: 120,
                   height: 120,
@@ -85,18 +85,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(height: 24),
-            FadeTransition(
-              opacity: _fadeAnim,
-              child: Text(
-                'app_name'.tr(), // سِلَة (ar), Sila (en), Sıla (tr), Sila (fr)
-                style: const TextStyle(
-                  fontFamily: 'Cairo',
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            // Removed redundant app_name text since it's already in the logo
             const SizedBox(height: 8),
             FadeTransition(
               opacity: _fadeAnim,
@@ -105,7 +94,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                 style: const TextStyle(
                   fontFamily: 'Cairo',
                   fontSize: 14,
-                  color: Colors.white60,
+                  color: const Color(0xFF064E3B), // Emerald Deep
                 ),
               ),
             ),
@@ -115,7 +104,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
               height: 24,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white38,
+                color: const Color(0xFF064E3B), // Emerald Deep
               ),
             ),
           ],

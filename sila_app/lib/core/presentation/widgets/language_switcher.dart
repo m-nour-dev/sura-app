@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
-class LanguageSwitcher extends StatefulWidget {
+class LanguageSwitcher extends ConsumerStatefulWidget {
   const LanguageSwitcher({super.key});
 
   // Color System from Design System
@@ -16,22 +18,25 @@ class LanguageSwitcher extends StatefulWidget {
   static const _languageNames = {
     'ar': 'العربية',
     'tr': 'Türkçe',
+    'en': 'English',
+    'fr': 'Français',
   };
 
   static const double spacing = 16; // 2cm = 16px (standard spacing)
 
   @override
-  State<LanguageSwitcher> createState() => _LanguageSwitcherState();
+  ConsumerState<LanguageSwitcher> createState() => _LanguageSwitcherState();
 }
 
-class _LanguageSwitcherState extends State<LanguageSwitcher> {
+class _LanguageSwitcherState extends ConsumerState<LanguageSwitcher> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return PopupMenuButton<Locale>(
-      onSelected: (locale) {
-        context.setLocale(locale);
+      onSelected: (locale) async {
+        await context.setLocale(locale);
+        ref.read(appLocaleProvider.notifier).state = locale;
       },
       elevation: 8,
       shape: RoundedRectangleBorder(

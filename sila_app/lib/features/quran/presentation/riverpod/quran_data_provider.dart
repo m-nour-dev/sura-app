@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,31 +18,55 @@ class QuranData {
   final Map<String, String> translation;
 }
 
+final appLocaleProvider = StateProvider<Locale>((ref) => const Locale('ar', 'SA'));
+
 final quranDataProvider = FutureProvider<QuranData>((ref) async {
   try {
-    final languageCode = Intl.getCurrentLocale();
-    final isTurkish = languageCode.startsWith('tr');
-
-    // Load Quran translation
-    const quranTranslationPath = 'assets/data/quran_tr.json';
+    // Watch the locale provider to re-trigger this future when locale changes
+    final locale = ref.watch(appLocaleProvider);
+    final languageCode = locale.languageCode;
     
-    // Load Tafseer based on language
-    final tafseerPath = isTurkish ? 'assets/data/tafseer_tr.json' : 'assets/data/tafseer.json';
-    
-    // Load Tajweed based on language
-    final tajweedPath = isTurkish ? 'assets/data/tajweed_tr.json' : 'assets/data/tajweed.json';
+    final isTurkish = languageCode == 'tr';
+    final isEnglish = languageCode == 'en';
+    final isFrench = languageCode == 'fr';
 
-    final results = await Future.wait([
+    // Default paths (Arabic)
+    String? quranTranslationPath;
+    String tafseerPath = 'assets/data/tafseer.json';
+    String tajweedPath = 'assets/data/tajweed.json';
+
+    if (isTurkish) {
+      quranTranslationPath = 'assets/data/quran_tr.json';
+      tafseerPath = 'assets/data/tafseer_tr.json';
+      tajweedPath = 'assets/data/tajweed_tr.json';
+    } else if (isEnglish) {
+      quranTranslationPath = 'assets/data/translation_en.json';
+      tafseerPath = 'assets/data/tafseer_en.json';
+    } else if (isFrench) {
+      quranTranslationPath = 'assets/data/translation_fr.json';
+      tafseerPath = 'assets/data/tafseer_fr.json';
+    }
+
+    final List<Future<String>> futures = [
       rootBundle.loadString(tafseerPath),
       rootBundle.loadString(tajweedPath),
-      rootBundle.loadString(quranTranslationPath),
-    ]);
+    ];
+    
+    if (quranTranslationPath != null) {
+      futures.add(rootBundle.loadString(quranTranslationPath));
+    }
+
+    final results = await Future.wait(futures);
 
     final Map<String, dynamic> tafsirRaw = json.decode(results[0]);
     final Map<String, dynamic> tajweedRaw = json.decode(results[1]);
-    final Map<String, dynamic> trRaw = json.decode(results[2]);
+    
+    Map<String, dynamic> trRaw = {};
+    if (quranTranslationPath != null) {
+      trRaw = json.decode(results[2]);
+    }
 
-    // Robustly convert to Map<String, String>
+    // Robustly convert to Map<String, String> for Tafsir and Tajweed
     final processedTafsir = tafsirRaw.map(
       (key, value) => MapEntry(key.toString(), value.toString()),
     );
@@ -49,13 +74,21 @@ final quranDataProvider = FutureProvider<QuranData>((ref) async {
       (key, value) => MapEntry(key.toString(), value.toString()),
     );
 
-    // Translation is a list of objects with 'chapter', 'verse', 'text'
-    final List<dynamic> trList = trRaw['quran'] ?? [];
+    // Process Translation (Handle both nested list and flat map)
     final processedTr = <String, String>{};
-    for (var item in trList) {
-      if (item['chapter'] != null && item['verse'] != null) {
-        processedTr['${item['chapter']}_${item['verse']}'] = (item['text'] ?? '').toString();
+    if (trRaw.containsKey('quran') && trRaw['quran'] is List) {
+      // Structure of quran_tr.json
+      final List<dynamic> trList = trRaw['quran'];
+      for (var item in trList) {
+        if (item['chapter'] != null && item['verse'] != null) {
+          processedTr['${item['chapter']}_${item['verse']}'] = (item['text'] ?? '').toString();
+        }
       }
+    } else {
+      // Flat map structure (translation_en.json, translation_fr.json)
+      trRaw.forEach((key, value) {
+        processedTr[key.toString()] = value.toString();
+      });
     }
 
     return QuranData(
@@ -64,7 +97,7 @@ final quranDataProvider = FutureProvider<QuranData>((ref) async {
       translation: processedTr,
     );
   } catch (e) {
-    print('Error loading Quran data: $e');
+    debugPrint('Error loading Quran data: $e');
     return QuranData.empty();
   }
 });

@@ -12,6 +12,13 @@ class QuranSettings extends Equatable {
   final double fontSize;
   final String fontFamily;
   final QuranThemeMode themeMode;
+  
+  static const defaultSettings = QuranSettings(
+    fontSize: 26,
+    fontFamily: 'Scheherazade New',
+    themeMode: QuranThemeMode.sepia,
+  );
+
 
   QuranSettings copyWith({
     double? fontSize,

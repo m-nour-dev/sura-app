@@ -49,10 +49,9 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
     final isDark = settings.themeMode == QuranThemeMode.dark;
     
     // Determine title based on language
-    final isArabic = context.locale.languageCode == 'ar';
     final title = widget.showTafsir 
-        ? (isArabic ? 'التفسير الميسّر' : 'Tefsir')
-        : (isArabic ? 'الترجمة' : 'Çeviri');
+        ? 'tafsir_label'.tr()
+        : 'translation_label'.tr();
 
     return quranDataAsync.when(
       data: (quranData) {

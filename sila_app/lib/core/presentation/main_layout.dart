@@ -20,6 +20,7 @@ import 'package:sila_app/features/home/presentation/pages/home_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
 import 'package:sila_app/features/quran/presentation/pages/quran_page.dart';
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
 import 'widgets/sila_bottom_bar.dart';
 
@@ -62,6 +63,11 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _checkAndShowNotificationPrompt();
       _checkForUpdate();
+      
+      // Initial sync of Riverpod appLocaleProvider with easy_localization locale
+      if (mounted) {
+        ref.read(appLocaleProvider.notifier).state = context.locale;
+      }
     });
 
     // PERF FIX 6: Log screen on tab change via provider listener, not in build()
@@ -277,7 +283,12 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     final displayIndex = currentIndex < 6 ? currentIndex : 0;
 
     // PERF FIX 3: Build page lazily on first visit
-    _cachedPages[displayIndex] ??= _buildPage(displayIndex, hifzPage);
+    // FIX: If it's the Hifz page (index 2), we check if the onboarding status changed
+    if (displayIndex == 2) {
+      _cachedPages[2] = _buildPage(2, hifzPage);
+    } else {
+      _cachedPages[displayIndex] ??= _buildPage(displayIndex, hifzPage);
+    }
 
     return Scaffold(
       body: _cachedPages[

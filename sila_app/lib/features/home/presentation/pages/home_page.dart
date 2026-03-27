@@ -53,7 +53,7 @@ class HomePage extends ConsumerWidget {
             floating: false,
             pinned: true,
             elevation: 0,
-            backgroundColor: const Color(0xFF064E3B),
+            backgroundColor: AppTheme.primaryColor,
             flexibleSpace: FlexibleSpaceBar(
               background: HomeHeader(
                 onNotificationTap: () {

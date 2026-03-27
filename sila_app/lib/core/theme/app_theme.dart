@@ -3,12 +3,34 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Premium Palette
-  static const Color primaryColor = Color(0xFF064E3B); // Deep Emerald
-  static const Color accentColor = Color(0xFFD97706); // Burnished Gold
-  static const Color backgroundColor = Color(0xFFFDFBF7); // Warm Ivory
-  static const Color surfaceColor = Color(0xFFF9F5EC); // Soft Parchment
-  static const Color darkBackgroundColor = Color(0xFF0F172A); // Midnight Navy
-  static const Color darkSurfaceColor = Color(0xFF1E293B); // Slate 800
+  static const Color primaryColor = Color(0xFF064E3B); // Emerald Deep
+  static const Color accentColor = Color(0xFFD97706); // Islamic Gold
+  static const Color backgroundColor = Color(0xFFFDFBF7); // Parchment
+  static const Color surfaceColor = Color(0xFFF9F5EC); // Soft Parchment (Legacy/Design System match)
+  static const Color darkBackgroundColor = Color(0xFF0F172A); // Night Deep
+  static const Color goldLight = Color(0xFFFCD34D); // Gold Light
+  static const Color navyHasanat = Color(0xFF1E3A5F); // Navy Hasanat
+  static const Color successGreen = Color(0xFF10B981); // Success Green
+  static const Color darkSurfaceColor = Color(0xFF1E293B); // Dark Surface
+
+  // Gradients
+  static const LinearGradient headerGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF064E3B), Color(0xFF0A6B52), Color(0xFF1A3A5C)],
+  );
+
+  static const LinearGradient hasanatGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [navyHasanat, Color(0xFF2D5A8E)],
+  );
+
+  static const LinearGradient ctaGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [accentColor, Color(0xFFF59E0B)],
+  );
 
   // Light Theme
   static ThemeData get lightTheme {

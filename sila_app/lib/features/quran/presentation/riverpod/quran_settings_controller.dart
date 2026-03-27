@@ -16,7 +16,7 @@ class QuranSettingsController extends _$QuranSettingsController {
     
     return QuranSettings(
       fontSize: prefs.getDouble(_fontSizeKey) ?? 26,
-      fontFamily: prefs.getString(_fontFamilyKey) ?? 'Amiri',
+      fontFamily: prefs.getString(_fontFamilyKey) ?? 'Scheherazade New',
       themeMode: QuranThemeMode.values[prefs.getInt(_themeModeKey) ?? 2], // Default to Sepia
     );
   }

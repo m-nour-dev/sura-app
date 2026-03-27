@@ -18,6 +18,7 @@ import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_con
 import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
 import 'package:sila_app/features/quran/presentation/widgets/quran_details_sheet.dart';
 import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class WirdReaderPage extends ConsumerStatefulWidget {
 
@@ -43,6 +44,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   @override
   void initState() {
     super.initState();
+    WakelockPlus.enable();
     _currentPage = widget.startPage;
     _pageController = PageController(initialPage: 0);
     Future<void>.microtask(() async {
@@ -72,6 +74,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
   @override
   void dispose() {
+    WakelockPlus.disable();
     _pageController.dispose();
     super.dispose();
   }
@@ -100,7 +103,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
         final surahName = quran.getSurahNameArabic(currentSurah);
 
         return Scaffold(
-          backgroundColor: _getBackgroundColor(settings.themeMode),
+          backgroundColor: QuranUIUtils.getBackgroundColor(settings.themeMode),
           appBar: _buildCustomAppBar(settings, surahName, currentJuz, isDone),
           body: SafeArea(
             child: GestureDetector(
@@ -113,14 +116,38 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                 children: [
                   Expanded(
                     child: Directionality(
-                      textDirection: ui.TextDirection.rtl, // Ensure RTL for Quran
-                        child: PageView.builder(
-                          controller: _pageController,
-                          itemCount: (widget.endPage - widget.startPage + 1).clamp(1, 604),
+                      textDirection: context.locale.languageCode == 'ar'
+                          ? ui.TextDirection.rtl
+                          : ui.TextDirection.ltr, // Dynamic directionality
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: (widget.endPage - widget.startPage + 1)
+                            .clamp(1, 604),
                           onPageChanged: _onPageChanged,
                           itemBuilder: (context, index) {
                             final pageNum = widget.startPage + index;
-                            return _buildQuranPage(pageNum, settings);
+                            return AnimatedBuilder(
+                              animation: _pageController,
+                              builder: (context, child) {
+                                double value = 0;
+                                if (_pageController.position.haveDimensions) {
+                                  value = index.toDouble() - (_pageController.page ?? 0);
+                                }
+                                
+                                // Apply a 3D rotation effect
+                                final rotation = value.clamp(-1, 1) * (3.1415926535 / 8); // ~22.5 degrees
+                                
+                                return Transform(
+                                  transform: Matrix4.identity()
+                                    ..setEntry(3, 2, 0.001) // perspective
+                                    ..rotateY(rotation),
+                                  alignment: context.locale.languageCode == 'ar'
+                                      ? (value > 0 ? Alignment.centerRight : Alignment.centerLeft)
+                                      : (value > 0 ? Alignment.centerLeft : Alignment.centerRight),
+                                  child: _buildQuranPage(pageNum, settings),
+                                );
+                              },
+                            );
                           },
                         ),
                       ),
@@ -144,7 +171,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   PreferredSizeWidget _buildCustomAppBar(
       QuranSettings settings, String surahName, int juz, bool isDone) {
     final isDarkSettings = settings.themeMode == QuranThemeMode.dark;
-    final appBarBg = _getBackgroundColor(settings.themeMode);
+    final appBarBg = QuranUIUtils.getBackgroundColor(settings.themeMode);
     final iconColor = _getTextColor(settings.themeMode);
 
     return AppBar(
@@ -156,12 +183,12 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       ),
       centerTitle: true,
       title: Text(
-        'سورة $surahName',
+        'surah_label'.tr(args: [surahName]),
         style: TextStyle(
           color: iconColor,
           fontWeight: FontWeight.bold,
           fontSize: 22,
-          fontFamily: 'Amiri',
+          fontFamily: settings.fontFamily,
         ),
       ),
       actions: [
@@ -202,7 +229,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
   Widget _buildBottomSlider(QuranSettings settings) {
     return Container(
-      color: _getBackgroundColor(settings.themeMode),
+      color: QuranUIUtils.getBackgroundColor(settings.themeMode),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
@@ -248,7 +275,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
   Widget _buildQuranPage(int pageNumber, QuranSettings settings) {
     final pageData = quran.getPageData(pageNumber);
-    final bgColor = _getBackgroundColor(settings.themeMode);
+    final bgColor = QuranUIUtils.getBackgroundColor(settings.themeMode);
     final isDark = settings.themeMode == QuranThemeMode.dark;
 
     return SingleChildScrollView(
@@ -270,6 +297,13 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
             width: double.infinity,
             decoration: BoxDecoration(
               color: bgColor,
+              image: settings.themeMode == QuranThemeMode.sepia 
+                ? const DecorationImage(
+                    image: AssetImage('assets/images/paper_texture.png'),
+                    fit: BoxFit.cover,
+                    opacity: 0.4,
+                  )
+                : null,
               gradient: isDark ? null : RadialGradient(
                 colors: [
                   bgColor,
@@ -305,16 +339,18 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                         ),
                       ),
                     ),
-                    child: Text(
-                      '— ${_arabicNumber(pageNumber)} —',
-                      style: TextStyle(
-                        fontFamily: 'Amiri',
-                        fontSize: 14,
-                        color: _getTextColor(settings.themeMode).withOpacity(0.7),
-                        letterSpacing: 2,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  child: Text(
+                    context.locale.languageCode == 'ar'
+                        ? '— ${QuranUIUtils.toArabicNumber(pageNumber)} —'
+                        : '— $pageNumber —',
+                    style: TextStyle(
+                      fontFamily: settings.fontFamily,
+                      fontSize: 14,
+                      color: _getTextColor(settings.themeMode).withOpacity(0.7),
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
                   ),
                 ),
               ],
@@ -335,9 +371,10 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     final spans = <InlineSpan>[];
     for (var i = startAyah; i <= endAyah; i++) {
       final ayahIndex = i; // capture for closure
-      final verse = quran.getVerse(surahNum, ayahIndex);
-      final isSelected = _selectedSurah == surahNum && _selectedAyah == ayahIndex;
-      final verseSymbol = quran.getVerseEndSymbol(ayahIndex, arabicNumeral: true);
+      var verse = quran.getVerse(surahNum, ayahIndex);
+      final isArabic = context.locale.languageCode == 'ar';
+      final isSelected =
+          _selectedSurah == surahNum && _selectedAyah == ayahIndex;
 
       final recognizer = TapGestureRecognizer()
         ..onTap = () {
@@ -352,17 +389,60 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
           });
         };
 
+      final baseStyle = _getQuranStyle(settings, isSelected: isSelected);
+      final tajweedSpans = QuranUIUtils.buildTajweedSpans('$verse ',
+          settings.themeMode,
+          baseStyle: baseStyle);
+
       spans.add(TextSpan(
-        text: '$verse $verseSymbol ',
-        recognizer: recognizer,
-        style: TextStyle(
-          fontFamily: 'Amiri',
-          fontSize: settings.fontSize,
-          height: 1.85,
-          color: isSelected ? accentColor : textColor,
-          backgroundColor: isSelected ? accentColor.withOpacity(0.15) : null,
-        ),
+        children: tajweedSpans.map((s) {
+          if (s is TextSpan) {
+            return TextSpan(
+              text: s.text,
+              style: s.style?.copyWith(
+                  backgroundColor: isSelected
+                      ? accentColor.withOpacity(0.15)
+                      : s.style?.backgroundColor),
+              recognizer: recognizer,
+            );
+          }
+          return s;
+        }).toList(),
       ));
+
+      if (isArabic) {
+        final verseSymbol =
+            quran.getVerseEndSymbol(ayahIndex, arabicNumeral: true);
+        spans.add(TextSpan(
+          text: ' $verseSymbol ',
+          style: baseStyle,
+        ));
+      } else {
+        spans.add(const TextSpan(text: ' '));
+        spans.add(WidgetSpan(
+          alignment: ui.PlaceholderAlignment.middle,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Text('\u06DD',
+                  style: baseStyle.copyWith(
+                      fontSize: (baseStyle.fontSize ?? 26) * 1.4, height: 1)),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  ayahIndex.toString(),
+                  style: GoogleFonts.cairo(
+                    fontSize: (baseStyle.fontSize ?? 26) * 0.4,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? accentColor : textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
+        spans.add(const TextSpan(text: ' '));
+      }
     }
 
     return Column(
@@ -377,7 +457,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
                 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Amiri',
+                  fontFamily: settings.fontFamily,
                   fontSize: settings.fontSize,
                   height: 1.8,
                   color: textColor,
@@ -418,7 +498,35 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
   // --- RESTORED UI HELPERS ---
 
-  Color _getBackgroundColor(QuranThemeMode mode) => QuranUIUtils.getBackgroundColor(mode);
+  TextStyle _getQuranStyle(QuranSettings settings, {Color? color, bool isSelected = false}) {
+    final textColor = color ?? _getTextColor(settings.themeMode);
+    final accentColor = _getAccentColor(settings.themeMode);
+    final size = settings.fontSize;
+    const height = 1.85;
+
+    TextStyle baseStyle;
+    switch (settings.fontFamily) {
+      case 'KFGQPCUthmanicScript':
+        baseStyle = TextStyle(fontFamily: 'KFGQPCUthmanicScript', fontSize: size, height: height);
+        break;
+      case 'Amiri':
+        baseStyle = GoogleFonts.amiri(fontSize: size, height: height);
+        break;
+      case 'Scheherazade':
+        baseStyle = GoogleFonts.scheherazadeNew(fontSize: size, height: height);
+        break;
+      case 'Noto Naskh':
+        baseStyle = GoogleFonts.notoNaskhArabic(fontSize: size, height: height);
+        break;
+      default:
+        baseStyle = TextStyle(fontFamily: settings.fontFamily, fontSize: size, height: height);
+    }
+
+    return baseStyle.copyWith(
+      color: isSelected ? accentColor : textColor,
+      backgroundColor: isSelected ? accentColor.withOpacity(0.15) : null,
+    );
+  }
   Color _getTextColor(QuranThemeMode mode) => QuranUIUtils.getTextColor(mode);
   Color _getAccentColor(QuranThemeMode mode) => QuranUIUtils.getAccentColor(mode);
   String _arabicNumber(int n) => QuranUIUtils.toArabicNumber(n);
@@ -455,9 +563,10 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
       child: Column(
         children: [
           Text(
-            'سورة ${quran.getSurahNameArabic(surahNum)}',
-            style: const TextStyle(
-              fontFamily: 'Amiri',
+            'surah_label'
+                .tr(args: [quran.getSurahNameArabic(surahNum)]),
+            style: TextStyle(
+              fontFamily: settings.fontFamily,
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -471,40 +580,69 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
   void _showSettingsDialog(BuildContext context, WidgetRef ref, QuranSettings settings) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: _getBackgroundColor(settings.themeMode),
+      backgroundColor: QuranUIUtils.getBackgroundColor(settings.themeMode),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 64),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('إعدادات القراءة', textAlign: TextAlign.center, style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold, color: _getTextColor(settings.themeMode))),
+            Text('reading_settings_title'.tr(), textAlign: TextAlign.center, style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold, color: _getTextColor(settings.themeMode))),
             const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
                   child: Consumer(builder: (context, ref, child) {
-                    final reciterName = ref.watch(reciterControllerProvider).when(data: (r) => r.nameArabic, loading: () => 'جاري...', error: (e, s) => 'القارئ');
+                    final reciterName = ref.watch(reciterControllerProvider).when(data: (r) => context.locale.languageCode == 'ar' ? r.nameArabic : r.nameEnglish, loading: () => 'loading_label'.tr(), error: (e, s) => 'reciter_label'.tr());
                     return _buildSettingTile(icon: Icons.mic_rounded, label: reciterName, onTap: () => showReciterPickerSheet(context), settings: settings);
                   }),
                 ),
                 const SizedBox(width: 12),
-                Expanded(child: _buildSettingTile(icon: Icons.notifications_active_rounded, label: 'التنبيهات', onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WirdNotificationSettings())), settings: settings)),
+                Expanded(child: _buildSettingTile(icon: Icons.notifications_active_rounded, label: 'notifications_label'.tr(), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const WirdNotificationSettings())), settings: settings)),
               ],
             ),
             const SizedBox(height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildThemeOption(ref, QuranThemeMode.light, 'فاتح', settings),
-                _buildThemeOption(ref, QuranThemeMode.sepia, 'كتابي', settings),
-                _buildThemeOption(ref, QuranThemeMode.dark, 'داكن', settings),
+                _buildThemeOption(ref, QuranThemeMode.light, 'theme_light'.tr(), settings),
+                _buildThemeOption(ref, QuranThemeMode.sepia, 'theme_sepia'.tr(), settings),
+                _buildThemeOption(ref, QuranThemeMode.dark, 'theme_dark'.tr(), settings),
               ],
             ),
             const SizedBox(height: 24),
-            Row(children: [Icon(Icons.format_size, color: _getTextColor(settings.themeMode)), Expanded(child: Slider(value: settings.fontSize.clamp(16.0, 44.0), min: 16, max: 44, activeColor: _getAccentColor(settings.themeMode), onChanged: (v) => ref.read(quranSettingsControllerProvider.notifier).updateFontSize(v)))]),
+            Text('quran_font_label'.tr(), textAlign: TextAlign.center, style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold, color: _getTextColor(settings.themeMode))),
+            const SizedBox(height: 12),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFontOption(ref, 'KFGQPCUthmanicScript', 'font_uthmanic'.tr(), settings),
+                  const SizedBox(width: 8),
+                  _buildFontOption(ref, 'Amiri', 'font_amiri'.tr(), settings),
+                  const SizedBox(width: 8),
+                  _buildFontOption(ref, 'Scheherazade', 'font_scheherazade'.tr(), settings),
+                  const SizedBox(width: 8),
+                  _buildFontOption(ref, 'Noto Naskh', 'font_noto_naskh'.tr(), settings),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Consumer(builder: (context, ref, child) {
+              final currentSettings = ref.watch(quranSettingsControllerProvider).valueOrNull ?? settings;
+              return Row(children: [
+                Icon(Icons.format_size, color: _getTextColor(currentSettings.themeMode)),
+                Expanded(child: Slider(
+                  value: currentSettings.fontSize.clamp(16.0, 44.0),
+                  min: 16,
+                  max: 44,
+                  activeColor: _getAccentColor(currentSettings.themeMode),
+                  onChanged: (v) => ref.read(quranSettingsControllerProvider.notifier).updateFontSize(v),
+                )),
+              ]);
+            }),
           ],
         ),
       ),
@@ -517,7 +655,23 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
   Widget _buildThemeOption(WidgetRef ref, QuranThemeMode mode, String label, QuranSettings settings) {
     final isSelected = settings.themeMode == mode;
-    return GestureDetector(onTap: () => ref.read(quranSettingsControllerProvider.notifier).updateThemeMode(mode), child: Column(children: [Container(width: 40, height: 40, decoration: BoxDecoration(color: _getBackgroundColor(mode), shape: BoxShape.circle, border: Border.all(color: isSelected ? _getAccentColor(settings.themeMode) : Colors.grey))), Text(label, style: GoogleFonts.cairo(color: _getTextColor(settings.themeMode)))]));
+    return GestureDetector(onTap: () => ref.read(quranSettingsControllerProvider.notifier).updateThemeMode(mode), child: Column(children: [Container(width: 40, height: 40, decoration: BoxDecoration(color: QuranUIUtils.getBackgroundColor(mode), shape: BoxShape.circle, border: Border.all(color: isSelected ? _getAccentColor(settings.themeMode) : Colors.grey))), Text(label, style: GoogleFonts.cairo(color: _getTextColor(settings.themeMode)))]));
+  }
+
+  Widget _buildFontOption(WidgetRef ref, String fontFamily, String label, QuranSettings settings) {
+    final isSelected = settings.fontFamily == fontFamily;
+    return GestureDetector(
+      onTap: () => ref.read(quranSettingsControllerProvider.notifier).updateFontFamily(fontFamily),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? _getAccentColor(settings.themeMode).withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? _getAccentColor(settings.themeMode) : Colors.grey),
+        ),
+        child: Text(label, style: TextStyle(fontFamily: fontFamily, fontSize: 16, color: _getTextColor(settings.themeMode))),
+      ),
+    );
   }
 
   Widget _buildToolbar(BuildContext context, WidgetRef ref, QuranSettings settings) {
@@ -592,7 +746,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      color: _getBackgroundColor(settings.themeMode),
+      color: QuranUIUtils.getBackgroundColor(settings.themeMode),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

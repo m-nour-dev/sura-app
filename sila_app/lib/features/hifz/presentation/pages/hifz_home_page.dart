@@ -5,6 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/utils/surah_utils.dart';
+import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
+import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
 import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_settings_page.dart';
@@ -15,18 +18,8 @@ import 'package:sila_app/features/notifications/presentation/widgets/streak_badg
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart'
     as import_tasmi;
 
-const Color _hasanatGold = Color(0xFFFCD34D);
+const Color _hasanatGold = AppTheme.goldLight;
 const Color _errorColor = Color(0xFFF87171);
-const LinearGradient _headerGradient = LinearGradient(
-  begin: Alignment.topLeft,
-  end: Alignment.bottomRight,
-  colors: [Color(0xFF064E3B), Color(0xFF0A6B52), Color(0xFF1A3A5C)],
-);
-const LinearGradient _hasanatGradient = LinearGradient(
-  begin: Alignment.topLeft,
-  end: Alignment.bottomRight,
-  colors: [Color(0xFF1E3A5F), Color(0xFF2D5A8E)],
-);
 
 class HifzHomePage extends ConsumerStatefulWidget {
   const HifzHomePage({super.key});
@@ -274,16 +267,22 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
     final state = ref.watch(hifzHomeControllerProvider);
     final controller = ref.read(hifzHomeControllerProvider.notifier);
 
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ?? 
+        const QuranSettings(fontSize: 26, fontFamily: 'Scheherazade New', themeMode: QuranThemeMode.sepia);
+    final isDark = false; // Always use light mode layout for this page as requested
+    final bgColor = isDark ? const Color(0xFF0F172A) : Colors.white;
+    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: bgColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 180,
             pinned: true,
-            backgroundColor: AppTheme.primaryColor,
+            backgroundColor: bgColor,
             elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(background: _Header(state: state)),
+            flexibleSpace: FlexibleSpaceBar(background: _Header(state: state, settings: settings)),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -312,16 +311,11 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF064E3B), Color(0xFF0a6b52)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        gradient: AppTheme.headerGradient, // Emerald Deep Gradient
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color:
-                                const Color(0xFF064E3B).withValues(alpha: 0.3),
+                            color: AppTheme.primaryColor.withOpacity(0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -337,8 +331,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFCD34D)
-                                        .withValues(alpha: 0.2),
+                                    color: AppTheme.goldLight.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -346,7 +339,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                     style: GoogleFonts.cairo(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFFFCD34D),
+                                      color: AppTheme.goldLight,
                                     ),
                                   ),
                                 ),
@@ -365,7 +358,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                   'ai_tasmi_desc'.tr(),
                                   style: GoogleFonts.cairo(
                                     fontSize: 12,
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                    color: Colors.white.withOpacity(0.8),
                                     height: 1.5,
                                   ),
                                 ),
@@ -377,8 +370,15 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                             width: 60,
                             height: 60,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.1),
+                              gradient: AppTheme.ctaGradient,
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.accentColor.withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: const Icon(
                               Icons.mic_rounded,
@@ -482,16 +482,22 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.state});
+  const _Header({required this.state, required this.settings});
   final HifzHomeState state;
+  final QuranSettings settings;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = settings.themeMode == QuranThemeMode.dark;
+    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
+    
     return Container(
-      decoration: const BoxDecoration(gradient: _headerGradient),
+      decoration: BoxDecoration(
+        gradient: AppTheme.headerGradient,
+      ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -538,7 +544,7 @@ class _Header extends StatelessWidget {
                   ),
                   const Spacer(),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'welcome_hifz_user'.tr(),
@@ -575,6 +581,7 @@ class _DailyPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = false; // Always use light mode layout for this page as requested
     final total = state.targetAyahsToday <= 0 ? 1 : state.targetAyahsToday;
     final progress = (state.doneAyahsToday / total).clamp(0.0, 1.0);
     final now = DateTime.now();
@@ -588,12 +595,12 @@ class _DailyPlanCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
+        border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0), width: 0.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -704,11 +711,11 @@ class _HasanatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: _hasanatGradient,
+        gradient: AppTheme.hasanatGradient,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TweenAnimationBuilder<int>(
             tween: IntTween(begin: 0, end: hasanat),
@@ -763,6 +770,7 @@ class _MethodsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = false; // Always use light mode layout for this page as requested
     final isArabic = context.locale.languageCode == 'ar';
     final countStr =
         isArabic ? _toArabicIndic(dueReviewCount) : dueReviewCount.toString();
@@ -811,16 +819,16 @@ class _MethodsGrid extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: c.featured ? const Color(0xFFFFFBF0) : Colors.white,
+              color: c.featured ? (isDark ? AppTheme.darkBackgroundColor : const Color(0xFFFEF8E6)) : (isDark ? AppTheme.darkSurfaceColor : Colors.white),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color:
-                    c.featured ? AppTheme.accentColor : const Color(0xFFE2E8F0),
+                    c.featured ? AppTheme.accentColor.withOpacity(0.5) : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
                 width: c.featured ? 1.5 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.03),
                   blurRadius: 6,
                 ),
               ],
@@ -879,14 +887,15 @@ class _MomentsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = false; // Always use light mode layout for this page as requested
+
     if (moments.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-              colors: [Color(0xFFF8FAFF), Color(0xFFF0F9FF)]),
+          color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFBFDBFE), width: 0.5),
+          border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0), width: 0.5),
         ),
         child: Column(
           children: [
@@ -929,12 +938,12 @@ class _MomentsSection extends StatelessWidget {
             width: 200,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+              border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0), width: 1.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

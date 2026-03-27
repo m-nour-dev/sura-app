@@ -2,6 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
+import 'package:sila_app/core/theme/app_theme.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
@@ -97,13 +100,8 @@ class HomeHeader extends StatelessWidget {
                 : '${hijriDate.hDay} $month ${hijriDate.hYear}هـ';
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF064E3B), Color(0xFF0a6b52), Color(0xFF1a3a5c)],
-          stops: [0.0, 0.5, 1.0],
-        ),
+      decoration: BoxDecoration(
+        gradient: AppTheme.headerGradient,
       ),
       child: SafeArea(
         child: Padding(
@@ -218,14 +216,15 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
-class _LanguageHeaderButton extends StatelessWidget {
+class _LanguageHeaderButton extends ConsumerWidget {
   const _LanguageHeaderButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<Locale>(
-      onSelected: (locale) {
-        context.setLocale(locale);
+      onSelected: (locale) async {
+        await context.setLocale(locale);
+        ref.read(appLocaleProvider.notifier).state = locale;
       },
       elevation: 8,
       shape: RoundedRectangleBorder(

@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
-class LanguageSelectionPage extends StatelessWidget {
+class LanguageSelectionPage extends ConsumerWidget {
   const LanguageSelectionPage({super.key});
 
-  Future<void> _selectLanguage(BuildContext context, Locale locale) async {
+  Future<void> _selectLanguage(BuildContext context, WidgetRef ref, Locale locale) async {
     // Set locale
     await context.setLocale(locale);
+    // Update provider
+    ref.read(appLocaleProvider.notifier).state = locale;
 
     // Save preference
     final prefs = await SharedPreferences.getInstance();
@@ -24,7 +28,7 @@ class LanguageSelectionPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
       body: SafeArea(
@@ -61,7 +65,7 @@ class LanguageSelectionPage extends StatelessWidget {
                 title: 'العربية',
                 subtitle: 'Arabic',
                 flag: '🇸🇦',
-                onTap: () => _selectLanguage(context, const Locale('ar', 'SA')),
+                onTap: () => _selectLanguage(context, ref, const Locale('ar', 'SA')),
               ),
 
               const SizedBox(height: 16),
@@ -71,7 +75,7 @@ class LanguageSelectionPage extends StatelessWidget {
                 title: 'Türkçe',
                 subtitle: 'Turkish',
                 flag: '🇹🇷',
-                onTap: () => _selectLanguage(context, const Locale('tr', 'TR')),
+                onTap: () => _selectLanguage(context, ref, const Locale('tr', 'TR')),
               ),
 
               const SizedBox(height: 16),
@@ -81,7 +85,7 @@ class LanguageSelectionPage extends StatelessWidget {
                 title: 'English',
                 subtitle: 'English',
                 flag: '🇺🇸',
-                onTap: () => _selectLanguage(context, const Locale('en', 'US')),
+                onTap: () => _selectLanguage(context, ref, const Locale('en', 'US')),
               ),
 
               const SizedBox(height: 16),
@@ -91,7 +95,7 @@ class LanguageSelectionPage extends StatelessWidget {
                 title: 'Français',
                 subtitle: 'French',
                 flag: '🇫🇷',
-                onTap: () => _selectLanguage(context, const Locale('fr', 'FR')),
+                onTap: () => _selectLanguage(context, ref, const Locale('fr', 'FR')),
               ),
 
               const Spacer(),

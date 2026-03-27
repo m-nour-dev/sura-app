@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
 import 'package:sila_app/core/presentation/splash_page.dart';
@@ -28,13 +29,20 @@ void main() async {
     FlutterError.presentError(details);
   };
 
-  await EasyLocalization.ensureInitialized();
-  await TimezoneService().initialize();
-  await Firebase.initializeApp();
+  // PERF: Disable GoogleFonts runtime fetching (fonts are bundled locally)
+  GoogleFonts.config.allowRuntimeFetching = false;
+
+  // PERF: Run all init operations in parallel instead of sequentially
+  final results = await Future.wait([
+    EasyLocalization.ensureInitialized(),
+    TimezoneService().initialize(),
+    Firebase.initializeApp(),
+    SharedPreferences.getInstance(),
+  ]);
 
   NotificationService().setNavigatorKey(appNavigatorKey);
 
-  final prefs = await SharedPreferences.getInstance();
+  final prefs = results[3] as SharedPreferences;
   final isLanguageSelected = prefs.getBool('is_language_selected') ?? false;
 
   runApp(
