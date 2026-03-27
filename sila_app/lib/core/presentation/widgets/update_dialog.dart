@@ -44,7 +44,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
             ),
             const SizedBox(height: 12),
             Text(
-              widget.updateResult.title,
+              'update_dialog_title'.tr(),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: 'Cairo',
@@ -59,7 +59,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              widget.updateResult.message,
+              'update_dialog_message'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Cairo',

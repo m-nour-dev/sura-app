@@ -856,5 +856,7 @@
     "update_waiting": "⏳ بانتظار الاتصال",
     "update_retrying": "جاري إعادة المحاولة...",
     "update_retry": "إعادة المحاولة",
-    "update_install": "تثبيت"
+    "update_install": "تثبيت",
+    "update_dialog_title": "تحديث جديد متاح ⬆️",
+    "update_dialog_message": "يوجد إصدار جديد من التطبيق. حدّث الآن للحصول على آخر المميزات."
 }

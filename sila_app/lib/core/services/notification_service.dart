@@ -1128,8 +1128,6 @@ class NotificationService {
       isForced: remoteConfig.forceUpdate,
       latestVersion: version,
       apkUrl: apkUrl,
-      title: message.notification?.title ?? 'تحديث جديد متاح',
-      message: message.notification?.body ?? 'يوجد إصدار جديد من التطبيق',
       releaseNotes: message.data['release_notes']?.toString() ?? '',
     );
 

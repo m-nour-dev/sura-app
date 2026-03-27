@@ -841,5 +841,7 @@
   "update_waiting": "⏳ En attente de connexion",
   "update_retrying": "Nouvelle tentative...",
   "update_retry": "Réessayer",
-  "update_install": "Installer"
+  "update_install": "Installer",
+  "update_dialog_title": "Nouvelle mise à jour disponible ⬆️",
+  "update_dialog_message": "Une nouvelle version est disponible. Mettez à jour maintenant pour obtenir les dernières fonctionnalités."
 }

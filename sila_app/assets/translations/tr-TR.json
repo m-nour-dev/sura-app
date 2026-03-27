@@ -834,5 +834,7 @@
       "update_waiting": "⏳ Bağlantı bekleniyor",
       "update_retrying": "Yeniden deneniyor...",
       "update_retry": "Yeniden dene",
-      "update_install": "Yükle"
+      "update_install": "Yükle",
+      "update_dialog_title": "Yeni Güncelleme Mevcut ⬆️",
+      "update_dialog_message": "Yeni bir sürüm mevcut. En son özellikleri almak için şimdi güncelleyin."
 }

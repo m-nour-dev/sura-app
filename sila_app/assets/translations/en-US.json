@@ -855,5 +855,7 @@
   "update_waiting": "⏳ Waiting for connection",
   "update_retrying": "Retrying...",
   "update_retry": "Retry",
-  "update_install": "Install"
+  "update_install": "Install",
+  "update_dialog_title": "New Update Available ⬆️",
+  "update_dialog_message": "A new version is available. Update now to get the latest features."
 }
