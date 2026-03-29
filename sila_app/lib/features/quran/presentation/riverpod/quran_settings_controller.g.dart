@@ -7,7 +7,7 @@ part of 'quran_settings_controller.dart';
 // **************************************************************************
 
 String _$quranSettingsControllerHash() =>
-    r'0f4d02bacf7e448ccdfba09556ddd69b396c1c8e';
+    r'de13d1e871e058257e44184283dcf58276788975';
 
 /// See also [QuranSettingsController].
 @ProviderFor(QuranSettingsController)

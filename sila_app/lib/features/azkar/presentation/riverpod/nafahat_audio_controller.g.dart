@@ -1,27 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'hifz_home_controller.dart';
+part of 'nafahat_audio_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$hifzHomeControllerHash() =>
-    r'6a9939dbac2a436a06b35b873e283f0d5c038ffc';
+String _$nafahatAudioControllerHash() =>
+    r'd4520824c5f7b3ef39e0c27392a3f00c6a004e3c';
 
-/// See also [HifzHomeController].
-@ProviderFor(HifzHomeController)
-final hifzHomeControllerProvider =
-    AutoDisposeNotifierProvider<HifzHomeController, HifzHomeState>.internal(
-  HifzHomeController.new,
-  name: r'hifzHomeControllerProvider',
+/// See also [NafahatAudioController].
+@ProviderFor(NafahatAudioController)
+final nafahatAudioControllerProvider =
+    NotifierProvider<NafahatAudioController, NafahatPlayerState>.internal(
+  NafahatAudioController.new,
+  name: r'nafahatAudioControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$hifzHomeControllerHash,
+      : _$nafahatAudioControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$HifzHomeController = AutoDisposeNotifier<HifzHomeState>;
+typedef _$NafahatAudioController = Notifier<NafahatPlayerState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

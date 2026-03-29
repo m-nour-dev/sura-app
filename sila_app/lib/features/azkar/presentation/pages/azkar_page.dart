@@ -6,6 +6,8 @@ import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/features/azkar/presentation/pages/azkar_detail_page.dart';
 import 'package:sila_app/features/azkar/presentation/pages/tasbih_page.dart';
 import 'package:sila_app/features/azkar/presentation/widgets/azkar_category_card.dart';
+import 'package:sila_app/features/azkar/presentation/widgets/nafahat_nakshabandi_card.dart';
+import 'package:sila_app/features/azkar/presentation/widgets/post_prayer_quick_card.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/azkar_notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
@@ -107,6 +109,9 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
                   ),
                 ),
               
+              const PostPrayerQuickCard(),
+              const SizedBox(height: 8),
+
               GridView.count(
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
@@ -189,6 +194,24 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
             },
           ),
           AzkarCategoryCard(
+            title: 'azkar_post_prayer'.tr(),
+            icon: Icons.access_time_filled_rounded,
+            onTap: () {
+              ref
+                  .read(analyticsServiceProvider)
+                  .logAzkarCategoryOpen(categoryName: 'post_prayer');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AzkarDetailPage(
+                    categoryId: 'post_prayer',
+                    title: 'azkar_post_prayer'.tr(),
+                  ),
+                ),
+              );
+            },
+          ),
+          AzkarCategoryCard(
             title: 'azkar_tasbih'.tr(),
             icon: Icons.touch_app_rounded,
             onTap: () {
@@ -206,8 +229,10 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
               );
             },
           ),
+          const NafahatNakshabandiCard(),
                 ],
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),

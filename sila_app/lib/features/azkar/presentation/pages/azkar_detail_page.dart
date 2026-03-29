@@ -277,13 +277,8 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine which locale to load based on current language
-    final currentLocale = context.locale.languageCode;
-    final isTurkish = currentLocale.startsWith('tr');
-    final localeToLoad = isTurkish ? 'tr' : 'ar';
-    
-    // Load azkar data for the appropriate locale
-    final azkarAsync = ref.watch(_azkarDataProviderForLocale(localeToLoad));
+    // Load azkar data (now locale-aware globally)
+    final azkarAsync = ref.watch(azkarDataProvider);
     
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
@@ -408,8 +403,4 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
   }
 }
 
-// Provider to load azkar for a specific locale
-final _azkarDataProviderForLocale = FutureProvider.family<Map<String, List<AzkarItem>>, String>((ref, localeCode) async {
-  final repository = ref.watch(azkarRepositoryProvider);
-  return await repository.getAzkar(localeCode);
-});
+// No longer needed, using global azkarData which is locale-aware

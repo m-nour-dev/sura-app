@@ -11,6 +11,7 @@ import 'package:sila_app/features/home/presentation/providers/last_notification_
 import 'package:sila_app/features/home/presentation/widgets/daily_content_card.dart';
 import 'package:sila_app/features/home/presentation/widgets/home_header.dart';
 import 'package:sila_app/features/home/presentation/widgets/next_prayer_card.dart';
+import 'package:sila_app/features/azkar/presentation/widgets/post_prayer_quick_card.dart';
 import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
 import 'package:sila_app/features/notifications/presentation/pages/notification_hub_page.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_summary_card.dart';
@@ -73,6 +74,9 @@ class HomePage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── Post Prayer Quick Access ──
+                const PostPrayerQuickCard(),
+
                 // ── Next Prayer Card ──
                 const NextPrayerCard(),
                 const SizedBox(height: 24),
