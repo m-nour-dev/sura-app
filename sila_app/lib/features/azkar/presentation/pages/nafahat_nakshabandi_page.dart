@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -331,10 +330,10 @@ class NafahatNakshabandiPage extends ConsumerWidget {
         }
       },
       itemBuilder: (context) => [
-        const PopupMenuItem(value: 15, child: Text('15 دقيقة')),
-        const PopupMenuItem(value: 30, child: Text('30 دقيقة')),
-        const PopupMenuItem(value: 60, child: Text('60 دقيقة')),
-        const PopupMenuItem(value: 0, child: Text('إلغاء المؤقت', style: TextStyle(color: Colors.red))),
+        PopupMenuItem(value: 15, child: Text('15_minutes'.tr())),
+        PopupMenuItem(value: 30, child: Text('30_minutes'.tr())),
+        PopupMenuItem(value: 60, child: Text('60_minutes'.tr())),
+        PopupMenuItem(value: 0, child: Text('cancel_timer'.tr(), style: const TextStyle(color: Colors.red))),
       ],
     );
   }
@@ -361,7 +360,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
       itemBuilder: (context) => [
         PopupMenuItem(
           value: null,
-          child: Text('الكل'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
+          child: Text('all'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
         ),
         ...artists.map((artist) => PopupMenuItem(
           value: artist,

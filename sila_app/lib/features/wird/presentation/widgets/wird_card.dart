@@ -106,7 +106,6 @@ class WirdCard extends ConsumerWidget {
   // ─── Main Wird Card ───
   Widget _buildMainWirdCard(BuildContext context, WidgetRef ref, WirdState state) {
     final safeStartPage = state.currentPage.clamp(1, 604);
-    final safeTargetPage = state.targetPage.clamp(1, 604);
 
     final pageData = quran.getPageData(safeStartPage);
     final surahNum = pageData.isNotEmpty ? pageData[0]['surah'] : 1;
@@ -128,7 +127,6 @@ class WirdCard extends ConsumerWidget {
     final startOfGoal = (state.targetPage - totalPagesToRead + 1).clamp(1, 604);
     final pagesReadSoFar = (state.currentPage - startOfGoal).clamp(0, totalPagesToRead);
     final progress = (pagesReadSoFar / totalPagesToRead).clamp(0.0, 1.0);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     const textColor = Colors.white;
     const subtextColor = Colors.white70;
 
@@ -302,35 +300,6 @@ class WirdCard extends ConsumerWidget {
      );
    }
 
-  // ── Reusable info row ──
-  Widget _buildInfoRow(String label, String value, Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            label,
-            style: GoogleFonts.outfit(
-              color: color,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-              height: 1.5,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          value,
-          style: GoogleFonts.outfit(
-            color: color,
-            fontWeight: FontWeight.w500,
-            fontSize: 13,
-          ),
-        ),
-      ],
-    );
-  }
 
   // ─── Action Buttons ───
   Widget _buildActionButtons(BuildContext context, WidgetRef ref, WirdState state) {

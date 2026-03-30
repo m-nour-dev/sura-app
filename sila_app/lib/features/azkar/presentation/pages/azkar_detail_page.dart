@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
@@ -162,6 +163,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                 onTap: isCompleted
                     ? null
                     : () {
+                        HapticFeedback.lightImpact();
                         setState(() {
                           _counts[index] = currentCount + 1;
                         });
@@ -198,6 +200,20 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                         ],
                       ),
                       const SizedBox(height: 24),
+                      // Azkar Title (Optional)
+                      if (item.title != null && item.title!.isNotEmpty) ...[
+                        Text(
+                          item.title!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: accentColor,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
                       // Azkar Text
                       Text(
                         item.text,

@@ -76,7 +76,7 @@ class HomePage extends ConsumerWidget {
               delegate: SliverChildListDelegate([
                 // ── Post Prayer Quick Access ──
                 const PostPrayerQuickCard(),
-
+                const SizedBox(height: 12),
                 // ── Next Prayer Card ──
                 const NextPrayerCard(),
                 const SizedBox(height: 24),
