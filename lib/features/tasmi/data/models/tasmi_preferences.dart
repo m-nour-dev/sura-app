@@ -19,7 +19,6 @@ enum StrictnessLevel {
 }
 
 class TasmiPreferences extends Equatable {
-
   const TasmiPreferences({
     required this.onErrorBehavior,
     required this.attemptsMode,

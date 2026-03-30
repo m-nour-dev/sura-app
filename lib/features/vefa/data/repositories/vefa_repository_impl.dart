@@ -6,7 +6,6 @@ import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
 import 'package:sila_app/features/vefa/domain/repositories/vefa_repository.dart';
 
 class VefaRepositoryImpl implements VefaRepository {
-
   VefaRepositoryImpl(this.localDataSource);
   final VefaLocalDataSource localDataSource;
 
@@ -45,7 +44,7 @@ class VefaRepositoryImpl implements VefaRepository {
   @override
   Future<Either<Failure, void>> updatePerson(VefaPerson person) async {
     try {
-       final model = VefaPersonModel.fromEntity(person);
+      final model = VefaPersonModel.fromEntity(person);
       await localDataSource.updatePerson(model);
       return const Right(null);
     } catch (e) {
@@ -55,7 +54,7 @@ class VefaRepositoryImpl implements VefaRepository {
 
   @override
   Future<Either<Failure, void>> incrementGiftCount(int id) async {
-     try {
+    try {
       await localDataSource.incrementGiftCount(id);
       return const Right(null);
     } catch (e) {

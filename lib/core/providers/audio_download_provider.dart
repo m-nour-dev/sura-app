@@ -4,7 +4,6 @@ import 'package:sila_app/core/services/audio_download_service.dart';
 import 'package:sila_app/core/services/reciter_service.dart';
 
 class AudioDownloadState {
-
   const AudioDownloadState({
     required this.isDownloading,
     required this.isCompleted,
@@ -110,7 +109,8 @@ class AudioDownloadController extends StateNotifier<AudioDownloadState> {
 
     try {
       for (final reciter in reciters) {
-        state = state.copyWith(reciterId: reciter.id, completedReciters: completedReciters);
+        state = state.copyWith(
+            reciterId: reciter.id, completedReciters: completedReciters);
 
         await AudioDownloadService.downloadAllForReciter(
           reciter,
@@ -128,7 +128,8 @@ class AudioDownloadController extends StateNotifier<AudioDownloadState> {
 
         completedReciters++;
         globalCompleted = completedReciters * totalAyahs;
-        state = state.copyWith(completedReciters: completedReciters, completed: globalCompleted);
+        state = state.copyWith(
+            completedReciters: completedReciters, completed: globalCompleted);
       }
 
       state = state.copyWith(
@@ -139,7 +140,8 @@ class AudioDownloadController extends StateNotifier<AudioDownloadState> {
       );
     } on DioException catch (e) {
       if (CancelToken.isCancel(e)) {
-        state = state.copyWith(isDownloading: false, isCancelled: true, isCompleted: false);
+        state = state.copyWith(
+            isDownloading: false, isCancelled: true, isCompleted: false);
       } else {
         state = state.copyWith(
           isDownloading: false,

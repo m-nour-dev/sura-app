@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
 
@@ -118,7 +117,8 @@ class TajweedNormalizer {
       StrictnessLevel.strict => 0.85,
     };
 
-    if (strictness == StrictnessLevel.easy && similarityScore >= closeThreshold) {
+    if (strictness == StrictnessLevel.easy &&
+        similarityScore >= closeThreshold) {
       return WordMatchResult.correct;
     }
 

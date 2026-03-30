@@ -1,5 +1,4 @@
 class IbadahContent {
-
   const IbadahContent({
     required this.id,
     required this.type,

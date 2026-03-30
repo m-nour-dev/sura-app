@@ -15,102 +15,115 @@ class HifzSettingsPage extends ConsumerWidget {
     final controller = ref.read(hifzSettingsControllerProvider.notifier);
 
     return Scaffold(
-       appBar: AppBar(
-         title: Text(
-           'hifz_settings'.tr(),
-           style: GoogleFonts.cairo(fontWeight: FontWeight.w700),
-         ),
-       ),
+      appBar: AppBar(
+        title: Text(
+          'hifz_settings'.tr(),
+          style: GoogleFonts.cairo(fontWeight: FontWeight.w700),
+        ),
+      ),
       body: asyncSettings.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-         error: (_, __) => Center(
-           child: Text(
-             'error'.tr(),
-             style: GoogleFonts.cairo(fontSize: 14),
-           ),
-         ),
+        error: (_, __) => Center(
+          child: Text(
+            'error'.tr(),
+            style: GoogleFonts.cairo(fontSize: 14),
+          ),
+        ),
         data: (settings) {
           return ListView(
             padding: const EdgeInsets.all(16),
-             children: [
-               _SectionTitle('verification_accuracy'.tr()),
-               SegmentedButton<HifzVerificationMode>(
-                 segments: [
-                   ButtonSegment(value: HifzVerificationMode.easy, label: Text('easy'.tr())),
-                   ButtonSegment(value: HifzVerificationMode.normal, label: Text('balanced'.tr())),
-                   ButtonSegment(value: HifzVerificationMode.strict, label: Text('strict'.tr())),
-                 ],
-                 selected: {settings.readVerificationMode()},
-                 onSelectionChanged: (selection) async {
-                   await controller.updateSettings(verificationMode: selection.first);
-                 },
-               ),
-               const SizedBox(height: 18),
-               _SectionTitle('listening_section'.tr()),
-               _StepperTile(
-                 title: 'repeat_listening'.tr(),
-                 subtitle: 'listening_repeats_subtitle'.tr(),
-                 value: settings.listenRepeats,
-                 min: 1,
-                 max: 3,
-                 onChanged: (v) => controller.updateSettings(listenRepeats: v),
-               ),
-               _StepperTile(
-                 title: 'attempts_before_hint'.tr(),
-                 subtitle: 'attempts_hint_subtitle'.tr(),
-                 value: settings.attemptsBeforeHint,
-                 min: 1,
-                 max: 4,
-                 onChanged: (v) => controller.updateSettings(attemptsBeforeHint: v),
-               ),
-               _StepperTile(
-                 title: 'capture_duration'.tr(),
-                 subtitle: 'capture_duration_subtitle'.tr(),
-                 value: settings.hintDelaySeconds,
-                 min: 1,
-                 max: 8,
-                 suffix: 'seconds_suffix'.tr(),
-                 onChanged: (v) => controller.updateSettings(hintDelaySeconds: v),
-               ),
-               const SizedBox(height: 18),
-               _SectionTitle('session_behavior'.tr()),
-               SwitchListTile.adaptive(
-                 contentPadding: EdgeInsets.zero,
-                 activeColor: AppTheme.primaryColor,
-                 title: Text('ignore_diacritics'.tr(), style: GoogleFonts.cairo()),
-                 subtitle: Text(
-                   'ignore_diacritics_subtitle'.tr(),
-                   style: GoogleFonts.cairo(fontSize: 12),
-                 ),
-                 value: settings.hideVisibleDiacritics,
-                 onChanged: (v) => controller.updateSettings(hideVisibleDiacritics: v),
-               ),
-               SwitchListTile.adaptive(
-                 contentPadding: EdgeInsets.zero,
-                 activeColor: AppTheme.primaryColor,
-                 title: Text('play_on_error'.tr(), style: GoogleFonts.cairo()),
-                 subtitle: Text(
-                   'play_on_error_subtitle'.tr(),
-                   style: GoogleFonts.cairo(fontSize: 12),
-                 ),
-                 value: settings.playCorrectOnError,
-                 onChanged: (v) => controller.updateSettings(playCorrectOnError: v),
-               ),
-               SwitchListTile.adaptive(
-                 contentPadding: EdgeInsets.zero,
-                 activeColor: AppTheme.primaryColor,
-                 title: Text('beginner_mode'.tr(), style: GoogleFonts.cairo()),
-                 value: settings.beginnerMode,
-                 onChanged: (v) => controller.updateSettings(beginnerMode: v),
-               ),
-               SwitchListTile.adaptive(
-                 contentPadding: EdgeInsets.zero,
-                 activeColor: AppTheme.primaryColor,
-                 title: Text('smart_strictness'.tr(), style: GoogleFonts.cairo()),
-                 value: settings.smartStrictness,
-                 onChanged: (v) => controller.updateSettings(smartStrictness: v),
-               ),
-             ],
+            children: [
+              _SectionTitle('verification_accuracy'.tr()),
+              SegmentedButton<HifzVerificationMode>(
+                segments: [
+                  ButtonSegment(
+                      value: HifzVerificationMode.easy,
+                      label: Text('easy'.tr())),
+                  ButtonSegment(
+                      value: HifzVerificationMode.normal,
+                      label: Text('balanced'.tr())),
+                  ButtonSegment(
+                      value: HifzVerificationMode.strict,
+                      label: Text('strict'.tr())),
+                ],
+                selected: {settings.readVerificationMode()},
+                onSelectionChanged: (selection) async {
+                  await controller.updateSettings(
+                      verificationMode: selection.first);
+                },
+              ),
+              const SizedBox(height: 18),
+              _SectionTitle('listening_section'.tr()),
+              _StepperTile(
+                title: 'repeat_listening'.tr(),
+                subtitle: 'listening_repeats_subtitle'.tr(),
+                value: settings.listenRepeats,
+                min: 1,
+                max: 3,
+                onChanged: (v) => controller.updateSettings(listenRepeats: v),
+              ),
+              _StepperTile(
+                title: 'attempts_before_hint'.tr(),
+                subtitle: 'attempts_hint_subtitle'.tr(),
+                value: settings.attemptsBeforeHint,
+                min: 1,
+                max: 4,
+                onChanged: (v) =>
+                    controller.updateSettings(attemptsBeforeHint: v),
+              ),
+              _StepperTile(
+                title: 'capture_duration'.tr(),
+                subtitle: 'capture_duration_subtitle'.tr(),
+                value: settings.hintDelaySeconds,
+                min: 1,
+                max: 8,
+                suffix: 'seconds_suffix'.tr(),
+                onChanged: (v) =>
+                    controller.updateSettings(hintDelaySeconds: v),
+              ),
+              const SizedBox(height: 18),
+              _SectionTitle('session_behavior'.tr()),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                activeColor: AppTheme.primaryColor,
+                title:
+                    Text('ignore_diacritics'.tr(), style: GoogleFonts.cairo()),
+                subtitle: Text(
+                  'ignore_diacritics_subtitle'.tr(),
+                  style: GoogleFonts.cairo(fontSize: 12),
+                ),
+                value: settings.hideVisibleDiacritics,
+                onChanged: (v) =>
+                    controller.updateSettings(hideVisibleDiacritics: v),
+              ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                activeColor: AppTheme.primaryColor,
+                title: Text('play_on_error'.tr(), style: GoogleFonts.cairo()),
+                subtitle: Text(
+                  'play_on_error_subtitle'.tr(),
+                  style: GoogleFonts.cairo(fontSize: 12),
+                ),
+                value: settings.playCorrectOnError,
+                onChanged: (v) =>
+                    controller.updateSettings(playCorrectOnError: v),
+              ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                activeColor: AppTheme.primaryColor,
+                title: Text('beginner_mode'.tr(), style: GoogleFonts.cairo()),
+                value: settings.beginnerMode,
+                onChanged: (v) => controller.updateSettings(beginnerMode: v),
+              ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                activeColor: AppTheme.primaryColor,
+                title:
+                    Text('smart_strictness'.tr(), style: GoogleFonts.cairo()),
+                value: settings.smartStrictness,
+                onChanged: (v) => controller.updateSettings(smartStrictness: v),
+              ),
+            ],
           );
         },
       ),
@@ -163,7 +176,8 @@ class _StepperTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        title: Text(title, style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
+        title:
+            Text(title, style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
         subtitle: Text(subtitle, style: GoogleFonts.cairo(fontSize: 12)),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,

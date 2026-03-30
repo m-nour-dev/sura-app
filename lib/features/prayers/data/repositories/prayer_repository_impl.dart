@@ -48,11 +48,11 @@ class PrayerRepositoryImpl extends PrayerRepository {
           long = stored['long'] as double;
           city = stored['city'] as String;
           countryCode = stored['countryCode'] as String? ?? 'TR';
-          
+
           if (oldCountryCode != countryCode) {
-             final autoMethod = _getMethodForCountry(countryCode);
-             await prefs.setCalculationMethod(autoMethod);
-             await prefs.saveCountryCode(countryCode);
+            final autoMethod = _getMethodForCountry(countryCode);
+            await prefs.setCalculationMethod(autoMethod);
+            await prefs.saveCountryCode(countryCode);
           }
         }
       }
@@ -134,7 +134,8 @@ class PrayerRepositoryImpl extends PrayerRepository {
 
     // Use same utcOffset as getPrayerTimes for consistency
     final utcOffset = DateTime.now().timeZoneOffset;
-    final prayerTimes = PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
+    final prayerTimes =
+        PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
 
     return prayerTimes.nextPrayer();
   }

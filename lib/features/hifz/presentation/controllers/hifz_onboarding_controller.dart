@@ -10,7 +10,6 @@ import 'package:sila_app/features/hifz/domain/plan_generator.dart';
 part 'hifz_onboarding_controller.g.dart';
 
 class HifzOnboardingState {
-
   const HifzOnboardingState({
     required this.currentPage,
     required this.ageGroup,
@@ -69,13 +68,16 @@ class HifzOnboardingState {
     return HifzOnboardingState(
       currentPage: currentPage ?? this.currentPage,
       ageGroup: clearAgeGroup ? null : ageGroup ?? this.ageGroup,
-      dailyMinutes: clearDailyMinutes ? null : dailyMinutes ?? this.dailyMinutes,
+      dailyMinutes:
+          clearDailyMinutes ? null : dailyMinutes ?? this.dailyMinutes,
       goal: clearGoal ? null : goal ?? this.goal,
-      learningStyle: clearLearningStyle ? null : learningStyle ?? this.learningStyle,
+      learningStyle:
+          clearLearningStyle ? null : learningStyle ?? this.learningStyle,
       autoAdapt: autoAdapt ?? this.autoAdapt,
       isSaving: isSaving ?? this.isSaving,
       onboardingDone: onboardingDone ?? this.onboardingDone,
-      errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+      errorMessage:
+          clearErrorMessage ? null : errorMessage ?? this.errorMessage,
       previewPlan: previewPlan ?? this.previewPlan,
     );
   }
@@ -105,7 +107,8 @@ class HifzOnboardingController extends _$HifzOnboardingController {
   }
 
   void nextPage() {
-    state = state.copyWith(currentPage: state.currentPage + 1, clearErrorMessage: true);
+    state = state.copyWith(
+        currentPage: state.currentPage + 1, clearErrorMessage: true);
   }
 
   void setAgeGroup(int value) {

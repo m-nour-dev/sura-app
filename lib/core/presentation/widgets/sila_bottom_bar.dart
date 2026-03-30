@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../main_layout.dart'; // To access bottomNavIndexProvider
 
 class _NavItemData {
-
   _NavItemData({
     required this.icon,
     required this.label,
@@ -20,7 +19,6 @@ class _NavItemData {
 }
 
 class SilaBottomBar extends ConsumerWidget {
-
   const SilaBottomBar({super.key, required this.currentIndex});
   final int currentIndex;
 
@@ -33,10 +31,17 @@ class SilaBottomBar extends ConsumerWidget {
     // Define nav items
     final navItems = [
       _NavItemData(icon: Icons.home_rounded, label: 'nav_home'.tr(), index: 0),
-      _NavItemData(icon: Icons.menu_book_rounded, label: 'nav_quran'.tr(), index: 1),
-      _NavItemData(icon: Icons.auto_stories, label: 'nav_hifz'.tr(), index: 2, featured: true),
-      _NavItemData(icon: Icons.access_time_rounded, label: 'nav_prayers'.tr(), index: 3),
-      _NavItemData(icon: Icons.favorite_rounded, label: 'nav_azkar'.tr(), index: 4),
+      _NavItemData(
+          icon: Icons.menu_book_rounded, label: 'nav_quran'.tr(), index: 1),
+      _NavItemData(
+          icon: Icons.auto_stories,
+          label: 'nav_hifz'.tr(),
+          index: 2,
+          featured: true),
+      _NavItemData(
+          icon: Icons.access_time_rounded, label: 'nav_prayers'.tr(), index: 3),
+      _NavItemData(
+          icon: Icons.favorite_rounded, label: 'nav_azkar'.tr(), index: 4),
     ];
 
     return Container(
@@ -77,7 +82,6 @@ class SilaBottomBar extends ConsumerWidget {
 }
 
 class _NavItem extends StatelessWidget {
-
   const _NavItem({
     required this.icon,
     required this.label,
@@ -109,7 +113,9 @@ class _NavItem extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected && !featured ? primaryColor.withOpacity(0.1) : Colors.transparent,
+          color: isSelected && !featured
+              ? primaryColor.withOpacity(0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(

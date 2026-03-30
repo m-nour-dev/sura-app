@@ -19,7 +19,11 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   bool _adhanEnabled = true;
   String _selectedSound = 'adhan_egypt.mp3';
   Map<String, bool> _prayerSettings = {
-    'fajr': true, 'dhuhr': true, 'asr': true, 'maghrib': true, 'isha': true,
+    'fajr': true,
+    'dhuhr': true,
+    'asr': true,
+    'maghrib': true,
+    'isha': true,
   };
 
   static const _sounds = {
@@ -31,11 +35,11 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   };
 
   static const _prayerList = [
-    {'key': 'fajr',    'name': 'الفجر',   'icon': Icons.wb_twilight_rounded},
-    {'key': 'dhuhr',   'name': 'الظهر',   'icon': Icons.wb_sunny_rounded},
-    {'key': 'asr',     'name': 'العصر',   'icon': Icons.wb_sunny_outlined},
-    {'key': 'maghrib', 'name': 'المغرب',  'icon': Icons.wb_incandescent_rounded},
-    {'key': 'isha',    'name': 'العشاء',  'icon': Icons.nightlight_round},
+    {'key': 'fajr', 'name': 'الفجر', 'icon': Icons.wb_twilight_rounded},
+    {'key': 'dhuhr', 'name': 'الظهر', 'icon': Icons.wb_sunny_rounded},
+    {'key': 'asr', 'name': 'العصر', 'icon': Icons.wb_sunny_outlined},
+    {'key': 'maghrib', 'name': 'المغرب', 'icon': Icons.wb_incandescent_rounded},
+    {'key': 'isha', 'name': 'العشاء', 'icon': Icons.nightlight_round},
   ];
 
   @override
@@ -61,43 +65,46 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
     }
   }
 
-   Future<void> _toggleGlobal(bool v) async {
-     await _prefs.setAdhanNotificationsEnabled(v);
-     setState(() => _adhanEnabled = v);
-     if (!v) await _adhanSvc.cancelAllPrayers();
-     _snack(v ? 'adhan_enabled_message'.tr() : 'adhan_disabled_message'.tr());
-   }
+  Future<void> _toggleGlobal(bool v) async {
+    await _prefs.setAdhanNotificationsEnabled(v);
+    setState(() => _adhanEnabled = v);
+    if (!v) await _adhanSvc.cancelAllPrayers();
+    _snack(v ? 'adhan_enabled_message'.tr() : 'adhan_disabled_message'.tr());
+  }
 
-   Future<void> _togglePrayer(String key, bool v) async {
-     await _prefs.setAdhanEnabled(key, v);
-     setState(() => _prayerSettings[key] = v);
-     ref.invalidate(prayerTimesControllerProvider);
-     _snack(v ? 'adhan_prayer_enabled'.tr(args: [_arabicName(key)]) : 'adhan_prayer_disabled'.tr(args: [_arabicName(key)]));
-   }
+  Future<void> _togglePrayer(String key, bool v) async {
+    await _prefs.setAdhanEnabled(key, v);
+    setState(() => _prayerSettings[key] = v);
+    ref.invalidate(prayerTimesControllerProvider);
+    _snack(v
+        ? 'adhan_prayer_enabled'.tr(args: [_arabicName(key)])
+        : 'adhan_prayer_disabled'.tr(args: [_arabicName(key)]));
+  }
 
-   Future<void> _changeSound(String f) async {
-     await _prefs.setAdhanSound(f);
-     setState(() => _selectedSound = f);
-     _snack('adhan_sound_changed'.tr());
-   }
+  Future<void> _changeSound(String f) async {
+    await _prefs.setAdhanSound(f);
+    setState(() => _selectedSound = f);
+    _snack('adhan_sound_changed'.tr());
+  }
 
-   Future<void> _testAdhan() async {
-     await _adhanSvc.testAdhan(_selectedSound);
-     _snack('adhan_test_message'.tr());
-   }
+  Future<void> _testAdhan() async {
+    await _adhanSvc.testAdhan(_selectedSound);
+    _snack('adhan_test_message'.tr());
+  }
 
   void _snack(String msg) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg, style: GoogleFonts.cairo()),
+        SnackBar(
+            content: Text(msg, style: GoogleFonts.cairo()),
             duration: const Duration(seconds: 2)),
       );
     }
   }
 
   String _arabicName(String key) {
-    final match = _prayerList.firstWhere(
-        (p) => p['key'] == key, orElse: () => {'name': key});
+    final match = _prayerList.firstWhere((p) => p['key'] == key,
+        orElse: () => {'name': key});
     return match['name'] as String;
   }
 
@@ -105,69 +112,72 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F1E),
-       appBar: AppBar(
-         backgroundColor: const Color(0xFF0A0F1E),
-         foregroundColor: Colors.white,
-         centerTitle: true,
-         title: Text('adhan_settings'.tr(),
-             style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
-         elevation: 0,
-       ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0A0F1E),
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: Text('adhan_settings'.tr(),
+            style: GoogleFonts.cairo(fontWeight: FontWeight.w700)),
+        elevation: 0,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // ── Global toggle ────────────────────────────────────────────────
-           _card(
-             child: SwitchListTile(
-               title: Text('enable_adhan'.tr(),
-                   style: GoogleFonts.cairo(
-                       color: Colors.white,
-                       fontWeight: FontWeight.w700,
-                       fontSize: 16)),
-               subtitle: Text('adhan_notifications_enabled'.tr(),
-                   style: GoogleFonts.cairo(color: Colors.white38, fontSize: 12)),
-               value: _adhanEnabled,
-               onChanged: _toggleGlobal,
-               activeThumbColor: const Color(0xFF43A047),
-             ),
-           ),
+          _card(
+            child: SwitchListTile(
+              title: Text('enable_adhan'.tr(),
+                  style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16)),
+              subtitle: Text('adhan_notifications_enabled'.tr(),
+                  style:
+                      GoogleFonts.cairo(color: Colors.white38, fontSize: 12)),
+              value: _adhanEnabled,
+              onChanged: _toggleGlobal,
+              activeThumbColor: const Color(0xFF43A047),
+            ),
+          ),
 
           const SizedBox(height: 16),
 
           // ── Sound selector ───────────────────────────────────────────────
-           _card(
-             child: ListTile(
-               leading: Container(
-                 width: 40, height: 40,
-                 decoration: BoxDecoration(
-                   color: const Color(0xFF43A047).withOpacity(0.15),
-                   borderRadius: BorderRadius.circular(10),
-                 ),
-                 child: const Icon(Icons.volume_up_rounded,
-                     color: Color(0xFF66BB6A), size: 20),
-               ),
-               title: Text('adhan_sound_label'.tr(),
-                   style: GoogleFonts.cairo(
-                       color: Colors.white, fontWeight: FontWeight.w600)),
-               subtitle: Text(_sounds[_selectedSound]?.tr() ?? _selectedSound,
-                   style: GoogleFonts.cairo(color: Colors.white38, fontSize: 12)),
-               trailing: const Icon(Icons.chevron_right_rounded,
-                   color: Colors.white38),
-               onTap: _showSoundDialog,
-             ),
-           ),
+          _card(
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF43A047).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.volume_up_rounded,
+                    color: Color(0xFF66BB6A), size: 20),
+              ),
+              title: Text('adhan_sound_label'.tr(),
+                  style: GoogleFonts.cairo(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+              subtitle: Text(_sounds[_selectedSound]?.tr() ?? _selectedSound,
+                  style:
+                      GoogleFonts.cairo(color: Colors.white38, fontSize: 12)),
+              trailing: const Icon(Icons.chevron_right_rounded,
+                  color: Colors.white38),
+              onTap: _showSoundDialog,
+            ),
+          ),
 
           const SizedBox(height: 16),
 
-           // ── Per-prayer ───────────────────────────────────────────────────
-           Padding(
-             padding: const EdgeInsets.only(bottom: 10),
-             child: Text('enable_per_prayer'.tr(),
-                 style: GoogleFonts.cairo(
-                     color: const Color(0xFF43A047),
-                     fontSize: 13,
-                     fontWeight: FontWeight.w700)),
-           ),
+          // ── Per-prayer ───────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text('enable_per_prayer'.tr(),
+                style: GoogleFonts.cairo(
+                    color: const Color(0xFF43A047),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700)),
+          ),
 
           _card(
             child: Column(
@@ -186,17 +196,20 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                           size: 22),
                       title: Text(p['name'] as String,
                           style: GoogleFonts.cairo(
-                              color: _adhanEnabled ? Colors.white : Colors.white30,
+                              color:
+                                  _adhanEnabled ? Colors.white : Colors.white30,
                               fontSize: 15)),
                       value: isEnabled && _adhanEnabled,
-                      onChanged: _adhanEnabled
-                          ? (v) => _togglePrayer(key, v)
-                          : null,
+                      onChanged:
+                          _adhanEnabled ? (v) => _togglePrayer(key, v) : null,
                       activeThumbColor: const Color(0xFF43A047),
                     ),
                     if (i < _prayerList.length - 1)
-                      Divider(color: Colors.white.withOpacity(0.06), height: 1,
-                          indent: 16, endIndent: 16),
+                      Divider(
+                          color: Colors.white.withOpacity(0.06),
+                          height: 1,
+                          indent: 16,
+                          endIndent: 16),
                   ],
                 );
               }).toList(),
@@ -205,48 +218,49 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
 
           const SizedBox(height: 24),
 
-           // ── Test button ──────────────────────────────────────────────────
-           SizedBox(
-             width: double.infinity,
-             child: ElevatedButton.icon(
-               onPressed: _testAdhan,
-               style: ElevatedButton.styleFrom(
-                 backgroundColor: const Color(0xFF2E7D32),
-                 foregroundColor: Colors.white,
-                 padding: const EdgeInsets.symmetric(vertical: 14),
-                 shape: RoundedRectangleBorder(
-                     borderRadius: BorderRadius.circular(14)),
-               ),
-               icon: const Icon(Icons.play_circle_outline_rounded),
-               label: Text('test_adhan_sound'.tr(),
-                   style: GoogleFonts.cairo(fontSize: 15)),
-             ),
-           ),
+          // ── Test button ──────────────────────────────────────────────────
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _testAdhan,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2E7D32),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+              ),
+              icon: const Icon(Icons.play_circle_outline_rounded),
+              label: Text('test_adhan_sound'.tr(),
+                  style: GoogleFonts.cairo(fontSize: 15)),
+            ),
+          ),
 
           const SizedBox(height: 16),
 
-           // ── Info ─────────────────────────────────────────────────────────
-           Container(
-             padding: const EdgeInsets.all(14),
-             decoration: BoxDecoration(
-               color: Colors.blue.withOpacity(0.08),
-               borderRadius: BorderRadius.circular(12),
-               border: Border.all(color: Colors.blue.withOpacity(0.2)),
-             ),
-             child: Row(
-               children: [
-                 const Icon(Icons.info_outline_rounded,
-                     color: Colors.blueAccent, size: 18),
-                 const SizedBox(width: 10),
-                 Expanded(
-                   child: Text(
-                     'adhan_auto_play_info'.tr(),
-                     style: GoogleFonts.cairo(color: Colors.white54, fontSize: 12),
-                   ),
-                 ),
-               ],
-             ),
-           ),
+          // ── Info ─────────────────────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue.withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline_rounded,
+                    color: Colors.blueAccent, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'adhan_auto_play_info'.tr(),
+                    style:
+                        GoogleFonts.cairo(color: Colors.white54, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
           const SizedBox(height: 24),
         ],
@@ -265,46 +279,45 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
     );
   }
 
-   void _showSoundDialog() {
-     showDialog(
-       context: context,
-       builder: (_) => Dialog(
-         backgroundColor: const Color(0xFF0D1B2A),
-         shape:
-             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-         child: Column(
-           mainAxisSize: MainAxisSize.min,
-           children: [
-             Padding(
-               padding: const EdgeInsets.all(20),
-               child: Text('select_adhan_sound'.tr(),
-                   style: GoogleFonts.cairo(
-                       color: Colors.white,
-                       fontSize: 17,
-                       fontWeight: FontWeight.bold)),
-             ),
-             ..._sounds.entries.map((e) => RadioListTile<String>(
-                   value: e.key,
-                   groupValue: _selectedSound,
-                   title: Text(e.value.tr(),
-                       style: GoogleFonts.cairo(color: Colors.white70)),
-                   activeColor: const Color(0xFF43A047),
-                   onChanged: (v) {
-                     if (v != null) {
-                       _changeSound(v);
-                       Navigator.pop(context);
-                     }
-                   },
-                 )),
-             TextButton(
-               onPressed: () => Navigator.pop(context),
-               child: Text('cancel'.tr(),
-                   style: GoogleFonts.cairo(color: Colors.white38)),
-             ),
-             const SizedBox(height: 8),
-           ],
-         ),
-       ),
-     );
-   }
+  void _showSoundDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: const Color(0xFF0D1B2A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text('select_adhan_sound'.tr(),
+                  style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold)),
+            ),
+            ..._sounds.entries.map((e) => RadioListTile<String>(
+                  value: e.key,
+                  groupValue: _selectedSound,
+                  title: Text(e.value.tr(),
+                      style: GoogleFonts.cairo(color: Colors.white70)),
+                  activeColor: const Color(0xFF43A047),
+                  onChanged: (v) {
+                    if (v != null) {
+                      _changeSound(v);
+                      Navigator.pop(context);
+                    }
+                  },
+                )),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('cancel'.tr(),
+                  style: GoogleFonts.cairo(color: Colors.white38)),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
 }

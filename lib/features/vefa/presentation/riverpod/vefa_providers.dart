@@ -52,7 +52,6 @@ final giftThawabUseCaseProvider = Provider<GiftThawabUseCase>((ref) {
 
 // Controller / State Management
 class VefaListController extends StateNotifier<AsyncValue<List<VefaPerson>>> {
-
   VefaListController({
     required GetVefaListUseCase getVefaList,
     required AddVefaPersonUseCase addVefaPerson,

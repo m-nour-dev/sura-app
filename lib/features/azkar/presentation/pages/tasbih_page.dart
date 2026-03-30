@@ -16,7 +16,8 @@ class TasbihPage extends ConsumerStatefulWidget {
   ConsumerState<TasbihPage> createState() => _TasbihPageState();
 }
 
-class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProviderStateMixin {
+class _TasbihPageState extends ConsumerState<TasbihPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   final ScrollController _scrollController = ScrollController();
@@ -67,12 +68,14 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
     final tasbihState = ref.watch(tasbihControllerProvider);
     final controller = ref.read(tasbihControllerProvider.notifier);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9);
+
+    final backgroundColor =
+        isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFF10B981);
-    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B);
+    final textColor =
+        isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B);
 
     const target = 33;
     final count = tasbihState.activeCount;
@@ -91,10 +94,12 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
           IconButton(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const TasbihNotificationSettings()),
+                MaterialPageRoute(
+                    builder: (_) => const TasbihNotificationSettings()),
               );
             },
-            icon: const Icon(Icons.notifications_active_rounded, color: Colors.white),
+            icon: const Icon(Icons.notifications_active_rounded,
+                color: Colors.white),
           ),
           IconButton(
             onPressed: () => controller.resetAll(),
@@ -119,7 +124,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                 itemBuilder: (context, index) {
                   final key = TasbihController.availableAzkar[index];
                   final isSelected = tasbihState.activeZikrKey == key;
-                  
+
                   return GestureDetector(
                     onTap: () {
                       controller.setActiveZikr(key);
@@ -134,13 +139,16 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: (isSelected ? primaryColor : Colors.black).withOpacity(0.08),
+                            color: (isSelected ? primaryColor : Colors.black)
+                                .withOpacity(0.08),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
                         ],
                         border: Border.all(
-                          color: isSelected ? primaryColor : primaryColor.withOpacity(0.1),
+                          color: isSelected
+                              ? primaryColor
+                              : primaryColor.withOpacity(0.1),
                           width: 1.5,
                         ),
                       ),
@@ -154,19 +162,28 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                               style: TextStyle(
                                 fontFamily: 'Cairo',
                                 fontSize: 10,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.w600,
+                                color: isSelected
+                                    ? Colors.white
+                                    : (isDark
+                                        ? Colors.white70
+                                        : Colors.black87),
                               ),
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _formatNumber(tasbihState.counts[key] ?? 0, context),
+                            _formatNumber(
+                                tasbihState.counts[key] ?? 0, context),
                             style: TextStyle(
                               fontFamily: 'Cairo',
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white.withOpacity(0.9) : primaryColor,
+                              color: isSelected
+                                  ? Colors.white.withOpacity(0.9)
+                                  : primaryColor,
                             ),
                           ),
                         ],
@@ -234,7 +251,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                             Text(
+                            Text(
                               'total_count'.tr(),
                               style: TextStyle(
                                 fontFamily: 'Cairo',
@@ -263,7 +280,9 @@ class _TasbihPageState extends ConsumerState<TasbihPage> with SingleTickerProvid
                               ),
                             ),
                             Text(
-                              'tasbih_round'.tr(args: [_formatNumber(count ~/ target + 1, context)]),
+                              'tasbih_round'.tr(args: [
+                                _formatNumber(count ~/ target + 1, context)
+                              ]),
                               style: TextStyle(
                                 fontFamily: 'Cairo',
                                 fontSize: 13,

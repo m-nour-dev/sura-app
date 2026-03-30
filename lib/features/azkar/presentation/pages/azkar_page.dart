@@ -89,7 +89,8 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle_outline_rounded,
+                      Icon(
+                        Icons.check_circle_outline_rounded,
                         color: Colors.white.withOpacity(0.9),
                         size: 28,
                       ),
@@ -108,7 +109,7 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
                     ],
                   ),
                 ),
-              
+
               const PostPrayerQuickCard(),
               const SizedBox(height: 8),
 
@@ -120,116 +121,117 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-
-          AzkarCategoryCard(
-            title: 'azkar_morning'.tr(),
-            icon: Icons.wb_sunny_rounded,
-            onTap: () {
-              ref
-                  .read(analyticsServiceProvider)
-                  .logAzkarCategoryOpen(categoryName: 'morning');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AzkarDetailPage(
-                    categoryId: 'morning',
+                  AzkarCategoryCard(
                     title: 'azkar_morning'.tr(),
+                    icon: Icons.wb_sunny_rounded,
+                    onTap: () {
+                      ref
+                          .read(analyticsServiceProvider)
+                          .logAzkarCategoryOpen(categoryName: 'morning');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AzkarDetailPage(
+                            categoryId: 'morning',
+                            title: 'azkar_morning'.tr(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
-          AzkarCategoryCard(
-            title: 'azkar_evening'.tr(),
-            icon: Icons.nights_stay_rounded,
-            onTap: () {
-              ref
-                  .read(analyticsServiceProvider)
-                  .logAzkarCategoryOpen(categoryName: 'evening');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AzkarDetailPage(
-                    categoryId: 'evening',
+                  AzkarCategoryCard(
                     title: 'azkar_evening'.tr(),
+                    icon: Icons.nights_stay_rounded,
+                    onTap: () {
+                      ref
+                          .read(analyticsServiceProvider)
+                          .logAzkarCategoryOpen(categoryName: 'evening');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AzkarDetailPage(
+                            categoryId: 'evening',
+                            title: 'azkar_evening'.tr(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
-          AzkarCategoryCard(
-            title: 'azkar_sleep'.tr(),
-            icon: Icons.bedtime_rounded,
-            onTap: () {
-              ref
-                  .read(analyticsServiceProvider)
-                  .logAzkarCategoryOpen(categoryName: 'sleep');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AzkarDetailPage(
-                    categoryId: 'sleep',
+                  AzkarCategoryCard(
                     title: 'azkar_sleep'.tr(),
+                    icon: Icons.bedtime_rounded,
+                    onTap: () {
+                      ref
+                          .read(analyticsServiceProvider)
+                          .logAzkarCategoryOpen(categoryName: 'sleep');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AzkarDetailPage(
+                            categoryId: 'sleep',
+                            title: 'azkar_sleep'.tr(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
-          AzkarCategoryCard(
-            title: 'azkar_mosque'.tr(),
-            icon: Icons.mosque_rounded,
-            onTap: () {
-              ref
-                  .read(analyticsServiceProvider)
-                  .logAzkarCategoryOpen(categoryName: 'mosque');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AzkarDetailPage(
-                    categoryId: 'mosque',
+                  AzkarCategoryCard(
                     title: 'azkar_mosque'.tr(),
+                    icon: Icons.mosque_rounded,
+                    onTap: () {
+                      ref
+                          .read(analyticsServiceProvider)
+                          .logAzkarCategoryOpen(categoryName: 'mosque');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AzkarDetailPage(
+                            categoryId: 'mosque',
+                            title: 'azkar_mosque'.tr(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
-          AzkarCategoryCard(
-            title: 'azkar_post_prayer'.tr(),
-            icon: Icons.access_time_filled_rounded,
-            onTap: () {
-              ref
-                  .read(analyticsServiceProvider)
-                  .logAzkarCategoryOpen(categoryName: 'post_prayer');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AzkarDetailPage(
-                    categoryId: 'post_prayer',
+                  AzkarCategoryCard(
                     title: 'azkar_post_prayer'.tr(),
+                    icon: Icons.access_time_filled_rounded,
+                    onTap: () {
+                      ref
+                          .read(analyticsServiceProvider)
+                          .logAzkarCategoryOpen(categoryName: 'post_prayer');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AzkarDetailPage(
+                            categoryId: 'post_prayer',
+                            title: 'azkar_post_prayer'.tr(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
-          AzkarCategoryCard(
-            title: 'azkar_tasbih'.tr(),
-            icon: Icons.touch_app_rounded,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const TasbihPage()),
-              );
-            },
-          ),
-          AzkarCategoryCard(
-            title: 'sunan_mahjoura'.tr(),
-            icon: Icons.lightbulb_outline_rounded,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SunanListPage()),
-              );
-            },
-          ),
-          const NafahatNakshabandiCard(),
+                  AzkarCategoryCard(
+                    title: 'azkar_tasbih'.tr(),
+                    icon: Icons.touch_app_rounded,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const TasbihPage()),
+                      );
+                    },
+                  ),
+                  AzkarCategoryCard(
+                    title: 'sunan_mahjoura'.tr(),
+                    icon: Icons.lightbulb_outline_rounded,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const SunanListPage()),
+                      );
+                    },
+                  ),
+                  const NafahatNakshabandiCard(),
                 ],
               ),
               const SizedBox(height: 32),

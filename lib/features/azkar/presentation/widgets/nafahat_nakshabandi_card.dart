@@ -14,7 +14,9 @@ class NafahatNakshabandiCard extends ConsumerWidget {
       title: 'spiritual_nafahat'.tr(),
       icon: Icons.mic_external_on_rounded,
       onTap: () {
-        ref.read(analyticsServiceProvider).logAzkarCategoryOpen(categoryName: 'nafahat');
+        ref
+            .read(analyticsServiceProvider)
+            .logAzkarCategoryOpen(categoryName: 'nafahat');
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => const NafahatNakshabandiPage(),

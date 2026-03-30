@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 
 class StreakBadge extends ConsumerWidget {
-
   const StreakBadge({super.key, required this.featureKey});
   final String featureKey;
 
@@ -32,4 +31,3 @@ class StreakBadge extends ConsumerWidget {
     );
   }
 }
-

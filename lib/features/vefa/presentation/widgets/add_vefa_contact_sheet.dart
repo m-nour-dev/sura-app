@@ -11,14 +11,15 @@ class AddVefaContactSheet extends ConsumerStatefulWidget {
   const AddVefaContactSheet({super.key});
 
   @override
-  ConsumerState<AddVefaContactSheet> createState() => _AddVefaContactSheetState();
+  ConsumerState<AddVefaContactSheet> createState() =>
+      _AddVefaContactSheetState();
 }
 
 class _AddVefaContactSheetState extends ConsumerState<AddVefaContactSheet> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _relationController = TextEditingController();
-  
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -30,10 +31,12 @@ class _AddVefaContactSheetState extends ConsumerState<AddVefaContactSheet> {
     if (_formKey.currentState!.validate()) {
       final person = VefaPerson(
         name: _nameController.text,
-        relation: _relationController.text.isEmpty ? null : _relationController.text,
-        deathDate: DateTime.now(), // Placeholder for now, can add DatePicker later
+        relation:
+            _relationController.text.isEmpty ? null : _relationController.text,
+        deathDate:
+            DateTime.now(), // Placeholder for now, can add DatePicker later
       );
-      
+
       ref.read(vefaListControllerProvider.notifier).addPerson(person);
       Navigator.pop(context);
     }
@@ -43,7 +46,7 @@ class _AddVefaContactSheetState extends ConsumerState<AddVefaContactSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : AppTheme.primaryColor;
-    
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -80,34 +83,41 @@ class _AddVefaContactSheetState extends ConsumerState<AddVefaContactSheet> {
             TextFormField(
               controller: _nameController,
               textInputAction: TextInputAction.next,
-              textDirection: context.locale.languageCode == 'ar' ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+              textDirection: context.locale.languageCode == 'ar'
+                  ? ui.TextDirection.rtl
+                  : ui.TextDirection.ltr,
               style: GoogleFonts.cairo(color: textColor),
               decoration: InputDecoration(
                 labelText: 'name'.tr(),
                 labelStyle: GoogleFonts.cairo(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.black12),
+                  borderSide: BorderSide(
+                      color: isDark ? Colors.white24 : Colors.black12),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.black12),
+                  borderSide: BorderSide(
+                      color: isDark ? Colors.white24 : Colors.black12),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
+                  borderSide:
+                      const BorderSide(color: AppTheme.accentColor, width: 2),
                 ),
                 alignLabelWithHint: true,
               ),
-              validator: (value) => 
-                value == null || value.isEmpty ? 'field_required'.tr() : null,
+              validator: (value) =>
+                  value == null || value.isEmpty ? 'field_required'.tr() : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _relationController,
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(),
-              textDirection: context.locale.languageCode == 'ar' ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+              textDirection: context.locale.languageCode == 'ar'
+                  ? ui.TextDirection.rtl
+                  : ui.TextDirection.ltr,
               style: GoogleFonts.cairo(color: textColor),
               decoration: InputDecoration(
                 labelText: 'relation'.tr(),
@@ -116,15 +126,18 @@ class _AddVefaContactSheetState extends ConsumerState<AddVefaContactSheet> {
                 labelStyle: GoogleFonts.cairo(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.black12),
+                  borderSide: BorderSide(
+                      color: isDark ? Colors.white24 : Colors.black12),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: isDark ? Colors.white24 : Colors.black12),
+                  borderSide: BorderSide(
+                      color: isDark ? Colors.white24 : Colors.black12),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.accentColor, width: 2),
+                  borderSide:
+                      const BorderSide(color: AppTheme.accentColor, width: 2),
                 ),
                 alignLabelWithHint: true,
               ),

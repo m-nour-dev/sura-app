@@ -21,7 +21,8 @@ class ContentSelector {
     }).toList();
 
     final bySeason = byTrigger.where((item) {
-      return item.seasonTags.contains(season) || item.seasonTags.contains('عام');
+      return item.seasonTags.contains(season) ||
+          item.seasonTags.contains('عام');
     }).toList();
 
     if (bySeason.isNotEmpty) return bySeason;

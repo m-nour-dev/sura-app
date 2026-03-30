@@ -5,7 +5,6 @@ enum HifzSelectionType {
 }
 
 class HifzSelection {
-
   const HifzSelection({
     required this.surahNumber,
     required this.fromVerse,

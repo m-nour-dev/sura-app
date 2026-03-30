@@ -1,4 +1,5 @@
-class VefaPerson { // How many times user donated thawab to this person
+class VefaPerson {
+  // How many times user donated thawab to this person
 
   VefaPerson({
     this.id,

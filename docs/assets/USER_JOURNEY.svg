@@ -1,0 +1,283 @@
+<svg viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#D4B85A"/>
+    </linearGradient>
+    <linearGradient id="navyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A2340"/>
+      <stop offset="100%" stop-color="#0F1729"/>
+    </linearGradient>
+    <marker id="arrowGold" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#C9A84C"/>
+    </marker>
+    <marker id="arrowWhite" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#F5F0E6" opacity="0.5"/>
+    </marker>
+    <filter id="glow2">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="1000" fill="#0A0F1E"/>
+
+  <!-- Title -->
+  <text x="800" y="40" text-anchor="middle" fill="#C9A84C" font-family="Amiri, serif" font-size="28" font-weight="700">Sila App — User Journey & Feature Flow</text>
+  <text x="800" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="14" opacity="0.6">How users interact with the four core pillars of worship</text>
+
+  <!-- ========== DAILY JOURNEY FLOW ========== -->
+  <g transform="translate(50, 90)">
+    <rect width="1500" height="400" rx="16" fill="#0F1729" stroke="#1A2340" stroke-width="2"/>
+    <text x="30" y="30" fill="#C9A84C" font-family="sans-serif" font-size="14" font-weight="600">DAILY WORSHIP JOURNEY</text>
+
+    <!-- Step 1: App Launch -->
+    <g transform="translate(80, 60)">
+      <rect width="200" height="120" rx="16" fill="#1A2340" stroke="#C9A84C" stroke-width="2" filter="url(#glow2)"/>
+      <circle cx="100" cy="25" r="15" fill="url(#goldGrad2)" opacity="0.3"/>
+      <text x="100" y="30" text-anchor="middle" fill="#C9A84C" font-size="16">1</text>
+      <text x="100" y="60" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">APP LAUNCH</text>
+      <text x="100" y="78" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Home Screen</text>
+      <text x="100" y="93" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Next prayer countdown</text>
+      <text x="100" y="108" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Daily azkar reminder</text>
+    </g>
+
+    <!-- Arrow 1→2 -->
+    <line x1="300" y1="120" x2="360" y2="120" stroke="#C9A84C" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- Step 2: Prayer Time -->
+    <g transform="translate(380, 60)">
+      <rect width="200" height="120" rx="16" fill="#1A2340" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="100" cy="25" r="15" fill="url(#goldGrad2)" opacity="0.3"/>
+      <text x="100" y="30" text-anchor="middle" fill="#C9A84C" font-size="16">2</text>
+      <text x="100" y="60" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">PRAYER TIMES</text>
+      <text x="100" y="78" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">View schedule</text>
+      <text x="100" y="93" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Adhan notification</text>
+      <text x="100" y="108" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Qibla direction</text>
+    </g>
+
+    <!-- Arrow 2→3 -->
+    <line x1="600" y1="120" x2="660" y2="120" stroke="#C9A84C" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- Step 3: Morning Azkar -->
+    <g transform="translate(680, 60)">
+      <rect width="200" height="120" rx="16" fill="#1A2340" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="100" cy="25" r="15" fill="url(#goldGrad2)" opacity="0.3"/>
+      <text x="100" y="30" text-anchor="middle" fill="#C9A84C" font-size="16">3</text>
+      <text x="100" y="60" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">MORNING AZKAR</text>
+      <text x="100" y="78" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Daily dhikr routine</text>
+      <text x="100" y="93" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Interactive counters</text>
+      <text x="100" y="108" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Progress tracking</text>
+    </g>
+
+    <!-- Arrow 3→4 -->
+    <line x1="900" y1="120" x2="960" y2="120" stroke="#C9A84C" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- Step 4: Quran Reading -->
+    <g transform="translate(980, 60)">
+      <rect width="200" height="120" rx="16" fill="#1A2340" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="100" cy="25" r="15" fill="url(#goldGrad2)" opacity="0.3"/>
+      <text x="100" y="30" text-anchor="middle" fill="#C9A84C" font-size="16">4</text>
+      <text x="100" y="60" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">QURAN READING</text>
+      <text x="100" y="78" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Mushaf browsing</text>
+      <text x="100" y="93" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Audio recitation</text>
+      <text x="100" y="108" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Bookmark & resume</text>
+    </g>
+
+    <!-- Arrow 4→5 -->
+    <line x1="1200" y1="120" x2="1260" y2="120" stroke="#C9A84C" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- Step 5: Hifz -->
+    <g transform="translate(1280, 60)">
+      <rect width="200" height="120" rx="16" fill="#1A2340" stroke="#C9A84C" stroke-width="2"/>
+      <circle cx="100" cy="25" r="15" fill="url(#goldGrad2)" opacity="0.3"/>
+      <text x="100" y="30" text-anchor="middle" fill="#C9A84C" font-size="16">5</text>
+      <text x="100" y="60" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">HIFZ SESSION</text>
+      <text x="100" y="78" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Memorization practice</text>
+      <text x="100" y="93" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">STT evaluation</text>
+      <text x="100" y="108" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Progress roadmap</text>
+    </g>
+
+    <!-- Evening Flow (Loop) -->
+    <path d="M 1380 190 Q 1380 250 800 250 Q 200 250 200 200" fill="none" stroke="#C9A84C" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowGold)"/>
+    <text x="800" y="245" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" opacity="0.7">Evening Azkar → Repeat Cycle</text>
+
+    <!-- ========== FEATURE DEEP DIVE ========== -->
+    <!-- Quran Feature Flow -->
+    <g transform="translate(50, 300)">
+      <rect width="350" height="160" rx="12" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+      <text x="175" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">📖 QURAN READER FLOW</text>
+      <g transform="translate(20, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Select Surah</text>
+      </g>
+      <line x1="110" y1="60" x2="130" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(135, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">View Verses</text>
+      </g>
+      <line x1="225" y1="60" x2="245" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(250, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Play Audio</text>
+      </g>
+      <text x="175" y="100" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Features: Translation · Audio · Bookmarks · Search</text>
+      <text x="175" y="120" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Offline: Full Mushaf + Cached audio per reciter</text>
+      <text x="175" y="140" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="9">State: quranProvider → isar.db → audio cache</text>
+    </g>
+
+    <!-- Prayer Feature Flow -->
+    <g transform="translate(420, 300)">
+      <rect width="350" height="160" rx="12" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+      <text x="175" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">🕌 PRAYER TIMES FLOW</text>
+      <g transform="translate(20, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Get Location</text>
+      </g>
+      <line x1="110" y1="60" x2="130" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(135, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Calculate</text>
+      </g>
+      <line x1="225" y1="60" x2="245" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(250, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Notify</text>
+      </g>
+      <text x="175" y="100" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Features: 5 daily prayers · Sunrise · Qibla</text>
+      <text x="175" y="120" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Offline: Algorithm-based calc · GPS only</text>
+      <text x="175" y="140" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="9">State: prayerProvider → calcEngine → notifications</text>
+    </g>
+
+    <!-- Azkar Feature Flow -->
+    <g transform="translate(790, 300)">
+      <rect width="350" height="160" rx="12" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+      <text x="175" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">📿 AZKAR TRACKER FLOW</text>
+      <g transform="translate(20, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Select Category</text>
+      </g>
+      <line x1="110" y1="60" x2="130" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(135, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Count Dhikr</text>
+      </g>
+      <line x1="225" y1="60" x2="245" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(250, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Track Progress</text>
+      </g>
+      <text x="175" y="100" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Features: Morning · Evening · Situational · Wird</text>
+      <text x="175" y="120" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Offline: JSON assets + Isar progress storage</text>
+      <text x="175" y="140" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="9">State: azkarProvider → progressTracker → counters</text>
+    </g>
+
+    <!-- Hifz Feature Flow -->
+    <g transform="translate(1160, 300)">
+      <rect width="350" height="160" rx="12" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+      <text x="175" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">🧠 HIFZ MEMORIZATION FLOW</text>
+      <g transform="translate(20, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Listen</text>
+      </g>
+      <line x1="110" y1="60" x2="130" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(135, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Shadow</text>
+      </g>
+      <line x1="225" y1="60" x2="245" y2="60" stroke="#F5F0E6" stroke-width="1" opacity="0.5" marker-end="url(#arrowWhite)"/>
+      <g transform="translate(250, 45)">
+        <rect width="80" height="30" rx="6" fill="#0A0F1E"/>
+        <text x="40" y="20" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9">Test</text>
+      </g>
+      <text x="175" y="100" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Features: STT evaluation · Spaced repetition</text>
+      <text x="175" y="120" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.6">Offline: On-device speech recognition</text>
+      <text x="175" y="140" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="9">State: hifzProvider → STT → progress roadmap</text>
+    </g>
+  </g>
+
+  <!-- ========== DAILY COMPLETION TRACKER ========== -->
+  <g transform="translate(50, 690)">
+    <rect width="1500" height="120" rx="16" fill="#0F1729" stroke="#1A2340" stroke-width="2"/>
+    <text x="30" y="30" fill="#C9A84C" font-family="sans-serif" font-size="14" font-weight="600">DAILY COMPLETION STATUS</text>
+
+    <!-- Morning */}
+    <g transform="translate(100, 50)">
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#1A2340" stroke-width="4"/>
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="47" transform="rotate(-90 50 30)"/>
+      <text x="50" y="35" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">70%</text>
+      <text x="50" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Fajr</text>
+    </g>
+
+    <g transform="translate(280, 50)">
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#1A2340" stroke-width="4"/>
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="31" transform="rotate(-90 50 30)"/>
+      <text x="50" y="35" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">80%</text>
+      <text x="50" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Morning Azkar</text>
+    </g>
+
+    <g transform="translate(460, 50)">
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#1A2340" stroke-width="4"/>
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="0" transform="rotate(-90 50 30)"/>
+      <text x="50" y="35" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">100%</text>
+      <text x="50" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Dhuhr</text>
+    </g>
+
+    <g transform="translate(640, 50)">
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#1A2340" stroke-width="4"/>
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="0" transform="rotate(-90 50 30)"/>
+      <text x="50" y="35" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">100%</text>
+      <text x="50" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Quran (Juz 30)</text>
+    </g>
+
+    <g transform="translate(820, 50)">
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#1A2340" stroke-width="4"/>
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="94" transform="rotate(-90 50 30)"/>
+      <text x="50" y="35" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">40%</text>
+      <text x="50" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Hifz Goal</text>
+    </g>
+
+    <g transform="translate(1000, 50)">
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#1A2340" stroke-width="4"/>
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="78" transform="rotate(-90 50 30)"/>
+      <text x="50" y="35" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">50%</text>
+      <text x="50" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Evening</text>
+    </g>
+
+    <g transform="translate(1180, 50)">
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#1A2340" stroke-width="4"/>
+      <circle cx="50" cy="30" r="25" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="157" stroke-dashoffset="0" transform="rotate(-90 50 30)"/>
+      <text x="50" y="35" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">100%</text>
+      <text x="50" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Isha</text>
+    </g>
+
+    <g transform="translate(1360, 50)">
+      <rect width="120" height="60" rx="8" fill="url(#goldGrad2)" opacity="0.15" stroke="#C9A84C" stroke-width="1"/>
+      <text x="60" y="28" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="14" font-weight="700">6/8</text>
+      <text x="60" y="48" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10">Daily Score</text>
+    </g>
+  </g>
+
+  <!-- ========== LEGEND ========== -->
+  <g transform="translate(50, 840)">
+    <rect width="1500" height="50" rx="10" fill="#0F1729" stroke="#1A2340" stroke-width="1"/>
+    <text x="30" y="30" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">LEGEND:</text>
+    <circle cx="120" cy="25" r="6" fill="#C9A84C"/>
+    <text x="135" y="30" fill="#F5F0E6" font-family="sans-serif" font-size="10">Feature Screen</text>
+    <line x1="250" y1="25" x2="290" y2="25" stroke="#C9A84C" stroke-width="2"/>
+    <text x="300" y="30" fill="#F5F0E6" font-family="sans-serif" font-size="10">User Flow</text>
+    <line x1="380" y1="25" x2="420" y2="25" stroke="#F5F0E6" stroke-width="1" stroke-dasharray="4"/>
+    <text x="430" y="30" fill="#F5F0E6" font-family="sans-serif" font-size="10">Data Flow</text>
+    <rect x="530" y="19" width="12" height="12" rx="2" fill="url(#goldGrad2)" opacity="0.3"/>
+    <text x="550" y="30" fill="#F5F0E6" font-family="sans-serif" font-size="10">Progress Ring</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="800" y="920" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" opacity="0.5">Sila User Journey · Daily Worship Flow · Four Core Pillars</text>
+  <text x="800" y="940" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.3">─────────────────────────────────────────────────────────────</text>
+
+</svg>

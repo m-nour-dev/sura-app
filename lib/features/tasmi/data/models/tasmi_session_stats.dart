@@ -1,9 +1,7 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
 
 class TasmiSessionStats extends Equatable {
-
   const TasmiSessionStats({
     required this.correctCount,
     required this.closeErrorCount,

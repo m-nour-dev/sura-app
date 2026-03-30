@@ -32,7 +32,7 @@ class _LanguageSwitcherState extends ConsumerState<LanguageSwitcher> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return PopupMenuButton<Locale>(
       onSelected: (locale) async {
         await context.setLocale(locale);
@@ -42,14 +42,17 @@ class _LanguageSwitcherState extends ConsumerState<LanguageSwitcher> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: isDark ? LanguageSwitcher.darkSurfaceColor : LanguageSwitcher.surfaceColor,
+      color: isDark
+          ? LanguageSwitcher.darkSurfaceColor
+          : LanguageSwitcher.surfaceColor,
       offset: const Offset(0, 50),
       itemBuilder: (context) {
         return context.supportedLocales.map((locale) {
           final isSelected = context.locale == locale;
-          final langName = LanguageSwitcher._languageNames[locale.languageCode] ?? 
-              locale.languageCode;
-          
+          final langName =
+              LanguageSwitcher._languageNames[locale.languageCode] ??
+                  locale.languageCode;
+
           return PopupMenuItem<Locale>(
             value: locale,
             padding: EdgeInsets.zero,
@@ -60,8 +63,10 @@ class _LanguageSwitcherState extends ConsumerState<LanguageSwitcher> {
                 vertical: LanguageSwitcher.spacing / 2,
               ),
               decoration: BoxDecoration(
-                color: isSelected 
-                    ? (isDark ? LanguageSwitcher.primaryColor : LanguageSwitcher.primaryColor.withOpacity(0.05))
+                color: isSelected
+                    ? (isDark
+                        ? LanguageSwitcher.primaryColor
+                        : LanguageSwitcher.primaryColor.withOpacity(0.05))
                     : Colors.transparent,
                 border: isSelected
                     ? const Border(
@@ -79,9 +84,12 @@ class _LanguageSwitcherState extends ConsumerState<LanguageSwitcher> {
                     langName,
                     style: GoogleFonts.cairo(
                       fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected 
-                          ? (isDark ? LanguageSwitcher.successColor : LanguageSwitcher.primaryColor)
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? (isDark
+                              ? LanguageSwitcher.successColor
+                              : LanguageSwitcher.primaryColor)
                           : (isDark ? Colors.white70 : Colors.black87),
                     ),
                   ),

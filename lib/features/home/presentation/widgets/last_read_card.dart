@@ -16,7 +16,8 @@ class LastReadCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surface = isDark ? AppTheme.darkSurfaceColor : Colors.white;
-    final border = isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05);
+    final border =
+        isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05);
     final txtP = isDark ? Colors.white : AppTheme.primaryColor;
     final txtS = isDark ? Colors.white60 : Colors.grey[600];
 
@@ -26,86 +27,91 @@ class LastReadCard extends ConsumerWidget {
       data: (wirdState) {
         final currentPage = wirdState.currentPage;
         final pageData = quran.getPageData(currentPage);
-          final surahNumber = (pageData.isNotEmpty && pageData[0] is Map<String, dynamic>)
-              ? (pageData[0]['surah'] as int? ?? 1)
-              : 1;
-          final surahName = SurahUtils.getLocalizedSurahName(context, surahNumber);
+        final surahNumber =
+            (pageData.isNotEmpty && pageData[0] is Map<String, dynamic>)
+                ? (pageData[0]['surah'] as int? ?? 1)
+                : 1;
+        final surahName =
+            SurahUtils.getLocalizedSurahName(context, surahNumber);
 
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WirdReaderPage(
-                    startPage: currentPage,
-                    endPage: 604,
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => WirdReaderPage(
+                  startPage: currentPage,
+                  endPage: 604,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: border, width: 1),
+              boxShadow: [
+                if (!isDark)
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.menu_book_rounded,
+                      color: AppTheme.primaryColor, size: 22),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'continue_reading'.tr(),
+                        style: GoogleFonts.cairo(
+                          fontSize: 12,
+                          color: txtS,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'surah_label'.tr(args: [surahName]),
+                        style: GoogleFonts.cairo(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: txtP),
+                      ),
+                      Text(
+                        'page_label'.tr(args: [currentPage.toString()]),
+                        style: GoogleFonts.cairo(
+                          fontSize: 12,
+                          color: txtS,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: border, width: 1),
-                boxShadow: [
-                  if (!isDark)
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    )
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.menu_book_rounded, color: AppTheme.primaryColor, size: 22),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'continue_reading'.tr(),
-                          style: GoogleFonts.cairo(
-                            fontSize: 12,
-                            color: txtS,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          'surah_label'.tr(args: [surahName]),
-                          style: GoogleFonts.cairo(
-                              fontSize: 16, fontWeight: FontWeight.w700, color: txtP),
-                        ),
-                        Text(
-                          'page_label'.tr(args: [currentPage.toString()]),
-                          style: GoogleFonts.cairo(
-                            fontSize: 12,
-                            color: txtS,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios_rounded, color: txtS, size: 14),
-                ],
-              ),
+                Icon(Icons.arrow_forward_ios_rounded, color: txtS, size: 14),
+              ],
             ),
-          );
-        },
-        loading: () => const SizedBox(),
-        error: (_, __) => const SizedBox(),
-      );
+          ),
+        );
+      },
+      loading: () => const SizedBox(),
+      error: (_, __) => const SizedBox(),
+    );
   }
 }

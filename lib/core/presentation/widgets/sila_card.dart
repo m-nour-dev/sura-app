@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class SilaCard extends StatelessWidget {
-
   const SilaCard({
     super.key,
     required this.child,

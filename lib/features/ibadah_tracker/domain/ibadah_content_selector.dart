@@ -5,8 +5,9 @@ import 'package:sila_app/features/notifications/data/models/notification_content
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
 
 class IbadahContentSelector {
-  IbadahContentSelector({required INotificationRepository notificationRepository})
-    : _notificationRepository = notificationRepository;
+  IbadahContentSelector(
+      {required INotificationRepository notificationRepository})
+      : _notificationRepository = notificationRepository;
 
   final INotificationRepository _notificationRepository;
   final Random _random = Random();
@@ -29,7 +30,8 @@ class IbadahContentSelector {
     {
       'id': 'mi_003',
       'type': 'hadith',
-      'arabic_text': 'لقد هممت أن آمر بالصلاة فتقام ثم أخالف إلى رجال لا يشهدون الصلاة',
+      'arabic_text':
+          'لقد هممت أن آمر بالصلاة فتقام ثم أخالف إلى رجال لا يشهدون الصلاة',
       'source': 'متفق عليه',
       'grade': 'صحيح',
     },
@@ -41,8 +43,12 @@ class IbadahContentSelector {
     required bool? inMasjid,
     required bool isMale,
   }) async {
-    if (_isPrayer(ibadahKey) && isMale && completed == true && inMasjid == false) {
-      final picked = _masjidIncompleteBank[_random.nextInt(_masjidIncompleteBank.length)];
+    if (_isPrayer(ibadahKey) &&
+        isMale &&
+        completed == true &&
+        inMasjid == false) {
+      final picked =
+          _masjidIncompleteBank[_random.nextInt(_masjidIncompleteBank.length)];
       return IbadahContent.fromMap(picked);
     }
 
@@ -66,7 +72,8 @@ class IbadahContentSelector {
     }
 
     final mappedCategory = _mapCategory(ibadahKey);
-    final bank = await _notificationRepository.getContentByCategory(mappedCategory);
+    final bank =
+        await _notificationRepository.getContentByCategory(mappedCategory);
     final filtered = _filter(bank, ibadahKey: ibadahKey, completed: completed);
     final picked = _pickLeastShown(filtered.isEmpty ? bank : filtered);
 
@@ -90,8 +97,10 @@ class IbadahContentSelector {
     return const IbadahContent(
       id: 'fallback_001',
       type: 'hikma',
-      arabicText: 'اجعل لك وردا ثابتا، فالقليل الدائم أحب إلى الله من الكثير المنقطع.',
-      shortText: 'اجعل لك وردا ثابتا، فالقليل الدائم أحب إلى الله من الكثير المنقطع.',
+      arabicText:
+          'اجعل لك وردا ثابتا، فالقليل الدائم أحب إلى الله من الكثير المنقطع.',
+      shortText:
+          'اجعل لك وردا ثابتا، فالقليل الدائم أحب إلى الله من الكثير المنقطع.',
       source: 'تذكير',
       grade: 'عام',
     );
@@ -130,7 +139,9 @@ class IbadahContentSelector {
     if (completed == false) {
       final trigger = _incompleteTrigger(ibadahKey);
       final byTrigger = out
-          .where((e) => e.triggerTags.contains(trigger) || e.triggerTags.contains('تذكير_عام'))
+          .where((e) =>
+              e.triggerTags.contains(trigger) ||
+              e.triggerTags.contains('تذكير_عام'))
           .toList();
       if (byTrigger.isNotEmpty) out = byTrigger;
     }
@@ -145,9 +156,11 @@ class IbadahContentSelector {
     return shortlist[_random.nextInt(shortlist.length)];
   }
 
-  Future<NotificationContent?> _pickWithTag({required String category, required String preferredTag}) async {
+  Future<NotificationContent?> _pickWithTag(
+      {required String category, required String preferredTag}) async {
     final bank = await _notificationRepository.getContentByCategory(category);
-    final tagged = bank.where((e) => e.triggerTags.contains(preferredTag)).toList();
+    final tagged =
+        bank.where((e) => e.triggerTags.contains(preferredTag)).toList();
     final picked = _pickLeastShown(tagged.isNotEmpty ? tagged : bank);
     if (picked != null) {
       picked
@@ -199,6 +212,10 @@ class IbadahContentSelector {
   }
 
   bool _isPrayer(String key) {
-    return key == 'fajr' || key == 'dhuhr' || key == 'asr' || key == 'maghrib' || key == 'isha';
+    return key == 'fajr' ||
+        key == 'dhuhr' ||
+        key == 'asr' ||
+        key == 'maghrib' ||
+        key == 'isha';
   }
 }

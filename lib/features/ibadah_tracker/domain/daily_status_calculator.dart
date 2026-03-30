@@ -17,7 +17,7 @@ class DailyStatusCalculator {
     if (record.asrStatus > 0) count++;
     if (record.maghribStatus > 0) count++;
     if (record.ishaStatus > 0) count++;
-    
+
     if (isMale) {
       if (record.fajrInMasjid == true) count++;
       if (record.dhuhrInMasjid == true) count++;
@@ -25,7 +25,7 @@ class DailyStatusCalculator {
       if (record.maghribInMasjid == true) count++;
       if (record.ishaInMasjid == true) count++;
     }
-    
+
     if (record.readWird) count++;
     if (record.readAzkarSabah) count++;
     if (record.readAzkarMasa) count++;
@@ -36,7 +36,9 @@ class DailyStatusCalculator {
   }
 
   static int totalCount({required bool isMale}) {
-    return isMale ? 16 : 11; // 5 prayers + 5 masjid + 6 others VS 5 prayers + 6 others
+    return isMale
+        ? 16
+        : 11; // 5 prayers + 5 masjid + 6 others VS 5 prayers + 6 others
   }
 
   static double completionRatio(IbadahRecord record, {required bool isMale}) {
@@ -45,7 +47,8 @@ class DailyStatusCalculator {
     return completedCount(record, isMale: isMale) / total;
   }
 
-  static String getDailyStatusText(IbadahRecord record, {required bool isMale, required String languageCode}) {
+  static String getDailyStatusText(IbadahRecord record,
+      {required bool isMale, required String languageCode}) {
     var texts = <String>[];
     final double ratio = completionRatio(record, isMale: isMale);
 
@@ -85,13 +88,16 @@ class DailyStatusCalculator {
 
     if (texts.isEmpty) return '';
 
-    final dayKey = record.date.year * 10000 + record.date.month * 100 + record.date.day;
+    final dayKey =
+        record.date.year * 10000 + record.date.month * 100 + record.date.day;
     final cacheKey = '${dayKey}_$languageCode';
     final cached = _dailyTextCache[cacheKey];
     if (cached != null && texts.contains(cached)) return cached;
 
-    final baseSeed = record.date.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
-    final idx = (baseSeed + (baseSeed % 13) + _random.nextInt(texts.length)) % texts.length;
+    final baseSeed =
+        record.date.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
+    final idx = (baseSeed + (baseSeed % 13) + _random.nextInt(texts.length)) %
+        texts.length;
     final selected = texts[idx];
     _dailyTextCache[cacheKey] = selected;
     return selected;

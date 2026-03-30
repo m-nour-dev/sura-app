@@ -1,9 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 
 class SunnahItem {
-
   const SunnahItem({
-    required this.textKey, 
+    required this.textKey,
     required this.sourceKey,
     required this.explanationKey,
   });
@@ -18,7 +17,7 @@ class SunnahItem {
 }
 
 final List<SunnahItem> sunanMahjouraList = [
-   const SunnahItem(
+  const SunnahItem(
     textKey: 'sunnah_1_text',
     sourceKey: 'sunnah_1_source',
     explanationKey: 'sunnah_1_explanation',
@@ -63,7 +62,7 @@ final List<SunnahItem> sunanMahjouraList = [
     sourceKey: 'sunnah_9_source',
     explanationKey: 'sunnah_9_explanation',
   ),
-   const SunnahItem(
+  const SunnahItem(
     textKey: 'sunnah_10_text',
     sourceKey: 'sunnah_10_source',
     explanationKey: 'sunnah_10_explanation',
@@ -113,7 +112,7 @@ final List<SunnahItem> sunanMahjouraList = [
     sourceKey: 'sunnah_19_source',
     explanationKey: 'sunnah_19_explanation',
   ),
-   const SunnahItem(
+  const SunnahItem(
     textKey: 'sunnah_20_text',
     sourceKey: 'sunnah_20_source',
     explanationKey: 'sunnah_20_explanation',
@@ -123,7 +122,7 @@ final List<SunnahItem> sunanMahjouraList = [
     sourceKey: 'sunnah_21_source',
     explanationKey: 'sunnah_21_explanation',
   ),
-   const SunnahItem(
+  const SunnahItem(
     textKey: 'sunnah_22_text',
     sourceKey: 'sunnah_22_source',
     explanationKey: 'sunnah_22_explanation',
@@ -153,8 +152,9 @@ final List<SunnahItem> sunanMahjouraList = [
 SunnahItem getTodaySunnah() {
   final now = DateTime.now();
   // Using day of year to rotate through the list
-  final dayOfYear = int.parse("${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}");
-  
+  final dayOfYear = int.parse(
+      "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}");
+
   // Simple hashing or index calculation
   final index = dayOfYear % sunanMahjouraList.length;
   return sunanMahjouraList[index];

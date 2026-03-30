@@ -18,7 +18,7 @@ class PostPrayerQuickCard extends ConsumerWidget {
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Different colors based on prayer time could be a nice touch
     final cardColor = _getPrayerColor(prayerName);
 
@@ -49,7 +49,8 @@ class PostPrayerQuickCard extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.auto_awesome_rounded, color: Colors.amber, size: 20),
+                  const Icon(Icons.auto_awesome_rounded,
+                      color: Colors.amber, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'post_prayer_window_title'.tr(),
@@ -63,7 +64,8 @@ class PostPrayerQuickCard extends ConsumerWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -130,7 +132,8 @@ class PostPrayerQuickCard extends ConsumerWidget {
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
+                child: const Icon(Icons.arrow_forward_ios_rounded,
+                    color: Colors.white, size: 18),
               ),
             ],
           ),
@@ -141,12 +144,18 @@ class PostPrayerQuickCard extends ConsumerWidget {
 
   Color _getPrayerColor(String prayer) {
     switch (prayer) {
-      case 'fajr': return const Color(0xFF1E3A8A); // Deep Blue
-      case 'dhuhr': return const Color(0xFF0369A1); // Sky Blue
-      case 'asr': return const Color(0xFFB45309); // Amber/Orange
-      case 'maghrib': return const Color(0xFF701A75); // Purple
-      case 'isha': return const Color(0xFF1E1B4B); // Dark Navy
-      default: return const Color(0xFF0F172A);
+      case 'fajr':
+        return const Color(0xFF1E3A8A); // Deep Blue
+      case 'dhuhr':
+        return const Color(0xFF0369A1); // Sky Blue
+      case 'asr':
+        return const Color(0xFFB45309); // Amber/Orange
+      case 'maghrib':
+        return const Color(0xFF701A75); // Purple
+      case 'isha':
+        return const Color(0xFF1E1B4B); // Dark Navy
+      default:
+        return const Color(0xFF0F172A);
     }
   }
 }

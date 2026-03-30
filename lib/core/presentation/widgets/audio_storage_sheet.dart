@@ -36,7 +36,8 @@ class _AudioStorageSheetState extends ConsumerState<_AudioStorageSheet> {
   Future<void> _load() async {
     if (!mounted) return;
     setState(() => _loading = true);
-    final stats = await ref.read(audioControllerProvider.notifier).getCacheStats();
+    final stats =
+        await ref.read(audioControllerProvider.notifier).getCacheStats();
     if (!mounted) return;
     setState(() {
       _stats = stats;
@@ -57,7 +58,8 @@ class _AudioStorageSheetState extends ConsumerState<_AudioStorageSheet> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: _loading
-            ? const SizedBox(height: 220, child: Center(child: CircularProgressIndicator()))
+            ? const SizedBox(
+                height: 220, child: Center(child: CircularProgressIndicator()))
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,27 +86,32 @@ class _AudioStorageSheetState extends ConsumerState<_AudioStorageSheet> {
                   const SizedBox(height: 6),
                   Text(
                     'الإجمالي: ${_fmt(_stats!.totalBytes)} - ملفات: ${_stats!.totalFiles}',
-                    style: GoogleFonts.cairo(color: Colors.white60, fontSize: 12),
+                    style:
+                        GoogleFonts.cairo(color: Colors.white60, fontSize: 12),
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
                     height: 240,
                     child: ListView(
                       children: ReciterService.availableReciters.map((reciter) {
-                        final bytes = _stats!.bytesByFolder[reciter.folderName] ?? 0;
+                        final bytes =
+                            _stats!.bytesByFolder[reciter.folderName] ?? 0;
                         return ListTile(
                           dense: true,
                           contentPadding: EdgeInsets.zero,
                           title: Text(
                             reciter.nameArabic,
-                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 13),
+                            style: GoogleFonts.cairo(
+                                color: Colors.white, fontSize: 13),
                           ),
                           subtitle: Text(
                             _fmt(bytes),
-                            style: GoogleFonts.cairo(color: Colors.white54, fontSize: 11),
+                            style: GoogleFonts.cairo(
+                                color: Colors.white54, fontSize: 11),
                           ),
                           trailing: IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.redAccent),
                             onPressed: bytes == 0
                                 ? null
                                 : () async {
@@ -123,10 +130,13 @@ class _AudioStorageSheetState extends ConsumerState<_AudioStorageSheet> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () async {
-                        await ref.read(audioControllerProvider.notifier).clearAllCache();
+                        await ref
+                            .read(audioControllerProvider.notifier)
+                            .clearAllCache();
                         await _load();
                       },
-                      icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+                      icon: const Icon(Icons.delete_forever_rounded,
+                          color: Colors.redAccent),
                       label: Text(
                         'حذف كل الكاش',
                         style: GoogleFonts.cairo(color: Colors.white),

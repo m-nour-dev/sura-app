@@ -82,222 +82,256 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
         right: 20,
         bottom: MediaQuery.of(context).padding.bottom + 20,
       ),
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 48,
+            height: 6,
+            margin: const EdgeInsets.only(bottom: 24),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white24 : Colors.black12,
+              borderRadius: BorderRadius.circular(3),
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 48,
-              height: 6,
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white24 : Colors.black12,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.menu_book_rounded, color: primaryColor),
+          ),
+
+          // Header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: const Icon(Icons.menu_book_rounded, color: primaryColor),
+              ),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'surah_name_prefix'.tr(
+                        args: [quran.getSurahNameArabic(widget.surahNumber)]),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  Text(
+                    'ayah_count_suffix'.tr(args: [
+                      _toArabicNumber(context,
+                          quran.getVerseCount(widget.surahNumber).toString())
+                    ]),
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black54,
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Divider(color: isDark ? Colors.white10 : Colors.grey[200]),
+          const SizedBox(height: 16),
+
+          // Option 1: Full Surah
+          _buildOptionCard(
+            context: context,
+            icon: Icons.done_all_rounded,
+            title: 'full_surah_option'.tr(),
+            subtitle: 'full_surah_desc'.tr(),
+            isDark: isDark,
+            primaryColor: primaryColor,
+            onTap: () => _navigateToTasmi(1, _maxAyah),
+          ),
+          const SizedBox(height: 12),
+
+          // Option 2: Custom Range
+          _buildOptionCard(
+            context: context,
+            icon: Icons.tune_rounded,
+            title: 'custom_range_option'.tr(),
+            subtitle: 'custom_range_desc'.tr(),
+            isDark: isDark,
+            primaryColor: primaryColor,
+            isSelected: _isCustomRangeExpanded,
+            onTap: () {
+              setState(() {
+                _isCustomRangeExpanded = !_isCustomRangeExpanded;
+              });
+            },
+          ),
+
+          // Custom Range Sliders (Animated)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: _isCustomRangeExpanded ? 260 : 0,
+            curve: Curves.easeInOut,
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: Container(
+                margin: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color:
+                      isDark ? Colors.white.withOpacity(0.05) : Colors.grey[50],
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: isDark
+                          ? Colors.white10
+                          : Colors.black.withOpacity(0.05)),
+                ),
+                child: Column(
                   children: [
-                    Text(
-                      'surah_name_prefix'.tr(args: [quran.getSurahNameArabic(widget.surahNumber)]),
-                      style: TextStyle(
-                        fontSize: 22, 
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Cairo',
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('from_ayah_label'.tr(),
+                            style: TextStyle(
+                                fontFamily: 'Cairo',
+                                color:
+                                    isDark ? Colors.white70 : Colors.black54)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                              _toArabicNumber(
+                                  context, _fromAyah.round().toString()),
+                              style: const TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryColor)),
+                        ),
+                      ],
+                    ),
+                    SliderTheme(
+                      data: SliderThemeData(
+                        activeTrackColor: primaryColor,
+                        inactiveTrackColor: primaryColor.withOpacity(0.2),
+                        thumbColor: accentColor,
+                        overlayColor: accentColor.withOpacity(0.2),
+                        valueIndicatorColor: accentColor,
+                      ),
+                      child: Slider(
+                        value: _fromAyah,
+                        min: 1,
+                        max: _maxAyah.toDouble(),
+                        divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
+                        label: _toArabicNumber(
+                            context, _fromAyah.round().toString()),
+                        onChanged: (value) {
+                          setState(() {
+                            _fromAyah = value;
+                            if (_toAyah < _fromAyah) {
+                              _toAyah = _fromAyah;
+                            }
+                          });
+                        },
                       ),
                     ),
-                    Text(
-                      'ayah_count_suffix'.tr(args: [_toArabicNumber(context, quran.getVerseCount(widget.surahNumber).toString())]),
-                      style: TextStyle(
-                        color: isDark ? Colors.white70 : Colors.black54,
-                        fontFamily: 'Cairo',
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('to_ayah_label'.tr(),
+                            style: TextStyle(
+                                fontFamily: 'Cairo',
+                                color:
+                                    isDark ? Colors.white70 : Colors.black54)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                              _toArabicNumber(
+                                  context, _toAyah.round().toString()),
+                              style: const TextStyle(
+                                  fontFamily: 'Cairo',
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryColor)),
+                        ),
+                      ],
+                    ),
+                    SliderTheme(
+                      data: SliderThemeData(
+                        activeTrackColor: primaryColor,
+                        inactiveTrackColor: primaryColor.withOpacity(0.2),
+                        thumbColor: accentColor,
+                        overlayColor: accentColor.withOpacity(0.2),
+                        valueIndicatorColor: accentColor,
+                      ),
+                      child: Slider(
+                        value: _toAyah,
+                        min: 1,
+                        max: _maxAyah.toDouble(),
+                        divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
+                        label: _toArabicNumber(
+                            context, _toAyah.round().toString()),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value >= _fromAyah) {
+                              _toAyah = value;
+                            }
+                          });
+                        },
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _navigateToTasmi(
+                            _fromAyah.round(), _toAyah.round()),
+                        icon: const Icon(Icons.mic_rounded),
+                        label: Text(
+                            widget.returnSelectionOnly
+                                ? 'start_hifz_action'.tr()
+                                : 'start_tasmi_action'.tr(),
+                            style: const TextStyle(
+                                fontFamily: 'Cairo',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Divider(color: isDark ? Colors.white10 : Colors.grey[200]),
-            const SizedBox(height: 16),
-
-            // Option 1: Full Surah
-            _buildOptionCard(
-              context: context,
-              icon: Icons.done_all_rounded,
-              title: 'full_surah_option'.tr(),
-              subtitle: 'full_surah_desc'.tr(),
-              isDark: isDark,
-              primaryColor: primaryColor,
-              onTap: () => _navigateToTasmi(1, _maxAyah),
-            ),
-            const SizedBox(height: 12),
-
-            // Option 2: Custom Range
-            _buildOptionCard(
-              context: context,
-              icon: Icons.tune_rounded,
-              title: 'custom_range_option'.tr(),
-              subtitle: 'custom_range_desc'.tr(),
-              isDark: isDark,
-              primaryColor: primaryColor,
-              isSelected: _isCustomRangeExpanded,
-              onTap: () {
-                setState(() {
-                  _isCustomRangeExpanded = !_isCustomRangeExpanded;
-                });
-              },
-            ),
-
-            // Custom Range Sliders (Animated)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: _isCustomRangeExpanded ? 260 : 0,
-              curve: Curves.easeInOut,
-              child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Container(
-                  margin: const EdgeInsets.only(top: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[50],
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('from_ayah_label'.tr(), style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _toArabicNumber(context, _fromAyah.round().toString()), 
-                              style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
-                            ),
-                          ),
-                        ],
-                      ),
-                      SliderTheme(
-                        data: SliderThemeData(
-                          activeTrackColor: primaryColor,
-                          inactiveTrackColor: primaryColor.withOpacity(0.2),
-                          thumbColor: accentColor,
-                          overlayColor: accentColor.withOpacity(0.2),
-                          valueIndicatorColor: accentColor,
-                        ),
-                        child: Slider(
-                          value: _fromAyah,
-                          min: 1,
-                          max: _maxAyah.toDouble(),
-                          divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
-                          label: _toArabicNumber(context, _fromAyah.round().toString()),
-                          onChanged: (value) {
-                            setState(() {
-                              _fromAyah = value;
-                              if (_toAyah < _fromAyah) {
-                                _toAyah = _fromAyah;
-                              }
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('to_ayah_label'.tr(), style: TextStyle(fontFamily: 'Cairo', color: isDark ? Colors.white70 : Colors.black54)),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _toArabicNumber(context, _toAyah.round().toString()), 
-                              style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, color: primaryColor)
-                            ),
-                          ),
-                        ],
-                      ),
-                      SliderTheme(
-                        data: SliderThemeData(
-                          activeTrackColor: primaryColor,
-                          inactiveTrackColor: primaryColor.withOpacity(0.2),
-                          thumbColor: accentColor,
-                          overlayColor: accentColor.withOpacity(0.2),
-                          valueIndicatorColor: accentColor,
-                        ),
-                        child: Slider(
-                          value: _toAyah,
-                          min: 1,
-                          max: _maxAyah.toDouble(),
-                          divisions: _maxAyah > 1 ? _maxAyah - 1 : 1,
-                          label: _toArabicNumber(context, _toAyah.round().toString()),
-                          onChanged: (value) {
-                            setState(() {
-                              if (value >= _fromAyah) {
-                                _toAyah = value;
-                              }
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _navigateToTasmi(_fromAyah.round(), _toAyah.round()),
-                          icon: const Icon(Icons.mic_rounded),
-                          label: Text(widget.returnSelectionOnly ? 'start_hifz_action'.tr() : 'start_tasmi_action'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold, fontSize: 16)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
               ),
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildOptionCard({
@@ -317,13 +351,13 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? primaryColor.withOpacity(isDark ? 0.2 : 0.05) 
+          color: isSelected
+              ? primaryColor.withOpacity(isDark ? 0.2 : 0.05)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected 
-                ? primaryColor 
+            color: isSelected
+                ? primaryColor
                 : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
             width: isSelected ? 2 : 1,
           ),
@@ -333,15 +367,15 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isSelected 
-                    ? primaryColor 
+                color: isSelected
+                    ? primaryColor
                     : (isDark ? Colors.white10 : Colors.grey[100]),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                icon, 
-                color: isSelected 
-                    ? Colors.white 
+                icon,
+                color: isSelected
+                    ? Colors.white
                     : (isDark ? Colors.white70 : primaryColor),
                 size: 24,
               ),
@@ -352,7 +386,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title, 
+                    title,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Cairo',
@@ -372,7 +406,9 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
               ),
             ),
             Icon(
-              isSelected ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_left_rounded,
+              isSelected
+                  ? Icons.keyboard_arrow_up_rounded
+                  : Icons.keyboard_arrow_left_rounded,
               color: isDark ? Colors.white54 : Colors.black38,
             ),
           ],

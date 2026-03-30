@@ -5,7 +5,6 @@ import 'package:sila_app/core/services/prefs_service.dart';
 part 'last_notification_provider.g.dart';
 
 class LastNotification {
-
   LastNotification({
     required this.id,
     required this.time,
@@ -42,7 +41,7 @@ Future<LastNotification?> lastNotification(LastNotificationRef ref) async {
   try {
     final List<dynamic> list = jsonDecode(jsonStr);
     final now = DateTime.now();
-    
+
     // Find notifications that have already passed, sorted by time descending
     final passed = list
         .map((e) => LastNotification.fromJson(e))

@@ -8,7 +8,6 @@ import 'package:sila_app/features/notifications/data/models/user_activity_log.da
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
 
 class IsarNotificationRepository implements INotificationRepository {
-
   IsarNotificationRepository(this._isar);
   final Isar _isar;
 
@@ -67,7 +66,8 @@ class IsarNotificationRepository implements INotificationRepository {
         .toList();
   }
 
-  NotificationContent _mapToContent(Map<String, dynamic> map, Map<String, Map<String, dynamic>> trMap) {
+  NotificationContent _mapToContent(
+      Map<String, dynamic> map, Map<String, Map<String, dynamic>> trMap) {
     final content = NotificationContent();
     content.contentId = map['id'] as String;
     content.category = (map['category'] as String?) ?? 'general';

@@ -16,7 +16,8 @@ part 'audio_controller.g.dart';
 class _AudioPlayerSingleton {
   factory _AudioPlayerSingleton() => _instance;
   _AudioPlayerSingleton._internal();
-  static final _AudioPlayerSingleton _instance = _AudioPlayerSingleton._internal();
+  static final _AudioPlayerSingleton _instance =
+      _AudioPlayerSingleton._internal();
 
   AudioPlayer player = AudioPlayer();
   bool isLoading = false;
@@ -25,7 +26,6 @@ class _AudioPlayerSingleton {
 }
 
 class AudioCacheStats {
-
   const AudioCacheStats({
     required this.totalBytes,
     required this.totalFiles,
@@ -47,7 +47,7 @@ class AudioController extends _$AudioController {
   Stream<void> get onPlayerComplete => _singleton.player.playerStateStream
       .where((state) => state.processingState == ProcessingState.completed)
       .map((_) {});
-  
+
   @override
   Raw<AudioPlayer> build() {
     // Dispose is handled by the singleton, not by individual instances
@@ -82,18 +82,18 @@ class AudioController extends _$AudioController {
       }
 
       await _singleton.player.stop();
-      
+
       _singleton.currentUrl = url;
 
       final source = await _resolvePlayableSource(url);
-      
+
       if (source.startsWith('http')) {
         await _singleton.player.setUrl(source);
       } else {
         await _touchCacheFile(source);
         await _singleton.player.setFilePath(source);
       }
-      
+
       if (surahName != null && ayahNumber != null) {
         await ref.read(analyticsServiceProvider).logPlayAudio(
               surahName: surahName,
@@ -105,7 +105,6 @@ class AudioController extends _$AudioController {
       await _singleton.player.play();
 
       unawaited(_prefetchNextAyah(url));
-      
     } on PlayerException {
       _singleton.currentUrl = null;
       rethrow;
@@ -136,7 +135,8 @@ class AudioController extends _$AudioController {
   Future<AudioCacheStats> getCacheStats() async {
     final root = await _audioCacheRoot();
     if (!root.existsSync()) {
-      return const AudioCacheStats(totalBytes: 0, totalFiles: 0, bytesByFolder: {});
+      return const AudioCacheStats(
+          totalBytes: 0, totalFiles: 0, bytesByFolder: {});
     }
 
     final byFolder = <String, int>{};
@@ -176,7 +176,8 @@ class AudioController extends _$AudioController {
   Future<void> clearReciterCacheById(String reciterId) async {
     final reciter = ReciterService.getById(reciterId);
     final root = await _audioCacheRoot();
-    final reciterDir = Directory('${root.path}${Platform.pathSeparator}${reciter.folderName}');
+    final reciterDir =
+        Directory('${root.path}${Platform.pathSeparator}${reciter.folderName}');
     if (reciterDir.existsSync()) {
       reciterDir.deleteSync(recursive: true);
     }
@@ -198,12 +199,14 @@ class AudioController extends _$AudioController {
       final fileName = segments.last;
 
       final appDir = await getApplicationDocumentsDirectory();
-      final reciterDir = Directory('${appDir.path}${Platform.pathSeparator}audio_cache${Platform.pathSeparator}$folder');
+      final reciterDir = Directory(
+          '${appDir.path}${Platform.pathSeparator}audio_cache${Platform.pathSeparator}$folder');
       if (!reciterDir.existsSync()) {
         reciterDir.createSync(recursive: true);
       }
 
-      final localFile = File('${reciterDir.path}${Platform.pathSeparator}$fileName');
+      final localFile =
+          File('${reciterDir.path}${Platform.pathSeparator}$fileName');
       if (localFile.existsSync()) {
         await _touchCacheFile(localFile.path);
         return localFile.path;
@@ -213,7 +216,6 @@ class AudioController extends _$AudioController {
 
       // Start instantly from network on first play to avoid long wait.
       return url;
-
     } catch (_) {
       return url;
     }
@@ -269,12 +271,14 @@ class AudioController extends _$AudioController {
       final nextUrl = '${uri.scheme}://${uri.host}/data/$folder/$nextFile';
 
       final appDir = await getApplicationDocumentsDirectory();
-      final reciterDir = Directory('${appDir.path}${Platform.pathSeparator}audio_cache${Platform.pathSeparator}$folder');
+      final reciterDir = Directory(
+          '${appDir.path}${Platform.pathSeparator}audio_cache${Platform.pathSeparator}$folder');
       if (!reciterDir.existsSync()) {
         reciterDir.createSync(recursive: true);
       }
 
-      final nextLocal = File('${reciterDir.path}${Platform.pathSeparator}$nextFile');
+      final nextLocal =
+          File('${reciterDir.path}${Platform.pathSeparator}$nextFile');
       if (nextLocal.existsSync() || _activeDownloads.contains(nextLocal.path)) {
         return;
       }
@@ -294,7 +298,8 @@ class AudioController extends _$AudioController {
     } catch (_) {}
   }
 
-  Future<void> _ensureCacheSizeAvailable({required int approxIncomingBytes}) async {
+  Future<void> _ensureCacheSizeAvailable(
+      {required int approxIncomingBytes}) async {
     final root = await _audioCacheRoot();
     if (!root.existsSync()) return;
 

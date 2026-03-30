@@ -13,11 +13,12 @@ class QuranSettingsController extends _$QuranSettingsController {
   @override
   FutureOr<QuranSettings> build() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     return QuranSettings(
       fontSize: prefs.getDouble(_fontSizeKey) ?? 26,
       fontFamily: prefs.getString(_fontFamilyKey) ?? 'Scheherazade New',
-      themeMode: QuranThemeMode.values[prefs.getInt(_themeModeKey) ?? 2], // Default to Sepia
+      themeMode: QuranThemeMode
+          .values[prefs.getInt(_themeModeKey) ?? 2], // Default to Sepia
     );
   }
 

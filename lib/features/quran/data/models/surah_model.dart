@@ -6,7 +6,6 @@ part 'surah_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class SurahModel extends Surah {
-
   const SurahModel({
     required super.number,
     required super.nameArabic,

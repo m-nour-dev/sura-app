@@ -12,7 +12,6 @@ final notificationSettingsProvider = StateNotifierProvider.family<
 
 class NotificationSettingsController
     extends StateNotifier<AsyncValue<NotificationSettings>> {
-
   NotificationSettingsController(this._ref, this._featureKey)
       : super(const AsyncValue.loading()) {
     _load();

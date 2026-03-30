@@ -13,7 +13,6 @@ import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.d
 import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
 class QuranDetailsSheet extends ConsumerStatefulWidget {
-
   const QuranDetailsSheet({
     super.key,
     required this.surahNumber,
@@ -47,30 +46,34 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
     final quranDataAsync = ref.watch(quranDataProvider);
     final settings = widget.settings;
     final isDark = settings.themeMode == QuranThemeMode.dark;
-    
+
     // Determine title based on language
-    final title = widget.showTafsir 
-        ? 'tafsir_label'.tr()
-        : 'translation_label'.tr();
+    final title =
+        widget.showTafsir ? 'tafsir_label'.tr() : 'translation_label'.tr();
 
     return quranDataAsync.when(
       data: (quranData) {
         final isArabic = context.locale.languageCode == 'ar';
         final isTurkish = context.locale.languageCode == 'tr';
-        
+
         final content = widget.showTafsir
-            ? (quranData.tafsir['${activeSurah}_$activeAyah'] ?? (isArabic ? 'لا يوجد تفسير متوفر حالياً' : 'Tefsir bulunamadı'))
-            : (quranData.translation['${activeSurah}_$activeAyah'] ?? (isArabic ? 'لا توجد ترجمة متوفرة' : 'Çeviri bulunamadı'));
-        
-        final surahName = SurahUtils.getLocalizedSurahName(context, activeSurah);
+            ? (quranData.tafsir['${activeSurah}_$activeAyah'] ??
+                (isArabic ? 'لا يوجد تفسير متوفر حالياً' : 'Tefsir bulunamadı'))
+            : (quranData.translation['${activeSurah}_$activeAyah'] ??
+                (isArabic ? 'لا توجد ترجمة متوفرة' : 'Çeviri bulunamadı'));
+
+        final surahName =
+            SurahUtils.getLocalizedSurahName(context, activeSurah);
         final verseText = quran_lib.getVerse(activeSurah, activeAyah);
 
         return BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
             decoration: BoxDecoration(
-              color: _getBackgroundColor(settings.themeMode).withOpacity(isDark ? 0.85 : 0.95),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+              color: _getBackgroundColor(settings.themeMode)
+                  .withOpacity(isDark ? 0.85 : 0.95),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(40)),
               boxShadow: [
                 BoxShadow(
                   color: _getAccentColor(settings.themeMode).withOpacity(0.15),
@@ -79,7 +82,8 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                 )
               ],
               border: Border.all(
-                color: _getAccentColor(settings.themeMode).withOpacity(isDark ? 0.2 : 0.4),
+                color: _getAccentColor(settings.themeMode)
+                    .withOpacity(isDark ? 0.2 : 0.4),
                 width: 1.0,
               ),
             ),
@@ -114,24 +118,27 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                                     activeAyah--;
                                   } else if (activeSurah > 1) {
                                     activeSurah--;
-                                    activeAyah = quran_lib.getVerseCount(activeSurah);
+                                    activeAyah =
+                                        quran_lib.getVerseCount(activeSurah);
                                   }
                                 });
                               },
                         settings: settings,
                       ),
-
                       Expanded(
                         child: Column(
                           children: [
-                            Text(title,
+                            Text(
+                              title,
                               style: GoogleFonts.cairo(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
                                 color: _getTextColor(settings.themeMode),
                               ),
                             ),
-                            Text('surah_ayah_label'.tr(args: [surahName, activeAyah.toString()]),
+                            Text(
+                              'surah_ayah_label'
+                                  .tr(args: [surahName, activeAyah.toString()]),
                               style: GoogleFonts.cairo(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -141,14 +148,15 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                           ],
                         ),
                       ),
-
                       _buildNavButton(
                         icon: Icons.arrow_forward_ios_rounded,
-                        onPressed: (activeSurah == 114 && activeAyah == quran_lib.getVerseCount(114))
+                        onPressed: (activeSurah == 114 &&
+                                activeAyah == quran_lib.getVerseCount(114))
                             ? null
                             : () {
                                 setState(() {
-                                  if (activeAyah < quran_lib.getVerseCount(activeSurah)) {
+                                  if (activeAyah <
+                                      quran_lib.getVerseCount(activeSurah)) {
                                     activeAyah++;
                                   } else if (activeSurah < 114) {
                                     activeSurah++;
@@ -167,21 +175,27 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: _getAccentColor(settings.themeMode).withOpacity(0.05),
+                      color:
+                          _getAccentColor(settings.themeMode).withOpacity(0.05),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _getAccentColor(settings.themeMode).withOpacity(0.15)),
+                      border: Border.all(
+                          color: _getAccentColor(settings.themeMode)
+                              .withOpacity(0.15)),
                     ),
                     child: Column(
                       children: [
                         GestureDetector(
-                          onTap: _isAudioBuffering ? null : () => _playAyahAudio(activeSurah, activeAyah),
+                          onTap: _isAudioBuffering
+                              ? null
+                              : () => _playAyahAudio(activeSurah, activeAyah),
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
                                     _getAccentColor(settings.themeMode),
-                                    _getAccentColor(settings.themeMode).withOpacity(0.7)
+                                    _getAccentColor(settings.themeMode)
+                                        .withOpacity(0.7)
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -189,17 +203,24 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                      color: _getAccentColor(settings.themeMode).withOpacity(0.4),
+                                      color: _getAccentColor(settings.themeMode)
+                                          .withOpacity(0.4),
                                       blurRadius: 15,
                                       offset: const Offset(0, 6))
                                 ]),
                             child: _isAudioBuffering
-                                ? const SizedBox(width: 32, height: 32, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
-                                : const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 32),
+                                ? const SizedBox(
+                                    width: 32,
+                                    height: 32,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2.2, color: Colors.white))
+                                : const Icon(Icons.play_arrow_rounded,
+                                    color: Colors.white, size: 32),
                           ),
                         ),
                         const SizedBox(height: 20),
-                        Text('﴿ $verseText ﴾',
+                        Text(
+                          '﴿ $verseText ﴾',
                           textAlign: TextAlign.center,
                           textDirection: ui.TextDirection.rtl,
                           style: TextStyle(
@@ -214,43 +235,53 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                     ),
                   ),
 
-                   const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                    // Content
-                    Text(widget.showTafsir ? 'tafsir_label'.tr() : 'translation_label'.tr(),
-                      style: GoogleFonts.cairo(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: _getAccentColor(settings.themeMode),
-                      ),
+                  // Content
+                  Text(
+                    widget.showTafsir
+                        ? 'tafsir_label'.tr()
+                        : 'translation_label'.tr(),
+                    style: GoogleFonts.cairo(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _getAccentColor(settings.themeMode),
                     ),
-                    const SizedBox(height: 12),
-                    
-                    Text(content.replaceAll('\n', '\n\n'),
-                      textAlign: widget.showTafsir ? TextAlign.justify : TextAlign.left,
-                      textDirection: widget.showTafsir ? ui.TextDirection.rtl : ui.TextDirection.ltr,
-                      style: TextStyle(
-                        fontFamily: widget.showTafsir ? settings.fontFamily : 'Roboto',
-                        fontSize: settings.fontSize * 0.9,
-                        height: widget.showTafsir ? 2.2 : 1.6,
-                        color: _getTextColor(settings.themeMode).withOpacity(0.9),
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  Text(
+                    content.replaceAll('\n', '\n\n'),
+                    textAlign:
+                        widget.showTafsir ? TextAlign.justify : TextAlign.left,
+                    textDirection: widget.showTafsir
+                        ? ui.TextDirection.rtl
+                        : ui.TextDirection.ltr,
+                    style: TextStyle(
+                      fontFamily:
+                          widget.showTafsir ? settings.fontFamily : 'Roboto',
+                      fontSize: settings.fontSize * 0.9,
+                      height: widget.showTafsir ? 2.2 : 1.6,
+                      color: _getTextColor(settings.themeMode).withOpacity(0.9),
                     ),
+                  ),
 
-                   const SizedBox(height: 48),
+                  const SizedBox(height: 48),
 
-                   ElevatedButton(
-                     style: ElevatedButton.styleFrom(
-                       backgroundColor: _getAccentColor(settings.themeMode),
-                       foregroundColor: Colors.white,
-                       padding: const EdgeInsets.symmetric(vertical: 18),
-                       elevation: 4,
-                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                     ),
-                     onPressed: () => Navigator.pop(context),
-                     child: Text('close'.tr(),
-                       style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold)),
-                   ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _getAccentColor(settings.themeMode),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('close'.tr(),
+                        style: GoogleFonts.cairo(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -258,12 +289,17 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
           ),
         );
       },
-      loading: () => const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator())),
+      loading: () => const Center(
+          child: Padding(
+              padding: EdgeInsets.all(40), child: CircularProgressIndicator())),
       error: (e, s) => Center(child: Text('Error: $e')),
     );
   }
 
-  Widget _buildNavButton({required IconData icon, required VoidCallback? onPressed, required QuranSettings settings}) {
+  Widget _buildNavButton(
+      {required IconData icon,
+      required VoidCallback? onPressed,
+      required QuranSettings settings}) {
     return Container(
       decoration: BoxDecoration(
         color: _getAccentColor(settings.themeMode).withOpacity(0.1),
@@ -280,7 +316,9 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
 
   Future<void> _playAyahAudio(int surahNum, int ayahNum) async {
     setState(() => _isAudioBuffering = true);
-    final url = ref.read(reciterControllerProvider.notifier).buildAyahUrl(surahNum, ayahNum);
+    final url = ref
+        .read(reciterControllerProvider.notifier)
+        .buildAyahUrl(surahNum, ayahNum);
     try {
       await ref.read(audioControllerProvider.notifier).playAudio(
             url,
@@ -314,7 +352,11 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
   }
 }
 
-void showQuranDetailsSheet(BuildContext context, {required int surahNumber, required int ayahNumber, required bool showTafsir, required QuranSettings settings}) {
+void showQuranDetailsSheet(BuildContext context,
+    {required int surahNumber,
+    required int ayahNumber,
+    required bool showTafsir,
+    required QuranSettings settings}) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,

@@ -10,9 +10,8 @@ import 'package:sila_app/features/vefa/presentation/widgets/add_vefa_contact_she
 import 'package:sila_app/features/vefa/presentation/widgets/vefa_card.dart';
 
 class VefaPage extends ConsumerWidget {
-
   const VefaPage({
-    super.key, 
+    super.key,
     this.isSelectionMode = false,
   });
   final bool isSelectionMode;
@@ -21,7 +20,7 @@ class VefaPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isarAsync = ref.watch(isarInstanceProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -36,7 +35,8 @@ class VefaPage extends ConsumerWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Text(
               'vefa_list_desc'.tr(),
               textAlign: TextAlign.center,
@@ -49,92 +49,110 @@ class VefaPage extends ConsumerWidget {
           ),
           Expanded(
             child: isarAsync.when(
-        data: (_) {
-           final vefaListState = ref.watch(vefaListControllerProvider);
-           return vefaListState.when(
-            data: (list) {
-              if (list.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppTheme.darkSurfaceColor : AppTheme.surfaceColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.diversity_1, 
-                          size: 64, 
-                          color: isDark ? AppTheme.accentColor : AppTheme.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'vefa_list_empty'.tr(),
-                        style: GoogleFonts.cairo(
-                          color: isDark ? Colors.white70 : Colors.grey[600],
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      if (isSelectionMode) ...[
-                         const SizedBox(height: 24),
-                         FilledButton.icon(
-                           style: FilledButton.styleFrom(
-                             backgroundColor: AppTheme.accentColor,
-                             foregroundColor: Colors.white,
-                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                             shape: RoundedRectangleBorder(
-                               borderRadius: BorderRadius.circular(12),
-                             ),
-                           ),
-                           onPressed: () {
-                             showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              data: (_) {
+                final vefaListState = ref.watch(vefaListControllerProvider);
+                return vefaListState.when(
+                  data: (list) {
+                    if (list.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? AppTheme.darkSurfaceColor
+                                    : AppTheme.surfaceColor,
+                                shape: BoxShape.circle,
                               ),
-                              builder: (context) => const AddVefaContactSheet(),
-                            );
-                           },
-                           icon: const Icon(Icons.add),
-                           label: Text('add_new'.tr(), style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                         )
-                      ]
-                    ],
-                  ),
+                              child: Icon(
+                                Icons.diversity_1,
+                                size: 64,
+                                color: isDark
+                                    ? AppTheme.accentColor
+                                    : AppTheme.primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'vefa_list_empty'.tr(),
+                              style: GoogleFonts.cairo(
+                                color:
+                                    isDark ? Colors.white70 : Colors.grey[600],
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (isSelectionMode) ...[
+                              const SizedBox(height: 24),
+                              FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppTheme.accentColor,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(24)),
+                                    ),
+                                    builder: (context) =>
+                                        const AddVefaContactSheet(),
+                                  );
+                                },
+                                icon: const Icon(Icons.add),
+                                label: Text('add_new'.tr(),
+                                    style: GoogleFonts.cairo(
+                                        fontWeight: FontWeight.bold)),
+                              )
+                            ]
+                          ],
+                        ),
+                      );
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 100, top: 8),
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        final person = list[index];
+                        return VefaCard(
+                          person: person,
+                          isSelectionMode: true,
+                          onTap: () {
+                            if (isSelectionMode) {
+                              ref
+                                  .read(vefaListControllerProvider.notifier)
+                                  .giftThawab(person.id!);
+                            }
+                            _showDuaBottomSheet(context, ref, person);
+                          },
+                          onDelete: () {
+                            ref
+                                .read(vefaListControllerProvider.notifier)
+                                .deletePerson(person.id!);
+                          },
+                        );
+                      },
+                    );
+                  },
+                  error: (err, stack) => Center(
+                      child: Text('Error: $err', style: GoogleFonts.cairo())),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                 );
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.only(bottom: 100, top: 8),
-                itemCount: list.length,
-                itemBuilder: (context, index) {
-                  final person = list[index];
-                  return VefaCard(
-                    person: person,
-                    isSelectionMode: true, 
-                    onTap: () {
-                      if (isSelectionMode) {
-                        ref.read(vefaListControllerProvider.notifier).giftThawab(person.id!);
-                      }
-                      _showDuaBottomSheet(context, ref, person);
-                    },
-                    onDelete: () {
-                       ref.read(vefaListControllerProvider.notifier).deletePerson(person.id!);
-                    },
-                  );
-                },
-              );
-            },
-            error: (err, stack) => Center(child: Text('Error: $err', style: GoogleFonts.cairo())),
-            loading: () => const Center(child: CircularProgressIndicator()),
-          );
-        },
-        error: (err, stack) => Center(child: Text('Database Error: $err', style: GoogleFonts.cairo())),
-        loading: () => const Center(child: CircularProgressIndicator()),
+              },
+              error: (err, stack) => Center(
+                  child:
+                      Text('Database Error: $err', style: GoogleFonts.cairo())),
+              loading: () => const Center(child: CircularProgressIndicator()),
             ),
           ),
         ],
@@ -146,14 +164,17 @@ class VefaPage extends ConsumerWidget {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
-            backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
+            backgroundColor: isDark
+                ? AppTheme.darkBackgroundColor
+                : AppTheme.backgroundColor,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             builder: (context) => const AddVefaContactSheet(),
           );
         },
-        label: Text('add_new'.tr(), style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        label: Text('add_new'.tr(),
+            style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
         icon: const Icon(Icons.add),
       ),
     );
@@ -162,11 +183,12 @@ class VefaPage extends ConsumerWidget {
   void _showDuaBottomSheet(BuildContext context, WidgetRef ref, person) {
     final duaaText = 'duaa_safe_template'.tr(args: [person.name]);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
+      backgroundColor:
+          isDark ? AppTheme.darkBackgroundColor : AppTheme.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -189,7 +211,7 @@ class VefaPage extends ConsumerWidget {
               Text(
                 'duaa_suggested_title'.tr(),
                 style: GoogleFonts.cairo(
-                  fontSize: 22, 
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : AppTheme.primaryColor,
                 ),
@@ -207,7 +229,9 @@ class VefaPage extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: isDark ? AppTheme.darkSurfaceColor : AppTheme.surfaceColor,
+                  color: isDark
+                      ? AppTheme.darkSurfaceColor
+                      : AppTheme.surfaceColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: AppTheme.accentColor.withValues(alpha: 0.3),

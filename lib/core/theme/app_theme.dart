@@ -6,7 +6,8 @@ class AppTheme {
   static const Color primaryColor = Color(0xFF064E3B); // Emerald Deep
   static const Color accentColor = Color(0xFFD97706); // Islamic Gold
   static const Color backgroundColor = Color(0xFFFDFBF7); // Parchment
-  static const Color surfaceColor = Color(0xFFF9F5EC); // Soft Parchment (Legacy/Design System match)
+  static const Color surfaceColor =
+      Color(0xFFF9F5EC); // Soft Parchment (Legacy/Design System match)
   static const Color darkBackgroundColor = Color(0xFF0F172A); // Night Deep
   static const Color goldLight = Color(0xFFFCD34D); // Gold Light
   static const Color navyHasanat = Color(0xFF1E3A5F); // Navy Hasanat
@@ -45,9 +46,12 @@ class AppTheme {
         background: backgroundColor,
       ),
       scaffoldBackgroundColor: backgroundColor,
-      textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme).copyWith(
-        displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: primaryColor),
-        titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: primaryColor),
+      textTheme:
+          GoogleFonts.outfitTextTheme(ThemeData.light().textTheme).copyWith(
+        displayLarge: GoogleFonts.outfit(
+            fontWeight: FontWeight.bold, color: primaryColor),
+        titleLarge: GoogleFonts.outfit(
+            fontWeight: FontWeight.w600, color: primaryColor),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -71,7 +75,8 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
-        primary: const Color(0xFF10B981), // Minted Emerald for better visibility in dark
+        primary: const Color(
+            0xFF10B981), // Minted Emerald for better visibility in dark
         secondary: const Color(0xFFF59E0B), // Glowing Saffron
         surface: darkSurfaceColor,
         background: darkBackgroundColor,

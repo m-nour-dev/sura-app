@@ -5,27 +5,28 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class QuranData {
-
   QuranData({
     required this.tafsir,
     required this.tajweed,
     required this.translation,
   });
 
-  factory QuranData.empty() => QuranData(tafsir: {}, tajweed: {}, translation: {});
+  factory QuranData.empty() =>
+      QuranData(tafsir: {}, tajweed: {}, translation: {});
   final Map<String, String> tafsir;
   final Map<String, String> tajweed;
   final Map<String, String> translation;
 }
 
-final appLocaleProvider = StateProvider<Locale>((ref) => const Locale('ar', 'SA'));
+final appLocaleProvider =
+    StateProvider<Locale>((ref) => const Locale('ar', 'SA'));
 
 final quranDataProvider = FutureProvider<QuranData>((ref) async {
   try {
     // Watch the locale provider to re-trigger this future when locale changes
     final locale = ref.watch(appLocaleProvider);
     final languageCode = locale.languageCode;
-    
+
     final isTurkish = languageCode == 'tr';
     final isEnglish = languageCode == 'en';
     final isFrench = languageCode == 'fr';
@@ -51,7 +52,7 @@ final quranDataProvider = FutureProvider<QuranData>((ref) async {
       rootBundle.loadString(tafseerPath),
       rootBundle.loadString(tajweedPath),
     ];
-    
+
     if (quranTranslationPath != null) {
       futures.add(rootBundle.loadString(quranTranslationPath));
     }
@@ -60,7 +61,7 @@ final quranDataProvider = FutureProvider<QuranData>((ref) async {
 
     final Map<String, dynamic> tafsirRaw = json.decode(results[0]);
     final Map<String, dynamic> tajweedRaw = json.decode(results[1]);
-    
+
     Map<String, dynamic> trRaw = {};
     if (quranTranslationPath != null) {
       trRaw = json.decode(results[2]);
@@ -81,7 +82,8 @@ final quranDataProvider = FutureProvider<QuranData>((ref) async {
       final List<dynamic> trList = trRaw['quran'];
       for (var item in trList) {
         if (item['chapter'] != null && item['verse'] != null) {
-          processedTr['${item['chapter']}_${item['verse']}'] = (item['text'] ?? '').toString();
+          processedTr['${item['chapter']}_${item['verse']}'] =
+              (item['text'] ?? '').toString();
         }
       }
     } else {

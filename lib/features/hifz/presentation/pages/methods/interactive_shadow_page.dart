@@ -20,7 +20,6 @@ import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
 import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
 
-
 const Color _successColor = AppTheme.successGreen;
 const Color _hasanatGold = AppTheme.goldLight;
 const Color _errorColor = Color(0xFFF87171);
@@ -142,251 +141,256 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
     final textColor = QuranUIUtils.getTextColor(settings.themeMode);
 
     return Directionality(
-        textDirection: context.locale.languageCode == 'ar'
-            ? ui.TextDirection.rtl
-            : ui.TextDirection.ltr,
-        child: Scaffold(
-          backgroundColor: bgColor,
-          body: SafeArea(
-            child: Stack(
-              children: [
-                state.finished
-                    ? _SessionResultsView(
-                        state: state,
-                        onHome: () =>
-                            Navigator.popUntil(context, (r) => r.isFirst),
-                        onDedicate: () =>
-                            controller.openThawaabDedication(context),
-                        onRestart: () {
+      textDirection: context.locale.languageCode == 'ar'
+          ? ui.TextDirection.rtl
+          : ui.TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              state.finished
+                  ? _SessionResultsView(
+                      state: state,
+                      onHome: () =>
+                          Navigator.popUntil(context, (r) => r.isFirst),
+                      onDedicate: () =>
+                          controller.openThawaabDedication(context),
+                      onRestart: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => InteractiveShadowPage(
+                              surahNumber: state.surahNumber,
+                              fromVerse: state.fromVerse,
+                              toVerse: state.toVerse,
+                            ),
+                          ),
+                        );
+                      },
+                      onContinue: () {
+                        final resumeVerse =
+                            state.fromVerse + state.currentVerseIndex;
+                        if (resumeVerse <= state.toVerse) {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                               builder: (_) => InteractiveShadowPage(
                                 surahNumber: state.surahNumber,
-                                fromVerse: state.fromVerse,
+                                fromVerse: resumeVerse,
                                 toVerse: state.toVerse,
                               ),
                             ),
                           );
-                        },
-                        onContinue: () {
-                          final resumeVerse =
-                              state.fromVerse + state.currentVerseIndex;
-                          if (resumeVerse <= state.toVerse) {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => InteractiveShadowPage(
-                                  surahNumber: state.surahNumber,
-                                  fromVerse: resumeVerse,
-                                  toVerse: state.toVerse,
-                                ),
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    )
+                  : Column(
+                      children: [
+                        _TopHeader(
+                          surahName: SurahUtils.getLocalizedSurahName(
+                              context, state.surahNumber),
+                          stage: state.currentStage,
+                          reciterLabel: reciter?.nameArabic.split(' ').last ??
+                              'default_reciter_name'.tr(),
+                          onReciterTap: () => showReciterPickerSheet(context),
+                          onMomentTap: () {
+                            final verseIndex =
+                                state.fromVerse + state.currentVerseIndex;
+                            _showMomentCapture(
+                              context,
+                              quran.getVerse(
+                                state.surahNumber,
+                                verseIndex,
+                                verseEndSymbol: false,
                               ),
+                              SurahUtils.getLocalizedSurahName(
+                                  context, state.surahNumber),
                             );
-                          } else {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                      )
-                    : Column(
-                        children: [
-                          _TopHeader(
-                            surahName: SurahUtils.getLocalizedSurahName(
-                                context, state.surahNumber),
-                            stage: state.currentStage,
-                            reciterLabel: reciter?.nameArabic.split(' ').last ??
-                                'default_reciter_name'.tr(),
-                            onReciterTap: () => showReciterPickerSheet(context),
-                            onMomentTap: () {
-                              final verseIndex =
-                                  state.fromVerse + state.currentVerseIndex;
-                              _showMomentCapture(
-                                context,
-                                quran.getVerse(
-                                  state.surahNumber,
-                                  verseIndex,
-                                  verseEndSymbol: false,
+                          },
+                        ),
+                        _StageBanner(stage: state.currentStage),
+                        Expanded(
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 350),
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, 0.05),
+                                    end: Offset.zero,
+                                  ).animate(CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeOut)),
+                                  child: child,
                                 ),
-                                SurahUtils.getLocalizedSurahName(
-                                    context, state.surahNumber),
                               );
                             },
-                          ),
-                          _StageBanner(stage: state.currentStage),
-                          Expanded(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 350),
-                              transitionBuilder: (child, animation) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(0, 0.05),
-                                      end: Offset.zero,
-                                    ).animate(CurvedAnimation(
-                                        parent: animation,
-                                        curve: Curves.easeOut)),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: _StageContent(
-                                key: ValueKey(state.currentStage * 100 +
-                                    state.currentVerseIndex),
-                                state: state,
-                                flashController: _flashController,
-                              ),
+                            child: _StageContent(
+                              key: ValueKey(state.currentStage * 100 +
+                                  state.currentVerseIndex),
+                              state: state,
+                              flashController: _flashController,
                             ),
                           ),
-                          if (state.currentStage <= 2)
-                            _AudioBar(
-                              isPlaying: state.isPlaying,
-                              waveController: _waveController,
-                              onToggle: controller.toggleAudio,
-                              reciterLabel:
-                                  reciter?.nameArabic.split(' ').last ??
-                                      'default_reciter_name'.tr(),
-                            ),
+                        ),
+                        if (state.currentStage <= 2)
+                          _AudioBar(
+                            isPlaying: state.isPlaying,
+                            waveController: _waveController,
+                            onToggle: controller.toggleAudio,
+                            reciterLabel: reciter?.nameArabic.split(' ').last ??
+                                'default_reciter_name'.tr(),
+                          ),
+                        const SizedBox(height: 8),
+                        _MicBar(
+                          isListening: state.isMicListening,
+                          onToggle: controller.toggleMic,
+                        ),
+                        if (state.errorMessage != null) ...[
                           const SizedBox(height: 8),
-                          _MicBar(
-                            isListening: state.isMicListening,
-                            onToggle: controller.toggleMic,
-                          ),
-                          if (state.errorMessage != null) ...[
-                            const SizedBox(height: 8),
-                            _InlineStatusMessage(message: state.errorMessage!),
-                          ],
-                          if (state.currentStage >= 3) ...[
-                            const SizedBox(height: 8),
-                            const _WritingModeBar(),
-                          ],
-                          const SizedBox(height: 10),
-                          _StatsRow(
-                            correct: state.correctWords,
-                            wrong: state.wrongWords,
-                            hasanat: state.sessionHashanat,
-                          ),
-                          const SizedBox(height: 10),
-                          _InstructionCard(stage: state.currentStage),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: _isNextBusy
-                                      ? null
-                                      : () async {
-                                          setState(() => _isNextBusy = true);
-                                          try {
-                                            await controller.nextStage();
-                                          } finally {
-                                            if (mounted) {
-                                              setState(
-                                                  () => _isNextBusy = false);
-                                            }
+                          _InlineStatusMessage(message: state.errorMessage!),
+                        ],
+                        if (state.currentStage >= 3) ...[
+                          const SizedBox(height: 8),
+                          const _WritingModeBar(),
+                        ],
+                        const SizedBox(height: 10),
+                        _StatsRow(
+                          correct: state.correctWords,
+                          wrong: state.wrongWords,
+                          hasanat: state.sessionHashanat,
+                        ),
+                        const SizedBox(height: 10),
+                        _InstructionCard(stage: state.currentStage),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _isNextBusy
+                                    ? null
+                                    : () async {
+                                        setState(() => _isNextBusy = true);
+                                        try {
+                                          await controller.nextStage();
+                                        } finally {
+                                          if (mounted) {
+                                            setState(() => _isNextBusy = false);
                                           }
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.primaryColor,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  ),
-                                  child: _isNextBusy
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : Text(
-                                          'next'.tr(),
-                                          style: GoogleFonts.cairo(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w700),
-                                        ),
+                                        }
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryColor,
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () async {
-                                      final confirmed = await showDialog<bool>(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                          backgroundColor: bgColor,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              side: BorderSide(color: textColor.withOpacity(0.1))),
-                                          title: Text(
-                                            'finish_session_title'.tr(),
-                                            style: GoogleFonts.cairo(
-                                                color: textColor,
-                                                fontWeight: FontWeight.w700),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          content: Text(
-                                            'finish_session_desc'.tr(),
-                                            style: GoogleFonts.cairo(
-                                                color: textColor.withOpacity(0.7),
-                                                fontSize: 13),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          actionsAlignment:
-                                              MainAxisAlignment.center,
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(ctx, false),
-                                              child: Text('cancel'.tr(),
-                                                  style: GoogleFonts.cairo(
-                                                      color: textColor.withOpacity(0.5))),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(ctx, true),
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor: const Color(0xFFEF4444),
-                                                  foregroundColor: Colors.white,
-                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                                              child: Text(
-                                                  'finish_session_btn'.tr(),
-                                                  style: GoogleFonts.cairo(
-                                                      fontWeight: FontWeight.w700)),
-                                            ),
-                                          ],
+                                child: _isNextBusy
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
                                         ),
-                                      );
-                                    if (confirmed == true && context.mounted) {
-                                      await controller.finishEarly();
-                                    }
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    side:
-                                        BorderSide(color: Colors.red.withOpacity(isDark ? 0.3 : 0.5), width: 1.5),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                  ),
-                                  child: Text(
-                                    'finish_session'.tr(),
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.red.withOpacity(isDark ? 0.7 : 0.8),
+                                      )
+                                    : Text(
+                                        'next'.tr(),
+                                        style: GoogleFonts.cairo(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      backgroundColor: bgColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          side: BorderSide(
+                                              color:
+                                                  textColor.withOpacity(0.1))),
+                                      title: Text(
+                                        'finish_session_title'.tr(),
+                                        style: GoogleFonts.cairo(
+                                            color: textColor,
+                                            fontWeight: FontWeight.w700),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      content: Text(
+                                        'finish_session_desc'.tr(),
+                                        style: GoogleFonts.cairo(
+                                            color: textColor.withOpacity(0.7),
+                                            fontSize: 13),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      actionsAlignment:
+                                          MainAxisAlignment.center,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(ctx, false),
+                                          child: Text('cancel'.tr(),
+                                              style: GoogleFonts.cairo(
+                                                  color: textColor
+                                                      .withOpacity(0.5))),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () =>
+                                              Navigator.pop(ctx, true),
+                                          style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color(0xFFEF4444),
+                                              foregroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8))),
+                                          child: Text('finish_session_btn'.tr(),
+                                              style: GoogleFonts.cairo(
+                                                  fontWeight: FontWeight.w700)),
+                                        ),
+                                      ],
                                     ),
+                                  );
+                                  if (confirmed == true && context.mounted) {
+                                    await controller.finishEarly();
+                                  }
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.red
+                                          .withOpacity(isDark ? 0.3 : 0.5),
+                                      width: 1.5),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                child: Text(
+                                  'finish_session'.tr(),
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.red
+                                        .withOpacity(isDark ? 0.7 : 0.8),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         const SizedBox(height: 8),
                       ],
                     ),
@@ -446,7 +450,7 @@ class _TopHeader extends ConsumerWidget {
             fontSize: 26,
             fontFamily: 'Scheherazade New',
             themeMode: QuranThemeMode.sepia);
-    
+
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -506,7 +510,8 @@ class _TopHeader extends ConsumerWidget {
               GestureDetector(
                 onTap: onReciterTap,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(16),
@@ -563,9 +568,8 @@ class _StageBanner extends ConsumerWidget {
             themeMode: QuranThemeMode.sepia);
     final isDark = settings.themeMode == QuranThemeMode.dark;
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
-    final bgColor = isDark
-        ? const Color(0xFF1E293B)
-        : accentColor.withOpacity(0.12);
+    final bgColor =
+        isDark ? const Color(0xFF1E293B) : accentColor.withOpacity(0.12);
     final textColor = isDark ? accentColor : accentColor;
 
     return Container(
@@ -612,8 +616,7 @@ class _StageContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pageState =
         context.findAncestorStateOfType<_InteractiveShadowPageState>();
-    final controller =
-        ref.read(interactiveShadowControllerProvider.notifier);
+    final controller = ref.read(interactiveShadowControllerProvider.notifier);
 
     final color = ColorTween(
       begin: Colors.transparent,
@@ -700,11 +703,10 @@ class _WordChip extends ConsumerWidget {
         child: Text(
           entry.word,
           style: TextStyle(
-            fontSize: 16, 
-            color: accentColor,
-            fontFamily: settings.fontFamily,
-            fontWeight: FontWeight.bold
-          ),
+              fontSize: 16,
+              color: accentColor,
+              fontFamily: settings.fontFamily,
+              fontWeight: FontWeight.bold),
         ),
       );
     }
@@ -720,12 +722,11 @@ class _WordChip extends ConsumerWidget {
         child: Text(
           entry.word,
           style: TextStyle(
-            fontSize: 22, 
-            color: textColor, 
-            height: 1.4,
-            fontFamily: settings.fontFamily,
-            fontWeight: FontWeight.w500
-          ),
+              fontSize: 22,
+              color: textColor,
+              height: 1.4,
+              fontFamily: settings.fontFamily,
+              fontWeight: FontWeight.w500),
         ),
       );
     }
@@ -744,12 +745,11 @@ class _WordChip extends ConsumerWidget {
         child: Text(
           entry.word,
           style: TextStyle(
-            fontSize: 22, 
-            color: const Color(0xFF10B981), 
-            height: 1.4,
-            fontFamily: settings.fontFamily,
-            fontWeight: FontWeight.bold
-          ),
+              fontSize: 22,
+              color: const Color(0xFF10B981),
+              height: 1.4,
+              fontFamily: settings.fontFamily,
+              fontWeight: FontWeight.bold),
         ),
       );
     }
@@ -762,15 +762,12 @@ class _WordChip extends ConsumerWidget {
         color: textColor.withOpacity(0.03),
         borderRadius: BorderRadius.circular(8),
         border: Border(
-            bottom: BorderSide(
-                color: textColor.withOpacity(0.2), width: 1.5)),
+            bottom: BorderSide(color: textColor.withOpacity(0.2), width: 1.5)),
       ),
       child: Text(
         '—' * dashCount,
         style: TextStyle(
-            fontSize: 16,
-            color: textColor.withOpacity(0.2),
-            letterSpacing: 4),
+            fontSize: 16, color: textColor.withOpacity(0.2), letterSpacing: 4),
       ),
     );
   }
@@ -798,9 +795,8 @@ class _AudioBar extends ConsumerWidget {
     final isDark = settings.themeMode == QuranThemeMode.dark;
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
     final textColor = QuranUIUtils.getTextColor(settings.themeMode);
-    final containerColor = isDark
-        ? const Color(0xFF1E293B)
-        : textColor.withOpacity(0.05);
+    final containerColor =
+        isDark ? const Color(0xFF1E293B) : textColor.withOpacity(0.05);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -808,8 +804,7 @@ class _AudioBar extends ConsumerWidget {
       decoration: BoxDecoration(
         color: containerColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-            color: accentColor.withOpacity(0.1), width: 0.5),
+        border: Border.all(color: accentColor.withOpacity(0.1), width: 0.5),
       ),
       child: Row(
         children: [
@@ -818,8 +813,8 @@ class _AudioBar extends ConsumerWidget {
             child: Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
-                  color: accentColor, shape: BoxShape.circle),
+              decoration:
+                  BoxDecoration(color: accentColor, shape: BoxShape.circle),
               child: Icon(
                 isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                 color: Colors.white,
@@ -834,10 +829,9 @@ class _AudioBar extends ConsumerWidget {
           const SizedBox(width: 8),
           Text(reciterLabel,
               style: GoogleFonts.cairo(
-                fontSize: 10, 
-                color: textColor.withOpacity(0.6),
-                fontWeight: FontWeight.w600
-              )),
+                  fontSize: 10,
+                  color: textColor.withOpacity(0.6),
+                  fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -915,16 +909,16 @@ class _InlineWordInput extends ConsumerWidget {
               textDirection: ui.TextDirection.rtl,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 22, 
-                  color: textColor, 
+                  fontSize: 22,
+                  color: textColor,
                   fontFamily: settings.fontFamily,
-                  fontWeight: FontWeight.w500
-              ),
+                  fontWeight: FontWeight.w500),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 hintText: '...',
-                hintStyle: TextStyle(color: textColor.withOpacity(0.2), fontSize: 18),
+                hintStyle:
+                    TextStyle(color: textColor.withOpacity(0.2), fontSize: 18),
               ),
               onChanged: onChanged,
               textInputAction: TextInputAction.next,
@@ -947,7 +941,7 @@ class _AudioWaveform extends ConsumerWidget {
             themeMode: QuranThemeMode.sepia);
     final textColor = QuranUIUtils.getTextColor(settings.themeMode);
     const heights = [4, 8, 14, 10, 18, 12, 20, 16, 22, 14, 10, 18, 12, 8, 6];
-    
+
     return AnimatedBuilder(
       animation: controller,
       builder: (_, __) {
@@ -1030,7 +1024,8 @@ class _WritingModeBar extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   'writing_mode_hint'.tr(),
-                  style: GoogleFonts.cairo(fontSize: 10, color: textColor.withOpacity(0.5)),
+                  style: GoogleFonts.cairo(
+                      fontSize: 10, color: textColor.withOpacity(0.5)),
                 ),
               ],
             ),
@@ -1054,7 +1049,7 @@ class _InlineStatusMessage extends ConsumerWidget {
             fontFamily: 'Scheherazade New',
             themeMode: QuranThemeMode.sepia);
     final isDark = settings.themeMode == QuranThemeMode.dark;
-    
+
     final isError = message.contains('تعذر') ||
         message.contains('لم يتم') ||
         message.contains('غير صحيحة') ||
@@ -1062,11 +1057,12 @@ class _InlineStatusMessage extends ConsumerWidget {
 
     final bgColor = isError
         ? const Color(0xFF7F1D1D).withValues(alpha: isDark ? 0.4 : 0.2)
-        : QuranUIUtils.getAccentColor(settings.themeMode).withOpacity(isDark ? 0.3 : 0.1);
+        : QuranUIUtils.getAccentColor(settings.themeMode)
+            .withOpacity(isDark ? 0.3 : 0.1);
     final borderColor = isError
         ? const Color(0xFFEF4444).withValues(alpha: 0.45)
         : QuranUIUtils.getAccentColor(settings.themeMode).withOpacity(0.4);
-    final textColor = isError 
+    final textColor = isError
         ? (isDark ? const Color(0xFFFECACA) : const Color(0xFFB91C1C))
         : QuranUIUtils.getAccentColor(settings.themeMode);
 
@@ -1105,7 +1101,7 @@ class _MicBar extends ConsumerWidget {
             themeMode: QuranThemeMode.sepia);
     final isDark = settings.themeMode == QuranThemeMode.dark;
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
-    
+
     final containerColor = isDark
         ? const Color(0xFF1E293B)
         : QuranUIUtils.getTextColor(settings.themeMode).withOpacity(0.05);
@@ -1133,13 +1129,13 @@ class _MicBar extends ConsumerWidget {
                     : accentColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: isListening ? const Color(0xFF10B981) : accentColor.withOpacity(0.3),
+                    color: isListening
+                        ? const Color(0xFF10B981)
+                        : accentColor.withOpacity(0.3),
                     width: 1.5),
               ),
               child: Icon(
-                  isListening
-                      ? Icons.graphic_eq_rounded
-                      : Icons.mic_rounded,
+                  isListening ? Icons.graphic_eq_rounded : Icons.mic_rounded,
                   color: isListening ? const Color(0xFF10B981) : accentColor,
                   size: 20),
             ),
@@ -1296,7 +1292,8 @@ class _StatChip extends ConsumerWidget {
                     fontWeight: FontWeight.w800,
                     color: valueColor)),
             Text(label,
-                style: GoogleFonts.cairo(fontSize: 10, color: textColor.withOpacity(0.5))),
+                style: GoogleFonts.cairo(
+                    fontSize: 10, color: textColor.withOpacity(0.5))),
           ],
         ),
       ),
@@ -1316,15 +1313,14 @@ class _InstructionCard extends ConsumerWidget {
             fontFamily: 'Scheherazade New',
             themeMode: QuranThemeMode.sepia);
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
-    
+
     final pair = _instruction(stage);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: accentColor.withOpacity(0.08),
-        border: Border.all(
-            color: accentColor.withOpacity(0.25), width: 0.5),
+        border: Border.all(color: accentColor.withOpacity(0.25), width: 0.5),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -1337,10 +1333,10 @@ class _InstructionCard extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(pair.$2,
               style: GoogleFonts.cairo(
-                fontSize: 11, 
-                color: QuranUIUtils.getTextColor(settings.themeMode).withOpacity(0.6),
-                fontWeight: FontWeight.w500
-              )),
+                  fontSize: 11,
+                  color: QuranUIUtils.getTextColor(settings.themeMode)
+                      .withOpacity(0.6),
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -1506,7 +1502,11 @@ class _SessionResultsViewState extends ConsumerState<_SessionResultsView> {
                 animation: true,
                 animateFromLastPercent: true,
                 circularStrokeCap: CircularStrokeCap.round,
-                progressColor: QuranUIUtils.getAccentColor(ref.watch(quranSettingsControllerProvider).valueOrNull?.themeMode ?? QuranThemeMode.sepia),
+                progressColor: QuranUIUtils.getAccentColor(ref
+                        .watch(quranSettingsControllerProvider)
+                        .valueOrNull
+                        ?.themeMode ??
+                    QuranThemeMode.sepia),
                 backgroundColor: colors.onSurface.withValues(alpha: 0.15),
                 center: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1911,7 +1911,8 @@ class _MomentCaptureSheet extends ConsumerStatefulWidget {
   final Future<void> Function(String feeling, String note) onSave;
 
   @override
-  ConsumerState<_MomentCaptureSheet> createState() => _MomentCaptureSheetState();
+  ConsumerState<_MomentCaptureSheet> createState() =>
+      _MomentCaptureSheetState();
 }
 
 class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
@@ -1941,7 +1942,9 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
         selectedColor: AppTheme.accentColor.withValues(alpha: 0.2),
         backgroundColor: textColor.withValues(alpha: 0.05),
         labelStyle: TextStyle(
-          color: selected ? AppTheme.accentColor : textColor.withValues(alpha: 0.6),
+          color: selected
+              ? AppTheme.accentColor
+              : textColor.withValues(alpha: 0.6),
           fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
         ),
       );
@@ -1974,7 +1977,8 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
           const SizedBox(height: 10),
           Text(
             widget.surahName,
-            style: GoogleFonts.cairo(fontSize: 10, color: textColor.withOpacity(0.4)),
+            style: GoogleFonts.cairo(
+                fontSize: 10, color: textColor.withOpacity(0.4)),
           ),
           const SizedBox(height: 6),
           Directionality(
@@ -1992,9 +1996,7 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
             child: Text(
               'moment_prompt'.tr(),
               style: GoogleFonts.cairo(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: textColor),
+                  fontSize: 14, fontWeight: FontWeight.w700, color: textColor),
             ),
           ),
           const SizedBox(height: 10),
@@ -2011,27 +2013,30 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
           ),
           const SizedBox(height: 10),
           TextField(
-            style: GoogleFonts.cairo(fontSize: 13, color: textColor.withOpacity(0.9)),
+            style: GoogleFonts.cairo(
+                fontSize: 13, color: textColor.withOpacity(0.9)),
             textDirection: ui.TextDirection.rtl,
             maxLines: 2,
             onChanged: (v) => _note = v,
             decoration: InputDecoration(
               hintText: 'moment_note_hint'.tr(),
-              hintStyle: GoogleFonts.cairo(fontSize: 12, color: textColor.withOpacity(0.3)),
+              hintStyle: GoogleFonts.cairo(
+                  fontSize: 12, color: textColor.withOpacity(0.3)),
               filled: true,
               fillColor: textColor.withValues(alpha: 0.04),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: textColor.withValues(alpha: 0.1), width: 0.5),
+                borderSide: BorderSide(
+                    color: textColor.withValues(alpha: 0.1), width: 0.5),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: textColor.withValues(alpha: 0.1), width: 0.5),
+                borderSide: BorderSide(
+                    color: textColor.withValues(alpha: 0.1), width: 0.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: accentColor, width: 1),
+                borderSide: BorderSide(color: accentColor, width: 1),
               ),
               contentPadding: const EdgeInsets.all(12),
             ),
@@ -2070,8 +2075,7 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
                   child: Text(
                     'save_moment_button'.tr(),
                     style: GoogleFonts.cairo(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700),
+                        fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

@@ -6,7 +6,6 @@ import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/services/reciter_service.dart';
 
 class AudioDownloadProgress {
-
   const AudioDownloadProgress({
     required this.completed,
     required this.total,
@@ -24,7 +23,8 @@ class AudioDownloadService {
 
   static Future<Directory> _reciterDirectory(ReciterModel reciter) async {
     final appDir = await getApplicationDocumentsDirectory();
-    final dir = Directory('${appDir.path}${Platform.pathSeparator}$_cacheRoot${Platform.pathSeparator}${reciter.folderName}');
+    final dir = Directory(
+        '${appDir.path}${Platform.pathSeparator}$_cacheRoot${Platform.pathSeparator}${reciter.folderName}');
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }

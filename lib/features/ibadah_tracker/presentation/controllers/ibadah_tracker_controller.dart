@@ -7,7 +7,6 @@ import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.
 import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 
 class IbadahTrackerState {
-
   const IbadahTrackerState({
     required this.today,
     required this.yesterday,
@@ -33,27 +32,27 @@ final ibadahRepositoryProvider = FutureProvider<IIbadahRepository>((ref) async {
   return IsarIbadahRepository(isar);
 });
 
-class IbadahTrackerController extends StateNotifier<AsyncValue<IbadahTrackerState>> {
+class IbadahTrackerController
+    extends StateNotifier<AsyncValue<IbadahTrackerState>> {
   IbadahTrackerController({required Future<IIbadahRepository> repositoryFuture})
-    : _repositoryFuture = repositoryFuture,
-      super(const AsyncValue.loading()) {
+      : _repositoryFuture = repositoryFuture,
+        super(const AsyncValue.loading()) {
     load();
   }
 
   final Future<IIbadahRepository> _repositoryFuture;
 
-  DateTime _normalize(DateTime date) => DateTime(date.year, date.month, date.day);
+  DateTime _normalize(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
 
   bool _hasMeaningfulData(IbadahRecord record, {required bool isMale}) {
-    final hasPrayer =
-        record.fajrStatus > 0 ||
+    final hasPrayer = record.fajrStatus > 0 ||
         record.dhuhrStatus > 0 ||
         record.asrStatus > 0 ||
         record.maghribStatus > 0 ||
         record.ishaStatus > 0;
 
-    final hasOther =
-        record.readWird ||
+    final hasOther = record.readWird ||
         record.readAzkarSabah ||
         record.readAzkarMasa ||
         record.didTasbih ||
@@ -63,8 +62,7 @@ class IbadahTrackerController extends StateNotifier<AsyncValue<IbadahTrackerStat
 
     final hasNote = (record.personalNote ?? '').trim().isNotEmpty;
 
-    final hasMasjid =
-        isMale &&
+    final hasMasjid = isMale &&
         (record.fajrInMasjid != null ||
             record.dhuhrInMasjid != null ||
             record.asrInMasjid != null ||
@@ -86,11 +84,12 @@ class IbadahTrackerController extends StateNotifier<AsyncValue<IbadahTrackerStat
       final gender = await repository.getGenderPrefs();
 
       final isMale = gender?.isMale == true;
-      final yesterday =
-          (yesterdayRaw != null && _hasMeaningfulData(yesterdayRaw, isMale: isMale))
+      final yesterday = (yesterdayRaw != null &&
+              _hasMeaningfulData(yesterdayRaw, isMale: isMale))
           ? yesterdayRaw
           : null;
-      final ratio = DailyStatusCalculator.completionRatio(today, isMale: isMale);
+      final ratio =
+          DailyStatusCalculator.completionRatio(today, isMale: isMale);
       final done = DailyStatusCalculator.completedCount(today, isMale: isMale);
       final total = DailyStatusCalculator.totalCount(isMale: isMale);
 
@@ -116,15 +115,18 @@ class IbadahTrackerController extends StateNotifier<AsyncValue<IbadahTrackerStat
     await load();
   }
 
-  Future<void> updatePrayerStatus({required String prayer, required int status}) async {
+  Future<void> updatePrayerStatus(
+      {required String prayer, required int status}) async {
     final current = state.valueOrNull;
     if (current == null) return;
     final repository = await _repositoryFuture;
-    await repository.updatePrayerStatus(date: current.today.date, prayer: prayer, status: status);
+    await repository.updatePrayerStatus(
+        date: current.today.date, prayer: prayer, status: status);
     await load();
   }
 
-  Future<void> updateMasjidStatus({required String prayer, required bool inMasjid}) async {
+  Future<void> updateMasjidStatus(
+      {required String prayer, required bool inMasjid}) async {
     final current = state.valueOrNull;
     if (current == null) return;
     final repository = await _repositoryFuture;
@@ -136,11 +138,13 @@ class IbadahTrackerController extends StateNotifier<AsyncValue<IbadahTrackerStat
     await load();
   }
 
-  Future<void> updateBoolStatus({required String key, required bool value}) async {
+  Future<void> updateBoolStatus(
+      {required String key, required bool value}) async {
     final current = state.valueOrNull;
     if (current == null) return;
     final repository = await _repositoryFuture;
-    await repository.updateBoolStatus(date: current.today.date, key: key, value: value);
+    await repository.updateBoolStatus(
+        date: current.today.date, key: key, value: value);
     await load();
   }
 
@@ -154,9 +158,7 @@ class IbadahTrackerController extends StateNotifier<AsyncValue<IbadahTrackerStat
 }
 
 final ibadahTrackerControllerProvider = StateNotifierProvider<
-  IbadahTrackerController,
-  AsyncValue<IbadahTrackerState>
->((ref) {
+    IbadahTrackerController, AsyncValue<IbadahTrackerState>>((ref) {
   final repoFuture = ref.watch(ibadahRepositoryProvider.future);
   return IbadahTrackerController(repositoryFuture: repoFuture);
 });

@@ -12,11 +12,11 @@ class NotificationContent {
   late String arabicText;
   late String source;
   late String grade;
-  
+
   String? sourceTr;
   String? gradeTr;
   String? shortExplanationTr;
-  
+
   String shortExplanation = '';
   List<String> triggerTags = <String>[];
   List<String> seasonTags = <String>['عام'];

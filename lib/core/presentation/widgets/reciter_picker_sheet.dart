@@ -54,7 +54,8 @@ class ReciterPickerSheet extends ConsumerWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: const Color(0xFF064E3B).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -108,10 +109,14 @@ class ReciterPickerSheet extends ConsumerWidget {
                   ],
                 ),
                 trailing: currentReciter?.id == reciter.id
-                    ? const Icon(Icons.check_circle, color: Color(0xFF064E3B), size: 22)
-                    : Icon(Icons.radio_button_unchecked, color: Colors.grey[300], size: 22),
+                    ? const Icon(Icons.check_circle,
+                        color: Color(0xFF064E3B), size: 22)
+                    : Icon(Icons.radio_button_unchecked,
+                        color: Colors.grey[300], size: 22),
                 onTap: () async {
-                  await ref.read(reciterControllerProvider.notifier).selectReciter(reciter.id);
+                  await ref
+                      .read(reciterControllerProvider.notifier)
+                      .selectReciter(reciter.id);
                   if (context.mounted) {
                     Navigator.pop(context);
                   }
@@ -127,7 +132,6 @@ class ReciterPickerSheet extends ConsumerWidget {
 }
 
 class _StyleBadge extends StatelessWidget {
-
   const _StyleBadge({required this.style});
   final String style;
 
@@ -141,7 +145,8 @@ class _StyleBadge extends StatelessWidget {
       ),
       child: Text(
         style,
-        style: GoogleFonts.getFont('Cairo', fontSize: 10, color: Colors.grey[700]),
+        style:
+            GoogleFonts.getFont('Cairo', fontSize: 10, color: Colors.grey[700]),
       ),
     );
   }
@@ -160,7 +165,8 @@ class _RecommendedBadge extends StatelessWidget {
       ),
       child: Text(
         'مناسب للحفظ',
-        style: GoogleFonts.getFont('Cairo', fontSize: 10, color: const Color(0xFF064E3B)),
+        style: GoogleFonts.getFont('Cairo',
+            fontSize: 10, color: const Color(0xFF064E3B)),
       ),
     );
   }

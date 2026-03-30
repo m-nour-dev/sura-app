@@ -33,7 +33,9 @@ class _QuranPageState extends ConsumerState<QuranPage> {
           final filteredSurahs = surahs.where((s) {
             if (_searchQuery.isEmpty) return true;
             return s.nameArabic.contains(_searchQuery) ||
-                   s.englishName.toLowerCase().contains(_searchQuery.toLowerCase());
+                s.englishName
+                    .toLowerCase()
+                    .contains(_searchQuery.toLowerCase());
           }).toList();
 
           return CustomScrollView(
@@ -54,32 +56,37 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [Color(0xFF064E3B), Color(0xFF0a6b52), Color(0xFF1a3a5c)],
+                        colors: [
+                          Color(0xFF064E3B),
+                          Color(0xFF0a6b52),
+                          Color(0xFF1a3a5c)
+                        ],
                         stops: [0.0, 0.5, 1.0],
                       ),
                     ),
                     child: SafeArea(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 10),
                             Text(
-                               'quran_title'.tr(),
-                               style: GoogleFonts.cairo(
-                                 fontSize: 24,
-                                 fontWeight: FontWeight.bold,
-                                 color: Colors.white,
-                               ),
-                             ),
-                             Text(
-                               'surah_count'.tr(args: ['${surahs.length}']),
-                               style: GoogleFonts.cairo(
-                                 fontSize: 13,
-                                 color: Colors.white70,
-                               ),
-                             ),
+                              'quran_title'.tr(),
+                              style: GoogleFonts.cairo(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              'surah_count'.tr(args: ['${surahs.length}']),
+                              style: GoogleFonts.cairo(
+                                fontSize: 13,
+                                color: Colors.white70,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -100,12 +107,15 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                         onChanged: (val) => setState(() => _searchQuery = val),
                         style: GoogleFonts.cairo(color: Colors.white),
                         decoration: InputDecoration(
-                           hintText: 'search_surah'.tr(),
-                           hintStyle: GoogleFonts.cairo(color: Colors.white60, fontSize: 13),
-                           prefixIcon: const Icon(Icons.search, color: Colors.white60, size: 20),
-                           border: InputBorder.none,
-                           contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                         ),
+                          hintText: 'search_surah'.tr(),
+                          hintStyle: GoogleFonts.cairo(
+                              color: Colors.white60, fontSize: 13),
+                          prefixIcon: const Icon(Icons.search,
+                              color: Colors.white60, size: 20),
+                          border: InputBorder.none,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 10),
+                        ),
                       ),
                     ),
                   ),
@@ -114,7 +124,8 @@ class _QuranPageState extends ConsumerState<QuranPage> {
 
               // ── Surah List ──
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (ctx, i) {
@@ -128,15 +139,16 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                 surahName: context.locale.languageCode == 'ar'
                                     ? surah.nameArabic
                                     : context.locale.languageCode == 'en'
-                                    ? surah.englishName
-                                    : surah.nameTurkish,
+                                        ? surah.englishName
+                                        : surah.nameTurkish,
                               ),
                             ),
                           );
                         },
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
                             color: surface,
                             borderRadius: BorderRadius.circular(16),
@@ -171,49 +183,49 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                 ),
                               ),
                               const SizedBox(width: 16),
-                               // Name & info
-                               Expanded(
-                                 child: Column(
-                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                   children: [
-                                   Text(
-                                       context.locale.languageCode == 'ar'
-                                           ? surah.nameArabic
-                                           : context.locale.languageCode == 'en'
-                                           ? surah.englishName
-                                           : surah.nameTurkish,
-                                       style: GoogleFonts.amiri(
-                                         fontSize: 18,
-                                         fontWeight: FontWeight.bold,
-                                         color: txtP,
-                                       ),
-                                     ),
-                                     Text(
-                                       context.locale.languageCode == 'ar'
-                                           ? '${surah.numberOfAyahs} آية · ${surah.revelationType}'
-                                           : context.locale.languageCode == 'en'
-                                           ? '${surah.numberOfAyahs} Verses · ${surah.revelationType}'
-                                           : '${surah.numberOfAyahs} ${surah.revelationType == 'Meccan' ? 'Mecci' : 'Medini'}',
-                                       style: GoogleFonts.cairo(
-                                         fontSize: 11,
-                                         color: txtS,
-                                       ),
-                                     ),
-                                   ],
-                                 ),
-                               ),
-                               // Large decorative name
-                               Text(
-                                 context.locale.languageCode == 'ar'
-                                     ? surah.nameArabic
-                                     : context.locale.languageCode == 'en'
-                                     ? surah.englishName
-                                     : surah.nameTurkish,
-                                 style: GoogleFonts.amiri(
-                                   fontSize: 22,
-                                   color: primaryColor.withOpacity(0.4),
-                                 ),
-                               ),
+                              // Name & info
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      context.locale.languageCode == 'ar'
+                                          ? surah.nameArabic
+                                          : context.locale.languageCode == 'en'
+                                              ? surah.englishName
+                                              : surah.nameTurkish,
+                                      style: GoogleFonts.amiri(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: txtP,
+                                      ),
+                                    ),
+                                    Text(
+                                      context.locale.languageCode == 'ar'
+                                          ? '${surah.numberOfAyahs} آية · ${surah.revelationType}'
+                                          : context.locale.languageCode == 'en'
+                                              ? '${surah.numberOfAyahs} Verses · ${surah.revelationType}'
+                                              : '${surah.numberOfAyahs} ${surah.revelationType == 'Meccan' ? 'Mecci' : 'Medini'}',
+                                      style: GoogleFonts.cairo(
+                                        fontSize: 11,
+                                        color: txtS,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Large decorative name
+                              Text(
+                                context.locale.languageCode == 'ar'
+                                    ? surah.nameArabic
+                                    : context.locale.languageCode == 'en'
+                                        ? surah.englishName
+                                        : surah.nameTurkish,
+                                style: GoogleFonts.amiri(
+                                  fontSize: 22,
+                                  color: primaryColor.withOpacity(0.4),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -255,28 +267,29 @@ class _QuranPageState extends ConsumerState<QuranPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-               'quran_settings'.tr(),
-               style: GoogleFonts.cairo(
-                 fontSize: 18,
-                 fontWeight: FontWeight.bold,
-               ),
-             ),
-             const SizedBox(height: 24),
-             ListTile(
-               leading: Icon(Icons.palette_outlined, color: primaryColor),
-               title: Text('appearance'.tr(), style: GoogleFonts.cairo()),
-               trailing: Icon(isDark ? Icons.dark_mode : Icons.light_mode, color: primaryColor),
-               onTap: () {
-                 // Toggle theme or show options
-               },
-             ),
-             ListTile(
-               leading: Icon(Icons.text_fields, color: primaryColor),
-               title: Text('text_settings'.tr(), style: GoogleFonts.cairo()),
-               onTap: () {
-                 // Navigate to a dedicated settings page if available
-               },
-             ),
+              'quran_settings'.tr(),
+              style: GoogleFonts.cairo(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: Icon(Icons.palette_outlined, color: primaryColor),
+              title: Text('appearance'.tr(), style: GoogleFonts.cairo()),
+              trailing: Icon(isDark ? Icons.dark_mode : Icons.light_mode,
+                  color: primaryColor),
+              onTap: () {
+                // Toggle theme or show options
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.text_fields, color: primaryColor),
+              title: Text('text_settings'.tr(), style: GoogleFonts.cairo()),
+              onTap: () {
+                // Navigate to a dedicated settings page if available
+              },
+            ),
             const SizedBox(height: 16),
           ],
         ),

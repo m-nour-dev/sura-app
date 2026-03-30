@@ -37,7 +37,7 @@ class QuranController extends _$QuranController {
   FutureOr<List<Surah>> build() async {
     final getSurahsUserCase = ref.watch(getSurahsProvider);
     final result = await getSurahsUserCase();
-    
+
     return result.fold(
       (failure) => throw failure,
       (surahs) => surahs,

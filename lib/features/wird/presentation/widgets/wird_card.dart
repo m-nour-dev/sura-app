@@ -21,7 +21,7 @@ class WirdCard extends ConsumerWidget {
 
     return wirdStateAsync.when(
       data: (state) {
-        return !state.hasConfiguredGoal 
+        return !state.hasConfiguredGoal
             ? _buildSetupTeaser(context)
             : Column(
                 children: [
@@ -57,45 +57,49 @@ class WirdCard extends ConsumerWidget {
               color: const Color(0xFFD97706).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.auto_stories_rounded, color: Color(0xFFD97706), size: 40),
+            child: const Icon(Icons.auto_stories_rounded,
+                color: Color(0xFFD97706), size: 40),
           ),
           const SizedBox(height: 20),
-           Text(
-             'set_daily_wird'.tr(),
-             style: GoogleFonts.amiri(
-               fontSize: 24,
-               fontWeight: FontWeight.bold,
-               color: AppTheme.primaryColor,
-             ),
-           ),
-           const SizedBox(height: 8),
-           Text(
-             'start_blessed_journey'.tr(),
-             textAlign: TextAlign.center,
-             style: GoogleFonts.cairo(
-               fontSize: 14,
-               color: AppTheme.primaryColor.withOpacity(0.6),
-               height: 1.5,
-             ),
-           ),
+          Text(
+            'set_daily_wird'.tr(),
+            style: GoogleFonts.amiri(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'start_blessed_journey'.tr(),
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cairo(
+              fontSize: 14,
+              color: AppTheme.primaryColor.withOpacity(0.6),
+              height: 1.5,
+            ),
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const WirdSetupPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const WirdSetupPage()));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD97706),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
                 elevation: 0,
               ),
-               child: Text(
-                 'start_setup'.tr(),
-                 style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16),
-               ),
+              child: Text(
+                'start_setup'.tr(),
+                style: GoogleFonts.cairo(
+                    fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ),
           ),
         ],
@@ -104,7 +108,8 @@ class WirdCard extends ConsumerWidget {
   }
 
   // ─── Main Wird Card ───
-  Widget _buildMainWirdCard(BuildContext context, WidgetRef ref, WirdState state) {
+  Widget _buildMainWirdCard(
+      BuildContext context, WidgetRef ref, WirdState state) {
     final safeStartPage = state.currentPage.clamp(1, 604);
 
     final pageData = quran.getPageData(safeStartPage);
@@ -122,10 +127,11 @@ class WirdCard extends ConsumerWidget {
     } else if (state.goalType == WirdGoalType.hizb) {
       increment = state.goalValue * 10;
     }
-    
+
     final totalPagesToRead = increment.clamp(1, 604);
     final startOfGoal = (state.targetPage - totalPagesToRead + 1).clamp(1, 604);
-    final pagesReadSoFar = (state.currentPage - startOfGoal).clamp(0, totalPagesToRead);
+    final pagesReadSoFar =
+        (state.currentPage - startOfGoal).clamp(0, totalPagesToRead);
     final progress = (pagesReadSoFar / totalPagesToRead).clamp(0.0, 1.0);
     const textColor = Colors.white;
     const subtextColor = Colors.white70;
@@ -135,7 +141,10 @@ class WirdCard extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF1E3A5F), Color(0xFF0F172A)], // Navy Hasanat to Night Deep
+          colors: [
+            Color(0xFF1E3A5F),
+            Color(0xFF0F172A)
+          ], // Navy Hasanat to Night Deep
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -149,69 +158,78 @@ class WirdCard extends ConsumerWidget {
         ],
       ),
       child: Directionality(
-        textDirection: context.locale.languageCode == 'tr' ? ui.TextDirection.ltr : ui.TextDirection.rtl,
+        textDirection: context.locale.languageCode == 'tr'
+            ? ui.TextDirection.ltr
+            : ui.TextDirection.rtl,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const WirdSetupPage()));
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        shape: BoxShape.circle,
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const WirdSetupPage()));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.settings_rounded,
+                            color: Color(0xFFD97706), size: 18),
                       ),
-                      child: const Icon(Icons.settings_rounded, color: Color(0xFFD97706), size: 18),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'daily_wird_label'.tr(),
+                      style: GoogleFonts.cairo(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD97706).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: const Color(0xFFD97706).withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    'juz_number'.tr(args: ['$juz']),
+                    style: GoogleFonts.cairo(
+                      color: const Color(0xFFD97706),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                   Text(
-                     'daily_wird_label'.tr(),
-                     style: GoogleFonts.cairo(
-                       color: textColor,
-                       fontWeight: FontWeight.bold,
-                       fontSize: 16,
-                     ),
-                   ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD97706).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFD97706).withOpacity(0.3)),
                 ),
-                 child: Text(
-                   'juz_number'.tr(args: ['$juz']),
-                   style: GoogleFonts.cairo(
-                     color: const Color(0xFFD97706),
-                     fontWeight: FontWeight.bold,
-                     fontSize: 12,
-                   ),
-                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          
-          // Progress Section
-           Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                 children: [
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Progress Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Flexible(
                       child: Text(
-                        'progress_text'.tr(args: ['${(progress * 100).toInt()}']),
+                        'progress_text'
+                            .tr(args: ['${(progress * 100).toInt()}']),
                         style: GoogleFonts.cairo(
                           color: subtextColor,
                           fontSize: 13,
@@ -223,130 +241,137 @@ class WirdCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'pages_count'.tr(args: ['$pagesReadSoFar', '$totalPagesToRead']),
+                      'pages_count'
+                          .tr(args: ['$pagesReadSoFar', '$totalPagesToRead']),
                       style: GoogleFonts.outfit(
                         color: const Color(0xFFD97706),
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                 ],
-               ),
-               const SizedBox(height: 10),
-               ClipRRect(
-                 borderRadius: BorderRadius.circular(10),
-                 child: LinearProgressIndicator(
-                   value: progress,
-                   minHeight: 10,
-                  backgroundColor: Colors.white.withOpacity(0.05),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)), // Success Green
+                  ],
                 ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Ayah Preview
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
-            ),
-            child: Column(
-              children: [
-                 Text(
-                   'from_quran_saying'.tr(),
-                   style: GoogleFonts.amiri(
-                     color: Colors.white.withOpacity(0.5),
-                     fontSize: 14,
-                   ),
-                 ),
-                const SizedBox(height: 12),
-                 Text(
-                   firstVerse,
-                   textAlign: TextAlign.center,
-                   textDirection: ui.TextDirection.rtl,
-                   maxLines: 2,
-                   overflow: TextOverflow.ellipsis,
-                   style: GoogleFonts.amiri(
-                     fontSize: 24,
-                     height: 1.6,
-                     color: textColor,
-                   ),
-                 ),
-                const SizedBox(height: 12),
-                 Text(
-                   'surah_page'.tr(args: [quran.getSurahNameArabic(surahNum), '$safeStartPage']),
-                   style: GoogleFonts.cairo(
-                     color: const Color(0xFFD97706).withOpacity(0.8),
-                     fontSize: 12,
-                     fontWeight: FontWeight.w500,
-                   ),
-                 ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 10,
+                    backgroundColor: Colors.white.withOpacity(0.05),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                        Color(0xFF10B981)), // Success Green
+                  ),
+                ),
               ],
             ),
-          ),
-          
-           const SizedBox(height: 24),
-           
-           // Action Buttons integrated inside
-           _buildActionButtons(context, ref, state),
-         ],
-       ),
-       ),
-     );
-   }
 
+            const SizedBox(height: 32),
+
+            // Ayah Preview
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.05)),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'from_quran_saying'.tr(),
+                    style: GoogleFonts.amiri(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    firstVerse,
+                    textAlign: TextAlign.center,
+                    textDirection: ui.TextDirection.rtl,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.amiri(
+                      fontSize: 24,
+                      height: 1.6,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'surah_page'.tr(args: [
+                      quran.getSurahNameArabic(surahNum),
+                      '$safeStartPage'
+                    ]),
+                    style: GoogleFonts.cairo(
+                      color: const Color(0xFFD97706).withOpacity(0.8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Action Buttons integrated inside
+            _buildActionButtons(context, ref, state),
+          ],
+        ),
+      ),
+    );
+  }
 
   // ─── Action Buttons ───
-  Widget _buildActionButtons(BuildContext context, WidgetRef ref, WirdState state) {
+  Widget _buildActionButtons(
+      BuildContext context, WidgetRef ref, WirdState state) {
     final isLate = state.daysDifference < 0;
     final lateDays = state.daysDifference.abs();
 
     return Column(
-       children: [
-         // Buttons Row (Side-by-side)
-         Directionality(
-           textDirection: context.locale.languageCode == 'tr' ? ui.TextDirection.ltr : ui.TextDirection.rtl,
-           child: Row(
-             children: [
-             Expanded(
-               child: GestureDetector(
-                 onTap: () async {
-                   final result = await Navigator.push(
-                     context,
-                     MaterialPageRoute(
-                       builder: (_) => WirdReaderPage(
-                         startPage: state.currentPage,
-                         endPage: state.targetPage,
-                       ),
-                     ),
-                   );
-                   if (result == true && context.mounted) {
-                     _showCompletionDialog(context, ref, state);
-                   }
-                 },
-                 child: Container(
-                   height: 56,
-                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                   decoration: BoxDecoration(
-                     gradient: const LinearGradient(
-                       colors: [Color(0xFF064E3B), Color(0xFF047857)],
-                       begin: Alignment.topCenter,
-                       end: Alignment.bottomCenter,
-                     ),
-                     borderRadius: BorderRadius.circular(12),
-                     boxShadow: [
-                       BoxShadow(
-                         color: Colors.black.withOpacity(0.1),
-                         blurRadius: 8,
-                         offset: const Offset(0, 4),
-                       ),
-                     ],
-                   ),
+      children: [
+        // Buttons Row (Side-by-side)
+        Directionality(
+          textDirection: context.locale.languageCode == 'tr'
+              ? ui.TextDirection.ltr
+              : ui.TextDirection.rtl,
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => WirdReaderPage(
+                          startPage: state.currentPage,
+                          endPage: state.targetPage,
+                        ),
+                      ),
+                    );
+                    if (result == true && context.mounted) {
+                      _showCompletionDialog(context, ref, state);
+                    }
+                  },
+                  child: Container(
+                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF064E3B), Color(0xFF047857)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: Center(
                       child: Text(
                         'continue_reading_wird'.tr(),
@@ -360,62 +385,63 @@ class WirdCard extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                 ),
-               ),
-             ),
-            const SizedBox(width: 12),
-            // Done Button (Islamic Gold)
-             Expanded(
-               child: GestureDetector(
-                 onTap: () => _showCompletionDialog(context, ref, state),
-                 child: Container(
-                   height: 56,
-                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                   decoration: BoxDecoration(
-                     gradient: const LinearGradient(
-                       colors: [Color(0xFFD97706), Color(0xFFB45309)],
-                       begin: Alignment.topCenter,
-                       end: Alignment.bottomCenter,
-                     ),
-                     borderRadius: BorderRadius.circular(12),
-                     boxShadow: [
-                       BoxShadow(
-                         color: Colors.black.withOpacity(0.1),
-                         blurRadius: 8,
-                         offset: const Offset(0, 4),
-                       ),
-                     ],
-                   ),
-                     child: Center(
-                       child: Row(
-                         mainAxisAlignment: MainAxisAlignment.center,
-                         mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                'completed_reading'.tr(),
-                                style: GoogleFonts.cairo(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Done Button (Islamic Gold)
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _showCompletionDialog(context, ref, state),
+                  child: Container(
+                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFD97706), Color(0xFFB45309)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'completed_reading'.tr(),
+                              style: GoogleFonts.cairo(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
-                            const SizedBox(width: 6),
-                            const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
-                          ],
-                       ),
-                     ),
-                 ),
-               ),
-             ),
-           ],
-           ),
-         ),
-         
-         const SizedBox(height: 24),
+                          ),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.check_circle_outline,
+                              color: Colors.white, size: 18),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
         Divider(color: Colors.white.withOpacity(0.1), height: 1),
         const SizedBox(height: 20),
 
@@ -423,43 +449,46 @@ class WirdCard extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-             Row(
-               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-               children: [
-                 Flexible(
-                   child: Row(
-                     children: [
-                       if (isLate) 
-                         const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 16),
-                       const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            isLate 
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Row(
+                    children: [
+                      if (isLate)
+                        const Icon(Icons.warning_rounded,
+                            color: Color(0xFFEF4444), size: 16),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          isLate
                               ? 'behind_schedule'.tr(args: ['$lateDays'])
                               : 'on_track'.tr(),
-                            style: GoogleFonts.cairo(
-                              color: isLate ? const Color(0xFFEF4444) : Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
+                          style: GoogleFonts.cairo(
+                            color: isLate
+                                ? const Color(0xFFEF4444)
+                                : Colors.white.withOpacity(0.7),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
-                     ],
-                   ),
-                 ),
-                 const SizedBox(width: 8),
-                  Text(
-                    'current_khatma'.tr(),
-                    style: GoogleFonts.cairo(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      ),
+                    ],
                   ),
-               ],
-             ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'current_khatma'.tr(),
+                  style: GoogleFonts.cairo(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             // Linear Progress
             ClipRRect(
@@ -467,37 +496,39 @@ class WirdCard extends ConsumerWidget {
               child: LinearProgressIndicator(
                 value: state.khatmaProgress,
                 backgroundColor: Colors.white.withOpacity(0.1),
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4B5563)),
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(Color(0xFF4B5563)),
                 minHeight: 8,
               ),
             ),
             const SizedBox(height: 12),
             Row(
-               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-               children: [
-                  Flexible(
-                    child: Text(
-                      'upcoming_wirds'.tr(args: ['${state.remainingWirdsCount}']),
-                      style: GoogleFonts.cairo(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 11,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    'upcoming_wirds'.tr(args: ['${state.remainingWirdsCount}']),
+                    style: GoogleFonts.cairo(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 11,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      'completed_wirds'.tr(args: ['${state.completedWirdsCount}']),
-                      style: GoogleFonts.cairo(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 11,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    'completed_wirds'
+                        .tr(args: ['${state.completedWirdsCount}']),
+                    style: GoogleFonts.cairo(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 11,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-               ],
-             ),
+                ),
+              ],
+            ),
           ],
         ),
       ],
@@ -505,53 +536,64 @@ class WirdCard extends ConsumerWidget {
   }
 
   // ─── Completion Dialog ───
-  void _showCompletionDialog(BuildContext context, WidgetRef ref, WirdState state) {
+  void _showCompletionDialog(
+      BuildContext context, WidgetRef ref, WirdState state) {
     final isKhatmaComplete = state.targetPage >= 604;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-         title: Text(
-           isKhatmaComplete ? 'quran_completion_title'.tr() : 'wird_completed_title'.tr(),
-           style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
-         ),
-         content: Text(
-           isKhatmaComplete
-               ? 'quran_completion_message'.tr()
-               : 'completion_check'.tr(),
-           style: GoogleFonts.outfit(fontSize: 15, height: 1.6),
-         ),
-         actions: [
-           TextButton(
-             onPressed: () => Navigator.pop(context),
-             child: Text('cancel'.tr(), style: GoogleFonts.outfit()),
-           ),
-           FilledButton(
-             style: FilledButton.styleFrom(
-               backgroundColor: AppTheme.primaryColor,
-               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-             ),
-             onPressed: () {
-               if (isKhatmaComplete) {
-                 ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, 604).then((_) {
-                   ref.read(wirdControllerProvider.notifier).startNewKhatma();
-                 });
-               } else {
-                 ref.read(wirdControllerProvider.notifier).completeWird(state.currentPage, state.targetPage);
-               }
-               Navigator.pop(context); // Close completion dialog
-               
-               if (context.mounted) {
-                 _showMubarakCelebration(context);
-               }
-             },
-             child: Text(
-               isKhatmaComplete ? 'start_new_khatma'.tr() : 'wird_completed_title'.tr(),
-               style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
-             ),
-           ),
-         ],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          isKhatmaComplete
+              ? 'quran_completion_title'.tr()
+              : 'wird_completed_title'.tr(),
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          isKhatmaComplete
+              ? 'quran_completion_message'.tr()
+              : 'completion_check'.tr(),
+          style: GoogleFonts.outfit(fontSize: 15, height: 1.6),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('cancel'.tr(), style: GoogleFonts.outfit()),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              if (isKhatmaComplete) {
+                ref
+                    .read(wirdControllerProvider.notifier)
+                    .completeWird(state.currentPage, 604)
+                    .then((_) {
+                  ref.read(wirdControllerProvider.notifier).startNewKhatma();
+                });
+              } else {
+                ref
+                    .read(wirdControllerProvider.notifier)
+                    .completeWird(state.currentPage, state.targetPage);
+              }
+              Navigator.pop(context); // Close completion dialog
+
+              if (context.mounted) {
+                _showMubarakCelebration(context);
+              }
+            },
+            child: Text(
+              isKhatmaComplete
+                  ? 'start_new_khatma'.tr()
+                  : 'wird_completed_title'.tr(),
+              style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -585,32 +627,34 @@ class WirdCard extends ConsumerWidget {
           style: GoogleFonts.outfit(fontSize: 15),
         ),
         actionsAlignment: MainAxisAlignment.center,
-         actions: [
-           TextButton(
-             onPressed: () => Navigator.pop(context),
-             child: Text('later'.tr(), style: GoogleFonts.outfit(color: Colors.grey)),
-           ),
-           const SizedBox(width: 8),
-           FilledButton(
-             style: FilledButton.styleFrom(
-               backgroundColor: AppTheme.primaryColor,
-               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-             ),
-             onPressed: () {
-               Navigator.pop(context); // Close dialog
-               Navigator.push(
-                 context,
-                 MaterialPageRoute(
-                   builder: (context) => const VefaPage(isSelectionMode: true),
-                 ),
-               );
-             },
-             child: Text(
-               'yes_definitely'.tr(),
-               style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
-             ),
-           ),
-         ],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('later'.tr(),
+                style: GoogleFonts.outfit(color: Colors.grey)),
+          ),
+          const SizedBox(width: 8),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VefaPage(isSelectionMode: true),
+                ),
+              );
+            },
+            child: Text(
+              'yes_definitely'.tr(),
+              style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -639,9 +683,11 @@ class _CelebrationWidgetState extends State<_CelebrationWidget>
     );
 
     _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: CurveTween(curve: Curves.easeOutBack), weight: 20),
+      TweenSequenceItem(
+          tween: CurveTween(curve: Curves.easeOutBack), weight: 20),
       TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 60),
-      TweenSequenceItem(tween: CurveTween(curve: Curves.easeInBack), weight: 20),
+      TweenSequenceItem(
+          tween: CurveTween(curve: Curves.easeInBack), weight: 20),
     ]).animate(_controller);
 
     _opacityAnimation = TweenSequence<double>([
@@ -692,22 +738,22 @@ class _CelebrationWidgetState extends State<_CelebrationWidget>
                         style: TextStyle(fontSize: 60),
                       ),
                       const SizedBox(height: 16),
-                       Text(
-                         'mubarak_text'.tr(),
-                         style: GoogleFonts.amiri(
-                           fontSize: 48,
-                           fontWeight: FontWeight.bold,
-                           color: AppTheme.primaryColor,
-                         ),
-                       ),
-                       const SizedBox(height: 8),
-                       Text(
-                         'completed_wird_daily'.tr(),
-                         style: GoogleFonts.cairo(
-                           fontSize: 18,
-                           color: AppTheme.primaryColor.withOpacity(0.8),
-                         ),
-                       ),
+                      Text(
+                        'mubarak_text'.tr(),
+                        style: GoogleFonts.amiri(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'completed_wird_daily'.tr(),
+                        style: GoogleFonts.cairo(
+                          fontSize: 18,
+                          color: AppTheme.primaryColor.withOpacity(0.8),
+                        ),
+                      ),
                     ],
                   ),
                 ),

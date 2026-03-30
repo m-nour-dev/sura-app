@@ -11,7 +11,7 @@ class PostPrayerVisibility extends _$PostPrayerVisibility {
   @override
   bool build() {
     final prayerTimesAsync = ref.watch(prayerTimesControllerProvider);
-    
+
     return prayerTimesAsync.maybeWhen(
       data: (prayerTimes) {
         final now = ref.watch(timeTickProvider).value ?? DateTime.now();
@@ -42,18 +42,23 @@ class PostPrayerVisibility extends _$PostPrayerVisibility {
 @riverpod
 String? currentPostPrayerName(CurrentPostPrayerNameRef ref) {
   final prayerTimesAsync = ref.watch(prayerTimesControllerProvider);
-  
+
   return prayerTimesAsync.maybeWhen(
     data: (prayerTimes) {
       final now = ref.watch(timeTickProvider).value ?? DateTime.now();
       const window = Duration(minutes: 45);
-      
-      if (now.difference(prayerTimes.fajr) >= Duration.zero && now.difference(prayerTimes.fajr) <= window) return 'fajr';
-      if (now.difference(prayerTimes.dhuhr) >= Duration.zero && now.difference(prayerTimes.dhuhr) <= window) return 'dhuhr';
-      if (now.difference(prayerTimes.asr) >= Duration.zero && now.difference(prayerTimes.asr) <= window) return 'asr';
-      if (now.difference(prayerTimes.maghrib) >= Duration.zero && now.difference(prayerTimes.maghrib) <= window) return 'maghrib';
-      if (now.difference(prayerTimes.isha) >= Duration.zero && now.difference(prayerTimes.isha) <= window) return 'isha';
-      
+
+      if (now.difference(prayerTimes.fajr) >= Duration.zero &&
+          now.difference(prayerTimes.fajr) <= window) return 'fajr';
+      if (now.difference(prayerTimes.dhuhr) >= Duration.zero &&
+          now.difference(prayerTimes.dhuhr) <= window) return 'dhuhr';
+      if (now.difference(prayerTimes.asr) >= Duration.zero &&
+          now.difference(prayerTimes.asr) <= window) return 'asr';
+      if (now.difference(prayerTimes.maghrib) >= Duration.zero &&
+          now.difference(prayerTimes.maghrib) <= window) return 'maghrib';
+      if (now.difference(prayerTimes.isha) >= Duration.zero &&
+          now.difference(prayerTimes.isha) <= window) return 'isha';
+
       return null;
     },
     orElse: () => null,

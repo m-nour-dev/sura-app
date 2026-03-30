@@ -28,7 +28,9 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
   }
 
   Future<void> _saveGoal() async {
-    await ref.read(wirdControllerProvider.notifier).updateGoal(_selectedType, _goalValue);
+    await ref
+        .read(wirdControllerProvider.notifier)
+        .updateGoal(_selectedType, _goalValue);
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -49,7 +51,7 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
               ),
             ),
           ),
-          
+
           // Subtle Glows
           Positioned(
             top: -100,
@@ -74,7 +76,8 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
               children: [
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0, vertical: 32.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -161,7 +164,8 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
     );
   }
 
-  Widget _buildGoalOption(WirdGoalType type, String title, String subtitle, IconData icon) {
+  Widget _buildGoalOption(
+      WirdGoalType type, String title, String subtitle, IconData icon) {
     final isSelected = _selectedType == type;
 
     return GestureDetector(
@@ -170,7 +174,9 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white.withOpacity(0.15) : Colors.white.withOpacity(0.05),
+          color: isSelected
+              ? Colors.white.withOpacity(0.15)
+              : Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? const Color(0xFFD97706) : Colors.white10,
@@ -182,10 +188,13 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFD97706).withOpacity(0.2) : Colors.white10,
+                color: isSelected
+                    ? const Color(0xFFD97706).withOpacity(0.2)
+                    : Colors.white10,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: isSelected ? const Color(0xFFD97706) : Colors.white60),
+              child: Icon(icon,
+                  color: isSelected ? const Color(0xFFD97706) : Colors.white60),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -222,9 +231,18 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
     var unit = '';
     var maxVal = 30;
     switch (_selectedType) {
-      case WirdGoalType.page: unit = 'صفحة'; maxVal = 604; break;
-      case WirdGoalType.juz: unit = 'جزء'; maxVal = 30; break;
-      case WirdGoalType.hizb: unit = 'حزب'; maxVal = 60; break;
+      case WirdGoalType.page:
+        unit = 'صفحة';
+        maxVal = 604;
+        break;
+      case WirdGoalType.juz:
+        unit = 'جزء';
+        maxVal = 30;
+        break;
+      case WirdGoalType.hizb:
+        unit = 'حزب';
+        maxVal = 60;
+        break;
     }
 
     return Container(
@@ -244,8 +262,10 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                onPressed: () => setState(() => _goalValue = (_goalValue + 1).clamp(1, maxVal)),
-                icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 30),
+                onPressed: () => setState(
+                    () => _goalValue = (_goalValue + 1).clamp(1, maxVal)),
+                icon: const Icon(Icons.add_circle_outline,
+                    color: Colors.white, size: 30),
               ),
               const SizedBox(width: 20),
               Text(
@@ -258,8 +278,10 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
               ),
               const SizedBox(width: 20),
               IconButton(
-                onPressed: () => setState(() => _goalValue = (_goalValue - 1).clamp(1, maxVal)),
-                icon: const Icon(Icons.remove_circle_outline, color: Colors.white, size: 30),
+                onPressed: () => setState(
+                    () => _goalValue = (_goalValue - 1).clamp(1, maxVal)),
+                icon: const Icon(Icons.remove_circle_outline,
+                    color: Colors.white, size: 30),
               ),
             ],
           ),

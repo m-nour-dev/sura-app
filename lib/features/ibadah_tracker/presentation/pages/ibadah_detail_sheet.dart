@@ -28,13 +28,15 @@ Future<void> showIbadahDetailSheet({
 }
 
 class _IbadahDetailSheet extends ConsumerWidget {
-  const _IbadahDetailSheet({required this.ibadahKey, required this.label, required this.icon});
+  const _IbadahDetailSheet(
+      {required this.ibadahKey, required this.label, required this.icon});
 
   final String ibadahKey;
   final String label;
   final String icon;
 
-  bool _isPrayer(String key) => ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].contains(key);
+  bool _isPrayer(String key) =>
+      ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].contains(key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,7 +57,8 @@ class _IbadahDetailSheet extends ConsumerWidget {
               SnackBar(
                 content: Text(
                   'tracker_statuses.saved_successfully'.tr(),
-                  style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700),
+                  style:
+                      GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700),
                 ),
                 duration: const Duration(milliseconds: 700),
                 behavior: SnackBarBehavior.floating,
@@ -134,13 +137,15 @@ class _IbadahDetailSheet extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Text(
                   '$icon $label',
-                  style: GoogleFonts.getFont('Cairo', fontSize: 18, fontWeight: FontWeight.w700),
+                  style: GoogleFonts.getFont('Cairo',
+                      fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 20),
                 if (isPrayer) ...[
                   Text(
                     'tracker_statuses.how_did_you_pray'.tr(),
-                    style: GoogleFonts.getFont('Cairo', fontSize: 13, color: Colors.grey[500]),
+                    style: GoogleFonts.getFont('Cairo',
+                        fontSize: 13, color: Colors.grey[500]),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -152,11 +157,13 @@ class _IbadahDetailSheet extends ConsumerWidget {
                         onTap: () async {
                           if (!isMale) {
                             await saveAndClose(
-                              () => controller.updatePrayerStatus(prayer: ibadahKey, status: 1),
+                              () => controller.updatePrayerStatus(
+                                  prayer: ibadahKey, status: 1),
                             );
                             return;
                           }
-                          await controller.updatePrayerStatus(prayer: ibadahKey, status: 1);
+                          await controller.updatePrayerStatus(
+                              prayer: ibadahKey, status: 1);
                         },
                       ),
                       const SizedBox(width: 8),
@@ -167,11 +174,13 @@ class _IbadahDetailSheet extends ConsumerWidget {
                         onTap: () async {
                           if (!isMale) {
                             await saveAndClose(
-                              () => controller.updatePrayerStatus(prayer: ibadahKey, status: 2),
+                              () => controller.updatePrayerStatus(
+                                  prayer: ibadahKey, status: 2),
                             );
                             return;
                           }
-                          await controller.updatePrayerStatus(prayer: ibadahKey, status: 2);
+                          await controller.updatePrayerStatus(
+                              prayer: ibadahKey, status: 2);
                         },
                       ),
                       const SizedBox(width: 8),
@@ -180,7 +189,8 @@ class _IbadahDetailSheet extends ConsumerWidget {
                         emoji: '❌',
                         selected: prayerStatus == 0,
                         onTap: () => saveAndClose(
-                          () => controller.updatePrayerStatus(prayer: ibadahKey, status: 0),
+                          () => controller.updatePrayerStatus(
+                              prayer: ibadahKey, status: 0),
                         ),
                       ),
                     ],
@@ -189,7 +199,8 @@ class _IbadahDetailSheet extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Text(
                       'tracker_statuses.where_did_you_pray'.tr(),
-                      style: GoogleFonts.getFont('Cairo', fontSize: 13, color: Colors.grey[500]),
+                      style: GoogleFonts.getFont('Cairo',
+                          fontSize: 13, color: Colors.grey[500]),
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -199,7 +210,8 @@ class _IbadahDetailSheet extends ConsumerWidget {
                           emoji: '🕌',
                           selected: inMasjid == true,
                           onTap: () => saveAndClose(
-                            () => controller.updateMasjidStatus(prayer: ibadahKey, inMasjid: true),
+                            () => controller.updateMasjidStatus(
+                                prayer: ibadahKey, inMasjid: true),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -208,7 +220,8 @@ class _IbadahDetailSheet extends ConsumerWidget {
                           emoji: '🏠',
                           selected: inMasjid == false,
                           onTap: () => saveAndClose(
-                            () => controller.updateMasjidStatus(prayer: ibadahKey, inMasjid: false),
+                            () => controller.updateMasjidStatus(
+                                prayer: ibadahKey, inMasjid: false),
                           ),
                         ),
                       ],
@@ -223,7 +236,8 @@ class _IbadahDetailSheet extends ConsumerWidget {
                           selected: boolStatus == true,
                           color: const Color(0xFF064E3B),
                           onTap: () => saveAndClose(
-                            () => controller.updateBoolStatus(key: ibadahKey, value: true),
+                            () => controller.updateBoolStatus(
+                                key: ibadahKey, value: true),
                           ),
                         ),
                       ),
@@ -234,7 +248,8 @@ class _IbadahDetailSheet extends ConsumerWidget {
                           selected: boolStatus == false,
                           color: Colors.red.shade400,
                           onTap: () => saveAndClose(
-                            () => controller.updateBoolStatus(key: ibadahKey, value: false),
+                            () => controller.updateBoolStatus(
+                                key: ibadahKey, value: false),
                           ),
                         ),
                       ),
@@ -247,14 +262,19 @@ class _IbadahDetailSheet extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const SizedBox(height: 280, child: Center(child: CircularProgressIndicator())),
+      loading: () => const SizedBox(
+          height: 280, child: Center(child: CircularProgressIndicator())),
       error: (_, __) => const SizedBox(height: 280),
     );
   }
 }
 
 class _StatusOption extends StatelessWidget {
-  const _StatusOption({required this.label, required this.emoji, required this.selected, required this.onTap});
+  const _StatusOption(
+      {required this.label,
+      required this.emoji,
+      required this.selected,
+      required this.onTap});
   final String label;
   final String emoji;
   final bool selected;
@@ -269,8 +289,13 @@ class _StatusOption extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFF064E3B).withValues(alpha: 0.1) : Colors.transparent,
-            border: Border.all(color: selected ? const Color(0xFF064E3B) : const Color(0xFFE2E8F0)),
+            color: selected
+                ? const Color(0xFF064E3B).withValues(alpha: 0.1)
+                : Colors.transparent,
+            border: Border.all(
+                color: selected
+                    ? const Color(0xFF064E3B)
+                    : const Color(0xFFE2E8F0)),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -287,7 +312,11 @@ class _StatusOption extends StatelessWidget {
 }
 
 class _BigToggle extends StatelessWidget {
-  const _BigToggle({required this.label, required this.selected, required this.color, required this.onTap});
+  const _BigToggle(
+      {required this.label,
+      required this.selected,
+      required this.color,
+      required this.onTap});
   final String label;
   final bool selected;
   final Color color;
@@ -306,7 +335,8 @@ class _BigToggle extends StatelessWidget {
           border: Border.all(color: selected ? color : const Color(0xFFE2E8F0)),
         ),
         child: Center(
-          child: Text(label, style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
+          child: Text(label,
+              style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
         ),
       ),
     );

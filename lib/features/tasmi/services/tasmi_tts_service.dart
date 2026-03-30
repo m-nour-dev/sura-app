@@ -85,7 +85,7 @@ class TasmiTtsService {
           await _tts.stop(); // Safe guard to clear channel
           _isSpeaking = false;
         }
-        
+
         debugPrint('🔊 Speaking: "$word"');
         await _tts.speak(word);
         if (_speakCompleter != null && !_speakCompleter!.isCompleted) {

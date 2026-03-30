@@ -55,27 +55,28 @@ class StreakSummaryCard extends ConsumerWidget {
                       color: Colors.white.withOpacity(0.08),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.flash_on_rounded, color: Color(0xFFD97706), size: 16),
+                    child: const Icon(Icons.flash_on_rounded,
+                        color: Color(0xFFD97706), size: 16),
                   ),
                   const SizedBox(width: 12),
-                   Text(
-                     'worship_tracking'.tr(),
-                     style: GoogleFonts.cairo(
-                       fontSize: 18,
-                       fontWeight: FontWeight.bold,
-                       color: Colors.white,
-                     ),
-                   ),
+                  Text(
+                    'worship_tracking'.tr(),
+                    style: GoogleFonts.cairo(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ],
               ),
-               Text(
-                 'weekly_activity'.tr(),
-                 style: GoogleFonts.cairo(
-                   fontSize: 11,
-                   color: Colors.white.withOpacity(0.5),
-                   fontWeight: FontWeight.w500,
-                 ),
-               ),
+              Text(
+                'weekly_activity'.tr(),
+                style: GoogleFonts.cairo(
+                  fontSize: 11,
+                  color: Colors.white.withOpacity(0.5),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -85,14 +86,17 @@ class StreakSummaryCard extends ConsumerWidget {
             children: _keys.map((k) {
               final count = data[k] ?? 0;
               final hasStreak = count > 0;
-              
+
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: hasStreak ? const Color(0xFFD97706).withOpacity(0.2) : Colors.white.withOpacity(0.05),
+                    color: hasStreak
+                        ? const Color(0xFFD97706).withOpacity(0.2)
+                        : Colors.white.withOpacity(0.05),
                     width: 1,
                   ),
                 ),
@@ -101,29 +105,32 @@ class StreakSummaryCard extends ConsumerWidget {
                   children: [
                     Icon(
                       _icon(k),
-                      color: hasStreak ? const Color(0xFFD97706) : Colors.white24,
+                      color:
+                          hasStreak ? const Color(0xFFD97706) : Colors.white24,
                       size: 16,
                     ),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                         Text(
-                           _name(k).tr(),
-                           style: GoogleFonts.cairo(
-                             fontSize: 13,
-                             fontWeight: FontWeight.w600,
-                             color: Colors.white.withOpacity(0.9),
-                           ),
-                         ),
-                         Text(
-                           '$count ${'streak_days'.tr()}',
-                           style: GoogleFonts.outfit(
-                             fontSize: 11,
-                             fontWeight: FontWeight.bold,
-                             color: hasStreak ? const Color(0xFF10B981) : Colors.white30,
-                           ),
-                         ),
+                        Text(
+                          _name(k).tr(),
+                          style: GoogleFonts.cairo(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        Text(
+                          '$count ${'streak_days'.tr()}',
+                          style: GoogleFonts.outfit(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: hasStreak
+                                ? const Color(0xFF10B981)
+                                : Colors.white30,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -138,23 +145,35 @@ class StreakSummaryCard extends ConsumerWidget {
 
   IconData _icon(String key) {
     switch (key) {
-      case 'azkar': return Icons.wb_sunny_rounded;
-      case 'wird': return Icons.menu_book_rounded;
-      case 'hifz': return Icons.auto_stories_rounded;
-      case 'tasmi': return Icons.mic_rounded;
-      case 'tasbih': return Icons.flare_rounded;
-      default: return Icons.star_rounded;
+      case 'azkar':
+        return Icons.wb_sunny_rounded;
+      case 'wird':
+        return Icons.menu_book_rounded;
+      case 'hifz':
+        return Icons.auto_stories_rounded;
+      case 'tasmi':
+        return Icons.mic_rounded;
+      case 'tasbih':
+        return Icons.flare_rounded;
+      default:
+        return Icons.star_rounded;
     }
   }
 
   static String _name(String key) {
     switch (key) {
-      case 'azkar': return 'azkar_label';
-      case 'wird': return 'wird_label';
-      case 'hifz': return 'hifz_label';
-      case 'tasmi': return 'tasmi_label';
-      case 'tasbih': return 'tasbih_label';
-      default: return key;
+      case 'azkar':
+        return 'azkar_label';
+      case 'wird':
+        return 'wird_label';
+      case 'hifz':
+        return 'hifz_label';
+      case 'tasmi':
+        return 'tasmi_label';
+      case 'tasbih':
+        return 'tasbih_label';
+      default:
+        return key;
     }
   }
 }

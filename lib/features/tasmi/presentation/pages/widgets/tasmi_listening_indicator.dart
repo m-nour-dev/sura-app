@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class TasmiListeningIndicator extends StatefulWidget {
-
   const TasmiListeningIndicator({super.key, required this.isListening});
   final bool isListening;
 
   @override
-  State<TasmiListeningIndicator> createState() => _TasmiListeningIndicatorState();
+  State<TasmiListeningIndicator> createState() =>
+      _TasmiListeningIndicatorState();
 }
 
 class _TasmiListeningIndicatorState extends State<TasmiListeningIndicator>
@@ -51,7 +51,7 @@ class _TasmiListeningIndicatorState extends State<TasmiListeningIndicator>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       child: widget.isListening
@@ -75,7 +75,8 @@ class _TasmiListeningIndicatorState extends State<TasmiListeningIndicator>
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: _animations[i].value),
+                          color: Colors.green
+                              .withValues(alpha: _animations[i].value),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -104,12 +105,14 @@ class _TasmiListeningIndicatorState extends State<TasmiListeningIndicator>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.mic_off_rounded, size: 16, color: isDark ? Colors.white54 : Colors.grey[600]),
+                  Icon(Icons.mic_off_rounded,
+                      size: 16,
+                      color: isDark ? Colors.white54 : Colors.grey[600]),
                   const SizedBox(width: 6),
                   Text(
                     'tasmi_indicator_paused'.tr(),
                     style: TextStyle(
-                      fontSize: 13, 
+                      fontSize: 13,
                       fontFamily: 'Cairo',
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white54 : Colors.grey[600],

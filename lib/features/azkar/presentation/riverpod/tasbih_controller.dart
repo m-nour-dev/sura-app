@@ -10,7 +10,7 @@ class TasbihState {
   });
 
   int get activeCount => counts[activeZikrKey] ?? 0;
-  
+
   int get totalCount => counts.values.fold(0, (sum, val) => sum + val);
 
   TasbihState copyWith({
@@ -56,10 +56,11 @@ class TasbihController extends StateNotifier<TasbihState> {
     'zikr_la_ilaha_illallah_al_azim_al_halim',
   ];
 
-  TasbihController() : super(TasbihState(
-    counts: {for (var key in availableAzkar) key: 0},
-    activeZikrKey: availableAzkar[0],
-  ));
+  TasbihController()
+      : super(TasbihState(
+          counts: {for (var key in availableAzkar) key: 0},
+          activeZikrKey: availableAzkar[0],
+        ));
 
   void increment() {
     final newCounts = Map<String, int>.from(state.counts);
@@ -86,6 +87,7 @@ class TasbihController extends StateNotifier<TasbihState> {
   }
 }
 
-final tasbihControllerProvider = StateNotifierProvider.autoDispose<TasbihController, TasbihState>((ref) {
+final tasbihControllerProvider =
+    StateNotifierProvider.autoDispose<TasbihController, TasbihState>((ref) {
   return TasbihController();
 });

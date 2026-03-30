@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AzkarCategoryCard extends StatelessWidget {
-
   const AzkarCategoryCard({
     super.key,
     required this.title,
@@ -15,12 +14,13 @@ class AzkarCategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Sila Global Colors
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFFD97706);
-    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
+    final textColor =
+        isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
 
     return InkWell(
       onTap: onTap,

@@ -9,14 +9,14 @@ abstract class QuranLocalDataSource {
 }
 
 class QuranLocalDataSourceImpl implements QuranLocalDataSource {
-
   QuranLocalDataSourceImpl({required this.assetBundle});
   final AssetBundle assetBundle;
 
   @override
   Future<List<SurahModel>> getSurahs() async {
     try {
-      final jsonString = await assetBundle.loadString('assets/data/surahs.json');
+      final jsonString =
+          await assetBundle.loadString('assets/data/surahs.json');
       final List<dynamic> jsonList = json.decode(jsonString);
       return jsonList.map((json) => SurahModel.fromJson(json)).toList();
     } catch (e) {

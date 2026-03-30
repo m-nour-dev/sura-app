@@ -20,7 +20,6 @@ const LinearGradient _ctaGradient = LinearGradient(
 );
 
 class HifzOnboardingPage extends ConsumerStatefulWidget {
-
   const HifzOnboardingPage({super.key, this.onCompleted});
   final VoidCallback? onCompleted;
 
@@ -46,7 +45,8 @@ class _HifzOnboardingPageState extends ConsumerState<HifzOnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<HifzOnboardingState>(hifzOnboardingControllerProvider, (previous, next) {
+    ref.listen<HifzOnboardingState>(hifzOnboardingControllerProvider,
+        (previous, next) {
       if (next.onboardingDone && previous?.onboardingDone != true) {
         if (widget.onCompleted != null) {
           widget.onCompleted!.call();
@@ -69,71 +69,75 @@ class _HifzOnboardingPageState extends ConsumerState<HifzOnboardingPage> {
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         child: Column(
-            children: [
-              if (state.currentPage > 0)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
-                  child: _TopProgressBar(previousPage: _previousPage, currentPage: state.currentPage),
-                ),
-              if (state.errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
-                  child: _InfoBanner(
-                    color: _errorColor.withValues(alpha: 0.12),
-                    border: _errorColor.withValues(alpha: 0.3),
-                    textColor: _errorColor,
-                    message: state.errorMessage!,
-                  ),
-                ),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onPageChanged: controller.setCurrentPage,
-                  children: [
-                    _WelcomeScreen(onStart: () => _goToPage(1)),
-                    _AgeScreen(
-                      selected: state.ageGroup,
-                      onSelect: (index) async {
-                        controller.setAgeGroup(index);
-                        await Future<void>.delayed(const Duration(milliseconds: 300));
-                        if (!mounted) return;
-                        controller.nextPage();
-                        await _goToPage(2);
-                      },
-                    ),
-                    _TimeGoalScreen(
-                      selectedMinutes: state.dailyMinutes,
-                      selectedGoal: state.goal,
-                      onMinutesSelect: controller.setDailyMinutes,
-                      onGoalSelect: controller.setGoal,
-                      onNext: () async {
-                        controller.nextPage();
-                        await _goToPage(3);
-                      },
-                    ),
-                    _LearningStyleScreen(
-                      selected: state.learningStyle,
-                      onSelect: (index) async {
-                        controller.setLearningStyle(index);
-                        await Future<void>.delayed(const Duration(milliseconds: 300));
-                        if (!mounted) return;
-                        controller.nextPage();
-                        await _goToPage(4);
-                      },
-                    ),
-                    _SmartPlanScreen(
-                      state: state,
-                      onToggle: controller.setAutoAdapt,
-                      onComplete: controller.completeOnboarding,
-                    ),
-                  ],
+          children: [
+            if (state.currentPage > 0)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+                child: _TopProgressBar(
+                    previousPage: _previousPage,
+                    currentPage: state.currentPage),
+              ),
+            if (state.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+                child: _InfoBanner(
+                  color: _errorColor.withValues(alpha: 0.12),
+                  border: _errorColor.withValues(alpha: 0.3),
+                  textColor: _errorColor,
+                  message: state.errorMessage!,
                 ),
               ),
-            ],
-          ),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: controller.setCurrentPage,
+                children: [
+                  _WelcomeScreen(onStart: () => _goToPage(1)),
+                  _AgeScreen(
+                    selected: state.ageGroup,
+                    onSelect: (index) async {
+                      controller.setAgeGroup(index);
+                      await Future<void>.delayed(
+                          const Duration(milliseconds: 300));
+                      if (!mounted) return;
+                      controller.nextPage();
+                      await _goToPage(2);
+                    },
+                  ),
+                  _TimeGoalScreen(
+                    selectedMinutes: state.dailyMinutes,
+                    selectedGoal: state.goal,
+                    onMinutesSelect: controller.setDailyMinutes,
+                    onGoalSelect: controller.setGoal,
+                    onNext: () async {
+                      controller.nextPage();
+                      await _goToPage(3);
+                    },
+                  ),
+                  _LearningStyleScreen(
+                    selected: state.learningStyle,
+                    onSelect: (index) async {
+                      controller.setLearningStyle(index);
+                      await Future<void>.delayed(
+                          const Duration(milliseconds: 300));
+                      if (!mounted) return;
+                      controller.nextPage();
+                      await _goToPage(4);
+                    },
+                  ),
+                  _SmartPlanScreen(
+                    state: state,
+                    onToggle: controller.setAutoAdapt,
+                    onComplete: controller.completeOnboarding,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 
   Future<void> _goToPage(int page) async {
@@ -146,8 +150,8 @@ class _HifzOnboardingPageState extends ConsumerState<HifzOnboardingPage> {
 }
 
 class _TopProgressBar extends StatelessWidget {
-
-  const _TopProgressBar({required this.previousPage, required this.currentPage});
+  const _TopProgressBar(
+      {required this.previousPage, required this.currentPage});
   final int previousPage;
   final int currentPage;
 
@@ -185,7 +189,6 @@ class _TopProgressBar extends StatelessWidget {
 }
 
 class _WelcomeScreen extends StatelessWidget {
-
   const _WelcomeScreen({required this.onStart});
   final VoidCallback onStart;
 
@@ -204,7 +207,8 @@ class _WelcomeScreen extends StatelessWidget {
               height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.2),
+                border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2), width: 1.2),
               ),
               child: const Center(
                 child: Icon(Icons.auto_awesome, color: Colors.white, size: 30),
@@ -255,7 +259,9 @@ class _WelcomeDots extends StatelessWidget {
           width: active ? 20 : 6,
           height: 6,
           decoration: BoxDecoration(
-            color: active ? AppTheme.accentColor : Colors.white.withValues(alpha: 0.3),
+            color: active
+                ? AppTheme.accentColor
+                : Colors.white.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(50),
           ),
         );
@@ -265,7 +271,6 @@ class _WelcomeDots extends StatelessWidget {
 }
 
 class _AgeScreen extends StatelessWidget {
-
   const _AgeScreen({required this.selected, required this.onSelect});
   final int? selected;
   final ValueChanged<int> onSelect;
@@ -327,7 +332,7 @@ class _AgeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-           _InfoBanner(
+          _InfoBanner(
             color: const Color(0xFFF0FDF4),
             border: const Color(0xFFBBF7D0),
             textColor: AppTheme.primaryColor,
@@ -340,7 +345,6 @@ class _AgeScreen extends StatelessWidget {
 }
 
 class _TimeGoalScreen extends StatelessWidget {
-
   const _TimeGoalScreen({
     required this.selectedMinutes,
     required this.selectedGoal,
@@ -384,18 +388,22 @@ class _TimeGoalScreen extends StatelessWidget {
                 onTap: () => onMinutesSelect(minuteOptions[index]),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     color: selected ? AppTheme.primaryColor : Colors.white,
                     borderRadius: BorderRadius.circular(50),
                     border: Border.all(
-                      color: selected ? AppTheme.primaryColor : const Color(0xFFE2E8F0),
+                      color: selected
+                          ? AppTheme.primaryColor
+                          : const Color(0xFFE2E8F0),
                       width: 1.5,
                     ),
                     boxShadow: selected
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                              color:
+                                  AppTheme.primaryColor.withValues(alpha: 0.2),
                               blurRadius: 10,
                               offset: const Offset(0, 3),
                             ),
@@ -475,16 +483,20 @@ class _TimeGoalScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: selectedMinutes != null && selectedGoal != null ? onNext : null,
+              onPressed: selectedMinutes != null && selectedGoal != null
+                  ? onNext
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
                 'next'.tr(),
-                style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w700),
+                style: GoogleFonts.cairo(
+                    fontSize: 14, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -495,7 +507,6 @@ class _TimeGoalScreen extends StatelessWidget {
 }
 
 class _LearningStyleScreen extends StatelessWidget {
-
   const _LearningStyleScreen({required this.selected, required this.onSelect});
   final int? selected;
   final ValueChanged<int> onSelect;
@@ -560,7 +571,6 @@ class _LearningStyleScreen extends StatelessWidget {
 }
 
 class _SmartPlanScreen extends StatelessWidget {
-
   const _SmartPlanScreen({
     required this.state,
     required this.onToggle,
@@ -593,7 +603,11 @@ class _SmartPlanScreen extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF064E3B), Color(0xFF0A6B52), Color(0xFF1A3A5C)],
+                colors: [
+                  Color(0xFF064E3B),
+                  Color(0xFF0A6B52),
+                  Color(0xFF1A3A5C)
+                ],
               ),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -611,12 +625,22 @@ class _SmartPlanScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   '● ${context.locale.languageCode == 'ar' ? _toArabicIndic(plan?.newAyahsTarget ?? 3) : (plan?.newAyahsTarget ?? 3)} ${'new_ayahs_daily_suffix'.tr()}',
-                  style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+                  style: GoogleFonts.cairo(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '● ${'review_ayahs_text'.tr(args: [context.locale.languageCode == 'ar' ? _toArabicIndic(plan?.reviewAyahsTarget ?? 8) : (plan?.reviewAyahsTarget ?? 8).toString()])}',
-                  style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+                  '● ${'review_ayahs_text'.tr(args: [
+                        context.locale.languageCode == 'ar'
+                            ? _toArabicIndic(plan?.reviewAyahsTarget ?? 8)
+                            : (plan?.reviewAyahsTarget ?? 8).toString()
+                      ])}',
+                  style: GoogleFonts.cairo(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -683,7 +707,8 @@ class _SmartPlanScreen extends StatelessWidget {
                     ? const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
                       )
                     : Text(
                         'start_my_journey'.tr(),
@@ -703,8 +728,8 @@ class _SmartPlanScreen extends StatelessWidget {
 }
 
 class _QuestionLayout extends StatelessWidget {
-
-  const _QuestionLayout({required this.title, required this.hint, required this.child});
+  const _QuestionLayout(
+      {required this.title, required this.hint, required this.child});
   final String title;
   final String hint;
   final Widget child;
@@ -742,8 +767,8 @@ class _QuestionLayout extends StatelessWidget {
 }
 
 class _SelectionCard extends StatelessWidget {
-
-  const _SelectionCard({required this.selected, required this.onTap, required this.child});
+  const _SelectionCard(
+      {required this.selected, required this.onTap, required this.child});
   final bool selected;
   final VoidCallback onTap;
   final Widget child;
@@ -780,7 +805,6 @@ class _SelectionCard extends StatelessWidget {
 }
 
 class _InfoBanner extends StatelessWidget {
-
   const _InfoBanner({
     required this.color,
     required this.border,
@@ -816,7 +840,6 @@ class _InfoBanner extends StatelessWidget {
 }
 
 class _ScaleTapButton extends StatefulWidget {
-
   const _ScaleTapButton({required this.label, required this.onTap});
   final String label;
   final VoidCallback onTap;

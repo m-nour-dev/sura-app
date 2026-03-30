@@ -13,7 +13,6 @@ final wirdServiceProvider = FutureProvider<WirdService>((ref) async {
 
 // State class for the Wird
 class WirdState {
-
   WirdState({
     required this.currentPage,
     required this.goalType,
@@ -50,7 +49,6 @@ class WirdState {
 
 // Controller
 class WirdController extends StateNotifier<AsyncValue<WirdState>> {
-
   WirdController(this._service, this._ref) : super(const AsyncValue.loading()) {
     _loadSettings();
   }
@@ -86,7 +84,7 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
 
       // Progress calculations
       final progress = settings.currentPage / totalQuranPages;
-      
+
       // Daily progress
       var dailyProgress = 0.0;
       if (settings.hasConfiguredGoal) {
@@ -97,13 +95,21 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
           // Since we don't have 'startPageOfToday', we use the distance to targetPage
           var increment = 0;
           switch (settings.goalType) {
-            case WirdGoalType.page: increment = settings.goalValue; break;
-            case WirdGoalType.juz: increment = settings.goalValue * 20; break;
-            case WirdGoalType.hizb: increment = settings.goalValue * 10; break;
+            case WirdGoalType.page:
+              increment = settings.goalValue;
+              break;
+            case WirdGoalType.juz:
+              increment = settings.goalValue * 20;
+              break;
+            case WirdGoalType.hizb:
+              increment = settings.goalValue * 10;
+              break;
           }
-          
-          final startOfGoal = (targetPage - increment).clamp(1, totalQuranPages);
-          final currentProgress = (settings.currentPage - startOfGoal).clamp(0, increment);
+
+          final startOfGoal =
+              (targetPage - increment).clamp(1, totalQuranPages);
+          final currentProgress =
+              (settings.currentPage - startOfGoal).clamp(0, increment);
           dailyProgress = (currentProgress / increment).clamp(0.0, 1.0);
         }
       }
@@ -112,33 +118,43 @@ class WirdController extends StateNotifier<AsyncValue<WirdState>> {
       var daysDifference = 0;
       final completedWirdsCount = history.length;
       var remainingWirdsCount = 0;
-      
+
       if (settings.khatmaStartDate != null) {
         // Fix: Use normalized dates for comparison
         final today = DateTime(now.year, now.month, now.day);
-        final start = DateTime(settings.khatmaStartDate!.year, settings.khatmaStartDate!.month, settings.khatmaStartDate!.day);
-        final elapsedDays = today.difference(start).inDays; // 0 if started today
+        final start = DateTime(settings.khatmaStartDate!.year,
+            settings.khatmaStartDate!.month, settings.khatmaStartDate!.day);
+        final elapsedDays =
+            today.difference(start).inDays; // 0 if started today
 
         // Calculate increment (pages per day)
         var increment = 0;
         switch (settings.goalType) {
-          case WirdGoalType.page: increment = settings.goalValue; break;
-          case WirdGoalType.juz: increment = settings.goalValue * 20; break;
-          case WirdGoalType.hizb: increment = settings.goalValue * 10; break;
+          case WirdGoalType.page:
+            increment = settings.goalValue;
+            break;
+          case WirdGoalType.juz:
+            increment = settings.goalValue * 20;
+            break;
+          case WirdGoalType.hizb:
+            increment = settings.goalValue * 10;
+            break;
         }
 
         if (increment > 0) {
           // How many full daily portions have been completed based strictly on current page
           // e.g., if increment is 20, and currentPage is 1: expectedDaysOfReading = 0
           // if currentPage is 21: expectedDaysOfReading = 1
-          final expectedDaysOfReading = ((settings.currentPage - 1) / increment).floor();
+          final expectedDaysOfReading =
+              ((settings.currentPage - 1) / increment).floor();
 
           // If elapsedDays == 0 (started today), you are expected to have 0 reading done so far to be "on track".
           // If elapsedDays == 1 (started yesterday), you are expected to have 1 reading done.
           daysDifference = expectedDaysOfReading - elapsedDays;
 
           // Calculate remaining
-          remainingWirdsCount = ((604 - settings.currentPage) / increment).ceil();
+          remainingWirdsCount =
+              ((604 - settings.currentPage) / increment).ceil();
         }
       }
 

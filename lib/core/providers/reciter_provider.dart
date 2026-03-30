@@ -32,8 +32,8 @@ class ReciterController extends _$ReciterController {
   }
 
   String buildAyahUrl(int surahNumber, int ayahNumber) {
-    final reciter =
-        state.valueOrNull ?? ReciterService.getById(ReciterService.defaultReciterId);
+    final reciter = state.valueOrNull ??
+        ReciterService.getById(ReciterService.defaultReciterId);
     return reciter.buildAyahUrl(surahNumber, ayahNumber);
   }
 }

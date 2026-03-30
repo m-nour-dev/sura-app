@@ -267,9 +267,13 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
     final state = ref.watch(hifzHomeControllerProvider);
     final controller = ref.read(hifzHomeControllerProvider.notifier);
 
-    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ?? 
-        const QuranSettings(fontSize: 26, fontFamily: 'Scheherazade New', themeMode: QuranThemeMode.sepia);
-    final isDark = false; // Always use light mode layout for this page as requested
+    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
+        const QuranSettings(
+            fontSize: 26,
+            fontFamily: 'Scheherazade New',
+            themeMode: QuranThemeMode.sepia);
+    final isDark =
+        false; // Always use light mode layout for this page as requested
     final bgColor = isDark ? const Color(0xFF0F172A) : Colors.white;
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
 
@@ -282,7 +286,8 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
             pinned: true,
             backgroundColor: bgColor,
             elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(background: _Header(state: state, settings: settings)),
+            flexibleSpace: FlexibleSpaceBar(
+                background: _Header(state: state, settings: settings)),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -311,7 +316,8 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        gradient: AppTheme.headerGradient, // Emerald Deep Gradient
+                        gradient:
+                            AppTheme.headerGradient, // Emerald Deep Gradient
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
@@ -490,7 +496,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = settings.themeMode == QuranThemeMode.dark;
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: AppTheme.headerGradient,
@@ -581,7 +587,8 @@ class _DailyPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = false; // Always use light mode layout for this page as requested
+    final isDark =
+        false; // Always use light mode layout for this page as requested
     final total = state.targetAyahsToday <= 0 ? 1 : state.targetAyahsToday;
     final progress = (state.doneAyahsToday / total).clamp(0.0, 1.0);
     final now = DateTime.now();
@@ -597,7 +604,9 @@ class _DailyPlanCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0), width: 0.5),
+        border: Border.all(
+            color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+            width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
@@ -770,7 +779,8 @@ class _MethodsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = false; // Always use light mode layout for this page as requested
+    final isDark =
+        false; // Always use light mode layout for this page as requested
     final isArabic = context.locale.languageCode == 'ar';
     final countStr =
         isArabic ? _toArabicIndic(dueReviewCount) : dueReviewCount.toString();
@@ -819,11 +829,16 @@ class _MethodsGrid extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: c.featured ? (isDark ? AppTheme.darkBackgroundColor : const Color(0xFFFEF8E6)) : (isDark ? AppTheme.darkSurfaceColor : Colors.white),
+              color: c.featured
+                  ? (isDark
+                      ? AppTheme.darkBackgroundColor
+                      : const Color(0xFFFEF8E6))
+                  : (isDark ? AppTheme.darkSurfaceColor : Colors.white),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color:
-                    c.featured ? AppTheme.accentColor.withOpacity(0.5) : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
+                color: c.featured
+                    ? AppTheme.accentColor.withOpacity(0.5)
+                    : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
                 width: c.featured ? 1.5 : 0.5,
               ),
               boxShadow: [
@@ -887,7 +902,8 @@ class _MomentsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = false; // Always use light mode layout for this page as requested
+    final isDark =
+        false; // Always use light mode layout for this page as requested
 
     if (moments.isEmpty) {
       return Container(
@@ -895,7 +911,9 @@ class _MomentsSection extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0), width: 0.5),
+          border: Border.all(
+              color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+              width: 0.5),
         ),
         child: Column(
           children: [
@@ -940,7 +958,9 @@ class _MomentsSection extends StatelessWidget {
             decoration: BoxDecoration(
               color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0), width: 1.0),
+              border: Border.all(
+                  color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                  width: 1.0),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(isDark ? 0.3 : 0.03),

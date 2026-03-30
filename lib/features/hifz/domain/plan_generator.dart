@@ -1,7 +1,6 @@
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 
 class HifzDailyPlan {
-
   const HifzDailyPlan({
     required this.newAyahsTarget,
     required this.reviewAyahsTarget,

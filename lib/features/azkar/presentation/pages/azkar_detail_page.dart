@@ -10,8 +10,8 @@ import 'package:sila_app/features/azkar/presentation/riverpod/azkar_controller.d
 import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
 class AzkarDetailPage extends ConsumerStatefulWidget {
-
-  const AzkarDetailPage({super.key, required this.categoryId, required this.title});
+  const AzkarDetailPage(
+      {super.key, required this.categoryId, required this.title});
   final String categoryId;
   final String title;
 
@@ -52,7 +52,8 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     const primaryColor = Color(0xFF064E3B);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
+    final textColor =
+        isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
 
     showDialog(
       context: context,
@@ -138,7 +139,8 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
         final currentCount = _counts[index] ?? 0;
         final isCompleted = currentCount >= item.count;
         final progress = (item.count > 0) ? currentCount / item.count : 0.0;
-        final subtitleColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+        final subtitleColor =
+            isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
         return AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
@@ -180,7 +182,8 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(20),
@@ -196,7 +199,8 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
                             ),
                           ),
                           if (item.fadilah.isNotEmpty)
-                            Icon(Icons.info_outline, color: accentColor, size: 24),
+                            Icon(Icons.info_outline,
+                                color: accentColor, size: 24),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -295,14 +299,17 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
   Widget build(BuildContext context) {
     // Load azkar data (now locale-aware globally)
     final azkarAsync = ref.watch(azkarDataProvider);
-    
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+    final backgroundColor =
+        isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFFD97706);
-    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
-    final subtitleColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final textColor =
+        isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
+    final subtitleColor =
+        isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -310,105 +317,112 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
         title: widget.title,
       ),
       body: azkarAsync.when(
-         data: (data) {
-           final items = data[widget.categoryId] ?? [];
-           
-            // Show message if category is empty (not yet translated to Turkish)
-            if (items.isEmpty) {
-              final isTurkish = context.locale.languageCode == 'tr';
-              
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(40),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+        data: (data) {
+          final items = data[widget.categoryId] ?? [];
+
+          // Show message if category is empty (not yet translated to Turkish)
+          if (items.isEmpty) {
+            final isTurkish = context.locale.languageCode == 'tr';
+
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.schedule_outlined,
+                      size: 80,
+                      color: const Color(0xFF064E3B).withOpacity(0.3),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      isTurkish
+                          ? 'turkish_translation_coming'.tr()
+                          : 'Coming soon...',
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        color: subtitleColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      isTurkish
+                          ? 'main_azkar_available'.tr()
+                          : 'This content is coming soon',
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        color: subtitleColor,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // Check if Turkish user is viewing Arabic-only content
+          final isTurkish = context.locale.languageCode.startsWith('tr');
+          // Show info banner if Turkish content is only partially translated
+          if (isTurkish && items.isNotEmpty) {
+            return Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFF59E0B),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        Icons.schedule_outlined,
-                        size: 80,
-                        color: const Color(0xFF064E3B).withOpacity(0.3),
+                        Icons.info_outline,
+                        color: Color(0xFFF59E0B),
+                        size: 24,
                       ),
-                      const SizedBox(height: 24),
-                      Text(
-                        isTurkish ? 'turkish_translation_coming'.tr() : 'Coming soon...',
-                        style: TextStyle(
-                          fontFamily: 'Cairo',
-                          color: subtitleColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Türkçe çevirisi, Arapça orijinal metni içermektedir. Faydaları Türkçedir.',
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 13,
+                            color: Color(0xFF92400E),
+                            height: 1.4,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        isTurkish ? 'main_azkar_available'.tr() : 'This content is coming soon',
-                        style: TextStyle(
-                          fontFamily: 'Cairo',
-                          color: subtitleColor,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
                 ),
-              );
-            }
-            
-            // Check if Turkish user is viewing Arabic-only content
-             final isTurkish = context.locale.languageCode.startsWith('tr');
-             // Show info banner if Turkish content is only partially translated
-             if (isTurkish && items.isNotEmpty) {
-               return Column(
-                 children: [
-                   Container(
-                     width: double.infinity,
-                     margin: const EdgeInsets.all(16),
-                     padding: const EdgeInsets.all(16),
-                     decoration: BoxDecoration(
-                       color: const Color(0xFFFEF3C7),
-                       borderRadius: BorderRadius.circular(12),
-                       border: Border.all(
-                         color: const Color(0xFFF59E0B),
-                         width: 1,
-                       ),
-                     ),
-                     child: const Row(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Icon(
-                           Icons.info_outline,
-                           color: Color(0xFFF59E0B),
-                           size: 24,
-                         ),
-                         SizedBox(width: 12),
-                         Expanded(
-                           child: Text(
-                             'Türkçe çevirisi, Arapça orijinal metni içermektedir. Faydaları Türkçedir.',
-                             style: TextStyle(
-                               fontFamily: 'Cairo',
-                               fontSize: 13,
-                               color: Color(0xFF92400E),
-                               height: 1.4,
-                             ),
-                           ),
-                         ),
-                       ],
-                     ),
-                   ),
-                   Expanded(
-                     child: _buildAzkarList(items, textColor, primaryColor, accentColor, backgroundColor, surfaceColor, isDark),
-                   ),
-                 ],
-               );
-             }
+                Expanded(
+                  child: _buildAzkarList(items, textColor, primaryColor,
+                      accentColor, backgroundColor, surfaceColor, isDark),
+                ),
+              ],
+            );
+          }
 
-           return _buildAzkarList(items, textColor, primaryColor, accentColor, backgroundColor, surfaceColor, isDark);
+          return _buildAzkarList(items, textColor, primaryColor, accentColor,
+              backgroundColor, surfaceColor, isDark);
         },
         error: (e, st) => Center(
           child: Text(
             'Error: $e',
-            style: const TextStyle(color: Colors.redAccent, fontFamily: 'Cairo'),
+            style:
+                const TextStyle(color: Colors.redAccent, fontFamily: 'Cairo'),
           ),
         ),
         loading: () => const Center(

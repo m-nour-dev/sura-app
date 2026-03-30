@@ -1,4 +1,3 @@
-
 import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
 
 abstract class ITasmiErrorRepository {

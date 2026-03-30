@@ -14,5 +14,5 @@ AzkarRepository azkarRepository(AzkarRepositoryRef ref) {
 Future<Map<String, List<AzkarItem>>> azkarData(AzkarDataRef ref) async {
   final repository = ref.watch(azkarRepositoryProvider);
   final locale = ref.watch(appLocaleProvider);
-  return await repository.getAzkar(locale.languageCode); 
+  return await repository.getAzkar(locale.languageCode);
 }

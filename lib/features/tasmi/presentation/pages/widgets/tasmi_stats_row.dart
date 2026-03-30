@@ -20,30 +20,55 @@ class TasmiStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final correctCount = state.words.where((w) => w.status == WordEntryStatus.correct).length;
-    final errorCount = state.words.where((w) => w.status == WordEntryStatus.closeError || w.status == WordEntryStatus.wrongWord).length;
-    final currentAyah = state.words.isEmpty || state.currentIndex >= state.words.length
-        ? 0
-        : state.words[state.currentIndex].verseNumber;
+    final correctCount =
+        state.words.where((w) => w.status == WordEntryStatus.correct).length;
+    final errorCount = state.words
+        .where((w) =>
+            w.status == WordEntryStatus.closeError ||
+            w.status == WordEntryStatus.wrongWord)
+        .length;
+    final currentAyah =
+        state.words.isEmpty || state.currentIndex >= state.words.length
+            ? 0
+            : state.words[state.currentIndex].verseNumber;
 
     return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Row(
-          children: [
-            Expanded(child: _StatCard(label: 'tasmi_stat_current_ayah'.tr(), value: currentAyah > 0 ? _toArabicNumber(context, currentAyah.toString()) : '-', icon: Icons.menu_book_rounded)),
-            const SizedBox(width: 12),
-            Expanded(child: _StatCard(label: 'tasmi_stat_errors'.tr(), value: _toArabicNumber(context, errorCount.toString()), color: Colors.red[400], icon: Icons.error_outline_rounded)),
-            const SizedBox(width: 12),
-            Expanded(child: _StatCard(label: 'tasmi_stat_correct'.tr(), value: _toArabicNumber(context, correctCount.toString()), color: Colors.green[400], icon: Icons.check_circle_outline_rounded)),
-          ],
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+              child: _StatCard(
+                  label: 'tasmi_stat_current_ayah'.tr(),
+                  value: currentAyah > 0
+                      ? _toArabicNumber(context, currentAyah.toString())
+                      : '-',
+                  icon: Icons.menu_book_rounded)),
+          const SizedBox(width: 12),
+          Expanded(
+              child: _StatCard(
+                  label: 'tasmi_stat_errors'.tr(),
+                  value: _toArabicNumber(context, errorCount.toString()),
+                  color: Colors.red[400],
+                  icon: Icons.error_outline_rounded)),
+          const SizedBox(width: 12),
+          Expanded(
+              child: _StatCard(
+                  label: 'tasmi_stat_correct'.tr(),
+                  value: _toArabicNumber(context, correctCount.toString()),
+                  color: Colors.green[400],
+                  icon: Icons.check_circle_outline_rounded)),
+        ],
+      ),
     );
   }
 }
 
 class _StatCard extends StatelessWidget {
-
-  const _StatCard({required this.label, required this.value, this.color, required this.icon});
+  const _StatCard(
+      {required this.label,
+      required this.value,
+      this.color,
+      required this.icon});
   final String label;
   final String value;
   final Color? color;
@@ -54,7 +79,7 @@ class _StatCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     const primaryColor = Color(0xFF064E3B);
     final displayColor = color ?? primaryColor;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
@@ -80,10 +105,10 @@ class _StatCard extends StatelessWidget {
               Icon(icon, size: 14, color: displayColor.withOpacity(0.8)),
               const SizedBox(width: 4),
               Text(
-                label, 
+                label,
                 style: TextStyle(
-                  fontSize: 12, 
-                  fontFamily: 'Cairo', 
+                  fontSize: 12,
+                  fontFamily: 'Cairo',
                   color: isDark ? Colors.white70 : Colors.grey[600],
                   fontWeight: FontWeight.bold,
                 ),
@@ -94,8 +119,8 @@ class _StatCard extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 22, 
-              fontWeight: FontWeight.bold, 
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
               color: displayColor,
               fontFamily: 'Cairo',
             ),

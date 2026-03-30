@@ -22,15 +22,15 @@ class AzkarRepository {
       }
       final jsonString = await rootBundle.loadString('assets/data/$fileName');
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      
+
       final result = <String, List<AzkarItem>>{};
-      
+
       jsonMap.forEach((key, value) {
         if (value is List) {
           result[key] = value.map((e) => AzkarItem.fromJson(e)).toList();
         }
       });
-      
+
       return result;
     } catch (e) {
       // Fallback to Arabic if specific language file fails

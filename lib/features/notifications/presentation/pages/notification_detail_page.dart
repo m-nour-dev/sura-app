@@ -13,7 +13,6 @@ import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection
 import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart';
 
 class NotificationDetailPage extends ConsumerWidget {
-
   const NotificationDetailPage({
     super.key,
     required this.contentId,
@@ -289,7 +288,6 @@ class NotificationDetailPage extends ConsumerWidget {
 }
 
 class _TafsirCard extends StatefulWidget {
-
   const _TafsirCard({
     required super.key,
     required this.surahNumber,

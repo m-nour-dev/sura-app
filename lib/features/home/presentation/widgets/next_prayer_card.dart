@@ -68,12 +68,14 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
         if (timeLeft.inHours > 24) timeLeft = Duration.zero;
 
         final hours = timeLeft.inHours.toString().padLeft(2, '0');
-        final mins = timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0');
-        final secs = timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
+        final mins =
+            timeLeft.inMinutes.remainder(60).toString().padLeft(2, '0');
+        final secs =
+            timeLeft.inSeconds.remainder(60).toString().padLeft(2, '0');
         final remainingTime = '$hours:$mins:$secs';
 
         final nextPrayerName = nextKey.tr();
-        
+
         final formattedNextTime = TimeUtils.formatPrayerTime(nextTime, context);
 
         return Container(
@@ -90,29 +92,32 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   Text('next_prayer'.tr(),
-                    style: GoogleFonts.getFont('Cairo',
-                      fontSize: 12, color: Colors.white60)),
-                   Text(nextPrayerName,
-                    style: GoogleFonts.getFont('Cairo',
-                      fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white)),
-                   Text(formattedNextTime,
-                    style: GoogleFonts.getFont('Cairo',
-                      fontSize: 14, color: Colors.white70)),
-                 ],
-               ),
-               Column(
-                 crossAxisAlignment: CrossAxisAlignment.end,
-                 children: [
-                   Text('remaining_time'.tr(),
-                    style: GoogleFonts.getFont('Cairo',
-                      fontSize: 11, color: Colors.white60)),
-                   Text(remainingTime,
-                    style: GoogleFonts.getFont('Cairo',
-                      fontSize: 18, fontWeight: FontWeight.w700,
-                      color: const Color(0xFFFCD34D))),
-                 ],
-               ),
+                  Text('next_prayer'.tr(),
+                      style: GoogleFonts.getFont('Cairo',
+                          fontSize: 12, color: Colors.white60)),
+                  Text(nextPrayerName,
+                      style: GoogleFonts.getFont('Cairo',
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white)),
+                  Text(formattedNextTime,
+                      style: GoogleFonts.getFont('Cairo',
+                          fontSize: 14, color: Colors.white70)),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('remaining_time'.tr(),
+                      style: GoogleFonts.getFont('Cairo',
+                          fontSize: 11, color: Colors.white60)),
+                  Text(remainingTime,
+                      style: GoogleFonts.getFont('Cairo',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFFCD34D))),
+                ],
+              ),
             ],
           ),
         );
@@ -123,7 +128,8 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
           color: const Color(0xFF064E3B),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(child: CircularProgressIndicator(color: Colors.white)),
+        child:
+            const Center(child: CircularProgressIndicator(color: Colors.white)),
       ),
       error: (e, _) => Container(
         height: 100,
@@ -131,7 +137,9 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
           color: Colors.red.shade900,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Center(child: Text(e.toString(), style: const TextStyle(color: Colors.white))),
+        child: Center(
+            child: Text(e.toString(),
+                style: const TextStyle(color: Colors.white))),
       ),
     );
   }

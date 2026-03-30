@@ -23,7 +23,8 @@ class NotificationHubPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF065F46),
         foregroundColor: Colors.white,
-        title: Text('smart_notifications_title'.tr(), style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
+        title: Text('smart_notifications_title'.tr(),
+            style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -36,7 +37,8 @@ class NotificationHubPage extends StatelessWidget {
             border: border,
             titleColor: title,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const SalahNotificationSettings()),
+              MaterialPageRoute(
+                  builder: (_) => const SalahNotificationSettings()),
             ),
           ),
           _HubTile(
@@ -47,7 +49,8 @@ class NotificationHubPage extends StatelessWidget {
             border: border,
             titleColor: title,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const WirdNotificationSettings()),
+              MaterialPageRoute(
+                  builder: (_) => const WirdNotificationSettings()),
             ),
           ),
           _HubTile(
@@ -58,7 +61,8 @@ class NotificationHubPage extends StatelessWidget {
             border: border,
             titleColor: title,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AzkarNotificationSettings()),
+              MaterialPageRoute(
+                  builder: (_) => const AzkarNotificationSettings()),
             ),
           ),
           _HubTile(
@@ -69,7 +73,8 @@ class NotificationHubPage extends StatelessWidget {
             border: border,
             titleColor: title,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const HifzNotificationSettings()),
+              MaterialPageRoute(
+                  builder: (_) => const HifzNotificationSettings()),
             ),
           ),
           _HubTile(
@@ -80,7 +85,8 @@ class NotificationHubPage extends StatelessWidget {
             border: border,
             titleColor: title,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const TasbihNotificationSettings()),
+              MaterialPageRoute(
+                  builder: (_) => const TasbihNotificationSettings()),
             ),
           ),
         ],
@@ -90,7 +96,6 @@ class NotificationHubPage extends StatelessWidget {
 }
 
 class _HubTile extends StatelessWidget {
-
   const _HubTile({
     required this.title,
     required this.subtitle,
@@ -130,7 +135,8 @@ class _HubTile extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: GoogleFonts.getFont('Cairo', fontWeight: FontWeight.w700, color: titleColor),
+          style: GoogleFonts.getFont('Cairo',
+              fontWeight: FontWeight.w700, color: titleColor),
         ),
         subtitle: Text(
           subtitle,

@@ -28,7 +28,7 @@ class NotificationIds {
   static const int fridaySalawatB = 118;
   static const int fridayResponseHour = 119;
   static const int dailyReport = 120;
-  
+
   // Daily Smart Slots
   static const int dailySlot1 = 201; // After Fajr (Azkar Sabah)
   static const int dailySlot2 = 202; // 09:00

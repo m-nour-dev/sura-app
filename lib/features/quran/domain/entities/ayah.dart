@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-class Ayah extends Equatable { // Remote Audio URL
+class Ayah extends Equatable {
+  // Remote Audio URL
 
   const Ayah({
     required this.number,

@@ -41,13 +41,21 @@ The app is designed with a local-first philosophy: all core functionality works 
 
 <div align="center">
 
-![Sila App System Design](docs/assets/system_design.png)
+#### 📐 System Architecture
 
-*Professional design sheet showcasing the four core screens: Quran Reader, Prayer Times, Azkar Tracker, and Hifz Memorization*
+![Sila System Architecture](docs/assets/SYSTEM_ARCHITECTURE.svg)
+
+*Full architecture showing Presentation, State Management, Domain, Data, and Infrastructure layers*
+
+#### 🔄 User Journey & Feature Flow
+
+![Sila User Journey](docs/assets/USER_JOURNEY.svg)
+
+*Daily worship journey across the four core pillars: Quran, Prayer, Azkar, and Hifz*
 
 </div>
 
-> See [docs/assets/SYSTEM_DESIGN_README.md](docs/assets/SYSTEM_DESIGN_README.md) for design specifications and AI generation prompts.
+> See [docs/assets/SYSTEM_DESIGN_README.md](docs/assets/SYSTEM_DESIGN_README.md) for detailed design specifications and wireframes.
 
 <br/>
 

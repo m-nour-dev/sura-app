@@ -11,9 +11,9 @@ class WirdHistory {
 
   int startPage = 0;
   int endPage = 0;
-  
+
   // Optional: Store surah names for display in history
-  String? description; 
+  String? description;
 
   // Whether this was a full completion or just a partial read
   bool isFullCompletion = true;

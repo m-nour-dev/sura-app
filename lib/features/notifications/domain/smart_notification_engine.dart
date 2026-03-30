@@ -6,7 +6,6 @@ import 'package:sila_app/features/notifications/data/repositories/i_notification
 import 'package:sila_app/features/notifications/domain/content_selector.dart';
 
 class SmartNotificationEngine {
-
   SmartNotificationEngine({
     required this.repository,
     ContentSelector? selector,
@@ -33,7 +32,8 @@ class SmartNotificationEngine {
   }
 
   String _detectTrigger(String featureKey, UserActivityLog activity) {
-    final hoursSinceLastOpen = DateTime.now().difference(activity.lastOpened).inHours;
+    final hoursSinceLastOpen =
+        DateTime.now().difference(activity.lastOpened).inHours;
     final inactivityThresholds = {
       'azkar': 18,
       'wird': 26,

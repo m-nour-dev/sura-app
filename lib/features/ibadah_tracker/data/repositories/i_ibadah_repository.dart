@@ -26,7 +26,8 @@ abstract class IIbadahRepository {
     required String key,
     required bool value,
   });
-  Future<void> updatePersonalNote({required DateTime date, required String? note});
+  Future<void> updatePersonalNote(
+      {required DateTime date, required String? note});
 
   Future<UserGenderPrefs?> getGenderPrefs();
   Future<void> setGenderPrefs({required bool isMale});

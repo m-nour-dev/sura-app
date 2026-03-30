@@ -10,7 +10,6 @@ abstract class VefaLocalDataSource {
 }
 
 class VefaLocalDataSourceImpl implements VefaLocalDataSource {
-
   VefaLocalDataSourceImpl(this.isar);
   final Isar isar;
 
@@ -35,12 +34,12 @@ class VefaLocalDataSourceImpl implements VefaLocalDataSource {
 
   @override
   Future<void> updatePerson(VefaPersonModel person) async {
-     await isar.writeTxn(() async {
+    await isar.writeTxn(() async {
       await isar.vefaPersonModels.put(person);
     });
   }
 
-    @override
+  @override
   Future<void> incrementGiftCount(int id) async {
     await isar.writeTxn(() async {
       final person = await isar.vefaPersonModels.get(id);

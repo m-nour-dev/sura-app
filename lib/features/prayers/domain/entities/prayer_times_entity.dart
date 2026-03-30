@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-class PrayerTimesEntity extends Equatable { // e.g. "turkey", "egyptian"
+class PrayerTimesEntity extends Equatable {
+  // e.g. "turkey", "egyptian"
 
   const PrayerTimesEntity({
     required this.fajr,
@@ -24,12 +25,21 @@ class PrayerTimesEntity extends Equatable { // e.g. "turkey", "egyptian"
   final String locationName;
   final double latitude;
   final double longitude;
-  final String countryCode;        // e.g. "TR", "EG", "SA"
+  final String countryCode; // e.g. "TR", "EG", "SA"
   final String calculationMethod;
 
   @override
   List<Object?> get props => [
-    fajr, sunrise, dhuhr, asr, maghrib, isha,
-    locationName, latitude, longitude, countryCode, calculationMethod,
-  ];
+        fajr,
+        sunrise,
+        dhuhr,
+        asr,
+        maghrib,
+        isha,
+        locationName,
+        latitude,
+        longitude,
+        countryCode,
+        calculationMethod,
+      ];
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SilaAppBar extends StatelessWidget implements PreferredSizeWidget {
-
   const SilaAppBar({
     super.key,
     required this.title,
@@ -17,7 +16,8 @@ class SilaAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
-      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF064E3B),
+      backgroundColor:
+          isDark ? const Color(0xFF1E293B) : const Color(0xFF064E3B),
       elevation: 0,
       centerTitle: false,
       title: FittedBox(
@@ -34,7 +34,8 @@ class SilaAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       leading: showBack
           ? IconButton(
-              icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white, size: 18),
+              icon: const Icon(Icons.arrow_back_ios_rounded,
+                  color: Colors.white, size: 18),
               onPressed: () => Navigator.pop(context),
             )
           : null,

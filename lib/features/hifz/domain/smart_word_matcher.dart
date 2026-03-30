@@ -11,7 +11,6 @@ enum HifzWordMatchResult {
 }
 
 class HifzMatchResult {
-
   const HifzMatchResult({required this.wordResults});
   final List<HifzWordMatchResult> wordResults;
 

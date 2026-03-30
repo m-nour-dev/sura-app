@@ -2,7 +2,6 @@ import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
 
 class StreakTracker {
-
   StreakTracker({
     required this.repository,
     required this.notificationService,

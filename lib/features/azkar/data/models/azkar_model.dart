@@ -1,5 +1,9 @@
 class AzkarItem {
-  AzkarItem({required this.text, required this.count, required this.fadilah, this.title});
+  AzkarItem(
+      {required this.text,
+      required this.count,
+      required this.fadilah,
+      this.title});
 
   factory AzkarItem.fromJson(Map<String, dynamic> json) {
     return AzkarItem(

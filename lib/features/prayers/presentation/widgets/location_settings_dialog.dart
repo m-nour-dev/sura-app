@@ -100,7 +100,11 @@ class _LocationSettingsDialogState extends State<LocationSettingsDialog> {
               decoration: InputDecoration(
                 labelText: 'enter_city'.tr(),
                 border: const OutlineInputBorder(),
-                suffixIcon: _isLoading ? const Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator(strokeWidth: 2)) : null,
+                suffixIcon: _isLoading
+                    ? const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : null,
               ),
             ),
             const SizedBox(height: 10),

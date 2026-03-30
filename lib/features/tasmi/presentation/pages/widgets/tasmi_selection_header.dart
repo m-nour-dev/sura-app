@@ -1,10 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 
 class TasmiSelectionHeader extends StatelessWidget {
-
   const TasmiSelectionHeader({
     super.key,
     required this.title,
@@ -16,7 +14,7 @@ class TasmiSelectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       padding: const EdgeInsets.only(top: 60, bottom: 20),
       decoration: BoxDecoration(
@@ -41,7 +39,8 @@ class TasmiSelectionHeader extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0),
                   child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new, color: isDark ? Colors.white : AppTheme.primaryColor),
+                    icon: Icon(Icons.arrow_back_ios_new,
+                        color: isDark ? Colors.white : AppTheme.primaryColor),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -49,7 +48,7 @@ class TasmiSelectionHeader extends StatelessWidget {
               Text(
                 title,
                 style: GoogleFonts.cairo(
-                  fontSize: 24, 
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: isDark ? Colors.white : AppTheme.primaryColor,
                 ),
@@ -60,7 +59,7 @@ class TasmiSelectionHeader extends StatelessWidget {
           Text(
             subtitle,
             style: GoogleFonts.cairo(
-              color: isDark ? Colors.white70 : Colors.grey[700], 
+              color: isDark ? Colors.white70 : Colors.grey[700],
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),

@@ -40,7 +40,7 @@ class WirdSettings {
   @ignore
   int get targetPageForToday {
     if (_stableTargetPage != null) return _stableTargetPage!;
-    
+
     var increment = 0;
     switch (goalType) {
       case WirdGoalType.page:
@@ -53,7 +53,7 @@ class WirdSettings {
         increment = goalValue * 10;
         break;
     }
-    
+
     return (currentPage + increment).clamp(1, totalQuranPages);
   }
 

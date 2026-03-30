@@ -9,7 +9,8 @@ import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provide
 class LanguageSelectionPage extends ConsumerWidget {
   const LanguageSelectionPage({super.key});
 
-  Future<void> _selectLanguage(BuildContext context, WidgetRef ref, Locale locale) async {
+  Future<void> _selectLanguage(
+      BuildContext context, WidgetRef ref, Locale locale) async {
     // Set locale
     await context.setLocale(locale);
     // Update provider
@@ -46,7 +47,7 @@ class LanguageSelectionPage extends ConsumerWidget {
                 color: Color(0xFF064E3B),
               ),
               const SizedBox(height: 32),
-              
+
               // Title
               Text(
                 'choose_language'.tr(),
@@ -57,7 +58,7 @@ class LanguageSelectionPage extends ConsumerWidget {
                   color: const Color(0xFF064E3B),
                 ),
               ),
-              
+
               const SizedBox(height: 48),
 
               // Arabic Option
@@ -65,7 +66,8 @@ class LanguageSelectionPage extends ConsumerWidget {
                 title: 'العربية',
                 subtitle: 'Arabic',
                 flag: '🇸🇦',
-                onTap: () => _selectLanguage(context, ref, const Locale('ar', 'SA')),
+                onTap: () =>
+                    _selectLanguage(context, ref, const Locale('ar', 'SA')),
               ),
 
               const SizedBox(height: 16),
@@ -75,7 +77,8 @@ class LanguageSelectionPage extends ConsumerWidget {
                 title: 'Türkçe',
                 subtitle: 'Turkish',
                 flag: '🇹🇷',
-                onTap: () => _selectLanguage(context, ref, const Locale('tr', 'TR')),
+                onTap: () =>
+                    _selectLanguage(context, ref, const Locale('tr', 'TR')),
               ),
 
               const SizedBox(height: 16),
@@ -85,7 +88,8 @@ class LanguageSelectionPage extends ConsumerWidget {
                 title: 'English',
                 subtitle: 'English',
                 flag: '🇺🇸',
-                onTap: () => _selectLanguage(context, ref, const Locale('en', 'US')),
+                onTap: () =>
+                    _selectLanguage(context, ref, const Locale('en', 'US')),
               ),
 
               const SizedBox(height: 16),
@@ -95,11 +99,12 @@ class LanguageSelectionPage extends ConsumerWidget {
                 title: 'Français',
                 subtitle: 'French',
                 flag: '🇫🇷',
-                onTap: () => _selectLanguage(context, ref, const Locale('fr', 'FR')),
+                onTap: () =>
+                    _selectLanguage(context, ref, const Locale('fr', 'FR')),
               ),
 
               const Spacer(),
-              
+
               // Footer text
               Text(
                 'Sıla App',
@@ -119,7 +124,6 @@ class LanguageSelectionPage extends ConsumerWidget {
 }
 
 class _LanguageOptionCard extends StatelessWidget {
-
   const _LanguageOptionCard({
     required this.title,
     required this.subtitle,

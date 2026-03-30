@@ -1,4 +1,3 @@
-
 import 'package:isar/isar.dart';
 
 part 'tasmi_word_error.g.dart';

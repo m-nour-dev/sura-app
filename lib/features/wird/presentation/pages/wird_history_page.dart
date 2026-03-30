@@ -12,13 +12,16 @@ class WirdHistoryPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final wirdStateAsync = ref.watch(wirdControllerProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Global Sila Colors
-    final backgroundColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+    final backgroundColor =
+        isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
     final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     const primaryColor = Color(0xFF064E3B);
-    final textColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
-    final subtitleColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final textColor =
+        isDark ? const Color(0xFFF1F5F9) : const Color(0xFF334155);
+    final subtitleColor =
+        isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -31,7 +34,7 @@ class WirdHistoryPage extends ConsumerWidget {
             if (wirdState.history.isEmpty) {
               return Center(
                 child: Text(
-                  'لا توجد أوراد سابقة مسجلة بعد', 
+                  'لا توجد أوراد سابقة مسجلة بعد',
                   style: TextStyle(
                     fontFamily: 'Cairo',
                     color: subtitleColor,
@@ -40,17 +43,19 @@ class WirdHistoryPage extends ConsumerWidget {
                 ),
               );
             }
-            
+
             return ListView.builder(
               padding: const EdgeInsets.all(20),
               itemCount: wirdState.history.length,
               itemBuilder: (context, index) {
                 final historyItem = wirdState.history[index];
-                final formattedDate = DateFormat('yyyy/MM/dd').format(historyItem.date);
+                final formattedDate =
+                    DateFormat('yyyy/MM/dd').format(historyItem.date);
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   decoration: BoxDecoration(
                     color: surfaceColor,
                     borderRadius: BorderRadius.circular(16),
@@ -107,7 +112,8 @@ class WirdHistoryPage extends ConsumerWidget {
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: backgroundColor,
                           borderRadius: BorderRadius.circular(8),
@@ -128,8 +134,12 @@ class WirdHistoryPage extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator(color: primaryColor)),
-          error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(fontFamily: 'Cairo', color: Colors.redAccent))),
+          loading: () => const Center(
+              child: CircularProgressIndicator(color: primaryColor)),
+          error: (err, stack) => Center(
+              child: Text('Error: $err',
+                  style: const TextStyle(
+                      fontFamily: 'Cairo', color: Colors.redAccent))),
         ),
       ),
     );

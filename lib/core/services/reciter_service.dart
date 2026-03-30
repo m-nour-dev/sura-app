@@ -1,5 +1,4 @@
 class ReciterModel {
-
   const ReciterModel({
     required this.id,
     required this.nameArabic,

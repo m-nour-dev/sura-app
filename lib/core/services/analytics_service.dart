@@ -4,7 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'analytics_service.g.dart';
 
 @riverpod
-AnalyticsService analyticsService(AnalyticsServiceRef ref) => AnalyticsService();
+AnalyticsService analyticsService(AnalyticsServiceRef ref) =>
+    AnalyticsService();
 
 class AnalyticsService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
@@ -16,11 +17,16 @@ class AnalyticsService {
     await _analytics.logEvent(name: name, parameters: parameters);
   }
 
-  Future<void> logScreenHome() async => _analytics.logEvent(name: 'screen_home');
-  Future<void> logScreenQuran() async => _analytics.logEvent(name: 'screen_quran');
-  Future<void> logScreenHifz() async => _analytics.logEvent(name: 'screen_hifz');
-  Future<void> logScreenPrayers() async => _analytics.logEvent(name: 'screen_prayers');
-  Future<void> logScreenAzkar() async => _analytics.logEvent(name: 'screen_azkar');
+  Future<void> logScreenHome() async =>
+      _analytics.logEvent(name: 'screen_home');
+  Future<void> logScreenQuran() async =>
+      _analytics.logEvent(name: 'screen_quran');
+  Future<void> logScreenHifz() async =>
+      _analytics.logEvent(name: 'screen_hifz');
+  Future<void> logScreenPrayers() async =>
+      _analytics.logEvent(name: 'screen_prayers');
+  Future<void> logScreenAzkar() async =>
+      _analytics.logEvent(name: 'screen_azkar');
 
   Future<void> logQuranSurahOpen({
     required String surahName,
@@ -125,9 +131,11 @@ class AnalyticsService {
     await _analytics.logEvent(name: 'wird_khatma_complete');
   }
 
-  Future<void> logQiblahOpen() async => _analytics.logEvent(name: 'qiblah_open');
+  Future<void> logQiblahOpen() async =>
+      _analytics.logEvent(name: 'qiblah_open');
 
-  Future<void> logVefaPersonAdd() async => _analytics.logEvent(name: 'vefa_person_add');
+  Future<void> logVefaPersonAdd() async =>
+      _analytics.logEvent(name: 'vefa_person_add');
 
   Future<void> logVefaDuaSend({required int personCount}) async {
     await _analytics.logEvent(
@@ -143,10 +151,14 @@ class AnalyticsService {
     );
   }
 
-  Future<void> logUpdateAccepted() async => _analytics.logEvent(name: 'update_accepted');
-  Future<void> logUpdateDismissed() async => _analytics.logEvent(name: 'update_dismissed');
-  Future<void> logUpdateDownloadStart() async => _analytics.logEvent(name: 'update_download_start');
-  Future<void> logUpdateDownloadComplete() async => _analytics.logEvent(name: 'update_download_complete');
+  Future<void> logUpdateAccepted() async =>
+      _analytics.logEvent(name: 'update_accepted');
+  Future<void> logUpdateDismissed() async =>
+      _analytics.logEvent(name: 'update_dismissed');
+  Future<void> logUpdateDownloadStart() async =>
+      _analytics.logEvent(name: 'update_download_start');
+  Future<void> logUpdateDownloadComplete() async =>
+      _analytics.logEvent(name: 'update_download_complete');
 
   Future<void> logUpdateDownloadFailed({required String error}) async {
     await _analytics.logEvent(

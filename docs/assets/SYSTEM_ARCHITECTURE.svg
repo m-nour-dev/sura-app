@@ -1,0 +1,292 @@
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C9A84C"/>
+      <stop offset="100%" stop-color="#D4B85A"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1A2340" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="900" fill="#0A0F1E"/>
+  <rect width="1600" height="900" fill="url(#gridPattern)" opacity="0.3"/>
+
+  <!-- Title -->
+  <text x="800" y="40" text-anchor="middle" fill="#C9A84C" font-family="Amiri, serif" font-size="28" font-weight="700">Sila App — System Architecture</text>
+  <text x="800" y="65" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="14" opacity="0.6">Local-First Architecture · Flutter · Riverpod · Isar</text>
+
+  <!-- ========== LAYER 1: PRESENTATION ========== -->
+  <rect x="50" y="90" width="1500" height="140" rx="12" fill="#0F1729" stroke="#1A2340" stroke-width="2"/>
+  <rect x="50" y="90" width="1500" height="30" rx="12" fill="#1A2340"/>
+  <rect x="50" y="110" width="1500" height="10" fill="#1A2340"/>
+  <text x="70" y="112" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">PRESENTATION LAYER</text>
+
+  <!-- Feature Modules -->
+  <g transform="translate(70, 135)">
+    <rect width="340" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="170" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">QURAN MODULE</text>
+    <text x="170" y="45" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Mushaf UI · Audio Player · Bookmarks</text>
+    <text x="170" y="60" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.5">quran_screen · verse_widget · player_controller</text>
+  </g>
+
+  <g transform="translate(430, 135)">
+    <rect width="340" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="170" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">PRAYER MODULE</text>
+    <text x="170" y="45" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Times · Adhan · Notifications · Qibla</text>
+    <text x="170" y="60" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.5">prayer_screen · adhan_player · qibla_compass</text>
+  </g>
+
+  <g transform="translate(790, 135)">
+    <rect width="340" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="170" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">AZKAR MODULE</text>
+    <text x="170" y="45" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Morning · Evening · Counters · Progress</text>
+    <text x="170" y="60" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.5">azkar_screen · dhikr_card · progress_ring</text>
+  </g>
+
+  <g transform="translate(1150, 135)">
+    <rect width="340" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="170" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">HIFZ MODULE</text>
+    <text x="170" y="45" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">STT Engine · Progress · Review · Goals</text>
+    <text x="170" y="60" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.5">hifz_screen · recitation_eval · roadmap</text>
+  </g>
+
+  <!-- ========== LAYER 2: STATE MANAGEMENT ========== -->
+  <rect x="50" y="250" width="1500" height="100" rx="12" fill="#0F1729" stroke="#1A2340" stroke-width="2"/>
+  <rect x="50" y="250" width="1500" height="30" rx="12" fill="#1A2340"/>
+  <rect x="50" y="270" width="1500" height="10" fill="#1A2340"/>
+  <text x="70" y="272" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">STATE MANAGEMENT — RIVERPOD CODEGEN</text>
+
+  <!-- Providers -->
+  <g transform="translate(70, 295)">
+    <rect width="220" height="45" rx="8" fill="#1A2340"/>
+    <text x="110" y="18" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="10">quranProvider</text>
+    <text x="110" y="33" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Surah state · Audio state · Bookmark list</text>
+  </g>
+
+  <g transform="translate(310, 295)">
+    <rect width="220" height="45" rx="8" fill="#1A2340"/>
+    <text x="110" y="18" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="10">prayerProvider</text>
+    <text x="110" y="33" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Times · Location · Next prayer countdown</text>
+  </g>
+
+  <g transform="translate(550, 295)">
+    <rect width="220" height="45" rx="8" fill="#1A2340"/>
+    <text x="110" y="18" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="10">azkarProvider</text>
+    <text x="110" y="33" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Category · Counter · Completion status</text>
+  </g>
+
+  <g transform="translate(790, 295)">
+    <rect width="220" height="45" rx="8" fill="#1A2340"/>
+    <text x="110" y="18" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="10">hifzProvider</text>
+    <text x="110" y="33" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Progress · Review queue · Goals · STT</text>
+  </g>
+
+  <g transform="translate(1030, 295)">
+    <rect width="220" height="45" rx="8" fill="#1A2340"/>
+    <text x="110" y="18" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="10">themeProvider</text>
+    <text x="110" y="33" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Dark/Light · Font size · Language</text>
+  </g>
+
+  <g transform="translate(1270, 295)">
+    <rect width="220" height="45" rx="8" fill="#1A2340"/>
+    <text x="110" y="18" text-anchor="middle" fill="#C9A84C" font-family="monospace" font-size="10">notificationProvider</text>
+    <text x="110" y="33" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.5">Adhan · Reminder · Azkar alerts</text>
+  </g>
+
+  <!-- ========== LAYER 3: DOMAIN ========== -->
+  <rect x="50" y="370" width="1500" height="120" rx="12" fill="#0F1729" stroke="#1A2340" stroke-width="2"/>
+  <rect x="50" y="370" width="1500" height="30" rx="12" fill="#1A2340"/>
+  <rect x="50" y="390" width="1500" height="10" fill="#1A2340"/>
+  <text x="70" y="392" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">DOMAIN LAYER — USE CASES & ENTITIES</text>
+
+  <g transform="translate(70, 415)">
+    <rect width="175" height="60" rx="8" fill="#1A2340" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4"/>
+    <text x="87" y="22" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" font-weight="600">QuranEntities</text>
+    <text x="87" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">Surah · Verse · Juz</text>
+    <text x="87" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">Reciter · Bookmark</text>
+  </g>
+
+  <g transform="translate(265, 415)">
+    <rect width="175" height="60" rx="8" fill="#1A2340" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4"/>
+    <text x="87" y="22" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" font-weight="600">PrayerEntities</text>
+    <text x="87" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">PrayerTime · Location</text>
+    <text x="87" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">Adhan · QiblaDirection</text>
+  </g>
+
+  <g transform="translate(460, 415)">
+    <rect width="175" height="60" rx="8" fill="#1A2340" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4"/>
+    <text x="87" y="22" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" font-weight="600">AzkarEntities</text>
+    <text x="87" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">Dhikr · Category</text>
+    <text x="87" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">Progress · WirdEntry</text>
+  </g>
+
+  <g transform="translate(655, 415)">
+    <rect width="175" height="60" rx="8" fill="#1A2340" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4"/>
+    <text x="87" y="22" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" font-weight="600">HifzEntities</text>
+    <text x="87" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">MemorizedSurah · Ayah</text>
+    <text x="87" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">ReviewSession · Goal</text>
+  </g>
+
+  <!-- Use Cases -->
+  <g transform="translate(880, 415)">
+    <rect width="280" height="60" rx="8" fill="url(#goldGrad)" opacity="0.15" stroke="#C9A84C" stroke-width="1"/>
+    <text x="140" y="22" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">USE CASES</text>
+    <text x="140" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">GetNextPrayer · CalculateTimes · EvaluateRecitation</text>
+    <text x="140" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">GetSurah · TrackAzkar · ManageHifzGoal</text>
+  </g>
+
+  <g transform="translate(1180, 415)">
+    <rect width="340" height="60" rx="8" fill="#1A2340"/>
+    <text x="170" y="22" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">BUSINESS RULES</text>
+    <text x="170" y="38" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">Prayer calc (jurisdiction) · STT normalization · Hifz scheduling</text>
+    <text x="170" y="52" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">Spaced repetition · Azkar completion logic · Audio caching policy</text>
+  </g>
+
+  <!-- ========== LAYER 4: DATA ========== -->
+  <rect x="50" y="510" width="1500" height="140" rx="12" fill="#0F1729" stroke="#1A2340" stroke-width="2"/>
+  <rect x="50" y="510" width="1500" height="30" rx="12" fill="#1A2340"/>
+  <rect x="50" y="530" width="1500" height="10" fill="#1A2340"/>
+  <text x="70" y="532" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">DATA LAYER — REPOSITORIES & SOURCES</text>
+
+  <!-- Repositories -->
+  <g transform="translate(70, 555)">
+    <rect width="200" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="100" y="20" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">QuranRepository</text>
+    <text x="100" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">getSurah() · getVerse()</text>
+    <text x="100" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">bookmarkVerse() · getAudio()</text>
+    <text x="100" y="66" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.4">← Local: Isar · Remote: API</text>
+  </g>
+
+  <g transform="translate(290, 555)">
+    <rect width="200" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="100" y="20" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">PrayerRepository</text>
+    <text x="100" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">getTimes() · getLocation()</text>
+    <text x="100" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">saveAdhan() · getQibla()</text>
+    <text x="100" y="66" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.4">← Local: GPS · Calc: Aladhan API</text>
+  </g>
+
+  <g transform="translate(510, 555)">
+    <rect width="200" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="100" y="20" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">AzkarRepository</text>
+    <text x="100" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">getAzkar() · trackProgress()</text>
+    <text x="100" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">getWird() · saveCounter()</text>
+    <text x="100" y="66" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.4">← Local: Isar · Assets: JSON</text>
+  </g>
+
+  <g transform="translate(730, 555)">
+    <rect width="200" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="100" y="20" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">HifzRepository</text>
+    <text x="100" y="38" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">getProgress() · saveSession()</text>
+    <text x="100" y="52" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.6">evaluateRecitation() · getGoal()</text>
+    <text x="100" y="66" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.4">← Local: Isar · STT: on-device</text>
+  </g>
+
+  <!-- Storage Engines -->
+  <g transform="translate(980, 555)">
+    <rect width="140" height="80" rx="10" fill="url(#goldGrad)" opacity="0.1" stroke="#C9A84C" stroke-width="1"/>
+    <text x="70" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">Isar DB</text>
+    <text x="70" y="42" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">Local NoSQL</text>
+    <text x="70" y="56" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">Embedded</text>
+    <text x="70" y="70" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.4">Async · Fast · Offline</text>
+  </g>
+
+  <g transform="translate(1140, 555)">
+    <rect width="140" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="70" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">Assets</text>
+    <text x="70" y="42" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">Fonts · Audio</text>
+    <text x="70" y="56" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">JSON · Static</text>
+    <text x="70" y="70" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.4">Bundled</text>
+  </g>
+
+  <g transform="translate(1300, 555)">
+    <rect width="140" height="80" rx="10" fill="#1A2340" stroke="#C9A84C" stroke-width="1"/>
+    <text x="70" y="25" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" font-weight="600">Cloud APIs</text>
+    <text x="70" y="42" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">Optional</text>
+    <text x="70" y="56" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.6">Aladhan · Sync</text>
+    <text x="70" y="70" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="9" opacity="0.4">Progressive enhancement</text>
+  </g>
+
+  <!-- ========== LAYER 5: INFRASTRUCTURE ========== -->
+  <rect x="50" y="670" width="1500" height="100" rx="12" fill="#0F1729" stroke="#1A2340" stroke-width="2"/>
+  <rect x="50" y="670" width="1500" height="30" rx="12" fill="#1A2340"/>
+  <rect x="50" y="690" width="1500" height="10" fill="#1A2340"/>
+  <text x="70" y="692" fill="#C9A84C" font-family="sans-serif" font-size="12" font-weight="600">INFRASTRUCTURE — SERVICES & UTILITIES</text>
+
+  <g transform="translate(70, 715)">
+    <rect width="200" height="45" rx="8" fill="#1A2340"/>
+    <text x="100" y="18" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">AudioService</text>
+    <text x="100" y="33" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.5">just_audio · audioplayers</text>
+  </g>
+
+  <g transform="translate(290, 715)">
+    <rect width="200" height="45" rx="8" fill="#1A2340"/>
+    <text x="100" y="18" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">LocationService</text>
+    <text x="100" y="33" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.5">geolocator · geocoding</text>
+  </g>
+
+  <g transform="translate(510, 715)">
+    <rect width="200" height="45" rx="8" fill="#1A2340"/>
+    <text x="100" y="18" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">STTService</text>
+    <text x="100" y="33" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.5">speech_to_text · on-device</text>
+  </g>
+
+  <g transform="translate(730, 715)">
+    <rect width="200" height="45" rx="8" fill="#1A2340"/>
+    <text x="100" y="18" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">NotificationService</text>
+    <text x="100" y="33" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.5">flutter_local_notifications</text>
+  </g>
+
+  <g transform="translate(950, 715)">
+    <rect width="200" height="45" rx="8" fill="#1A2340"/>
+    <text x="100" y="18" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">LocalizationService</text>
+    <text x="100" y="33" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.5">Flutter Intl · ARB · RTL/LTR</text>
+  </g>
+
+  <g transform="translate(1170, 715)">
+    <rect width="200" height="45" rx="8" fill="#1A2340"/>
+    <text x="100" y="18" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="10" font-weight="600">CacheManager</text>
+    <text x="100" y="33" text-anchor="middle" fill="#F5F0E6" font-family="monospace" font-size="9" opacity="0.5">Audio cache · Image cache</text>
+  </g>
+
+  <!-- Arrows (connecting lines) -->
+  <line x1="800" y1="230" x2="800" y2="250" stroke="#C9A84C" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="800" y1="350" x2="800" y2="370" stroke="#C9A84C" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="800" y1="490" x2="800" y2="510" stroke="#C9A84C" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="800" y1="650" x2="800" y2="670" stroke="#C9A84C" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- Arrow Marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#C9A84C"/>
+    </marker>
+  </defs>
+
+  <!-- Legend -->
+  <g transform="translate(50, 820)">
+    <rect width="16" height="16" rx="4" fill="#1A2340" stroke="#C9A84C"/>
+    <text x="25" y="12" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Module / Service</text>
+
+    <rect x="150" width="16" height="16" rx="4" fill="#1A2340" stroke="#C9A84C" stroke-dasharray="4"/>
+    <text x="175" y="12" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Entity / Data Model</text>
+
+    <rect x="320" width="16" height="16" rx="4" fill="url(#goldGrad)" opacity="0.2" stroke="#C9A84C"/>
+    <text x="345" y="12" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Core / Key Component</text>
+
+    <line x1="480" y1="8" x2="520" y2="8" stroke="#C9A84C" stroke-width="1.5"/>
+    <text x="530" y="12" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.7">Data Flow</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="800" y="870" text-anchor="middle" fill="#C9A84C" font-family="sans-serif" font-size="11" opacity="0.5">Sila Architecture · Feature-First · Local-First · Production-Ready</text>
+  <text x="800" y="888" text-anchor="middle" fill="#F5F0E6" font-family="sans-serif" font-size="10" opacity="0.3">─────────────────────────────────────────────────────────────</text>
+
+</svg>

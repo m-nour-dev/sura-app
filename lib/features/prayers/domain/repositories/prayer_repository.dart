@@ -5,7 +5,7 @@ import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.da
 abstract class PrayerRepository {
   /// Get prayer times for the current location
   Future<PrayerTimesEntity> getPrayerTimes();
-  
+
   /// Get the next prayer
   Future<Prayer> getNextPrayer();
 }

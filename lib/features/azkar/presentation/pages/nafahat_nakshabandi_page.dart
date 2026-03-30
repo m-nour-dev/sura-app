@@ -12,11 +12,14 @@ class NafahatNakshabandiPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final audioState = ref.watch(nafahatAudioControllerProvider);
     final audioController = ref.read(nafahatAudioControllerProvider.notifier);
-    
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = isDark ? const Color(0xFF10B981) : AppTheme.primaryColor;
-    final bgColor = isDark ? AppTheme.darkBackgroundColor : const Color(0xFFF1F5F9);
-    final cardColor = isDark ? AppTheme.darkSurfaceColor.withOpacity(0.8) : Colors.white;
+    final primaryColor =
+        isDark ? const Color(0xFF10B981) : AppTheme.primaryColor;
+    final bgColor =
+        isDark ? AppTheme.darkBackgroundColor : const Color(0xFFF1F5F9);
+    final cardColor =
+        isDark ? AppTheme.darkSurfaceColor.withOpacity(0.8) : Colors.white;
 
     final currentIbtihal = audioState.currentIbtihal;
 
@@ -43,12 +46,15 @@ class NafahatNakshabandiPage extends ConsumerWidget {
               children: [
                 // ── Header ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: Icon(Icons.arrow_back_ios_new_rounded, color: isDark ? Colors.white : AppTheme.primaryColor),
+                        icon: Icon(Icons.arrow_back_ios_new_rounded,
+                            color:
+                                isDark ? Colors.white : AppTheme.primaryColor),
                       ),
                       Expanded(
                         child: Text(
@@ -58,7 +64,8 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                             fontFamily: 'Cairo',
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : AppTheme.primaryColor,
+                            color:
+                                isDark ? Colors.white : AppTheme.primaryColor,
                           ),
                         ),
                       ),
@@ -74,13 +81,15 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                       SliverPadding(
                         padding: const EdgeInsets.all(20),
                         sliver: SliverToBoxAdapter(
-                          child: _buildPlayerCard(context, audioState, audioController, isDark, primaryColor, cardColor),
+                          child: _buildPlayerCard(context, audioState,
+                              audioController, isDark, primaryColor, cardColor),
                         ),
                       ),
 
                       // ── Playlist Header ──
                       SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 8),
                         sliver: SliverToBoxAdapter(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -91,7 +100,8 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                                   fontFamily: 'Cairo',
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white70 : Colors.black87,
+                                  color:
+                                      isDark ? Colors.white70 : Colors.black87,
                                 ),
                               ),
                               _buildFilterMenu(context, ref, audioState),
@@ -102,19 +112,31 @@ class NafahatNakshabandiPage extends ConsumerWidget {
 
                       // ── Playlist Items ──
                       SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         sliver: SliverList(
                           delegate: SliverChildBuilderDelegate(
                             (context, index) {
-                              final ibtihal = audioState.filteredPlaylist[index];
-                              final isSelected = audioState.currentIndex == index;
-                              return _buildPlaylistItem(context, ref, ibtihal, index, isSelected, audioController, isDark, primaryColor, audioState.selectedArtist == null);
+                              final ibtihal =
+                                  audioState.filteredPlaylist[index];
+                              final isSelected =
+                                  audioState.currentIndex == index;
+                              return _buildPlaylistItem(
+                                  context,
+                                  ref,
+                                  ibtihal,
+                                  index,
+                                  isSelected,
+                                  audioController,
+                                  isDark,
+                                  primaryColor,
+                                  audioState.selectedArtist == null);
                             },
                             childCount: audioState.filteredPlaylist.length,
                           ),
                         ),
                       ),
-                      
+
                       const SliverToBoxAdapter(child: SizedBox(height: 40)),
                     ],
                   ),
@@ -127,7 +149,13 @@ class NafahatNakshabandiPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlayerCard(BuildContext context, NafahatPlayerState state, NafahatAudioController controller, bool isDark, Color primaryColor, Color cardColor) {
+  Widget _buildPlayerCard(
+      BuildContext context,
+      NafahatPlayerState state,
+      NafahatAudioController controller,
+      bool isDark,
+      Color primaryColor,
+      Color cardColor) {
     final current = state.currentIbtihal;
 
     return Container(
@@ -191,16 +219,21 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 4,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 6),
+                    overlayShape:
+                        const RoundSliderOverlayShape(overlayRadius: 14),
                     activeTrackColor: primaryColor,
                     inactiveTrackColor: primaryColor.withOpacity(0.2),
                     thumbColor: primaryColor,
                   ),
                   child: Slider(
                     value: state.position.inSeconds.toDouble(),
-                    max: state.duration.inSeconds.toDouble() > 0 ? state.duration.inSeconds.toDouble() : 1.0,
-                    onChanged: (value) => controller.seek(Duration(seconds: value.toInt())),
+                    max: state.duration.inSeconds.toDouble() > 0
+                        ? state.duration.inSeconds.toDouble()
+                        : 1.0,
+                    onChanged: (value) =>
+                        controller.seek(Duration(seconds: value.toInt())),
                   ),
                 ),
                 Padding(
@@ -208,8 +241,12 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(_formatDuration(state.position), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      Text(_formatDuration(state.duration), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(_formatDuration(state.position),
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey)),
+                      Text(_formatDuration(state.duration),
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -221,7 +258,9 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                   children: [
                     IconButton(
                       onPressed: controller.previous,
-                      icon: Icon(Icons.skip_previous_rounded, size: 36, color: isDark ? Colors.white : Colors.black87),
+                      icon: Icon(Icons.skip_previous_rounded,
+                          size: 36,
+                          color: isDark ? Colors.white : Colors.black87),
                     ),
                     GestureDetector(
                       onTap: controller.togglePlay,
@@ -238,10 +277,16 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        child: state.isLoading 
-                            ? const SizedBox(width: 32, height: 32, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                        child: state.isLoading
+                            ? const SizedBox(
+                                width: 32,
+                                height: 32,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 3))
                             : Icon(
-                                state.playerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                state.playerState.playing
+                                    ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded,
                                 size: 40,
                                 color: Colors.white,
                               ),
@@ -249,7 +294,9 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                     ),
                     IconButton(
                       onPressed: controller.next,
-                      icon: Icon(Icons.skip_next_rounded, size: 36, color: isDark ? Colors.white : Colors.black87),
+                      icon: Icon(Icons.skip_next_rounded,
+                          size: 36,
+                          color: isDark ? Colors.white : Colors.black87),
                     ),
                   ],
                 ),
@@ -261,7 +308,16 @@ class NafahatNakshabandiPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlaylistItem(BuildContext context, WidgetRef ref, dynamic ibtihal, int index, bool isSelected, NafahatAudioController controller, bool isDark, Color primaryColor, bool showArtist) {
+  Widget _buildPlaylistItem(
+      BuildContext context,
+      WidgetRef ref,
+      dynamic ibtihal,
+      int index,
+      bool isSelected,
+      NafahatAudioController controller,
+      bool isDark,
+      Color primaryColor,
+      bool showArtist) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
@@ -274,13 +330,25 @@ class NafahatNakshabandiPage extends ConsumerWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: isSelected ? primaryColor : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+            color: isSelected
+                ? primaryColor
+                : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
-            child: isSelected && ref.watch(nafahatAudioControllerProvider).playerState.playing
-                ? const Icon(Icons.equalizer_rounded, color: Colors.white, size: 20)
-                : Text('${index + 1}', style: TextStyle(color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black54), fontWeight: FontWeight.bold)),
+            child: isSelected &&
+                    ref
+                        .watch(nafahatAudioControllerProvider)
+                        .playerState
+                        .playing
+                ? const Icon(Icons.equalizer_rounded,
+                    color: Colors.white, size: 20)
+                : Text('${index + 1}',
+                    style: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark ? Colors.white70 : Colors.black54),
+                        fontWeight: FontWeight.bold)),
           ),
         ),
         title: Column(
@@ -292,7 +360,9 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                 fontFamily: 'Cairo',
                 fontSize: 15,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? primaryColor : (isDark ? Colors.white : Colors.black87),
+                color: isSelected
+                    ? primaryColor
+                    : (isDark ? Colors.white : Colors.black87),
               ),
             ),
             if (showArtist)
@@ -306,21 +376,27 @@ class NafahatNakshabandiPage extends ConsumerWidget {
               ),
           ],
         ),
-        trailing: isSelected 
-          ? Icon(Icons.volume_up_rounded, color: primaryColor, size: 20)
-          : const Icon(Icons.play_circle_outline_rounded, color: Colors.grey, size: 20),
+        trailing: isSelected
+            ? Icon(Icons.volume_up_rounded, color: primaryColor, size: 20)
+            : const Icon(Icons.play_circle_outline_rounded,
+                color: Colors.grey, size: 20),
       ),
     );
   }
 
-  Widget _buildSleepTimerMenu(BuildContext context, WidgetRef ref, NafahatPlayerState state) {
+  Widget _buildSleepTimerMenu(
+      BuildContext context, WidgetRef ref, NafahatPlayerState state) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final controller = ref.read(nafahatAudioControllerProvider.notifier);
 
     return PopupMenuButton<int>(
       icon: Icon(
-        state.sleepTimerDuration != null ? Icons.timer_rounded : Icons.timer_outlined,
-        color: state.sleepTimerDuration != null ? const Color(0xFF10B981) : (isDark ? Colors.white70 : Colors.black54),
+        state.sleepTimerDuration != null
+            ? Icons.timer_rounded
+            : Icons.timer_outlined,
+        color: state.sleepTimerDuration != null
+            ? const Color(0xFF10B981)
+            : (isDark ? Colors.white70 : Colors.black54),
       ),
       onSelected: (minutes) {
         if (minutes == 0) {
@@ -333,7 +409,10 @@ class NafahatNakshabandiPage extends ConsumerWidget {
         PopupMenuItem(value: 15, child: Text('15_minutes'.tr())),
         PopupMenuItem(value: 30, child: Text('30_minutes'.tr())),
         PopupMenuItem(value: 60, child: Text('60_minutes'.tr())),
-        PopupMenuItem(value: 0, child: Text('cancel_timer'.tr(), style: const TextStyle(color: Colors.red))),
+        PopupMenuItem(
+            value: 0,
+            child: Text('cancel_timer'.tr(),
+                style: const TextStyle(color: Colors.red))),
       ],
     );
   }
@@ -344,7 +423,8 @@ class NafahatNakshabandiPage extends ConsumerWidget {
     return '$minutes:$seconds';
   }
 
-  Widget _buildFilterMenu(BuildContext context, WidgetRef ref, NafahatPlayerState state) {
+  Widget _buildFilterMenu(
+      BuildContext context, WidgetRef ref, NafahatPlayerState state) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final controller = ref.read(nafahatAudioControllerProvider.notifier);
     final artists = controller.getAvailableArtists();
@@ -352,7 +432,9 @@ class NafahatNakshabandiPage extends ConsumerWidget {
     return PopupMenuButton<String?>(
       icon: Icon(
         Icons.tune_rounded,
-        color: state.selectedArtist != null ? const Color(0xFF10B981) : (isDark ? Colors.white70 : Colors.black54),
+        color: state.selectedArtist != null
+            ? const Color(0xFF10B981)
+            : (isDark ? Colors.white70 : Colors.black54),
       ),
       onSelected: (artist) {
         controller.setArtistFilter(artist);
@@ -363,9 +445,9 @@ class NafahatNakshabandiPage extends ConsumerWidget {
           child: Text('all'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
         ),
         ...artists.map((artist) => PopupMenuItem(
-          value: artist,
-          child: Text(artist, style: const TextStyle(fontFamily: 'Cairo')),
-        )),
+              value: artist,
+              child: Text(artist, style: const TextStyle(fontFamily: 'Cairo')),
+            )),
       ],
     );
   }
