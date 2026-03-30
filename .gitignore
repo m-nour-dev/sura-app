@@ -1,1 +1,28 @@
+# IDE Specific
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Tracking Metadata (Local additions)
+.VSCodeCounter/
+diff_output.txt
+flutter_*.log
+
+# Build Artifacts
+build/
+.dart_tool/
+**/doc/api/
+.pub-cache/
+.pub/
+
+# Secrets
+.env
+android/app/google-services*.json
+!android/app/google-services.example.json
+
+# Documentation plans
 implementation_plan.md
+task.md
+walkthrough.md
