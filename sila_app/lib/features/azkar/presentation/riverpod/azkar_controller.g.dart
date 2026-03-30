@@ -21,7 +21,7 @@ final azkarRepositoryProvider = AutoDisposeProvider<AzkarRepository>.internal(
 );
 
 typedef AzkarRepositoryRef = AutoDisposeProviderRef<AzkarRepository>;
-String _$azkarDataHash() => r'1a01a035e5c4f2f229b1da97fae1efb56a6dbd42';
+String _$azkarDataHash() => r'9998d08b6a24648e5a7d7a155bb1d2a13541a785';
 
 /// See also [azkarData].
 @ProviderFor(azkarData)

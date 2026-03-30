@@ -49,3 +49,7 @@ android/app/build/
 # Firebase config (keep local / CI secret only)
 android/app/google-services*.json
 !android/app/google-services.example.json
+
+# IDE / Project local artifacts
+.VSCodeCounter/
+diff_output.txt

@@ -1,11 +1,25 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:sila_app/features/azkar/data/models/azkar_model.dart';
+import 'package:flutter/foundation.dart';
 
 class AzkarRepository {
   Future<Map<String, List<AzkarItem>>> getAzkar(String languageCode) async {
     try {
-      final fileName = languageCode == 'tr' ? 'azkar_tr.json' : 'azkar.json';
+      String fileName;
+      switch (languageCode) {
+        case 'tr':
+          fileName = 'azkar_tr.json';
+          break;
+        case 'en':
+          fileName = 'azkar_en.json';
+          break;
+        case 'fr':
+          fileName = 'azkar_fr.json';
+          break;
+        default:
+          fileName = 'azkar.json';
+      }
       final jsonString = await rootBundle.loadString('assets/data/$fileName');
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
       
@@ -19,11 +33,11 @@ class AzkarRepository {
       
       return result;
     } catch (e) {
-      // Fallback to Arabic if Turkish file fails or doesn't exist yet
-      if (languageCode == 'tr') {
+      // Fallback to Arabic if specific language file fails
+      if (languageCode != 'ar') {
         return getAzkar('ar');
       }
-      print('Error loading Azkar: $e');
+      debugPrint('Error loading Azkar ($languageCode): $e');
       return {};
     }
   }
