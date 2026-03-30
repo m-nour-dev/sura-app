@@ -712,7 +712,7 @@ class NotificationService {
       id: NotificationIds.azkarSabah,
       title: 'أذكار الصباح 🌅',
       body: 'ابدأ يومك بذكر الله.',
-      dateTime: await at(6, 0),
+      dateTime: await at(5, 0),
       payload: 'azkar_sabah',
     );
     await scheduleOneShot(

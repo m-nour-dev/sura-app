@@ -166,12 +166,13 @@ class AdhanSchedulerService {
         ));
       }
 
-      // Slot 1: 07:00 (Azkar Sabah)
+      // Slot 1: After Fajr (Azkar Sabah — between Fajr and Sunrise)
+      final azkarSabahTime = prayerTimes.fajr.add(const Duration(minutes: 10));
       await addCandidate(
         featureKey: 'azkar',
         slotId: NotificationIds.dailySlot1,
-        hour: 7,
-        minute: 0,
+        hour: azkarSabahTime.hour,
+        minute: azkarSabahTime.minute,
         defaultTitle: 'أذكار الصباح 🌅',
         signalType: _IbadahSignalType.azkarSabah,
       );
@@ -216,12 +217,13 @@ class AdhanSchedulerService {
         signalType: _IbadahSignalType.dhikr,
       );
 
-      // Slot 6: 21:00 (Azkar Masa)
+      // Slot 6: After Asr (Azkar Masa — between Asr and Maghrib)
+      final azkarMasaTime = prayerTimes.asr.add(const Duration(minutes: 10));
       await addCandidate(
         featureKey: 'azkar',
         slotId: NotificationIds.dailySlot6,
-        hour: 21,
-        minute: 0,
+        hour: azkarMasaTime.hour,
+        minute: azkarMasaTime.minute,
         defaultTitle: 'أذكار المساء 🌆',
         signalType: _IbadahSignalType.azkarMasa,
       );
