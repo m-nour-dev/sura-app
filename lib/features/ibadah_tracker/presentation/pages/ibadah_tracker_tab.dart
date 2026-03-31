@@ -1,14 +1,15 @@
 import 'dart:convert';
-import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/controllers/custom_ibadah_controller.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
+import 'package:sila_app/features/ibadah_tracker/presentation/controllers/mujahadah_controller.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/ibadah_detail_sheet.dart';
 
@@ -56,11 +57,7 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
 
     return Scaffold(
       backgroundColor: bg,
-      body: Directionality(
-        textDirection: context.locale.languageCode == 'tr'
-            ? ui.TextDirection.ltr
-            : ui.TextDirection.rtl,
-        child: state.when(
+      body: state.when(
           data: (data) {
             final hijriDate = _hijriArabicDate();
             final weekday = DateTime.now().weekday;
@@ -79,8 +76,22 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
               data.today,
               isMale: data.isMale,
               languageCode: context.locale.languageCode,
+              customIbadahs: customIbadahs,
             );
-            final completionRatio = data.completionRatio;
+            final completionRatio = DailyStatusCalculator.completionRatio(
+              data.today,
+              isMale: data.isMale,
+              customIbadahs: customIbadahs,
+            );
+            final completedCount = DailyStatusCalculator.completedCount(
+              data.today,
+              isMale: data.isMale,
+              customIbadahs: customIbadahs,
+            );
+            final totalCount = DailyStatusCalculator.totalCount(
+              isMale: data.isMale,
+              customIbadahs: customIbadahs,
+            );
 
             return CustomScrollView(
               slivers: [
@@ -127,19 +138,26 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                           const SizedBox(height: 12),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: completionRatio,
-                              minHeight: 6,
-                              backgroundColor: Colors.white24,
-                              valueColor: const AlwaysStoppedAnimation(
-                                  Color(0xFFD97706)),
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween<double>(begin: 0, end: completionRatio),
+                              duration: const Duration(milliseconds: 600),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, child) {
+                                return LinearProgressIndicator(
+                                  value: value,
+                                  minHeight: 6,
+                                  backgroundColor: Colors.white24,
+                                  valueColor: const AlwaysStoppedAnimation(
+                                      Color(0xFFD97706)),
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             'tracker_completed_count'.tr(args: [
-                              '${data.completedCount}',
-                              '${data.totalCount}'
+                              '$completedCount',
+                              '$totalCount'
                             ]),
                             style: GoogleFonts.getFont('Cairo',
                                 fontSize: 11, color: Colors.white70),
@@ -183,9 +201,11 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                     ),
                   ),
                 ),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                const SliverToBoxAdapter(child: MujahadahSection()),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 30),
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 30),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF064E3B),
@@ -212,7 +232,6 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => Center(child: Text('loading_tracker_error'.tr())),
         ),
-      ),
     );
   }
 
@@ -299,74 +318,86 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
       }
     } catch (_) {}
 
-    return GestureDetector(
-      onLongPress: () => _showDeleteCustomDialog(context, name),
-      onTap: () async {
-        final currentNote = s.today.personalNote ?? '{}';
-        var noteMap = <String, dynamic>{};
-        try {
-          noteMap = jsonDecode(currentNote);
-        } catch (_) {}
+    return Dismissible(
+      key: Key('custom_$name'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerLeft,
+        color: Colors.red,
+        padding: const EdgeInsets.only(left: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      confirmDismiss: (direction) => _showDeleteCustomDialog(context, name),
+      child: GestureDetector(
+        onLongPress: () => _showDeleteCustomDialog(context, name),
+        onTap: () async {
+          HapticFeedback.lightImpact();
+          final currentNote = s.today.personalNote ?? '{}';
+          var noteMap = <String, dynamic>{};
+          try {
+            noteMap = jsonDecode(currentNote);
+          } catch (_) {}
 
-        if (!noteMap.containsKey('custom')) noteMap['custom'] = {};
-        noteMap['custom'][name] = !todayStatus;
+          if (!noteMap.containsKey('custom')) noteMap['custom'] = {};
+          noteMap['custom'][name] = !todayStatus;
 
-        await ref
-            .read(ibadahTrackerControllerProvider.notifier)
-            .updatePersonalNote(jsonEncode(noteMap));
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
-          border:
-              Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.5)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              flex: s.yesterday != null ? 3 : 4,
-              child: Row(
-                children: [
-                  const Text('✨', style: TextStyle(fontSize: 16)),
-                  const SizedBox(width: 8),
-                  Text(name, style: GoogleFonts.getFont('Cairo', fontSize: 13)),
-                ],
+          await ref
+              .read(ibadahTrackerControllerProvider.notifier)
+              .updatePersonalNote(jsonEncode(noteMap));
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: const BoxDecoration(
+            border:
+                Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.5)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: s.yesterday != null ? 3 : 4,
+                child: Row(
+                  children: [
+                    const Text('✨', style: TextStyle(fontSize: 16)),
+                    const SizedBox(width: 8),
+                    Text(name, style: GoogleFonts.getFont('Cairo', fontSize: 13)),
+                  ],
+                ),
               ),
-            ),
-            if (s.yesterday != null)
+              if (s.yesterday != null)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      yesterdayStatus ? '✅' : '❌',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
               Expanded(
                 child: Center(
-                  child: Text(
-                    yesterdayStatus ? '✅' : '❌',
-                    style: const TextStyle(fontSize: 18),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: (todayStatus ? const Color(0xFF064E3B) : Colors.red)
+                          .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      todayStatus ? '✅' : '❌',
+                      style: const TextStyle(fontSize: 18),
+                    ),
                   ),
                 ),
               ),
-            Expanded(
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: (todayStatus ? const Color(0xFF064E3B) : Colors.red)
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    todayStatus ? '✅' : '❌',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Future<void> _showDeleteCustomDialog(
+  Future<bool?> _showDeleteCustomDialog(
       BuildContext context, String name) async {
-    return showDialog(
+    return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('delete_custom_ibadah'.tr(),
@@ -375,13 +406,13 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
             style: GoogleFonts.cairo()),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: Text('cancel'.tr(), style: GoogleFonts.cairo()),
           ),
           TextButton(
             onPressed: () {
               ref.read(customIbadahListProvider.notifier).remove(name);
-              Navigator.pop(context);
+              Navigator.pop(context, true);
             },
             child: Text('delete'.tr(),
                 style: GoogleFonts.cairo(color: Colors.red)),
@@ -441,13 +472,16 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
 
     return Builder(
       builder: (context) => GestureDetector(
-        onTap: () => showIbadahDetailSheet(
-          context: context,
-          ref: ref,
-          ibadahKey: key,
-          label: label,
-          icon: icon,
-        ),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          showIbadahDetailSheet(
+            context: context,
+            ref: ref,
+            ibadahKey: key,
+            label: label,
+            icon: icon,
+          );
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
@@ -639,6 +673,575 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
     return oldDelegate.minHeight != minHeight ||
         oldDelegate.maxHeight != maxHeight ||
         oldDelegate.child != child;
+  }
+}
+
+class MujahadahSection extends ConsumerWidget {
+  const MujahadahSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: InkWell(
+        onTap: () => _showMujahadahListBottomSheet(context),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4))
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF064E3B).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Text('🛡️', style: TextStyle(fontSize: 24)),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'مجاهدة النفس',
+                      style: GoogleFonts.cairo(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF1F2937),
+                      ),
+                    ),
+                    Text(
+                      'مساحة سرية لترك العادات السلبية والذنوب',
+                      style: GoogleFonts.cairo(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.lock_outline, size: 20, color: Colors.grey),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showMujahadahListBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const MujahadahListSheet(),
+    );
+  }
+}
+
+class MujahadahListSheet extends ConsumerWidget {
+  const MujahadahListSheet({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(mujahadahListProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    const Text('🛡️', style: TextStyle(fontSize: 24)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'حصن المجاهدة',
+                      style: GoogleFonts.cairo(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF064E3B),
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: () => _showAddMujahadahDialog(context, ref),
+                      icon: const Icon(Icons.add,
+                          size: 18, color: Color(0xFFD97706)),
+                      label: Text(
+                        'إضافة',
+                        style: GoogleFonts.cairo(
+                            color: const Color(0xFFD97706),
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: state.when(
+                  data: (habits) {
+                    if (habits.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'أضف أول ذنب أو عادة سلبية ترغب في تركها..',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.cairo(
+                              color: Colors.grey, fontSize: 16),
+                        ),
+                      );
+                    }
+                    return ListView.separated(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 8),
+                      itemCount: habits.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        return _HabitCard(habit: habits[index], isDark: isDark);
+                      },
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, _) => Center(child: Text('Error: $err')),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddMujahadahDialog(BuildContext context, WidgetRef ref) {
+    final customController = TextEditingController();
+    final predefined = [
+      'الغيبة والنميمة',
+      'الغضب السريع',
+      'تأخير الصلاة',
+      'النظر المحرم',
+      'إضاعة الوقت',
+      'إساءة الظن'
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'ماذا تريد أن تتخلص منه؟',
+                    style: GoogleFonts.cairo(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: predefined.map((h) {
+                      return InkWell(
+                        onTap: () {
+                          ref.read(mujahadahListProvider.notifier).addHabit(h);
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                              color: const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Text(h,
+                              style: GoogleFonts.cairo(
+                                  color: const Color(0xFF1E293B))),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: customController,
+                    decoration: InputDecoration(
+                      hintText: 'أو اكتب عادة أخرى...',
+                      hintStyle: GoogleFonts.cairo(),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      final val = customController.text.trim();
+                      if (val.isNotEmpty) {
+                        ref.read(mujahadahListProvider.notifier).addHabit(val);
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF064E3B),
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                    child: Text('إضافة',
+                        style: GoogleFonts.cairo(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ));
+      },
+    );
+  }
+}
+
+class _HabitCard extends ConsumerWidget {
+  const _HabitCard({required this.habit, required this.isDark});
+  final dynamic habit;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    void _recordDailyStatus(WidgetRef ref, String habitId, int status) {
+      final dailyProvider = ref.read(ibadahTrackerControllerProvider);
+      
+      final todayRecord = dailyProvider.valueOrNull?.today;
+      if (todayRecord == null) return;
+      
+      Map<String, dynamic> notes = {};
+      final rawNote = todayRecord.personalNote ?? '';
+      if (rawNote.isNotEmpty) {
+        try {
+          notes = jsonDecode(rawNote) as Map<String, dynamic>;
+        } catch (_) {}
+      }
+      
+      if (notes['mujahadah'] == null) {
+        notes['mujahadah'] = <String, dynamic>{};
+      }
+      
+      notes['mujahadah'][habitId] = status;
+      ref.read(ibadahTrackerControllerProvider.notifier)
+         .updatePersonalNote(jsonEncode(notes));
+    }
+
+    final isCheckedToday = habit.lastCheckInDate != null &&
+        habit.lastCheckInDate.year == DateTime.now().year &&
+        habit.lastCheckInDate.month == DateTime.now().month &&
+        habit.lastCheckInDate.day == DateTime.now().day;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        habit.title,
+                        style: GoogleFonts.cairo(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF1F2937),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981)
+                                  .withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'متحصن: ${habit.currentStreak} يوم',
+                              style: GoogleFonts.cairo(
+                                  fontSize: 11,
+                                  color: const Color(0xFF10B981),
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          if (habit.longestStreak > 0) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              '🏆 الأفضل: ${habit.longestStreak}',
+                              style: GoogleFonts.cairo(
+                                  fontSize: 11, color: Colors.grey),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline,
+                      color: Colors.redAccent, size: 20),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (c) => AlertDialog(
+                        title: Text('حذف', style: GoogleFonts.cairo()),
+                        content: Text('هل تريد إيقاف تتبع هذه العادة؟',
+                            style: GoogleFonts.cairo()),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(c, false),
+                              child: Text('إلغاء')),
+                          TextButton(
+                              onPressed: () => Navigator.pop(c, true),
+                              child: Text('حذف',
+                                  style: TextStyle(color: Colors.red))),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      ref
+                          .read(mujahadahListProvider.notifier)
+                          .removeHabit(habit.id);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          if (isCheckedToday)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: Text('تم تقييم اليوم 🤍',
+                    style: GoogleFonts.cairo(
+                        color: Colors.grey, fontWeight: FontWeight.bold)),
+              ),
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.heavyImpact();
+                      _showRelapseBottomSheet(context, ref, habit.id, () {
+                        _recordDailyStatus(ref, habit.title, 0);
+                      });
+                    },
+                    borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('🔴', style: TextStyle(fontSize: 18)),
+                          const SizedBox(height: 4),
+                          Text('انتكاسة',
+                              style: GoogleFonts.cairo(
+                                  fontSize: 12,
+                                  color: const Color(0xFFEF4444),
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(width: 1, height: 40, color: const Color(0xFFE2E8F0)),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      ref
+                          .read(mujahadahListProvider.notifier)
+                          .recordMinorSlip(habit.id);
+                      _recordDailyStatus(ref, habit.title, 1);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('🟡', style: TextStyle(fontSize: 18)),
+                          const SizedBox(height: 4),
+                          Text('زلة عابرة',
+                              style: GoogleFonts.cairo(
+                                  fontSize: 12,
+                                  color: const Color(0xFFD97706),
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(width: 1, height: 40, color: const Color(0xFFE2E8F0)),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      ref
+                          .read(mujahadahListProvider.notifier)
+                          .recordSuccess(habit.id);
+                      _recordDailyStatus(ref, habit.title, 2);
+                    },
+                    borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('🟢', style: TextStyle(fontSize: 18)),
+                          const SizedBox(height: 4),
+                          Text('انتصار تام',
+                              style: GoogleFonts.cairo(
+                                  fontSize: 12,
+                                  color: const Color(0xFF10B981),
+                                  fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showRelapseBottomSheet(BuildContext context, WidgetRef ref, int id, VoidCallback onConfirm) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFDE68A),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                    child: Text('🌱', style: TextStyle(fontSize: 30))),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '«كل ابن آدم خطاء، وخير الخطائين التوابون»',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cairo(
+                  fontSize: 16,
+                  color: const Color(0xFFD97706),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'السقوط ليس نهاية المطاف يا رفيقي، بل هو محطة لتتعلم من ضعفك.\nلست مطالباً بالكمال، بل بالمجاهدة المستمرة. الأهم هو ألا تيأس.\nقم الآن، واستعن بالله.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cairo(
+                  fontSize: 14,
+                  height: 1.6,
+                  color: isDark ? Colors.white70 : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(mujahadahListProvider.notifier).recordRelapse(id);
+                  onConfirm();
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF064E3B),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text('أجدد التوبة وأبدأ 🤍',
+                    style: GoogleFonts.cairo(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

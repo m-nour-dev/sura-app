@@ -192,10 +192,8 @@ class VefaPage extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => Directionality(
-        textDirection: ui.TextDirection.rtl,
-        child: Container(
-          padding: const EdgeInsets.all(24),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -312,7 +310,6 @@ class VefaPage extends ConsumerWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

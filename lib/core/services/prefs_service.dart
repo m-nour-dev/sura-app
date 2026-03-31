@@ -1,6 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefsService {
+    /// Returns the user's language code, e.g., 'ar' or 'en'.
+    Future<String?> getUserLanguage() async {
+      // TODO: Implement actual logic to fetch user language from preferences
+      return 'ar';
+    }
   static const String _keyIsAutoLocation = 'is_auto_location';
   static const String _keyLat = 'latitude';
   static const String _keyLong = 'longitude';
@@ -124,6 +129,26 @@ class PrefsService {
   // ─── Planned Notifications Cache ──────────────────────────────────────────
 
   static const String _keyPlannedNotifications = 'planned_notifications_cache';
+
+  Future<String?> getAdhanMode(String prayerName) async {
+    final prefs = await _instance;
+    return prefs.getString('adhan_mode_${prayerName.toLowerCase()}');
+  }
+
+  Future<void> setAdhanMode(String prayerName, String mode) async {
+    final prefs = await _instance;
+    await prefs.setString('adhan_mode_${prayerName.toLowerCase()}', mode);
+  }
+
+  Future<int?> getPrayerReminderMinutes(String prayerName) async {
+    final prefs = await _instance;
+    return prefs.getInt('prayer_reminder_${prayerName.toLowerCase()}');
+  }
+
+  Future<void> setPrayerReminderMinutes(String prayerName, int minutes) async {
+    final prefs = await _instance;
+    await prefs.setInt('prayer_reminder_${prayerName.toLowerCase()}', minutes);
+  }
 
   Future<void> savePlannedNotifications(String json) async {
     final prefs = await _instance; // PERF FIX 4

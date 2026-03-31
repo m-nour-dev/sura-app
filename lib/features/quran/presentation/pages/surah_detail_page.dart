@@ -106,11 +106,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
               child: Column(
                 children: [
                   Expanded(
-                    child: Directionality(
-                      textDirection: context.locale.languageCode == 'ar'
-                          ? ui.TextDirection.rtl
-                          : ui.TextDirection.ltr,
-                      child: PageView.builder(
+                    child: PageView.builder(
                         controller: _pageController,
                         itemCount: 604,
                         onPageChanged: (page) =>
@@ -147,7 +143,6 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
                         },
                       ),
                     ),
-                  ),
                   _buildToolbar(context, ref, settings),
                   _buildBottomSlider(settings),
                 ],

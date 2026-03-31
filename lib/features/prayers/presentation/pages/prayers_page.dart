@@ -127,11 +127,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
     const primaryColor = Color(0xFF064E3B);
     const accentColor = Color(0xFFD97706);
 
-    final isArabic = context.locale.languageCode == 'ar';
-
-    return Directionality(
-      textDirection: isArabic ? ui.TextDirection.rtl : ui.TextDirection.ltr,
-      child: DefaultTabController(
+    return DefaultTabController(
         initialIndex: widget.initialTabIndex.clamp(0, 1),
         length: 2,
         child: Scaffold(
@@ -567,7 +563,6 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
             ],
           ),
         ),
-      ),
     );
   }
 }

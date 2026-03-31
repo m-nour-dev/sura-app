@@ -25,4 +25,18 @@ class NotificationContent {
   int shownCount = 0;
   DateTime? lastShown;
   bool isFavorited = false;
+
+  /// Returns the notification text for the given language code.
+  String getTextForLang(String lang) {
+    if (lang == 'tr' && shortExplanationTr != null && shortExplanationTr!.isNotEmpty) {
+      return shortExplanationTr!;
+    }
+    if (lang == 'ar' && arabicText.isNotEmpty) {
+      return arabicText;
+    }
+    if (shortExplanation.isNotEmpty) {
+      return shortExplanation;
+    }
+    return arabicText;
+  }
 }

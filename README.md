@@ -37,28 +37,6 @@ The app is designed with a local-first philosophy: all core functionality works 
 
 > **صلة** هو تطبيق إسلامي للعبادة اليومية مبني بـ Flutter ومطلق فعلياً على متاجر التطبيقات. يجمع التطبيق بين القرآن الكريم، مواقيت الصلاة، الأذكار، ومنظومة الحفظ الذكي في تجربة واحدة متكاملة تعمل بالكامل دون اتصال.
 
-### System Design
-
-<div align="center">
-
-#### 📐 System Architecture
-
-![Sila System Architecture](docs/assets/SYSTEM_ARCHITECTURE.svg)
-
-*Full architecture showing Presentation, State Management, Domain, Data, and Infrastructure layers*
-
-#### 🔄 User Journey & Feature Flow
-
-![Sila User Journey](docs/assets/USER_JOURNEY.svg)
-
-*Daily worship journey across the four core pillars: Quran, Prayer, Azkar, and Hifz*
-
-</div>
-
-> See [docs/assets/SYSTEM_DESIGN_README.md](docs/assets/SYSTEM_DESIGN_README.md) for detailed design specifications and wireframes.
-
-<br/>
-
 ---
 
 ## Features

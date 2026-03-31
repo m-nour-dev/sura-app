@@ -143,8 +143,8 @@ class WirdCard extends ConsumerWidget {
         gradient: const LinearGradient(
           colors: [
             Color(0xFF1E3A5F),
-            Color(0xFF0F172A)
-          ], // Navy Hasanat to Night Deep
+            Color(0xFF0F172A),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -157,13 +157,9 @@ class WirdCard extends ConsumerWidget {
           ),
         ],
       ),
-      child: Directionality(
-        textDirection: context.locale.languageCode == 'tr'
-            ? ui.TextDirection.ltr
-            : ui.TextDirection.rtl,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -319,7 +315,6 @@ class WirdCard extends ConsumerWidget {
             _buildActionButtons(context, ref, state),
           ],
         ),
-      ),
     );
   }
 
@@ -332,13 +327,9 @@ class WirdCard extends ConsumerWidget {
     return Column(
       children: [
         // Buttons Row (Side-by-side)
-        Directionality(
-          textDirection: context.locale.languageCode == 'tr'
-              ? ui.TextDirection.ltr
-              : ui.TextDirection.rtl,
-          child: Row(
-            children: [
-              Expanded(
+        Row(
+          children: [
+            Expanded(
                 child: GestureDetector(
                   onTap: () async {
                     final result = await Navigator.push(
@@ -437,8 +428,7 @@ class WirdCard extends ConsumerWidget {
                   ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
 
         const SizedBox(height: 24),

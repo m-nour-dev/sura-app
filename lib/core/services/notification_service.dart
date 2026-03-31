@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:isar/isar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
@@ -13,6 +14,8 @@ import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
+import 'package:sila_app/features/notifications/data/models/notification_content.dart';
+import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
 import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
 import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
@@ -28,6 +31,13 @@ void notificationTapBackground(NotificationResponse response) {
 }
 
 class NotificationService {
+  // Notification channel keys
+  static const _channels = {
+    'adhan': 'adhan_channel',
+    'reminder': 'reminder_channel',
+    'report': 'report_channel',
+    'update': 'update_channel',
+  };
   factory NotificationService() => _instance;
   NotificationService._internal();
   static final NotificationService _instance = NotificationService._internal();
@@ -126,7 +136,7 @@ class NotificationService {
     final android = _notifications.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
-    // Adhan channel
+    // Adhan channel (for prayer times only)
     await android?.createNotificationChannel(const AndroidNotificationChannel(
       'adhan_channel',
       'أذان الصلاة',
@@ -135,13 +145,33 @@ class NotificationService {
       playSound: true,
       enableVibration: true,
       enableLights: true,
+      sound: RawResourceAndroidNotificationSound('adhan_egypt'),
     ));
 
-    // Download channel
+    // Reminders channel (for wird, azkar, tasbih, etc.)
     await android?.createNotificationChannel(const AndroidNotificationChannel(
-      'download_channel',
-      'التحديثات',
-      description: 'إشعارات تحميل التحديثات',
+      'reminder_channel',
+      'التذكيرات اليومية',
+      description: 'تذكيرات العبادات اليومية',
+      importance: Importance.defaultImportance,
+      playSound: true,
+      sound: RawResourceAndroidNotificationSound('reminder_tone'),
+    ));
+
+    // Report channel (for daily report)
+    await android?.createNotificationChannel(const AndroidNotificationChannel(
+      'report_channel',
+      'التقرير اليومي',
+      description: 'إشعارات التقرير اليومي',
+      importance: Importance.low,
+      playSound: false,
+    ));
+
+    // Update channel (for app updates)
+    await android?.createNotificationChannel(const AndroidNotificationChannel(
+      'update_channel',
+      'تحديثات التطبيق',
+      description: 'إشعارات تحديث التطبيق',
       importance: Importance.low,
       playSound: false,
     ));
@@ -209,7 +239,7 @@ class NotificationService {
     final soundName = soundFile.split('.').first;
 
     final androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
+      _channels['adhan']!,
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
       importance: Importance.max,
@@ -343,20 +373,42 @@ class NotificationService {
     required String body,
     required DateTime dateTime,
     String? payload,
+    String channelKey = 'reminder',
   }) async {
     if (!_initialized) await initialize();
     final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
 
-    const androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
-      'أذان الصلاة',
-      channelDescription: 'إشعارات أذان الصلاة',
-      importance: Importance.max,
-      priority: Priority.high,
-      playSound: true,
-      enableVibration: true,
-      enableLights: true,
+    final androidDetails = AndroidNotificationDetails(
+      _channels[channelKey]!,
+      channelKey == 'adhan' ? 'أذان الصلاة'
+        : channelKey == 'reminder' ? 'التذكيرات اليومية'
+        : channelKey == 'report' ? 'التقرير اليومي'
+        : channelKey == 'update' ? 'تحديثات التطبيق'
+        : 'إشعارات',
+      channelDescription: channelKey == 'adhan' ? 'إشعارات أذان الصلاة'
+        : channelKey == 'reminder' ? 'تذكيرات العبادات اليومية'
+        : channelKey == 'report' ? 'إشعارات التقرير اليومي'
+        : channelKey == 'update' ? 'إشعارات تحديث التطبيق'
+        : 'إشعارات',
+      importance: channelKey == 'adhan' ? Importance.max
+        : channelKey == 'reminder' ? Importance.defaultImportance
+        : channelKey == 'report' ? Importance.low
+        : channelKey == 'update' ? Importance.low
+        : Importance.defaultImportance,
+      priority: channelKey == 'adhan' ? Priority.high
+        : channelKey == 'reminder' ? Priority.defaultPriority
+        : channelKey == 'report' ? Priority.low
+        : channelKey == 'update' ? Priority.low
+        : Priority.defaultPriority,
+      playSound: channelKey == 'adhan' ? true : channelKey == 'reminder',
+      enableVibration: channelKey == 'adhan' || channelKey == 'reminder',
+      enableLights: channelKey == 'adhan' || channelKey == 'reminder',
       icon: '@drawable/ic_notification',
+      sound: channelKey == 'adhan'
+        ? RawResourceAndroidNotificationSound('adhan_egypt')
+        : channelKey == 'reminder'
+          ? RawResourceAndroidNotificationSound('reminder_tone')
+          : null,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -365,7 +417,7 @@ class NotificationService {
       presentSound: true,
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
@@ -939,6 +991,9 @@ class NotificationService {
   }
 
   void _onNotificationTap(NotificationResponse response) async {
+    // Track interaction before navigation
+    await _recordTap(response.payload);
+
     if (response.actionId == _stopAdhanActionId ||
         response.payload == _stopAdhanActionId) {
       await stopAdhan();
@@ -969,6 +1024,54 @@ class NotificationService {
     }
 
     handleNotificationPayload(response.payload);
+  }
+
+  Future<void> _recordTap(String? payload) async {
+    if (payload == null) return;
+    try {
+      final isar = await IsarService().db;
+      final featureKey = _extractFeatureKey(payload);
+      if (featureKey == null) return;
+      final settings = await isar.notificationSettings
+          .filter()
+          .featureKeyEqualTo(featureKey)
+          .findFirst();
+      if (settings == null) return;
+      await isar.writeTxn(() async {
+        settings.tapCount += 1;
+        settings.consecutiveIgnored = 0;
+        settings.lastTappedAt = DateTime.now();
+        // حساب متوسط وقت الاستجابة
+        if (settings.lastShownAt != null) {
+          final delay = DateTime.now().difference(settings.lastShownAt!).inMinutes;
+          if (settings.avgResponseMinutes == -1) {
+            settings.avgResponseMinutes = delay;
+          } else {
+            settings.avgResponseMinutes =
+                ((settings.avgResponseMinutes * 0.7) + (delay * 0.3)).round();
+          }
+        }
+        await isar.notificationSettings.put(settings);
+      });
+    } catch (e) {
+      debugPrint('recordTap failed: $e');
+    }
+  }
+
+  String? _extractFeatureKey(String payload) {
+    try {
+      final decoded = jsonDecode(payload);
+      if (decoded is Map) {
+        return decoded['feature_key'] as String? ?? decoded['category'] as String?;
+      }
+    } catch (_) {}
+    // payloads النصية المباشرة
+    const knownKeys = {
+      'wird_reminder': 'wird',
+      'azkar_sabah': 'azkar',
+      'tasbih_reminder': 'tasbih',
+    };
+    return knownKeys[payload];
   }
 
   /// Callback invoked when user taps "Retry" on a failed download notification.
