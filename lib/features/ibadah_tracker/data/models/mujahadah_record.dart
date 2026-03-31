@@ -9,13 +9,13 @@ class MujahadahRecord {
   /// اسم الذنب أو العادة التي يريد المستخدم التخلص منها
   @Index(unique: true, replace: true)
   late String title;
-  
+
   /// تاريخ التسجيل الأصلي (عندما قرر تركها لأول مرة)
   late DateTime startDate;
-  
+
   /// أفضل إنجاز حققه (أطول مدة صمود بالأيام)
   int longestStreak = 0;
-  
+
   /// العداد الحالي للصمود (يزيد فقط إذا ضغط المستخدم "صمدت اليوم")
   int currentStreak = 0;
 

@@ -9,8 +9,8 @@ import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart'
 import 'package:sila_app/features/ibadah_tracker/domain/comparison_engine.dart';
 import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
 import 'package:sila_app/features/ibadah_tracker/domain/ibadah_content_selector.dart';
-import 'package:sila_app/features/ibadah_tracker/presentation/controllers/daily_report_controller.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/controllers/custom_ibadah_controller.dart';
+import 'package:sila_app/features/ibadah_tracker/presentation/controllers/daily_report_controller.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 
 class DailyReportPage extends ConsumerStatefulWidget {
@@ -63,8 +63,8 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
               isMale: data.isMale,
               languageCode: context.locale.languageCode,
               customIbadahs: customIbadahs);
-          final ratioToday =
-              DailyStatusCalculator.completionRatio(today, isMale: data.isMale, customIbadahs: customIbadahs);
+          final ratioToday = DailyStatusCalculator.completionRatio(today,
+              isMale: data.isMale, customIbadahs: customIbadahs);
           final ratioYesterday = hasYesterday
               ? DailyStatusCalculator.completionRatio(yesterday,
                   isMale: data.isMale, customIbadahs: customIbadahs)
@@ -79,12 +79,14 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> {
               : tr('daily_report_page.first_day_message');
           final hijriDate = _hijriDate(context);
 
-          final completedItems = _completedItems(today, isMale: data.isMale, customIbadahs: customIbadahs);
-          final incompleteItems = _incompleteItems(today, isMale: data.isMale, customIbadahs: customIbadahs);
-          final todayCount =
-              DailyStatusCalculator.completedCount(today, isMale: data.isMale, customIbadahs: customIbadahs);
-          final todayTotal =
-              DailyStatusCalculator.totalCount(isMale: data.isMale, customIbadahs: customIbadahs);
+          final completedItems = _completedItems(today,
+              isMale: data.isMale, customIbadahs: customIbadahs);
+          final incompleteItems = _incompleteItems(today,
+              isMale: data.isMale, customIbadahs: customIbadahs);
+          final todayCount = DailyStatusCalculator.completedCount(today,
+              isMale: data.isMale, customIbadahs: customIbadahs);
+          final todayTotal = DailyStatusCalculator.totalCount(
+              isMale: data.isMale, customIbadahs: customIbadahs);
           final yesterdayCount = hasYesterday
               ? DailyStatusCalculator.completedCount(yesterday,
                   isMale: data.isMale, customIbadahs: customIbadahs)
@@ -578,8 +580,8 @@ class _CalendarHeatmap extends StatelessWidget {
         color = const Color(0xFFE2E8F0);
         empty++;
       } else {
-        final ratio =
-            DailyStatusCalculator.completionRatio(rec, isMale: isMale, customIbadahs: customIbadahs);
+        final ratio = DailyStatusCalculator.completionRatio(rec,
+            isMale: isMale, customIbadahs: customIbadahs);
         if (ratio >= 0.8) {
           color = const Color(0xFF064E3B);
           completed++;
@@ -789,7 +791,8 @@ class _RangeChip extends StatelessWidget {
   }
 }
 
-List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale, List<String>? customIbadahs}) {
+List<_IbadahItem> _completedItems(IbadahRecord r,
+    {required bool isMale, List<String>? customIbadahs}) {
   final out = <_IbadahItem>[];
   if (r.fajrStatus > 0) {
     out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr')));
@@ -807,8 +810,9 @@ List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale, List<St
   if (r.ishaStatus > 0) {
     out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha')));
   }
-  if (r.readWird)
+  if (r.readWird) {
     out.add(_IbadahItem(key: 'wird', label: tr('daily_report_page.wird')));
+  }
   if (r.readAzkarSabah) {
     out.add(_IbadahItem(
         key: 'azkar_sabah', label: tr('daily_report_page.azkar_sabah')));
@@ -817,8 +821,9 @@ List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale, List<St
     out.add(_IbadahItem(
         key: 'azkar_masa', label: tr('daily_report_page.azkar_masa')));
   }
-  if (r.didTasbih)
+  if (r.didTasbih) {
     out.add(_IbadahItem(key: 'tasbih', label: tr('daily_report_page.tasbih')));
+  }
   if (r.didHifz || r.didTasmi) {
     out.add(
         _IbadahItem(key: 'hifz', label: tr('daily_report_page.hifz_tasmi')));
@@ -844,10 +849,6 @@ List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale, List<St
       out.add(_IbadahItem(
           key: 'isha', label: tr('daily_report_page.isha_congregation')));
     }
-    if (r.ishaInMasjid == true) {
-      out.add(_IbadahItem(
-          key: 'isha', label: tr('daily_report_page.isha_congregation')));
-    }
   }
 
   if (customIbadahs != null) {
@@ -856,22 +857,24 @@ List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale, List<St
       final map = jsonDecode(currentNote) as Map<String, dynamic>;
       if (map.containsKey('custom') && map['custom'] is Map) {
         final customMap = map['custom'] as Map<String, dynamic>;
-        if (customIbadahs != null) {
-          for (final name in customIbadahs) {
-            if (customMap[name] == true) {
-              out.add(_IbadahItem(key: 'custom_$name', label: name));
-            }
+        for (final name in customIbadahs) {
+          if (customMap[name] == true) {
+            out.add(_IbadahItem(key: 'custom_$name', label: name));
           }
         }
-      }
-      
+            }
+
       if (map.containsKey('mujahadah') && map['mujahadah'] is Map) {
         final mujahadahMap = map['mujahadah'] as Map<String, dynamic>;
         for (final entry in mujahadahMap.entries) {
           if (entry.value == 2) {
-            out.add(_IbadahItem(key: 'muja_${entry.key}', label: '🛡️ ${entry.key} (انتصار تام 🟢)'));
+            out.add(_IbadahItem(
+                key: 'muja_${entry.key}',
+                label: '🛡️ ${entry.key} (انتصار تام 🟢)'));
           } else if (entry.value == 1) {
-            out.add(_IbadahItem(key: 'muja_${entry.key}', label: '🛡️ ${entry.key} (زلة عابرة 🟡)'));
+            out.add(_IbadahItem(
+                key: 'muja_${entry.key}',
+                label: '🛡️ ${entry.key} (زلة عابرة 🟡)'));
           }
         }
       }
@@ -886,7 +889,8 @@ List<_IbadahItem> _completedItems(IbadahRecord r, {required bool isMale, List<St
       : out;
 }
 
-List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale, List<String>? customIbadahs}) {
+List<_IbadahItem> _incompleteItems(IbadahRecord r,
+    {required bool isMale, List<String>? customIbadahs}) {
   final out = <_IbadahItem>[];
   if (r.fajrStatus == 0) {
     out.add(_IbadahItem(key: 'fajr', label: tr('daily_report_page.fajr')));
@@ -894,8 +898,9 @@ List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale, List<S
   if (r.dhuhrStatus == 0) {
     out.add(_IbadahItem(key: 'dhuhr', label: tr('daily_report_page.dhuhr')));
   }
-  if (r.asrStatus == 0)
+  if (r.asrStatus == 0) {
     out.add(_IbadahItem(key: 'asr', label: tr('daily_report_page.asr')));
+  }
   if (r.maghribStatus == 0) {
     out.add(
         _IbadahItem(key: 'maghrib', label: tr('daily_report_page.maghrib')));
@@ -903,8 +908,9 @@ List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale, List<S
   if (r.ishaStatus == 0) {
     out.add(_IbadahItem(key: 'isha', label: tr('daily_report_page.isha')));
   }
-  if (!r.readWird)
+  if (!r.readWird) {
     out.add(_IbadahItem(key: 'wird', label: tr('daily_report_page.wird')));
+  }
   if (!r.readAzkarSabah) {
     out.add(_IbadahItem(
         key: 'azkar_sabah', label: tr('daily_report_page.azkar_sabah')));
@@ -913,8 +919,9 @@ List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale, List<S
     out.add(_IbadahItem(
         key: 'azkar_masa', label: tr('daily_report_page.azkar_masa')));
   }
-  if (!r.didTasbih)
+  if (!r.didTasbih) {
     out.add(_IbadahItem(key: 'tasbih', label: tr('daily_report_page.tasbih')));
+  }
   if (!(r.didHifz || r.didTasmi)) {
     out.add(
         _IbadahItem(key: 'hifz', label: tr('daily_report_page.hifz_tasmi')));
@@ -940,10 +947,6 @@ List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale, List<S
       out.add(_IbadahItem(
           key: 'isha', label: tr('daily_report_page.isha_congregation')));
     }
-    if (r.ishaStatus > 0 && r.ishaInMasjid == false) {
-      out.add(_IbadahItem(
-          key: 'isha', label: tr('daily_report_page.isha_congregation')));
-    }
   }
 
   if (customIbadahs != null) {
@@ -953,20 +956,20 @@ List<_IbadahItem> _incompleteItems(IbadahRecord r, {required bool isMale, List<S
       final customMap = (map.containsKey('custom') && map['custom'] is Map)
           ? map['custom'] as Map<String, dynamic>
           : <String, dynamic>{};
-          
-      if (customIbadahs != null) {
-        for (final name in customIbadahs) {
-          if (customMap[name] != true) {
-            out.add(_IbadahItem(key: 'custom_$name', label: name));
-          }
+
+      for (final name in customIbadahs) {
+        if (customMap[name] != true) {
+          out.add(_IbadahItem(key: 'custom_$name', label: name));
         }
       }
-      
+    
       if (map.containsKey('mujahadah') && map['mujahadah'] is Map) {
         final mujahadahMap = map['mujahadah'] as Map<String, dynamic>;
         for (final entry in mujahadahMap.entries) {
           if (entry.value == 0) {
-            out.add(_IbadahItem(key: 'muja_${entry.key}', label: '🛡️ ${entry.key} (انتكاسة 🔴)'));
+            out.add(_IbadahItem(
+                key: 'muja_${entry.key}',
+                label: '🛡️ ${entry.key} (انتكاسة 🔴)'));
           }
         }
       }
@@ -1002,8 +1005,8 @@ class _ReminderCards extends ConsumerWidget {
               .take(6)
               .map(
                 (item) => FutureBuilder(
-                  future: item.key.startsWith('custom_') 
-                      ? Future.value(null) 
+                  future: item.key.startsWith('custom_')
+                      ? Future.value(null)
                       : selector.getContent(
                           ibadahKey: item.key,
                           completed: false,

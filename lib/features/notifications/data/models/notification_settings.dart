@@ -23,13 +23,13 @@ class NotificationSettings {
   bool endTimeReminderEnabled = false;
 
   // --- New tracking fields for intelligence ---
-  DateTime? lastTappedAt;        // آخر مرة فتح المستخدم الإشعار
-  int tapCount = 0;              // مجموع الاستجابات
-  int dismissCount = 0;          // مجموع التجاهلات  
-  int consecutiveIgnored = 0;    // تجاهل متتالي → خطر
-  int avgResponseMinutes = -1;   // -1 = لا بيانات بعد
-  DateTime? lastShownAt;         // للتحكم في التكرار
-  int shownCount = 0;            // كم مرة أُرسل إجمالاً
+  DateTime? lastTappedAt; // آخر مرة فتح المستخدم الإشعار
+  int tapCount = 0; // مجموع الاستجابات
+  int dismissCount = 0; // مجموع التجاهلات
+  int consecutiveIgnored = 0; // تجاهل متتالي → خطر
+  int avgResponseMinutes = -1; // -1 = لا بيانات بعد
+  DateTime? lastShownAt; // للتحكم في التكرار
+  int shownCount = 0; // كم مرة أُرسل إجمالاً
 
   // مشتق: معدل الاستجابة
   double get engagementRate {

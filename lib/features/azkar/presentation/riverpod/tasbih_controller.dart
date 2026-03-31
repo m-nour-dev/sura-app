@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TasbihState {
-  final Map<String, int> counts;
-  final String activeZikrKey;
 
   TasbihState({
     required this.counts,
     required this.activeZikrKey,
   });
+  final Map<String, int> counts;
+  final String activeZikrKey;
 
   int get activeCount => counts[activeZikrKey] ?? 0;
 
@@ -25,6 +25,12 @@ class TasbihState {
 }
 
 class TasbihController extends StateNotifier<TasbihState> {
+
+  TasbihController()
+      : super(TasbihState(
+          counts: {for (var key in availableAzkar) key: 0},
+          activeZikrKey: availableAzkar[0],
+        ));
   static const List<String> availableAzkar = [
     'zikr_subhan_allah',
     'zikr_alhamdulillah',
@@ -55,12 +61,6 @@ class TasbihController extends StateNotifier<TasbihState> {
     'zikr_allahumma_inni_asalukal_jannah',
     'zikr_la_ilaha_illallah_al_azim_al_halim',
   ];
-
-  TasbihController()
-      : super(TasbihState(
-          counts: {for (var key in availableAzkar) key: 0},
-          activeZikrKey: availableAzkar[0],
-        ));
 
   void increment() {
     final newCounts = Map<String, int>.from(state.counts);

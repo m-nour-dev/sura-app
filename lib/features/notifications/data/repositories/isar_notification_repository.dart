@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:isar/isar.dart';
@@ -6,7 +5,6 @@ import 'package:sila_app/features/notifications/data/models/notification_content
 import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
 import 'package:sila_app/features/notifications/data/models/user_activity_log.dart';
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
-
 
 extension IsarNotificationRepositoryTracking on IsarNotificationRepository {
   /// Track notification shown and check for ignored/dismissed
@@ -34,24 +32,30 @@ extension IsarNotificationRepositoryTracking on IsarNotificationRepository {
 }
 
 class IsarNotificationRepository implements INotificationRepository {
-    /// Returns a list of DateTime objects representing recent completion times for a feature.
-    Future<List<DateTime>> getRecentCompletionTimes(String featureKey, {int days = 7}) async {
-      // TODO: Implement actual logic based on user activity logs
-      return [];
-    }
 
-    /// Returns a random congratulatory message in the user's language.
-    Future<String?> getRandomCongrats({required String userLang}) async {
-      // TODO: Implement actual logic to fetch a random congrats message
-      return null;
-    }
-
-    /// Returns the last time the app was opened by the user.
-    Future<DateTime?> getLastAppOpen() async {
-      // TODO: Implement actual logic to fetch last app open time
-      return null;
-    }
   IsarNotificationRepository(this._isar);
+  /// Returns a list of DateTime objects representing recent completion times for a feature.
+  Future<List<DateTime>> getRecentCompletionTimes(String featureKey,
+      {int days = 7}) async {
+    // TODO: Implement actual logic based on user activity logs
+    return [];
+  }
+
+  /// Returns a random congratulatory message in the user's language.
+  Future<String?> getRandomCongrats({required String userLang}) async {
+    // TODO: Implement actual logic to fetch a random congrats message
+    return null;
+  }
+
+  /// Returns the last time the app was opened by the user.
+  Future<DateTime?> getLastAppOpen() async {
+    final lastLog = await _isar.userActivityLogs
+        .where()
+        .sortByLastOpenedDesc()
+        .findFirst();
+    return lastLog?.lastOpened;
+  }
+
   final Isar _isar;
 
   @override

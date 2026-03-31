@@ -13,7 +13,7 @@ class DailyStatusCalculator {
 
   static int _customCount(IbadahRecord record, List<String> customIbadahs) {
     if (customIbadahs.isEmpty) return 0;
-    int count = 0;
+    var count = 0;
     try {
       final currentNote = record.personalNote ?? '{}';
       final map = jsonDecode(currentNote) as Map<String, dynamic>;
@@ -29,8 +29,8 @@ class DailyStatusCalculator {
 
   static int completedCount(IbadahRecord record,
       {required bool isMale, List<String>? customIbadahs}) {
-    int count = 0;
-    
+    var count = 0;
+
     // 1. 5 Prayers (Visible)
     if (record.fajrStatus > 0) count++;
     if (record.dhuhrStatus > 0) count++;
@@ -44,8 +44,8 @@ class DailyStatusCalculator {
     if (record.readAzkarMasa) count++;
     if (record.didTasbih) count++;
     if (record.didHifz || record.didTasmi) count++;
-    
-    // We intentionally skip counting "In Masjid" or "Dhikr" separately 
+
+    // We intentionally skip counting "In Masjid" or "Dhikr" separately
     // to match exactly the 10 rows shown in the UI.
 
     // 3. Custom Ibadahs
@@ -65,7 +65,9 @@ class DailyStatusCalculator {
       {required bool isMale, List<String>? customIbadahs}) {
     final total = totalCount(isMale: isMale, customIbadahs: customIbadahs);
     if (total == 0) return 0.0;
-    return completedCount(record, isMale: isMale, customIbadahs: customIbadahs) / total;
+    return completedCount(record,
+            isMale: isMale, customIbadahs: customIbadahs) /
+        total;
   }
 
   static String getDailyStatusText(IbadahRecord record,
@@ -73,7 +75,7 @@ class DailyStatusCalculator {
       required String languageCode,
       List<String>? customIbadahs}) {
     var texts = <String>[];
-    final double ratio =
+    final ratio =
         completionRatio(record, isMale: isMale, customIbadahs: customIbadahs);
 
     if (ratio >= 1.0) {
@@ -155,8 +157,6 @@ class DailyStatusCalculator {
   static String getDailyQuote(IbadahRecord record, String languageCode,
       {List<String>? customIbadahs}) {
     return getDailyStatusText(record,
-        isMale: true,
-        languageCode: languageCode,
-        customIbadahs: customIbadahs);
+        isMale: true, languageCode: languageCode, customIbadahs: customIbadahs);
   }
 }

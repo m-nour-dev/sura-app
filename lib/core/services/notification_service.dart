@@ -14,7 +14,6 @@ import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
-import 'package:sila_app/features/notifications/data/models/notification_content.dart';
 import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
 import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
@@ -31,6 +30,8 @@ void notificationTapBackground(NotificationResponse response) {
 }
 
 class NotificationService {
+  factory NotificationService() => _instance;
+  NotificationService._internal();
   // Notification channel keys
   static const _channels = {
     'adhan': 'adhan_channel',
@@ -38,8 +39,6 @@ class NotificationService {
     'report': 'report_channel',
     'update': 'update_channel',
   };
-  factory NotificationService() => _instance;
-  NotificationService._internal();
   static final NotificationService _instance = NotificationService._internal();
 
   final FlutterLocalNotificationsPlugin _notifications =
@@ -378,37 +377,54 @@ class NotificationService {
     if (!_initialized) await initialize();
     final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
 
+    final channelId = _channels[channelKey] ?? _channels['reminder']!;
     final androidDetails = AndroidNotificationDetails(
-      _channels[channelKey]!,
-      channelKey == 'adhan' ? 'أذان الصلاة'
-        : channelKey == 'reminder' ? 'التذكيرات اليومية'
-        : channelKey == 'report' ? 'التقرير اليومي'
-        : channelKey == 'update' ? 'تحديثات التطبيق'
-        : 'إشعارات',
-      channelDescription: channelKey == 'adhan' ? 'إشعارات أذان الصلاة'
-        : channelKey == 'reminder' ? 'تذكيرات العبادات اليومية'
-        : channelKey == 'report' ? 'إشعارات التقرير اليومي'
-        : channelKey == 'update' ? 'إشعارات تحديث التطبيق'
-        : 'إشعارات',
-      importance: channelKey == 'adhan' ? Importance.max
-        : channelKey == 'reminder' ? Importance.defaultImportance
-        : channelKey == 'report' ? Importance.low
-        : channelKey == 'update' ? Importance.low
-        : Importance.defaultImportance,
-      priority: channelKey == 'adhan' ? Priority.high
-        : channelKey == 'reminder' ? Priority.defaultPriority
-        : channelKey == 'report' ? Priority.low
-        : channelKey == 'update' ? Priority.low
-        : Priority.defaultPriority,
+      channelId,
+      channelKey == 'adhan'
+          ? 'أذان الصلاة'
+          : channelKey == 'reminder'
+              ? 'التذكيرات اليومية'
+              : channelKey == 'report'
+                  ? 'التقرير اليومي'
+                  : channelKey == 'update'
+                      ? 'تحديثات التطبيق'
+                      : 'إشعارات',
+      channelDescription: channelKey == 'adhan'
+          ? 'إشعارات أذان الصلاة'
+          : channelKey == 'reminder'
+              ? 'تذكيرات العبادات اليومية'
+              : channelKey == 'report'
+                  ? 'إشعارات التقرير اليومي'
+                  : channelKey == 'update'
+                      ? 'إشعارات تحديث التطبيق'
+                      : 'إشعارات',
+      importance: channelKey == 'adhan'
+          ? Importance.max
+          : channelKey == 'reminder'
+              ? Importance.defaultImportance
+              : channelKey == 'report'
+                  ? Importance.low
+                  : channelKey == 'update'
+                      ? Importance.low
+                      : Importance.defaultImportance,
+      priority: channelKey == 'adhan'
+          ? Priority.high
+          : channelKey == 'reminder'
+              ? Priority.defaultPriority
+              : channelKey == 'report'
+                  ? Priority.low
+                  : channelKey == 'update'
+                      ? Priority.low
+                      : Priority.defaultPriority,
       playSound: channelKey == 'adhan' ? true : channelKey == 'reminder',
       enableVibration: channelKey == 'adhan' || channelKey == 'reminder',
       enableLights: channelKey == 'adhan' || channelKey == 'reminder',
       icon: '@drawable/ic_notification',
       sound: channelKey == 'adhan'
-        ? RawResourceAndroidNotificationSound('adhan_egypt')
-        : channelKey == 'reminder'
-          ? RawResourceAndroidNotificationSound('reminder_tone')
-          : null,
+          ? const RawResourceAndroidNotificationSound('adhan_egypt')
+          : channelKey == 'reminder'
+              ? const RawResourceAndroidNotificationSound('reminder_tone')
+              : null,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -574,7 +590,7 @@ class NotificationService {
       onlyAlertOnce: true,
       icon: '@drawable/ic_notification',
     );
-    final iosDetails = DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: false,
       presentSound: false,
@@ -612,7 +628,7 @@ class NotificationService {
         ),
       ],
     );
-    final iosDetails = DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -662,7 +678,7 @@ class NotificationService {
             ]
           : null,
     );
-    final iosDetails = DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: false,
       presentSound: true,
@@ -680,7 +696,7 @@ class NotificationService {
     if (!_initialized) await initialize();
     final title = _dl('waiting', locale);
     final body = _dl('retrying', locale);
-    final androidDetails = AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       'download_channel',
       'التحديثات',
       channelDescription: 'إشعارات تحميل التحديثات',
@@ -693,12 +709,12 @@ class NotificationService {
       indeterminate: true,
       icon: '@drawable/ic_notification',
     );
-    final iosDetails = DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: false,
       presentSound: false,
     );
-    final details =
+    const details =
         NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _notifications.show(id, title, body, details,
         payload: 'download_waiting');
@@ -1043,7 +1059,8 @@ class NotificationService {
         settings.lastTappedAt = DateTime.now();
         // حساب متوسط وقت الاستجابة
         if (settings.lastShownAt != null) {
-          final delay = DateTime.now().difference(settings.lastShownAt!).inMinutes;
+          final delay =
+              DateTime.now().difference(settings.lastShownAt!).inMinutes;
           if (settings.avgResponseMinutes == -1) {
             settings.avgResponseMinutes = delay;
           } else {
@@ -1062,7 +1079,8 @@ class NotificationService {
     try {
       final decoded = jsonDecode(payload);
       if (decoded is Map) {
-        return decoded['feature_key'] as String? ?? decoded['category'] as String?;
+        return decoded['feature_key'] as String? ??
+            decoded['category'] as String?;
       }
     } catch (_) {}
     // payloads النصية المباشرة

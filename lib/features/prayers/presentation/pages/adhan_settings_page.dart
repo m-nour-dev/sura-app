@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/core/services/adhan_native_service.dart';
+import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
@@ -12,7 +12,6 @@ class AdhanSettingsPage extends ConsumerStatefulWidget {
   @override
   ConsumerState<AdhanSettingsPage> createState() => _AdhanSettingsPageState();
 }
-
 
 class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   final _prefs = PrefsService();
@@ -237,32 +236,54 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                       activeThumbColor: const Color(0xFF43A047),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       child: Row(
                         children: [
-                          const Text('نوع الإشعار:', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                          const Text('نوع الإشعار:',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 13)),
                           const SizedBox(width: 8),
                           DropdownButton<String>(
                             value: _adhanModes[key],
                             dropdownColor: const Color(0xFF222B45),
                             items: const [
-                              DropdownMenuItem(value: 'adhan', child: Text('تشغيل الأذان كاملًا', style: TextStyle(color: Colors.white))),
-                              DropdownMenuItem(value: 'notification', child: Text('إشعار نصي فقط', style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 'adhan',
+                                  child: Text('تشغيل الأذان كاملًا',
+                                      style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 'notification',
+                                  child: Text('إشعار نصي فقط',
+                                      style: TextStyle(color: Colors.white))),
                             ],
-                            onChanged: (v) => v != null ? _setAdhanMode(key, v) : null,
+                            onChanged: (v) =>
+                                v != null ? _setAdhanMode(key, v) : null,
                           ),
                           const Spacer(),
-                          const Text('تذكير قبل:', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                          const Text('تذكير قبل:',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 13)),
                           const SizedBox(width: 8),
                           DropdownButton<int>(
                             value: _reminderMinutes[key],
                             dropdownColor: const Color(0xFF222B45),
                             items: const [
-                              DropdownMenuItem(value: 0, child: Text('لا يوجد', style: TextStyle(color: Colors.white))),
-                              DropdownMenuItem(value: 1, child: Text('1 دقيقة', style: TextStyle(color: Colors.white))),
-                              DropdownMenuItem(value: 5, child: Text('5 دقائق', style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 0,
+                                  child: Text('لا يوجد',
+                                      style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 1,
+                                  child: Text('1 دقيقة',
+                                      style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 5,
+                                  child: Text('5 دقائق',
+                                      style: TextStyle(color: Colors.white))),
                             ],
-                            onChanged: (v) => v != null ? _setReminderMinutes(key, v) : null,
+                            onChanged: (v) =>
+                                v != null ? _setReminderMinutes(key, v) : null,
                           ),
                         ],
                       ),
@@ -314,7 +335,8 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                         borderRadius: BorderRadius.circular(14)),
                   ),
                   icon: const Icon(Icons.stop_circle_outlined),
-                  label: const Text('إيقاف الأذان', style: TextStyle(fontSize: 15)),
+                  label: const Text('إيقاف الأذان',
+                      style: TextStyle(fontSize: 15)),
                 ),
               ),
             ],

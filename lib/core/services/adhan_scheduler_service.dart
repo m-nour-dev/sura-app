@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:sila_app/core/services/adhan_native_service.dart';
 import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/services/adhan_native_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
 import 'package:sila_app/features/notifications/data/notification_ids.dart';
@@ -23,11 +23,13 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_title_azkar_evening': 'أذكار المساء 🌆',
       'notif_title_prayer_masjid': 'صلاة {prayer} في المسجد 🕌',
       'notif_title_azkar_post_prayer': 'أذكار ما بعد الصلاة',
-      'notif_body_azkar_post_prayer': 'اقرأ أذكار ما بعد الصلاة الآن واحتسب الأجر.',
+      'notif_body_azkar_post_prayer':
+          'اقرأ أذكار ما بعد الصلاة الآن واحتسب الأجر.',
       'notif_title_wird': 'وردك من الكتاب 📖',
       'notif_title_tasbih': 'لحظة تسبيح وذكر 💎',
       'notif_title_missed_user': 'اشتقنا لك!',
-      'notif_body_missed_user': 'لا تنس وردك اليوم. افتح التطبيق وابدأ من جديد.',
+      'notif_body_missed_user':
+          'لا تنس وردك اليوم. افتح التطبيق وابدأ من جديد.',
       'notif_streak_title': '🔥 {title} (سلسلة {days} يوم)',
       // ... add more keys as needed
     },
@@ -35,14 +37,16 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_congrats_title': 'Congrats',
       'notif_congrats_body': 'Great job! Keep it up.',
       'notif_title_azkar_morning': 'Morning Adhkar 🌅',
-      'notif_title_azkar_evening': 'Evening Adhkar 10',
+      'notif_title_azkar_evening': 'Evening Adhkar 🌆',
       'notif_title_prayer_masjid': '{prayer} Prayer at Mosque 🕌',
       'notif_title_azkar_post_prayer': 'Post-Prayer Adhkar',
-      'notif_body_azkar_post_prayer': 'Read your post-prayer adhkar now and earn reward.',
+      'notif_body_azkar_post_prayer':
+          'Read your post-prayer adhkar now and earn reward.',
       'notif_title_wird': 'Your Daily Wird 📖',
       'notif_title_tasbih': 'Time for Tasbih & Dhikr 💎',
       'notif_title_missed_user': 'We Miss You!',
-      'notif_body_missed_user': 'Don’t forget your wird today. Open the app and start again.',
+      'notif_body_missed_user':
+          'Don’t forget your wird today. Open the app and start again.',
       'notif_streak_title': '🔥 {title} (Streak {days} days)',
       // ... add more keys as needed
     },
@@ -53,18 +57,20 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_title_azkar_evening': 'Akşam Zikirleri 🌆',
       'notif_title_prayer_masjid': '{prayer} Namazı Camiide 🕌',
       'notif_title_azkar_post_prayer': 'Namaz Sonrası Zikirler',
-      'notif_body_azkar_post_prayer': 'Namaz sonrası zikirlerini şimdi oku ve sevap kazan.',
+      'notif_body_azkar_post_prayer':
+          'Namaz sonrası zikirlerini şimdi oku ve sevap kazan.',
       'notif_title_wird': 'Günlük Wirdin 📖',
       'notif_title_tasbih': 'Tesbih ve Zikir Zamanı 💎',
       'notif_title_missed_user': 'Seni Özledik!',
-      'notif_body_missed_user': 'Bugünkü wirdini unutma. Uygulamayı aç ve tekrar başla.',
+      'notif_body_missed_user':
+          'Bugünkü wirdini unutma. Uygulamayı aç ve tekrar başla.',
       'notif_streak_title': '🔥 {title} (Seri {days} gün)',
       // ... add more keys as needed
     },
   };
-  final Map<String, String>? map = translations[lang] ?? translations['ar'];
+  final map = translations[lang] ?? translations['ar'];
   if (map == null) return null;
-  String? value = map[key];
+  var value = map[key];
   if (value != null && params != null) {
     params.forEach((k, v) => value = value!.replaceAll('{$k}', v));
   }
@@ -176,7 +182,10 @@ class AdhanSchedulerService {
       Future<TimeOfDay?> getHabitualTime(String featureKey) async {
         final logs = await repo.getRecentCompletionTimes(featureKey, days: 7);
         if (logs.isEmpty) return null;
-        final avgMinutes = logs.map((dt) => dt.hour * 60 + dt.minute).reduce((a, b) => a + b) ~/ logs.length;
+        final avgMinutes = logs
+                .map((dt) => dt.hour * 60 + dt.minute)
+                .reduce((a, b) => a + b) ~/
+            logs.length;
         return TimeOfDay(hour: avgMinutes ~/ 60, minute: avgMinutes % 60);
       }
 
@@ -202,7 +211,7 @@ class AdhanSchedulerService {
         await repo.markAsShownAndCheckIgnored(featureKey);
 
         // تحديد لغة المستخدم
-        String userLang = await _prefsService.getUserLanguage() ?? 'ar';
+        final userLang = await _prefsService.getUserLanguage() ?? 'ar';
 
         // توقيت ذكي فعلي
         DateTime? when;
@@ -212,11 +221,13 @@ class AdhanSchedulerService {
           return;
         }
         // 2. عنده بيانات استجابة حقيقية → استخدمها
-        if (settings.avgResponseMinutes != -1 && settings.lastTappedAt != null) {
+        if (settings.avgResponseMinutes != -1 &&
+            settings.lastTappedAt != null) {
           final lastTap = settings.lastTappedAt!;
           final optimalHour = lastTap.hour;
           final optimalMinute = lastTap.minute;
-          final candidate = DateTime(now.year, now.month, now.day, optimalHour, optimalMinute);
+          final candidate = DateTime(
+              now.year, now.month, now.day, optimalHour, optimalMinute);
           when = normalizeToNext(candidate);
         } else if (settings.needsReschedule && fixedTime != null) {
           // 3. يحتاج إعادة جدولة لأنه يتجاهل → جرّب وقتاً مختلفاً
@@ -236,9 +247,11 @@ class AdhanSchedulerService {
           final congrats = await repo.getRandomCongrats(userLang: userLang);
           planned.add(_PlannedNotification(
             id: slotId,
-            when: when!,
+            when: when,
             title: t('notif_congrats_title', userLang) ?? defaultTitle,
-            body: congrats ?? t('notif_congrats_body', userLang) ?? 'أحسنت! استمر على طاعتك.',
+            body: congrats ??
+                t('notif_congrats_body', userLang) ??
+                'أحسنت! استمر على طاعتك.',
             payload: null,
             priority: 10,
           ));
@@ -253,8 +266,8 @@ class AdhanSchedulerService {
         );
         if (selected == null) return;
 
-        String body = customBody ?? selected.getTextForLang(userLang);
-        if (body.length > 100) body = body.substring(0, 97) + '...';
+        var body = customBody ?? selected.getTextForLang(userLang);
+        if (body.length > 100) body = '${body.substring(0, 97)}...';
 
         final payload = jsonEncode({
           'content_id': selected.contentId,
@@ -263,13 +276,18 @@ class AdhanSchedulerService {
         });
 
         // Streak-based title personalization
-        String personalizedTitle = t('notif_title_$featureKey', userLang) ?? defaultTitle;
+        var personalizedTitle =
+            t('notif_title_$featureKey', userLang) ?? defaultTitle;
         if (activity.streakDays >= 3) {
-          personalizedTitle = t('notif_streak_title', userLang, {'title': personalizedTitle, 'days': activity.streakDays.toString()}) ?? '🔥 $personalizedTitle (سلسلة ${activity.streakDays} يوم)';
+          personalizedTitle = t('notif_streak_title', userLang, {
+                'title': personalizedTitle,
+                'days': activity.streakDays.toString()
+              }) ??
+              '🔥 $personalizedTitle (سلسلة ${activity.streakDays} يوم)';
         }
         planned.add(_PlannedNotification(
           id: slotId,
-          when: when!,
+          when: when,
           title: personalizedTitle,
           body: body,
           payload: payload,
@@ -284,7 +302,9 @@ class AdhanSchedulerService {
       await addSmartReminder(
         featureKey: 'azkar',
         slotId: NotificationIds.dailySlot1,
-        defaultTitle: t('notif_title_azkar_morning', await _prefsService.getUserLanguage() ?? 'ar') ?? 'أذكار الصباح 🌅',
+        defaultTitle: t('notif_title_azkar_morning',
+                await _prefsService.getUserLanguage() ?? 'ar') ??
+            'أذكار الصباح 🌅',
         signalType: _IbadahSignalType.azkarSabah,
         fixedTime: azkarSabahTime,
       );
@@ -294,18 +314,45 @@ class AdhanSchedulerService {
       await addSmartReminder(
         featureKey: 'azkar',
         slotId: NotificationIds.dailySlot6,
-        defaultTitle: t('notif_title_azkar_evening', await _prefsService.getUserLanguage() ?? 'ar') ?? 'أذكار المساء 🌆',
+        defaultTitle: t('notif_title_azkar_evening',
+                await _prefsService.getUserLanguage() ?? 'ar') ??
+            'أذكار المساء 🌆',
         signalType: _IbadahSignalType.azkarMasa,
         fixedTime: azkarMasaTime,
       );
 
       // 3. تذكير المسجد لجميع الصلوات (تحفيزي أو تهنئة)
       final prayers = [
-        {'key': 'fajr', 'time': prayerTimes.fajr, 'signal': _IbadahSignalType.prayer, 'inMasjid': record?.fajrInMasjid},
-        {'key': 'dhuhr', 'time': prayerTimes.dhuhr, 'signal': _IbadahSignalType.prayer, 'inMasjid': record?.dhuhrInMasjid},
-        {'key': 'asr', 'time': prayerTimes.asr, 'signal': _IbadahSignalType.prayer, 'inMasjid': record?.asrInMasjid},
-        {'key': 'maghrib', 'time': prayerTimes.maghrib, 'signal': _IbadahSignalType.prayer, 'inMasjid': record?.maghribInMasjid},
-        {'key': 'isha', 'time': prayerTimes.isha, 'signal': _IbadahSignalType.prayer, 'inMasjid': record?.ishaInMasjid},
+        {
+          'key': 'fajr',
+          'time': prayerTimes.fajr,
+          'signal': _IbadahSignalType.prayer,
+          'inMasjid': record?.fajrInMasjid
+        },
+        {
+          'key': 'dhuhr',
+          'time': prayerTimes.dhuhr,
+          'signal': _IbadahSignalType.prayer,
+          'inMasjid': record?.dhuhrInMasjid
+        },
+        {
+          'key': 'asr',
+          'time': prayerTimes.asr,
+          'signal': _IbadahSignalType.prayer,
+          'inMasjid': record?.asrInMasjid
+        },
+        {
+          'key': 'maghrib',
+          'time': prayerTimes.maghrib,
+          'signal': _IbadahSignalType.prayer,
+          'inMasjid': record?.maghribInMasjid
+        },
+        {
+          'key': 'isha',
+          'time': prayerTimes.isha,
+          'signal': _IbadahSignalType.prayer,
+          'inMasjid': record?.ishaInMasjid
+        },
       ];
       for (var i = 0; i < prayers.length; i++) {
         final p = prayers[i];
@@ -318,7 +365,11 @@ class AdhanSchedulerService {
           await addSmartReminder(
             featureKey: 'prayer',
             slotId: slotId,
-            defaultTitle: t('notif_title_prayer_masjid', await _prefsService.getUserLanguage() ?? 'ar', {'prayer': prayerName}) ?? 'صلاة $prayerName في المسجد 🕌',
+            defaultTitle: t(
+                    'notif_title_prayer_masjid',
+                    await _prefsService.getUserLanguage() ?? 'ar',
+                    {'prayer': prayerName}) ??
+                'صلاة $prayerName في المسجد 🕌',
             signalType: _IbadahSignalType.prayer,
             fixedTime: prayerTime.subtract(const Duration(minutes: 30)),
             customCategory: 'hadith',
@@ -328,7 +379,11 @@ class AdhanSchedulerService {
           await addSmartReminder(
             featureKey: 'prayer',
             slotId: slotId,
-            defaultTitle: t('notif_title_prayer_masjid', await _prefsService.getUserLanguage() ?? 'ar', {'prayer': prayerName}) ?? 'صلاة $prayerName في المسجد 🕌',
+            defaultTitle: t(
+                    'notif_title_prayer_masjid',
+                    await _prefsService.getUserLanguage() ?? 'ar',
+                    {'prayer': prayerName}) ??
+                'صلاة $prayerName في المسجد 🕌',
             signalType: _IbadahSignalType.prayer,
             fixedTime: prayerTime.subtract(const Duration(minutes: 30)),
             congratIfCommitted: true,
@@ -341,8 +396,12 @@ class AdhanSchedulerService {
       planned.add(_PlannedNotification(
         id: 9002,
         when: normalizeToNext(dhuhrAfterTime),
-        title: t('notif_title_azkar_post_prayer', await _prefsService.getUserLanguage() ?? 'ar') ?? 'أذكار ما بعد الصلاة',
-        body: t('notif_body_azkar_post_prayer', await _prefsService.getUserLanguage() ?? 'ar') ?? 'اقرأ أذكار ما بعد الصلاة الآن واحتسب الأجر.',
+        title: t('notif_title_azkar_post_prayer',
+                await _prefsService.getUserLanguage() ?? 'ar') ??
+            'أذكار ما بعد الصلاة',
+        body: t('notif_body_azkar_post_prayer',
+                await _prefsService.getUserLanguage() ?? 'ar') ??
+            'اقرأ أذكار ما بعد الصلاة الآن واحتسب الأجر.',
         payload: null,
         priority: 15,
       ));
@@ -351,7 +410,9 @@ class AdhanSchedulerService {
       await addSmartReminder(
         featureKey: 'wird',
         slotId: NotificationIds.dailySlot4,
-        defaultTitle: t('notif_title_wird', await _prefsService.getUserLanguage() ?? 'ar') ?? 'وردك من الكتاب 📖',
+        defaultTitle: t('notif_title_wird',
+                await _prefsService.getUserLanguage() ?? 'ar') ??
+            'وردك من الكتاب 📖',
         signalType: _IbadahSignalType.wird,
       );
 
@@ -359,7 +420,9 @@ class AdhanSchedulerService {
       await addSmartReminder(
         featureKey: 'tasbih',
         slotId: NotificationIds.dailySlot2,
-        defaultTitle: t('notif_title_tasbih', await _prefsService.getUserLanguage() ?? 'ar') ?? 'لحظة تسبيح وذكر 💎',
+        defaultTitle: t('notif_title_tasbih',
+                await _prefsService.getUserLanguage() ?? 'ar') ??
+            'لحظة تسبيح وذكر 💎',
         signalType: _IbadahSignalType.tasbih,
       );
 
@@ -371,22 +434,23 @@ class AdhanSchedulerService {
           id: 9999,
           when: normalizeToNext(now.add(const Duration(minutes: 5))),
           title: t('notif_title_missed_user', lang) ?? 'اشتقنا لك!',
-          body: t('notif_body_missed_user', lang) ?? 'لا تنس وردك اليوم. افتح التطبيق وابدأ من جديد.',
+          body: t('notif_body_missed_user', lang) ??
+              'لا تنس وردك اليوم. افتح التطبيق وابدأ من جديد.',
           payload: null,
           priority: 30,
         ));
       }
 
-
       // Notification budget logic
-      const int maxNotificationsPerDay = 5;
-      const Duration minGap = Duration(hours: 2);
+      const maxNotificationsPerDay = 5;
+      const minGap = Duration(hours: 2);
       planned.sort((a, b) => a.when.compareTo(b.when));
       final filtered = <_PlannedNotification>[];
       DateTime? lastScheduled;
       for (final p in planned) {
         if (filtered.length >= maxNotificationsPerDay) break;
-        if (lastScheduled == null || p.when.difference(lastScheduled) >= minGap) {
+        if (lastScheduled == null ||
+            p.when.difference(lastScheduled) >= minGap) {
           filtered.add(p);
           lastScheduled = p.when;
         }
@@ -441,8 +505,10 @@ class AdhanSchedulerService {
     String soundFile,
   ) async {
     final isEnabled = await _prefsService.isAdhanEnabled(prayerName);
-    final adhanMode = await _prefsService.getAdhanMode(prayerName); // "adhan" or "notification"
-    final reminderMinutes = await _prefsService.getPrayerReminderMinutes(prayerName) ?? 0;
+    final adhanMode = await _prefsService
+        .getAdhanMode(prayerName); // "adhan" or "notification"
+    final reminderMinutes =
+        await _prefsService.getPrayerReminderMinutes(prayerName) ?? 0;
 
     if (isEnabled) {
       final now = DateTime.now();
@@ -455,12 +521,13 @@ class AdhanSchedulerService {
 
       // جدولة التذكير قبل الصلاة إذا تم اختياره
       if (reminderMinutes > 0) {
-        final reminderTime = nextPrayerTime.subtract(Duration(minutes: reminderMinutes));
+        final reminderTime =
+            nextPrayerTime.subtract(Duration(minutes: reminderMinutes));
         if (reminderTime.isAfter(DateTime.now())) {
           await _notificationService.scheduleOneShot(
             id: id + 10000, // id خاص بالتذكير
-            title: 'اقترب وقت ${prayerName}',
-            body: 'باقي $reminderMinutes دقيقة على ${prayerName}',
+            title: 'اقترب وقت $prayerName',
+            body: 'باقي $reminderMinutes دقيقة على $prayerName',
             dateTime: reminderTime,
             payload: null,
             channelKey: 'reminder',
@@ -469,11 +536,8 @@ class AdhanSchedulerService {
       }
 
       if (adhanMode == 'adhan') {
-        // جدولة تشغيل الأذان الحقيقي
-        Future.delayed(nextPrayerTime.difference(DateTime.now()), () {
-          AdhanNativeService.playAdhan(sound: soundFile.split('.').first);
-        });
-        // يمكن أيضًا إرسال إشعار نصي صغير مع الأذان
+        // في حالة اختيار الأذان، نستخدم إشعارًا مضبوطًا على وقت الصلاة
+        // ثم يدير المستخدم عمل تشغيل الصوت عبر نظام الإشعار.
         await _notificationService.scheduleNotification(
           id: id,
           prayerName: prayerName,

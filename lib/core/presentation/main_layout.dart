@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +19,8 @@ import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.d
 import 'package:sila_app/features/home/presentation/pages/home_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
 import 'package:sila_app/features/quran/presentation/pages/quran_page.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
+import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
 
 import 'widgets/sila_bottom_bar.dart';
 

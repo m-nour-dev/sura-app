@@ -451,7 +451,7 @@ class TasmiController extends _$TasmiController {
     var close = 0;
     var wrong = 0;
     var skipped = 0;
-    var correctTextBuffer = StringBuffer();
+    final correctTextBuffer = StringBuffer();
 
     for (final entry in state.words) {
       switch (entry.status) {

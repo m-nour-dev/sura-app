@@ -28,7 +28,9 @@ class NotificationContent {
 
   /// Returns the notification text for the given language code.
   String getTextForLang(String lang) {
-    if (lang == 'tr' && shortExplanationTr != null && shortExplanationTr!.isNotEmpty) {
+    if (lang == 'tr' &&
+        shortExplanationTr != null &&
+        shortExplanationTr!.isNotEmpty) {
       return shortExplanationTr!;
     }
     if (lang == 'ar' && arabicText.isNotEmpty) {

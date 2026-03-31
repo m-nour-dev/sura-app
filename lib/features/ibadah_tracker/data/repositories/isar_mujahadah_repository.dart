@@ -10,10 +10,8 @@ class IsarMujahadahRepository {
   }
 
   Future<void> addHabit(String title) async {
-    final existing = await _isar.mujahadahRecords
-        .filter()
-        .titleEqualTo(title)
-        .findFirst();
+    final existing =
+        await _isar.mujahadahRecords.filter().titleEqualTo(title).findFirst();
 
     if (existing != null) return; // Habit already tracked
 

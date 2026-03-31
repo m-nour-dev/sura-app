@@ -95,7 +95,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                 style: const TextStyle(
                   fontFamily: 'Cairo',
                   fontSize: 14,
-                  color: const Color(0xFF064E3B), // Emerald Deep
+                  color: Color(0xFF064E3B), // Emerald Deep
                 ),
               ),
             ),
@@ -105,7 +105,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
               height: 24,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: const Color(0xFF064E3B), // Emerald Deep
+                color: Color(0xFF064E3B), // Emerald Deep
               ),
             ),
           ],

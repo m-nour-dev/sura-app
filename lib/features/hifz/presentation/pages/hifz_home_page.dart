@@ -5,9 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/utils/surah_utils.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
-import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
 import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_settings_page.dart';
@@ -15,6 +12,9 @@ import 'package:sila_app/features/hifz/presentation/pages/methods/interactive_sh
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/hifz_notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
+import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
 import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart'
     as import_tasmi;
 
@@ -272,9 +272,9 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
             fontSize: 26,
             fontFamily: 'Scheherazade New',
             themeMode: QuranThemeMode.sepia);
-    final isDark =
+    const isDark =
         false; // Always use light mode layout for this page as requested
-    final bgColor = isDark ? const Color(0xFF0F172A) : Colors.white;
+    const bgColor = isDark ? Color(0xFF0F172A) : Colors.white;
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
 
     return Scaffold(
@@ -498,7 +498,7 @@ class _Header extends StatelessWidget {
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: AppTheme.headerGradient,
       ),
       child: SafeArea(
@@ -587,7 +587,7 @@ class _DailyPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
+    const isDark =
         false; // Always use light mode layout for this page as requested
     final total = state.targetAyahsToday <= 0 ? 1 : state.targetAyahsToday;
     final progress = (state.doneAyahsToday / total).clamp(0.0, 1.0);
@@ -779,7 +779,7 @@ class _MethodsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
+    const isDark =
         false; // Always use light mode layout for this page as requested
     final isArabic = context.locale.languageCode == 'ar';
     final countStr =
@@ -902,7 +902,7 @@ class _MomentsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark =
+    const isDark =
         false; // Always use light mode layout for this page as requested
 
     if (moments.isEmpty) {

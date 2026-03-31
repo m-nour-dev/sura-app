@@ -1,19 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
-import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/features/ibadah_tracker/data/models/mujahadah_record.dart';
 import 'package:sila_app/features/ibadah_tracker/data/repositories/isar_mujahadah_repository.dart';
 
-final isarMujahadahRepositoryProvider = Provider<IsarMujahadahRepository>((ref) {
+final isarMujahadahRepositoryProvider =
+    Provider<IsarMujahadahRepository>((ref) {
   // This expects Isar to be initialized. In a real app we'd await IsarService().db
   // but for synchronous access we use Isar.getInstance() which is fine if initialized.
   final isar = Isar.getInstance()!;
   return IsarMujahadahRepository(isar);
 });
 
-final mujahadahListProvider =
-    StateNotifierProvider<MujahadahController, AsyncValue<List<MujahadahRecord>>>(
-        (ref) {
+final mujahadahListProvider = StateNotifierProvider<MujahadahController,
+    AsyncValue<List<MujahadahRecord>>>((ref) {
   final repo = ref.watch(isarMujahadahRepositoryProvider);
   return MujahadahController(repo)..loadRecords();
 });

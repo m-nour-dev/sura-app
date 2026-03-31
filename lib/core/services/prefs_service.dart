@@ -1,11 +1,17 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefsService {
-    /// Returns the user's language code, e.g., 'ar' or 'en'.
-    Future<String?> getUserLanguage() async {
-      // TODO: Implement actual logic to fetch user language from preferences
-      return 'ar';
-    }
+  /// Returns the user's language code, e.g., 'ar' or 'en'.
+  Future<String?> getUserLanguage() async {
+    final prefs = await _instance;
+    return prefs.getString('user_language') ?? 'ar';
+  }
+
+  Future<void> setUserLanguage(String languageCode) async {
+    final prefs = await _instance;
+    await prefs.setString('user_language', languageCode);
+  }
+
   static const String _keyIsAutoLocation = 'is_auto_location';
   static const String _keyLat = 'latitude';
   static const String _keyLong = 'longitude';

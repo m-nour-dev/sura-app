@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -194,122 +193,121 @@ class VefaPage extends ConsumerWidget {
       ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 24),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white24 : Colors.black12,
-                  borderRadius: BorderRadius.circular(2),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black12,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              'duaa_suggested_title'.tr(),
+              style: GoogleFonts.cairo(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : AppTheme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'duaa_suggested_desc'.tr(),
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                color: isDark ? Colors.white70 : Colors.grey[700],
+                fontSize: 15,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color:
+                    isDark ? AppTheme.darkSurfaceColor : AppTheme.surfaceColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppTheme.accentColor.withValues(alpha: 0.3),
                 ),
               ),
-              Text(
-                'duaa_suggested_title'.tr(),
+              child: Text(
+                duaaText,
+                textAlign: TextAlign.center,
                 style: GoogleFonts.cairo(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  height: 1.8,
                   color: isDark ? Colors.white : AppTheme.primaryColor,
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                'duaa_suggested_desc'.tr(),
-                textAlign: TextAlign.center,
-                style: GoogleFonts.cairo(
-                  color: isDark ? Colors.white70 : Colors.grey[700],
-                  fontSize: 15,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppTheme.darkSurfaceColor
-                      : AppTheme.surfaceColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppTheme.accentColor.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  duaaText,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.cairo(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    height: 1.8,
-                    color: isDark ? Colors.white : AppTheme.primaryColor,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: AppTheme.accentColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(color: AppTheme.accentColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: duaaText));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: AppTheme.surfaceColor,
-                            content: Text(
-                              'تم نسخ الدعاء',
-                              style: GoogleFonts.cairo(
-                                color: AppTheme.primaryColor,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    ),
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: duaaText));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: AppTheme.surfaceColor,
+                          content: Text(
+                            'تم نسخ الدعاء',
+                            style: GoogleFonts.cairo(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.copy, color: AppTheme.accentColor),
-                      label: Text(
-                        'copy_duaa'.tr(),
-                        style: GoogleFonts.cairo(
-                          color: AppTheme.accentColor,
-                          fontWeight: FontWeight.bold,
                         ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy, color: AppTheme.accentColor),
+                    label: Text(
+                      'copy_duaa'.tr(),
+                      style: GoogleFonts.cairo(
+                        color: AppTheme.accentColor,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'حسناً',
-                        style: GoogleFonts.cairo(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'حسناً',
+                      style: GoogleFonts.cairo(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
+      ),
     );
   }
 }

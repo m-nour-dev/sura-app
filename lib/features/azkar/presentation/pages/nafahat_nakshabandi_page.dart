@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/azkar/presentation/riverpod/nafahat_audio_controller.dart';
-import 'package:just_audio/just_audio.dart';
 
 class NafahatNakshabandiPage extends ConsumerWidget {
   const NafahatNakshabandiPage({super.key});
@@ -311,7 +310,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
   Widget _buildPlaylistItem(
       BuildContext context,
       WidgetRef ref,
-      dynamic ibtihal,
+      ibtihal,
       int index,
       bool isSelected,
       NafahatAudioController controller,
@@ -436,9 +435,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
             ? const Color(0xFF10B981)
             : (isDark ? Colors.white70 : Colors.black54),
       ),
-      onSelected: (artist) {
-        controller.setArtistFilter(artist);
-      },
+      onSelected: controller.setArtistFilter,
       itemBuilder: (context) => [
         PopupMenuItem(
           value: null,

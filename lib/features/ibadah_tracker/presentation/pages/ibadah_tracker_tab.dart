@@ -58,180 +58,179 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
     return Scaffold(
       backgroundColor: bg,
       body: state.when(
-          data: (data) {
-            final hijriDate = _hijriArabicDate();
-            final weekday = DateTime.now().weekday;
-            final dayNameKey = 'weekdays.${[
-              'monday',
-              'tuesday',
-              'wednesday',
-              'thursday',
-              'friday',
-              'saturday',
-              'sunday'
-            ][weekday - 1]}';
-            final dayName = dayNameKey.tr();
+        data: (data) {
+          final hijriDate = _hijriArabicDate();
+          final weekday = DateTime.now().weekday;
+          final dayNameKey = 'weekdays.${[
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+            'saturday',
+            'sunday'
+          ][weekday - 1]}';
+          final dayName = dayNameKey.tr();
 
-            final dailyStatusText = DailyStatusCalculator.getDailyStatusText(
-              data.today,
-              isMale: data.isMale,
-              languageCode: context.locale.languageCode,
-              customIbadahs: customIbadahs,
-            );
-            final completionRatio = DailyStatusCalculator.completionRatio(
-              data.today,
-              isMale: data.isMale,
-              customIbadahs: customIbadahs,
-            );
-            final completedCount = DailyStatusCalculator.completedCount(
-              data.today,
-              isMale: data.isMale,
-              customIbadahs: customIbadahs,
-            );
-            final totalCount = DailyStatusCalculator.totalCount(
-              isMale: data.isMale,
-              customIbadahs: customIbadahs,
-            );
+          final dailyStatusText = DailyStatusCalculator.getDailyStatusText(
+            data.today,
+            isMale: data.isMale,
+            languageCode: context.locale.languageCode,
+            customIbadahs: customIbadahs,
+          );
+          final completionRatio = DailyStatusCalculator.completionRatio(
+            data.today,
+            isMale: data.isMale,
+            customIbadahs: customIbadahs,
+          );
+          final completedCount = DailyStatusCalculator.completedCount(
+            data.today,
+            isMale: data.isMale,
+            customIbadahs: customIbadahs,
+          );
+          final totalCount = DailyStatusCalculator.totalCount(
+            isMale: data.isMale,
+            customIbadahs: customIbadahs,
+          );
 
-            return CustomScrollView(
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _PinnedHeaderDelegate(
-                    minHeight: 198,
-                    maxHeight: 198,
-                    child: Container(
-                      margin: const EdgeInsets.all(16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF064E3B), Color(0xFF0a6b52)],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                hijriDate,
-                                style: GoogleFonts.getFont('Cairo',
-                                    fontSize: 12, color: Colors.white60),
-                              ),
-                              Text(
-                                dayName,
-                                style: GoogleFonts.getFont('Cairo',
-                                    fontSize: 12, color: Colors.white60),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            dailyStatusText,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.getFont('Amiri',
-                                fontSize: 16, color: Colors.white, height: 1.8),
-                          ),
-                          const SizedBox(height: 12),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: TweenAnimationBuilder<double>(
-                              tween: Tween<double>(begin: 0, end: completionRatio),
-                              duration: const Duration(milliseconds: 600),
-                              curve: Curves.easeOutCubic,
-                              builder: (context, value, child) {
-                                return LinearProgressIndicator(
-                                  value: value,
-                                  minHeight: 6,
-                                  backgroundColor: Colors.white24,
-                                  valueColor: const AlwaysStoppedAnimation(
-                                      Color(0xFFD97706)),
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'tracker_completed_count'.tr(args: [
-                              '$completedCount',
-                              '$totalCount'
-                            ]),
-                            style: GoogleFonts.getFont('Cairo',
-                                fontSize: 11, color: Colors.white70),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
+          return CustomScrollView(
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _PinnedHeaderDelegate(
+                  minHeight: 198,
+                  maxHeight: 198,
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF064E3B), Color(0xFF0a6b52)],
+                      ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                          color: const Color(0xFFE2E8F0), width: 0.5),
                     ),
                     child: Column(
                       children: [
-                        _tableHeader(isDark,
-                            showYesterday: data.yesterday != null),
-                        _row('fajr', '🕌', 'fajr'.tr(), data),
-                        _row('dhuhr', '🕌', 'dhuhr'.tr(), data),
-                        _row('asr', '🕌', 'asr'.tr(), data),
-                        _row('maghrib', '🕌', 'maghrib'.tr(), data),
-                        _row('isha', '🕌', 'isha'.tr(), data),
-                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                        _row('wird', '📖', 'ibadah_names.wird'.tr(), data),
-                        _row('azkar_sabah', '🌅',
-                            'ibadah_names.azkar_sabah'.tr(), data),
-                        _row('azkar_masa', '🌆', 'ibadah_names.azkar_masa'.tr(),
-                            data),
-                        _row('hifz', '📚', 'ibadah_names.hifz'.tr(), data),
-                        _row('tasbih', '💎', 'ibadah_names.tasbih'.tr(), data),
-                        // _row('dhikr', '🔵', 'ibadah_names.dhikr'.tr(), data),
-                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                        ...customIbadahs.map((name) => _customRow(name, data)),
-                        _addCustomIbadahButton(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              hijriDate,
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontSize: 12, color: Colors.white60),
+                            ),
+                            Text(
+                              dayName,
+                              style: GoogleFonts.getFont('Cairo',
+                                  fontSize: 12, color: Colors.white60),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          dailyStatusText,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.getFont('Amiri',
+                              fontSize: 16, color: Colors.white, height: 1.8),
+                        ),
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: TweenAnimationBuilder<double>(
+                            tween:
+                                Tween<double>(begin: 0, end: completionRatio),
+                            duration: const Duration(milliseconds: 600),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, value, child) {
+                              return LinearProgressIndicator(
+                                value: value,
+                                minHeight: 6,
+                                backgroundColor: Colors.white24,
+                                valueColor: const AlwaysStoppedAnimation(
+                                    Color(0xFFD97706)),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'tracker_completed_count'
+                              .tr(args: ['$completedCount', '$totalCount']),
+                          style: GoogleFonts.getFont('Cairo',
+                              fontSize: 11, color: Colors.white70),
+                        ),
                       ],
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                const SliverToBoxAdapter(child: MujahadahSection()),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 30),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF064E3B),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        minimumSize: const Size(double.infinity, 48),
-                      ),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const DailyReportPage()),
-                      ),
-                      child: Text(
-                        'daily_report'.tr(),
-                        style: GoogleFonts.getFont('Cairo',
-                            color: Colors.white, fontWeight: FontWeight.w700),
-                      ),
+              ),
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border:
+                        Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
+                  ),
+                  child: Column(
+                    children: [
+                      _tableHeader(isDark,
+                          showYesterday: data.yesterday != null),
+                      _row('fajr', '🕌', 'fajr'.tr(), data),
+                      _row('dhuhr', '🕌', 'dhuhr'.tr(), data),
+                      _row('asr', '🕌', 'asr'.tr(), data),
+                      _row('maghrib', '🕌', 'maghrib'.tr(), data),
+                      _row('isha', '🕌', 'isha'.tr(), data),
+                      const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                      _row('wird', '📖', 'ibadah_names.wird'.tr(), data),
+                      _row('azkar_sabah', '🌅', 'ibadah_names.azkar_sabah'.tr(),
+                          data),
+                      _row('azkar_masa', '🌆', 'ibadah_names.azkar_masa'.tr(),
+                          data),
+                      _row('hifz', '📚', 'ibadah_names.hifz'.tr(), data),
+                      _row('tasbih', '💎', 'ibadah_names.tasbih'.tr(), data),
+                      // _row('dhikr', '🔵', 'ibadah_names.dhikr'.tr(), data),
+                      const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                      ...customIbadahs.map((name) => _customRow(name, data)),
+                      _addCustomIbadahButton(),
+                    ],
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              const SliverToBoxAdapter(child: MujahadahSection()),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 30),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF064E3B),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DailyReportPage()),
+                    ),
+                    child: Text(
+                      'daily_report'.tr(),
+                      style: GoogleFonts.getFont('Cairo',
+                          color: Colors.white, fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
-              ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => Center(child: Text('loading_tracker_error'.tr())),
-        ),
+              ),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => Center(child: Text('loading_tracker_error'.tr())),
+      ),
     );
   }
 
@@ -327,9 +326,20 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
         padding: const EdgeInsets.only(left: 20),
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      confirmDismiss: (direction) => _showDeleteCustomDialog(context, name),
+      confirmDismiss: (direction) async {
+        final shouldDelete = await _showDeleteCustomDialog(context, name);
+        return shouldDelete == true;
+      },
+      onDismissed: (direction) {
+        ref.read(customIbadahListProvider.notifier).remove(name);
+      },
       child: GestureDetector(
-        onLongPress: () => _showDeleteCustomDialog(context, name),
+        onLongPress: () async {
+          final shouldDelete = await _showDeleteCustomDialog(context, name);
+          if (shouldDelete == true) {
+            ref.read(customIbadahListProvider.notifier).remove(name);
+          }
+        },
         onTap: () async {
           HapticFeedback.lightImpact();
           final currentNote = s.today.personalNote ?? '{}';
@@ -348,8 +358,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
-            border:
-                Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.5)),
+            border: Border(
+                bottom: BorderSide(color: Color(0xFFE2E8F0), width: 0.5)),
           ),
           child: Row(
             children: [
@@ -359,7 +369,8 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                   children: [
                     const Text('✨', style: TextStyle(fontSize: 16)),
                     const SizedBox(width: 8),
-                    Text(name, style: GoogleFonts.getFont('Cairo', fontSize: 13)),
+                    Text(name,
+                        style: GoogleFonts.getFont('Cairo', fontSize: 13)),
                   ],
                 ),
               ),
@@ -377,8 +388,9 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: (todayStatus ? const Color(0xFF064E3B) : Colors.red)
-                          .withValues(alpha: 0.1),
+                      color:
+                          (todayStatus ? const Color(0xFF064E3B) : Colors.red)
+                              .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -411,7 +423,6 @@ class _IbadahTrackerTabState extends ConsumerState<IbadahTrackerTab> {
           ),
           TextButton(
             onPressed: () {
-              ref.read(customIbadahListProvider.notifier).remove(name);
               Navigator.pop(context, true);
             },
             child: Text('delete'.tr(),
@@ -871,7 +882,8 @@ class MujahadahListSheet extends ConsumerWidget {
             ),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -949,27 +961,28 @@ class _HabitCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    void _recordDailyStatus(WidgetRef ref, String habitId, int status) {
+    void recordDailyStatus(WidgetRef ref, String habitId, int status) {
       final dailyProvider = ref.read(ibadahTrackerControllerProvider);
-      
+
       final todayRecord = dailyProvider.valueOrNull?.today;
       if (todayRecord == null) return;
-      
-      Map<String, dynamic> notes = {};
+
+      var notes = <String, dynamic>{};
       final rawNote = todayRecord.personalNote ?? '';
       if (rawNote.isNotEmpty) {
         try {
           notes = jsonDecode(rawNote) as Map<String, dynamic>;
         } catch (_) {}
       }
-      
+
       if (notes['mujahadah'] == null) {
         notes['mujahadah'] = <String, dynamic>{};
       }
-      
+
       notes['mujahadah'][habitId] = status;
-      ref.read(ibadahTrackerControllerProvider.notifier)
-         .updatePersonalNote(jsonEncode(notes));
+      ref
+          .read(ibadahTrackerControllerProvider.notifier)
+          .updatePersonalNote(jsonEncode(notes));
     }
 
     final isCheckedToday = habit.lastCheckInDate != null &&
@@ -1004,7 +1017,8 @@ class _HabitCard extends ConsumerWidget {
                         style: GoogleFonts.cairo(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : const Color(0xFF1F2937),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF1F2937),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -1052,10 +1066,10 @@ class _HabitCard extends ConsumerWidget {
                         actions: [
                           TextButton(
                               onPressed: () => Navigator.pop(c, false),
-                              child: Text('إلغاء')),
+                              child: const Text('إلغاء')),
                           TextButton(
                               onPressed: () => Navigator.pop(c, true),
-                              child: Text('حذف',
+                              child: const Text('حذف',
                                   style: TextStyle(color: Colors.red))),
                         ],
                       ),
@@ -1088,7 +1102,7 @@ class _HabitCard extends ConsumerWidget {
                     onTap: () {
                       HapticFeedback.heavyImpact();
                       _showRelapseBottomSheet(context, ref, habit.id, () {
-                        _recordDailyStatus(ref, habit.title, 0);
+                        recordDailyStatus(ref, habit.title, 0);
                       });
                     },
                     borderRadius: const BorderRadius.only(
@@ -1118,7 +1132,7 @@ class _HabitCard extends ConsumerWidget {
                       ref
                           .read(mujahadahListProvider.notifier)
                           .recordMinorSlip(habit.id);
-                      _recordDailyStatus(ref, habit.title, 1);
+                      recordDailyStatus(ref, habit.title, 1);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1145,7 +1159,7 @@ class _HabitCard extends ConsumerWidget {
                       ref
                           .read(mujahadahListProvider.notifier)
                           .recordSuccess(habit.id);
-                      _recordDailyStatus(ref, habit.title, 2);
+                      recordDailyStatus(ref, habit.title, 2);
                     },
                     borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(16)),
@@ -1173,7 +1187,8 @@ class _HabitCard extends ConsumerWidget {
     );
   }
 
-  void _showRelapseBottomSheet(BuildContext context, WidgetRef ref, int id, VoidCallback onConfirm) {
+  void _showRelapseBottomSheet(
+      BuildContext context, WidgetRef ref, int id, VoidCallback onConfirm) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

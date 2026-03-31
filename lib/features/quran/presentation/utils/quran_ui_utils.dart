@@ -3,10 +3,12 @@ import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 
 class QuranUIUtils {
   static Color getBackgroundColor(QuranThemeMode mode) {
-    if (mode == QuranThemeMode.dark)
+    if (mode == QuranThemeMode.dark) {
       return const Color(0xFF0F172A); // Night Deep
-    if (mode == QuranThemeMode.sepia)
+    }
+    if (mode == QuranThemeMode.sepia) {
       return const Color(0xFFF5EDD8); // Warm Parchment
+    }
     return const Color(0xFFFDFBF7); // Parchment – design system
   }
 
@@ -17,8 +19,9 @@ class QuranUIUtils {
   }
 
   static Color getAccentColor(QuranThemeMode mode) {
-    if (mode == QuranThemeMode.dark)
+    if (mode == QuranThemeMode.dark) {
       return const Color(0xFFD97706); // Islamic Gold
+    }
     return const Color(0xFF064E3B); // Emerald Deep – design system
   }
 

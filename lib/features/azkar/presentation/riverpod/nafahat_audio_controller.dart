@@ -1,24 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/features/azkar/data/models/ibtihal_model.dart';
 
 part 'nafahat_audio_controller.g.dart';
 
 class NafahatPlayerState {
-  final List<Ibtihal> fullPlaylist;
-  final List<Ibtihal> filteredPlaylist;
-  final int currentIndex;
-  final PlayerState playerState;
-  final Duration position;
-  final Duration duration;
-  final bool isLoading;
-  final Duration? sleepTimerDuration;
-  final DateTime? sleepTimerEnd;
-  final String? selectedArtist;
 
   NafahatPlayerState({
     required this.fullPlaylist,
@@ -32,6 +23,16 @@ class NafahatPlayerState {
     this.sleepTimerEnd,
     this.selectedArtist,
   }) : playerState = playerState ?? PlayerState(false, ProcessingState.idle);
+  final List<Ibtihal> fullPlaylist;
+  final List<Ibtihal> filteredPlaylist;
+  final int currentIndex;
+  final PlayerState playerState;
+  final Duration position;
+  final Duration duration;
+  final bool isLoading;
+  final Duration? sleepTimerDuration;
+  final DateTime? sleepTimerEnd;
+  final String? selectedArtist;
 
   Ibtihal? get currentIbtihal =>
       filteredPlaylist.isNotEmpty && currentIndex < filteredPlaylist.length
@@ -133,7 +134,7 @@ class NafahatAudioController extends _$NafahatAudioController {
         _nakshabandiName),
 
     // Al-Toukhy
-    Ibtihal(
+    const Ibtihal(
       id: 'T1',
       title: 'ابتهال نادر: من لي سواك',
       url:
