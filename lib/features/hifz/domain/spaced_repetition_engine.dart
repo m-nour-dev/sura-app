@@ -1,13 +1,13 @@
 class ReviewSchedule {
-  final int nextIntervalDays;
-  final double newEasinessFactor;
-  final DateTime nextReviewDate;
 
   const ReviewSchedule({
     required this.nextIntervalDays,
     required this.newEasinessFactor,
     required this.nextReviewDate,
   });
+  final int nextIntervalDays;
+  final double newEasinessFactor;
+  final DateTime nextReviewDate;
 }
 
 class SpacedRepetitionEngine {

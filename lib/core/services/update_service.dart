@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
@@ -7,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
-import 'package:dio/dio.dart';
 
 part 'update_service.g.dart';
 
@@ -118,7 +118,7 @@ class UpdateService {
 
     await analytics.logUpdateDownloadStart();
 
-    int retries = 0;
+    var retries = 0;
     while (retries < _maxRetries) {
       try {
         await _downloadWithResume(apkUrl, savePath, locale);
@@ -203,7 +203,7 @@ class UpdateService {
     String savePath,
     String locale,
   ) async {
-    int existingBytes = 0;
+    var existingBytes = 0;
     final existingFile = File(savePath);
     if (await existingFile.exists()) {
       existingBytes = await existingFile.length();

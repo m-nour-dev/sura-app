@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -103,6 +104,14 @@ class _SilaAppState extends State<SilaApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
+      builder: (context, child) {
+        return Directionality(
+          textDirection: context.locale.languageCode == 'ar'
+              ? ui.TextDirection.rtl
+              : ui.TextDirection.ltr,
+          child: child!,
+        );
+      },
       home: _showSplash
           ? SplashPage(
               onComplete: () => setState(() => _showSplash = false),

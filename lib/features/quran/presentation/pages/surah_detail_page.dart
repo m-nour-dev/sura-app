@@ -10,7 +10,6 @@ import 'package:quran/quran.dart' as quran;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
 import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
@@ -106,46 +105,41 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
               child: Column(
                 children: [
                   Expanded(
-                    child: Directionality(
-                      textDirection: context.locale.languageCode == 'ar'
-                          ? ui.TextDirection.rtl
-                          : ui.TextDirection.ltr,
-                      child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: 604,
-                        onPageChanged: (page) =>
-                            setState(() => _currentPage = page + 1),
-                        itemBuilder: (context, index) {
-                          return AnimatedBuilder(
-                            animation: _pageController,
-                            builder: (context, child) {
-                              double value = 0;
-                              if (_pageController.position.haveDimensions) {
-                                value = index.toDouble() -
-                                    (_pageController.page ?? 0);
-                              }
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: 604,
+                      onPageChanged: (page) =>
+                          setState(() => _currentPage = page + 1),
+                      itemBuilder: (context, index) {
+                        return AnimatedBuilder(
+                          animation: _pageController,
+                          builder: (context, child) {
+                            double value = 0;
+                            if (_pageController.position.haveDimensions) {
+                              value = index.toDouble() -
+                                  (_pageController.page ?? 0);
+                            }
 
-                              // Apply a 3D rotation effect
-                              final rotation = value.clamp(-1, 1) *
-                                  (3.1415926535 / 8); // ~22.5 degrees
+                            // Apply a 3D rotation effect
+                            final rotation = value.clamp(-1, 1) *
+                                (3.1415926535 / 8); // ~22.5 degrees
 
-                              return Transform(
-                                transform: Matrix4.identity()
-                                  ..setEntry(3, 2, 0.001) // perspective
-                                  ..rotateY(rotation),
-                                alignment: context.locale.languageCode == 'ar'
-                                    ? (value > 0
-                                        ? Alignment.centerRight
-                                        : Alignment.centerLeft)
-                                    : (value > 0
-                                        ? Alignment.centerLeft
-                                        : Alignment.centerRight),
-                                child: _buildQuranPage(index + 1, settings),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                            return Transform(
+                              transform: Matrix4.identity()
+                                ..setEntry(3, 2, 0.001) // perspective
+                                ..rotateY(rotation),
+                              alignment: context.locale.languageCode == 'ar'
+                                  ? (value > 0
+                                      ? Alignment.centerRight
+                                      : Alignment.centerLeft)
+                                  : (value > 0
+                                      ? Alignment.centerLeft
+                                      : Alignment.centerRight),
+                              child: _buildQuranPage(index + 1, settings),
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
                   _buildToolbar(context, ref, settings),
@@ -368,7 +362,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
       QuranSettings settings, Map<String, String> tajweedData) {
     final spans = <InlineSpan>[];
 
-    for (int i = startAyah; i <= endAyah; i++) {
+    for (var i = startAyah; i <= endAyah; i++) {
       spans.addAll(_buildAyahSpans(surahNum, i, settings, tajweedData,
           context.locale.languageCode == 'ar'));
     }
@@ -402,7 +396,7 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
   List<InlineSpan> _buildAyahSpans(int surahNum, int ayahNum,
       QuranSettings settings, Map<String, String> tajweedData, bool isArabic) {
     final key = '${surahNum}_$ayahNum';
-    var rawVerse = tajweedData.containsKey(key)
+    final rawVerse = tajweedData.containsKey(key)
         ? tajweedData[key]!
         : quran.getVerse(surahNum, ayahNum);
 
@@ -420,30 +414,28 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
         rawVerse, settings.themeMode,
         baseStyle: selectedStyle);
 
-    final List<InlineSpan> ayahSpans = [
+    final ayahSpans = <InlineSpan>[
       TextSpan(
         children: tajweedSpans.map((s) {
-          if (s is TextSpan) {
-            return TextSpan(
-              text: s.text,
-              style: s.style?.copyWith(
-                  backgroundColor: isSelected
-                      ? QuranUIUtils.getAccentColor(settings.themeMode)
-                          .withOpacity(0.15)
-                      : s.style?.backgroundColor),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () => setState(() {
-                      if (isSelected) {
-                        _selectedSurah = null;
-                        _selectedAyah = null;
-                      } else {
-                        _selectedSurah = surahNum;
-                        _selectedAyah = ayahNum;
-                      }
-                    }),
-            );
-          }
-          return s;
+          return TextSpan(
+            text: s.text,
+            style: s.style?.copyWith(
+                backgroundColor: isSelected
+                    ? QuranUIUtils.getAccentColor(settings.themeMode)
+                        .withOpacity(0.15)
+                    : s.style?.backgroundColor),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => setState(() {
+                    if (isSelected) {
+                      _selectedSurah = null;
+                      _selectedAyah = null;
+                    } else {
+                      _selectedSurah = surahNum;
+                      _selectedAyah = ayahNum;
+                    }
+                  }),
+          );
+                  return s;
         }).toList(),
       ),
     ];

@@ -9,6 +9,7 @@ import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
 import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sila_app/features/ibadah_tracker/data/models/mujahadah_record.dart';
 import 'package:sila_app/features/ibadah_tracker/data/models/user_gender_prefs.dart';
 import 'package:sila_app/features/notifications/data/models/notification_content.dart';
 import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
@@ -52,6 +53,7 @@ class IsarService {
             HifzMomentSchema,
             HifzSettingsSchema,
             IbadahRecordSchema,
+            MujahadahRecordSchema,
             UserGenderPrefsSchema,
             NotificationContentSchema,
             NotificationSettingsSchema,

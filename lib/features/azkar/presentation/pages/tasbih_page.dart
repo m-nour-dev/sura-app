@@ -4,10 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
+import 'package:sila_app/features/azkar/presentation/riverpod/tasbih_controller.dart';
 import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
 import 'package:sila_app/features/notifications/presentation/pages/settings/tasbih_notification_settings.dart';
 import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:sila_app/features/azkar/presentation/riverpod/tasbih_controller.dart';
 
 class TasbihPage extends ConsumerStatefulWidget {
   const TasbihPage({super.key});
@@ -51,8 +51,8 @@ class _TasbihPageState extends ConsumerState<TasbihPage>
     _pulseController.forward().then((_) => _pulseController.reverse());
   }
 
-  String _formatNumber(dynamic number, BuildContext context) {
-    final String s = number.toString();
+  String _formatNumber(number, BuildContext context) {
+    final s = number.toString();
     if (context.locale.languageCode == 'ar') {
       const symbols = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
       return s.split('').map((d) {
@@ -102,7 +102,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage>
                 color: Colors.white),
           ),
           IconButton(
-            onPressed: () => controller.resetAll(),
+            onPressed: controller.resetAll,
             icon: const Icon(Icons.refresh_rounded, color: Colors.white),
           ),
           const SizedBox(width: 4),
@@ -283,7 +283,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage>
                               'tasbih_round'.tr(args: [
                                 _formatNumber(count ~/ target + 1, context)
                               ]),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: 'Cairo',
                                 fontSize: 13,
                                 color: accentColor,

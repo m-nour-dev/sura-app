@@ -389,7 +389,7 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     final spans = <InlineSpan>[];
     for (var i = startAyah; i <= endAyah; i++) {
       final ayahIndex = i; // capture for closure
-      var verse = quran.getVerse(surahNum, ayahIndex);
+      final verse = quran.getVerse(surahNum, ayahIndex);
       final isArabic = context.locale.languageCode == 'ar';
       final isSelected =
           _selectedSurah == surahNum && _selectedAyah == ayahIndex;
@@ -414,17 +414,15 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
 
       spans.add(TextSpan(
         children: tajweedSpans.map((s) {
-          if (s is TextSpan) {
-            return TextSpan(
-              text: s.text,
-              style: s.style?.copyWith(
-                  backgroundColor: isSelected
-                      ? accentColor.withOpacity(0.15)
-                      : s.style?.backgroundColor),
-              recognizer: recognizer,
-            );
-          }
-          return s;
+          return TextSpan(
+            text: s.text,
+            style: s.style?.copyWith(
+                backgroundColor: isSelected
+                    ? accentColor.withOpacity(0.15)
+                    : s.style?.backgroundColor),
+            recognizer: recognizer,
+          );
+                  return s;
         }).toList(),
       ));
 

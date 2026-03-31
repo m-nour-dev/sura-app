@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sila_app/core/services/adhan_native_service.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
@@ -24,6 +25,20 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
     'asr': true,
     'maghrib': true,
     'isha': true,
+  };
+  Map<String, String> _adhanModes = {
+    'fajr': 'adhan',
+    'dhuhr': 'adhan',
+    'asr': 'adhan',
+    'maghrib': 'adhan',
+    'isha': 'adhan',
+  };
+  Map<String, int> _reminderMinutes = {
+    'fajr': 0,
+    'dhuhr': 0,
+    'asr': 0,
+    'maghrib': 0,
+    'isha': 0,
   };
 
   static const _sounds = {
@@ -52,17 +67,33 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
     final enabled = await _prefs.isAdhanNotificationsEnabled();
     final sound = await _prefs.getAdhanSound();
     final settings = <String, bool>{};
+    final modes = <String, String>{};
+    final reminders = <String, int>{};
     for (final p in _prayerList) {
-      settings[p['key'] as String] =
-          await _prefs.isAdhanEnabled(p['key'] as String);
+      final key = p['key'] as String;
+      settings[key] = await _prefs.isAdhanEnabled(key);
+      modes[key] = await _prefs.getAdhanMode(key) ?? 'adhan';
+      reminders[key] = await _prefs.getPrayerReminderMinutes(key) ?? 0;
     }
     if (mounted) {
       setState(() {
         _adhanEnabled = enabled;
         _selectedSound = sound;
         _prayerSettings = settings;
+        _adhanModes = modes;
+        _reminderMinutes = reminders;
       });
     }
+  }
+
+  Future<void> _setAdhanMode(String prayer, String mode) async {
+    await _prefs.setAdhanMode(prayer, mode);
+    setState(() => _adhanModes[prayer] = mode);
+  }
+
+  Future<void> _setReminderMinutes(String prayer, int minutes) async {
+    await _prefs.setPrayerReminderMinutes(prayer, minutes);
+    setState(() => _reminderMinutes[prayer] = minutes);
   }
 
   Future<void> _toggleGlobal(bool v) async {
@@ -204,6 +235,59 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                           _adhanEnabled ? (v) => _togglePrayer(key, v) : null,
                       activeThumbColor: const Color(0xFF43A047),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: Row(
+                        children: [
+                          const Text('نوع الإشعار:',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 13)),
+                          const SizedBox(width: 8),
+                          DropdownButton<String>(
+                            value: _adhanModes[key],
+                            dropdownColor: const Color(0xFF222B45),
+                            items: const [
+                              DropdownMenuItem(
+                                  value: 'adhan',
+                                  child: Text('تشغيل الأذان كاملًا',
+                                      style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 'notification',
+                                  child: Text('إشعار نصي فقط',
+                                      style: TextStyle(color: Colors.white))),
+                            ],
+                            onChanged: (v) =>
+                                v != null ? _setAdhanMode(key, v) : null,
+                          ),
+                          const Spacer(),
+                          const Text('تذكير قبل:',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 13)),
+                          const SizedBox(width: 8),
+                          DropdownButton<int>(
+                            value: _reminderMinutes[key],
+                            dropdownColor: const Color(0xFF222B45),
+                            items: const [
+                              DropdownMenuItem(
+                                  value: 0,
+                                  child: Text('لا يوجد',
+                                      style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 1,
+                                  child: Text('1 دقيقة',
+                                      style: TextStyle(color: Colors.white))),
+                              DropdownMenuItem(
+                                  value: 5,
+                                  child: Text('5 دقائق',
+                                      style: TextStyle(color: Colors.white))),
+                            ],
+                            onChanged: (v) =>
+                                v != null ? _setReminderMinutes(key, v) : null,
+                          ),
+                        ],
+                      ),
+                    ),
                     if (i < _prayerList.length - 1)
                       Divider(
                           color: Colors.white.withOpacity(0.06),
@@ -218,22 +302,44 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
 
           const SizedBox(height: 24),
 
-          // ── Test button ──────────────────────────────────────────────────
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _testAdhan,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E7D32),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
+          // ── Test & Stop buttons ─────────────────────────────────────────
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _testAdhan,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2E7D32),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
+                  icon: const Icon(Icons.play_circle_outline_rounded),
+                  label: Text('test_adhan_sound'.tr(),
+                      style: GoogleFonts.cairo(fontSize: 15)),
+                ),
               ),
-              icon: const Icon(Icons.play_circle_outline_rounded),
-              label: Text('test_adhan_sound'.tr(),
-                  style: GoogleFonts.cairo(fontSize: 15)),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await AdhanNativeService.stopAdhan();
+                    _snack('تم إيقاف الأذان');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[700],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
+                  icon: const Icon(Icons.stop_circle_outlined),
+                  label: const Text('إيقاف الأذان',
+                      style: TextStyle(fontSize: 15)),
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 16),

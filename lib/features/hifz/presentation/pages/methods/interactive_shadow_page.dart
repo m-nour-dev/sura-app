@@ -14,11 +14,11 @@ import 'package:sila_app/core/utils/surah_utils.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
 import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
 import 'package:sila_app/features/hifz/presentation/controllers/interactive_shadow_controller.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
 import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
 import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
+import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
 
 const Color _successColor = AppTheme.successGreen;
 const Color _hasanatGold = AppTheme.goldLight;
@@ -454,7 +454,7 @@ class _TopHeader extends ConsumerWidget {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: AppTheme.headerGradient,
         boxShadow: [
           BoxShadow(
@@ -642,8 +642,7 @@ class _StageContent extends ConsumerWidget {
 
                 if (!word.isHidden ||
                     word.isAyahMarker ||
-                    pageState == null ||
-                    controller == null) {
+                    pageState == null) {
                   return _WordChip(entry: word);
                 }
 
