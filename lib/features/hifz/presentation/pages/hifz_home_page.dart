@@ -509,6 +509,27 @@ class _Header extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'welcome_hifz_user'.tr(),
+                        style: GoogleFonts.cairo(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      Text(
+                        'quran_memorizer'.tr(),
+                        style: GoogleFonts.cairo(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
                   const StreakBadge(featureKey: 'hifz'),
                   const SizedBox(width: 8),
                   GestureDetector(
@@ -547,27 +568,6 @@ class _Header extends StatelessWidget {
                       child: const Icon(Icons.tune_rounded,
                           color: Colors.white, size: 16),
                     ),
-                  ),
-                  const Spacer(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'welcome_hifz_user'.tr(),
-                        style: GoogleFonts.cairo(
-                          fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.7),
-                        ),
-                      ),
-                      Text(
-                        'quran_memorizer'.tr(),
-                        style: GoogleFonts.cairo(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
