@@ -14,19 +14,43 @@ PrayerRepositoryImpl prayerRepository(PrayerRepositoryRef ref) {
 
 @Riverpod(keepAlive: true)
 class PrayerTimesController extends _$PrayerTimesController {
+  Timer? _staleCheckTimer;
+
   @override
   FutureOr<PrayerTimesEntity> build() async {
     final repository = ref.watch(prayerRepositoryProvider);
+    _scheduleStaleCheck();
+    ref.onDispose(() => _staleCheckTimer?.cancel());
+
+    return await repository.getPrayerTimes();
+  }
+
+  void _scheduleStaleCheck() {
+    _staleCheckTimer?.cancel();
+
+    final repository = ref.read(prayerRepositoryProvider);
     final ttl = repository.prayerTimesCacheTtl;
-    final timer = Timer.periodic(ttl, (_) {
+    final midnightDelay = _timeUntilNextLocalMidnight();
+
+    var nextDelay = ttl <= midnightDelay ? ttl : midnightDelay;
+    if (nextDelay <= Duration.zero) {
+      nextDelay = const Duration(seconds: 1);
+    }
+
+    _staleCheckTimer = Timer(nextDelay, () {
       final repository = ref.read(prayerRepositoryProvider);
       if (repository.isPrayerCacheStale()) {
         ref.invalidateSelf();
+      } else {
+        _scheduleStaleCheck();
       }
     });
-    ref.onDispose(timer.cancel);
+  }
 
-    return await repository.getPrayerTimes();
+  Duration _timeUntilNextLocalMidnight() {
+    final now = DateTime.now();
+    final nextMidnight = DateTime(now.year, now.month, now.day + 1);
+    return nextMidnight.difference(now);
   }
 
   Future<void> refreshIfStale() async {

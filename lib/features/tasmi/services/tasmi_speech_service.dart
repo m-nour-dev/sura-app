@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
@@ -28,6 +29,10 @@ class TasmiSpeechService {
   DateTime? _lastWordReceivedAt;
   bool _isWatchdogHealing = false;
   bool _engineOpInFlight = false;
+  Future<bool>? _engineOpFuture;
+  Completer<void>? _ttsReleaseCompleter;
+  Timer? _ttsResumeTimer;
+  bool _isTtsExoPlayerActive = false;
   bool _disposed = false;
 
   // ─── FIX 1+3: Audio focus conflict prevention ──────────────────────
@@ -128,9 +133,26 @@ class TasmiSpeechService {
   }
 
   Future<bool> _startInternal() async {
+    final inFlight = _engineOpFuture;
+    if (inFlight != null) {
+      debugPrint('⚠️ startInternal joined — engine op in flight');
+      return await inFlight;
+    }
+
+    final op = _doStartInternal();
+    _engineOpFuture = op;
+    try {
+      return await op;
+    } finally {
+      if (identical(_engineOpFuture, op)) {
+        _engineOpFuture = null;
+      }
+    }
+  }
+
+  Future<bool> _doStartInternal() async {
     if (_engineOpInFlight) {
-      debugPrint('⚠️ startInternal skipped — engine op in flight');
-      return false;
+      return _speech.isListening;
     }
 
     _engineOpInFlight = true;
@@ -165,27 +187,97 @@ class TasmiSpeechService {
     _isManuallyStopped = true;
     _isRestarting = false;
     _restartTimer?.cancel();
+    _ttsResumeTimer?.cancel();
     _watchdogTimer?.cancel();
     _watchdogTimer = null;
     await _speech.stop();
   }
 
+  void notifyTtsCompleted() {
+    _isTtsExoPlayerActive = false;
+    final completer = _ttsReleaseCompleter ?? Completer<void>();
+    _ttsReleaseCompleter = completer;
+
+    unawaited(Future<void>.delayed(const Duration(milliseconds: 600), () {
+      if (!_isTtsExoPlayerActive && !completer.isCompleted) {
+        completer.complete();
+      }
+    }));
+  }
+
   Future<void> pauseForTts() async {
+    _ttsResumeTimer?.cancel();
     _restartTimer?.cancel();
     _watchdogTimer?.cancel();
     _watchdogTimer = null;
     _isRestarting = false;
     _isPausedForTts = true;
+    _isTtsExoPlayerActive = true;
+    _ttsReleaseCompleter = Completer<void>();
+
     if (_speech.isListening) {
       await _speech.stop();
     }
+
+    // Explicitly abandon focus before TTS/next player activity starts.
+    try {
+      final session = await AudioSession.instance;
+      await session.setActive(false);
+    } catch (e) {
+      debugPrint('AudioSession release before TTS failed: $e');
+    }
+
     debugPrint('STT paused for TTS');
   }
 
   Future<void> resumeAfterTts() async {
     if (_isManuallyStopped || _wordController.isClosed) return;
+
+    final releaseFuture = _ttsReleaseCompleter?.future;
+    if (releaseFuture != null) {
+      try {
+        await releaseFuture.timeout(const Duration(milliseconds: 1200));
+      } catch (_) {
+        // Fallback timeout keeps resume path from being stuck forever.
+      }
+    }
+    _ttsReleaseCompleter = null;
+
+    // Final settle window for codec/audio-focus teardown.
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+
+    if (_isManuallyStopped || _wordController.isClosed) return;
+
+    var checks = 0;
+    while (_isAudioPlayingCheck?.call() == true && checks < 8) {
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      if (_isManuallyStopped || _wordController.isClosed) return;
+      checks++;
+    }
+
+    if (_isAudioPlayingCheck?.call() == true) {
+      debugPrint('STT resume deferred — audio player still active');
+      _ttsResumeTimer?.cancel();
+      _ttsResumeTimer = Timer(const Duration(milliseconds: 700), () {
+        if (!_isTtsExoPlayerActive && !_disposed) {
+          unawaited(resumeAfterTts());
+        }
+      });
+      return;
+    }
+
     _isPausedForTts = false;
-    await Future.delayed(const Duration(milliseconds: 500));
+    _lastWordReceivedAt = DateTime.now();
+
+    if (_speech.isListening) {
+      _startWatchdog();
+      if (!_micHealthController.isClosed) {
+        _micHealthController.add(MicHealthStatus.active);
+      }
+      debugPrint('STT resumed after TTS (already listening)');
+      return;
+    }
+
     final started = await _startInternal();
     if (started) {
       _startWatchdog();
@@ -199,6 +291,10 @@ class TasmiSpeechService {
   }
 
   void _onResult(SpeechRecognitionResult result) {
+    if (_isPausedForTts) {
+      return;
+    }
+
     if (_wordController.isClosed) return;
 
     _lastWordReceivedAt = DateTime.now();
@@ -241,6 +337,11 @@ class TasmiSpeechService {
   }
 
   void _onStatus(String status) {
+    if (_isPausedForTts) {
+      debugPrint('STT Status (suppressed during TTS): $status');
+      return;
+    }
+
     debugPrint('STT Status: $status');
     // Only restart on done to avoid duplicate scheduling with notListening.
     if (_canAutoRestart() && status == 'done') {
@@ -252,17 +353,36 @@ class TasmiSpeechService {
   }
 
   void _onError(SpeechRecognitionError error) {
+    if (_isPausedForTts) {
+      debugPrint('STT Error (suppressed during TTS): ${error.errorMsg}');
+      return;
+    }
+
     final isBusy = error.errorMsg.contains('busy');
     if (isBusy) {
+      if (!_canAutoRestart()) {
+        return;
+      }
+
       _restartTimer?.cancel();
-      _isRestarting = false;
-      unawaited(Future<void>.delayed(const Duration(seconds: 3), () async {
-        if (!_isManuallyStopped &&
-            !_isPausedForTts &&
-            !_isWatchdogHealing) {
-          await _hardReset();
+      _isRestarting = true;
+      _restartTimer = Timer(const Duration(seconds: 3), () async {
+        _restartTimer = null;
+        if (_isManuallyStopped ||
+            _isPausedForTts ||
+            _isWatchdogHealing ||
+            !_canAutoRestart() ||
+            _wordController.isClosed) {
+          _isRestarting = false;
+          return;
         }
-      }));
+
+        try {
+          await _hardReset();
+        } finally {
+          _isRestarting = false;
+        }
+      });
       return;
     }
 
@@ -411,8 +531,10 @@ class TasmiSpeechService {
 
   Future<bool> _hardReset() async {
     _restartTimer?.cancel();
+    _restartTimer = null;
     _isRestarting = false;
     _engineOpInFlight = false;
+    _engineOpFuture = null;
 
     try {
       // Use cancel() to discard any in-progress recognition results
@@ -456,6 +578,7 @@ class TasmiSpeechService {
     }
 
     _restartTimer?.cancel();
+    _ttsResumeTimer?.cancel();
     _watchdogTimer?.cancel();
     _watchdogTimer = null;
     _isWatchdogHealing = false;

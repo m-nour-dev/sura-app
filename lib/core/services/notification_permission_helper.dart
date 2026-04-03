@@ -10,13 +10,31 @@ class NotificationPermissionHelper {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
-  /// استدعيها في main.dart قبل runApp
-  static Future<void> requestAllPermissions() async {
-    if (Platform.isAndroid) {
+  /// Returns true only when required notification permissions are granted.
+  static Future<bool> requestAllPermissions() async {
+    if (!Platform.isAndroid) {
+      return true;
+    }
+
+    try {
       await _requestPostNotificationsPermission();
       await _requestExactAlarmPermission();
       await _requestBatteryOptimizationExemption();
+      return await areAllPermissionsGranted();
+    } catch (e) {
+      debugPrint('Permission request flow failed: $e');
+      return false;
     }
+  }
+
+  static Future<bool> areAllPermissionsGranted() async {
+    if (!Platform.isAndroid) {
+      return true;
+    }
+
+    final notificationsGranted = await Permission.notification.isGranted;
+    final exactAlarmGranted = await Permission.scheduleExactAlarm.isGranted;
+    return notificationsGranted && exactAlarmGranted;
   }
 
   // ─── POST_NOTIFICATIONS (Android 13+) ────────────────────────────────────

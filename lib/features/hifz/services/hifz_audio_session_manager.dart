@@ -56,6 +56,7 @@ class HifzAudioSessionManager {
               surahName: surahName,
               surahNumber: surahNumber,
               ayahNumber: ayahNumber,
+            useDuckingFocus: true,
             );
         try {
           await completer.future.timeout(timeout);
@@ -85,7 +86,7 @@ class HifzAudioSessionManager {
     _switching = true;
     try {
       await stopAudio();
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      await _waitForAudioRelease();
       final started =
           await _speechService.startListening(autoRestart: autoRestart);
       _micActive = started;
@@ -97,6 +98,9 @@ class HifzAudioSessionManager {
 
   Future<void> stopMic() async {
     if (_switching && !_micActive && !_speechService.isListening) {
+      debugPrint(
+        '⚠️ stopMic skipped — switching in progress with no active mic/listening state',
+      );
       return;
     }
 
@@ -118,6 +122,26 @@ class HifzAudioSessionManager {
     if (_micActive || _speechService.isListening) {
       await stopMic();
       await Future<void>.delayed(const Duration(milliseconds: 120));
+    }
+  }
+
+  Future<void> _waitForAudioRelease() async {
+    // Give native codec/focus stack enough time to settle after stopAudio.
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+
+    var checks = 0;
+    while (checks < 8) {
+      try {
+        final player = _ref.read(audioControllerProvider);
+        if (!player.playing) {
+          break;
+        }
+      } catch (_) {
+        break;
+      }
+
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      checks++;
     }
   }
 

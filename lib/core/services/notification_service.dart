@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -36,6 +37,7 @@ class NotificationService {
   // Notification channel keys
   static const _channels = {
     'adhan': 'adhan_channel',
+    'silent': 'silent_channel',
     'reminder': 'reminder_channel',
     'report': 'report_channel',
     'update': 'update_channel',
@@ -60,10 +62,11 @@ class NotificationService {
 
   bool _initialized = false;
   bool _initializing = false;
+  Future<void>? _initializationFuture;
 
   // Channel & schedule migration versions
   // ارفع الرقم كل ما تغيّر الـ channels أو الـ scheduling logic
-  static const int _channelVersion = 5;
+  static const int _channelVersion = 6;
   static const int _scheduleVersion = 5;
   static const int _customReminderIdStart = 30000;
   static const String _customReminderCounterKey = 'custom_reminder_id_counter';
@@ -156,7 +159,26 @@ class NotificationService {
   };
 
   Future<void> initialize() async {
-    if (_initialized || _initializing) return;
+    if (_initialized) return;
+
+    final inFlight = _initializationFuture;
+    if (inFlight != null) {
+      return await inFlight;
+    }
+
+    final initFuture = _doInitialize();
+    _initializationFuture = initFuture;
+
+    try {
+      await initFuture;
+    } finally {
+      if (identical(_initializationFuture, initFuture)) {
+        _initializationFuture = null;
+      }
+    }
+  }
+
+  Future<void> _doInitialize() async {
     _initializing = true;
 
     try {
@@ -187,9 +209,9 @@ class NotificationService {
 
       final launchDetails =
           await _notifications.getNotificationAppLaunchDetails();
-      final launchPayload = launchDetails?.notificationResponse?.payload;
-      if (launchPayload != null && launchPayload.trim().isNotEmpty) {
-        handleNotificationPayload(launchPayload);
+      final launchResponse = launchDetails?.notificationResponse;
+      if (launchResponse != null) {
+        await _handleNotificationTap(launchResponse);
       }
 
       try {
@@ -214,9 +236,10 @@ class NotificationService {
 
       _initialized = true;
       debugPrint('NotificationService: Initialized');
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('NotificationService initialization error: $e');
-      _initialized = true;
+      _initialized = false;
+      Error.throwWithStackTrace(e, st);
     } finally {
       _initializing = false;
     }
@@ -260,6 +283,17 @@ class NotificationService {
       enableVibration: true,
       enableLights: true,
       sound: RawResourceAndroidNotificationSound('adhan_egypt'),
+    ));
+
+    // Silent prayer channel (text-only)
+    await android?.createNotificationChannel(const AndroidNotificationChannel(
+      'silent_channel',
+      'تنبيهات الصلاة الصامتة',
+      description: 'تنبيهات نصية للصلاة بدون صوت',
+      importance: Importance.high,
+      playSound: false,
+      enableVibration: false,
+      enableLights: false,
     ));
 
     // Reminders channel (for wird, azkar, tasbih, etc.)
@@ -311,6 +345,7 @@ class NotificationService {
 
         // احذف الـ channels القديمة عشان تتعمل من جديد بالإعدادات الصح
         await android.deleteNotificationChannel('adhan_channel');
+        await android.deleteNotificationChannel('silent_channel');
         await android.deleteNotificationChannel('reminder_channel');
         await android.deleteNotificationChannel('report_channel');
         await android.deleteNotificationChannel('update_channel');
@@ -416,11 +451,15 @@ class NotificationService {
     required int id,
     required String prayerName,
     required DateTime prayerTime,
-    required String soundFile,
+    String? soundFile,
+    bool silent = false,
   }) async {
     if (!_initialized) {
-      debugPrint('❌ NotificationService not initialized');
-      return false;
+      await initialize();
+      if (!_initialized) {
+        debugPrint('❌ NotificationService not initialized');
+        return false;
+      }
     }
 
     final scheduledTime = tz.TZDateTime.from(prayerTime, tz.local);
@@ -432,19 +471,22 @@ class NotificationService {
 
     debugPrint('📅 Scheduling: $prayerName at $scheduledTime');
 
-    final soundName = soundFile.split('.').first;
+    final useSilent = silent || soundFile == null || soundFile.trim().isEmpty;
+    final soundName = useSilent ? null : soundFile.split('.').first;
 
     final androidDetails = AndroidNotificationDetails(
-      _channels['adhan']!,
-      'أذان الصلاة',
-      channelDescription: 'إشعارات أذان الصلاة',
+      useSilent ? _channels['silent']! : _channels['adhan']!,
+      useSilent ? 'تنبيهات الصلاة الصامتة' : 'أذان الصلاة',
+      channelDescription:
+          useSilent ? 'تنبيهات نصية للصلاة بدون صوت' : 'إشعارات أذان الصلاة',
       importance: Importance.max,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound(soundName),
-      enableVibration: true,
-      fullScreenIntent: true,
+      playSound: !useSilent,
+      sound:
+          useSilent ? null : RawResourceAndroidNotificationSound(soundName!),
+      enableVibration: !useSilent,
+      fullScreenIntent: !useSilent,
     );
 
     final details = NotificationDetails(
@@ -452,8 +494,8 @@ class NotificationService {
       iOS: DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
-        presentSound: true,
-        sound: soundFile,
+        presentSound: !useSilent,
+        sound: useSilent ? null : soundFile,
       ),
     );
 
@@ -1180,6 +1222,26 @@ class NotificationService {
     await _notifications.cancelAll();
   }
 
+  static List<int> prayerNotificationIds() {
+    const prayerKeys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    final mainIds = prayerKeys.map(getNotificationId).toList();
+    final reminderIds = mainIds
+        .map((id) => id + NotificationIds.prayerReminderOffset)
+        .toList();
+
+    return <int>[
+      ...mainIds,
+      ...reminderIds,
+      _adhanPlaybackNotificationId,
+    ];
+  }
+
+  Future<void> cancelPrayerNotifications() async {
+    for (final id in prayerNotificationIds()) {
+      await cancelNotification(id);
+    }
+  }
+
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _notifications.pendingNotificationRequests();
   }
@@ -1343,9 +1405,13 @@ class NotificationService {
     }
   }
 
-  void _onNotificationTap(NotificationResponse response) async {
+  void _onNotificationTap(NotificationResponse response) {
+    unawaited(_handleNotificationTap(response));
+  }
+
+  Future<void> _handleNotificationTap(NotificationResponse response) async {
     // Track interaction before navigation
-    await _recordTap(response.payload);
+    await _recordTap(response.payload, actionId: response.actionId);
 
     if (response.actionId == _stopAdhanActionId ||
         response.payload == _stopAdhanActionId) {
@@ -1376,16 +1442,21 @@ class NotificationService {
       return;
     }
 
-    handleNotificationPayload(response.payload);
+    await handleNotificationPayload(response.payload);
   }
 
-  Future<void> _recordTap(String? payload) async {
-    if (payload == null) return;
+  Future<void> _recordTap(String? payload, {String? actionId}) async {
+    if (payload == null && actionId == null) return;
     try {
       final isar = await IsarService().db;
       final repo = IsarNotificationRepository(isar);
-      final featureKey = _extractFeatureKey(payload);
-      if (featureKey == null) return;
+      final featureKey = payload == null ? null : _extractFeatureKey(payload);
+      if (featureKey == null) {
+        if (actionId != null) {
+          debugPrint('Notification action tapped: $actionId');
+        }
+        return;
+      }
       final settings = await repo.getSettings(featureKey);
 
       settings.tapCount += 1;
@@ -1603,35 +1674,41 @@ class NotificationService {
     if (_isUpdateDialogOpen) return;
     _isUpdateDialogOpen = true;
 
-    final analytics = AnalyticsService();
-    final updateService = UpdateService(analytics: analytics);
-    final remoteConfig = RemoteConfigService();
-    await remoteConfig.initialize();
+    try {
+      final analytics = AnalyticsService();
+      final updateService = UpdateService(analytics: analytics);
+      final remoteConfig = RemoteConfigService();
+      await remoteConfig.initialize();
 
-    final version =
-        int.tryParse(message.data['version']?.toString() ?? '') ?? 0;
-    final apkUrl = (message.data['apk_url']?.toString() ?? '').isNotEmpty
-        ? message.data['apk_url']!.toString()
-        : remoteConfig.apkUrl;
+      final version =
+          int.tryParse(message.data['version']?.toString() ?? '') ?? 0;
+      final apkUrl = (message.data['apk_url']?.toString() ?? '').isNotEmpty
+          ? message.data['apk_url']!.toString()
+          : remoteConfig.apkUrl;
 
-    final result = UpdateCheckResult(
-      hasUpdate: true,
-      isForced: remoteConfig.forceUpdate,
-      latestVersion: version,
-      apkUrl: apkUrl,
-      releaseNotes: message.data['release_notes']?.toString() ?? '',
-    );
+      final result = UpdateCheckResult(
+        hasUpdate: true,
+        isForced: remoteConfig.forceUpdate,
+        latestVersion: version,
+        apkUrl: apkUrl,
+        releaseNotes: message.data['release_notes']?.toString() ?? '',
+      );
 
-    await analytics.logUpdateDialogShown(newVersion: version);
+      await analytics.logUpdateDialogShown(newVersion: version);
 
-    showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => UpdateDialog(
-        updateResult: result,
-        updateService: updateService,
-        analyticsService: analytics,
-      ),
-    ).then((_) => _isUpdateDialogOpen = false);
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => UpdateDialog(
+          updateResult: result,
+          updateService: updateService,
+          analyticsService: analytics,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Failed to show update dialog: $e');
+    } finally {
+      _isUpdateDialogOpen = false;
+    }
   }
 }

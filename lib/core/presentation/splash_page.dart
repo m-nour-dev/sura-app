@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/services/notification_permission_helper.dart'; // ← ADD
@@ -43,7 +44,12 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   }
 
   Future<void> _bootstrapSplash() async {
-    await _requestPermissionsOnce();
+    try {
+      await _requestPermissionsOnce();
+    } catch (e) {
+      debugPrint('Splash permission bootstrap failed: $e');
+    }
+
     if (!mounted) return;
     await _startSequence();
   }
@@ -53,8 +59,10 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     final alreadyRequested = prefs.getBool(_permissionsRequestedKey) ?? false;
     if (alreadyRequested) return;
 
-    await NotificationPermissionHelper.requestAllPermissions();
-    await prefs.setBool(_permissionsRequestedKey, true);
+    final allGranted = await NotificationPermissionHelper.requestAllPermissions();
+    if (allGranted) {
+      await prefs.setBool(_permissionsRequestedKey, true);
+    }
   }
 
   Future<void> _startSequence() async {
