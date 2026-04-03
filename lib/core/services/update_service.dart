@@ -120,10 +120,6 @@ class UpdateService {
     }
 
     final savePath = '${dir.path}/sila_update.apk';
-    final file = File(savePath);
-    if (await file.exists()) {
-      await file.delete();
-    }
 
     // Show initial progress notification
     await _notif.showDownloadProgress(
@@ -194,8 +190,7 @@ class UpdateService {
 
         // Check if it's a URL issue (403/404)
         if (e.response?.statusCode == 403 ||
-            e.response?.statusCode == 404 ||
-            e.response?.statusCode == 422) {
+            e.response?.statusCode == 404) {
           _notif.showDownloadError(
             id: NotificationService.downloadNotificationId,
             locale: locale,
@@ -204,6 +199,14 @@ class UpdateService {
             withRetry: false,
           );
           return;
+        }
+
+        // For potentially corrupt partial files, cleanup and retry.
+        if (e.response?.statusCode == 422) {
+          final file = File(savePath);
+          if (await file.exists()) {
+            await file.delete();
+          }
         }
 
         // Network error — show waiting and retry
@@ -308,7 +311,7 @@ class UpdateService {
           useRange: false,
           baseBytes: 0,
           accessMode: FileAccessMode.write,
-          deleteOnError: true,
+          deleteOnError: false,
         );
       }
       return;
@@ -318,15 +321,15 @@ class UpdateService {
       useRange: false,
       baseBytes: 0,
       accessMode: FileAccessMode.write,
-      deleteOnError: true,
+      deleteOnError: false,
     );
   }
 
   Future<bool> _isLikelyApk(File file) async {
+    RandomAccessFile? raf;
     try {
-      final raf = await file.open();
+      raf = await file.open();
       final header = await raf.read(4);
-      await raf.close();
 
       if (header.length < 4) return false;
 
@@ -337,6 +340,10 @@ class UpdateService {
           header[3] == 0x04;
     } catch (_) {
       return false;
+    } finally {
+      if (raf != null) {
+        await raf.close();
+      }
     }
   }
 

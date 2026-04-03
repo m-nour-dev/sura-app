@@ -55,26 +55,10 @@ void main() async {
 
 Future<void> _initBackgroundServices() async {
   try {
-    final notificationService = NotificationService();
-    await notificationService.initialize();
-
-    // Temporary: disable automatic notification diagnostics/smoke tests on app startup.
-    // Keep these lines for manual troubleshooting when needed.
-    // final canNotify = await notificationService.requestPermissions();
-    // await notificationService.logNotificationHealth();
-    // if (!canNotify) {
-    //   debugPrint('❌ Notifications disabled at system level; scheduling may not be visible.');
-    // }
-
     final prayerRepo = PrayerRepositoryImpl();
     final prayerTimes = await prayerRepo.getPrayerTimes();
     final adhanScheduler = AdhanSchedulerService();
     await adhanScheduler.scheduleAllPrayers(prayerTimes);
-
-    // if (kDebugMode) {
-    //   // Auto smoke test to verify local notifications outside app within 30 seconds.
-    //   await notificationService.scheduleDebugNotificationInSeconds(seconds: 30);
-    // }
 
     debugPrint('✅ Background services initialized');
   } catch (e) {
@@ -90,20 +74,40 @@ class SilaApp extends StatefulWidget {
   State<SilaApp> createState() => _SilaAppState();
 }
 
-class _SilaAppState extends State<SilaApp> {
+class _SilaAppState extends State<SilaApp> with WidgetsBindingObserver {
   bool _showSplash = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Ensure notification tap payloads can navigate when app is foregrounded.
-      unawaited(NotificationService().setNavigatorKey(appNavigatorKey));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await NotificationService().setNavigatorKey(appNavigatorKey);
+      } catch (e) {
+        debugPrint('Failed to set notification navigator key: $e');
+      }
 
-      // Ensure prayer notifications are scheduled on startup (not only when opening Prayer page).
-      unawaited(_initBackgroundServices());
+      try {
+        await _initBackgroundServices();
+      } catch (e) {
+        debugPrint('Background service bootstrap failed: $e');
+      }
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      unawaited(NotificationService().dispose());
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override

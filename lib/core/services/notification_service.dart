@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/services/isar_service.dart';
+import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
@@ -21,11 +22,11 @@ import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 @pragma('vm:entry-point')
-void notificationTapBackground(NotificationResponse response) {
+Future<void> notificationTapBackground(NotificationResponse response) async {
   final payload = response.payload;
   if (payload == null || payload.trim().isEmpty) return;
   // Persist only; UI navigation is resumed on app foreground.
-  NotificationService().saveDeferredPayload(payload.trim());
+  await NotificationService().saveDeferredPayload(payload.trim());
 }
 
 class NotificationService {
@@ -63,6 +64,95 @@ class NotificationService {
   // ارفع الرقم كل ما تغيّر الـ channels أو الـ scheduling logic
   static const int _channelVersion = 5;
   static const int _scheduleVersion = 5;
+  static const int _customReminderIdStart = 30000;
+  static const String _customReminderCounterKey = 'custom_reminder_id_counter';
+  static const String _customReminderBySettingPrefix = 'custom_reminder_id_for_setting_';
+  static const _notificationTexts = {
+    'ar': {
+      'prayer_title': '🕌 حان وقت {}',
+      'prayer_body': 'حان وقت الصلاة - {}',
+      'fallback_wird_title': 'وقت وردك القرآني 📖',
+      'fallback_wird_body': 'خصص دقائق لوردك اليومي.',
+      'fallback_azkar_title': 'أذكار الصباح 🌅',
+      'fallback_azkar_body': 'ابدأ يومك بذكر الله.',
+      'fallback_tasbih_title': 'لحظة للذكر والتسبيح ✦',
+      'fallback_tasbih_body': 'اجعل لسانك رطبا بذكر الله.',
+      'fallback_report_title': 'تقريرك اليومي جاهز 📋',
+      'fallback_report_body': 'بعد المغرب: افتح متابعتي وراجع يومك بصدق وطمأنينة.',
+      'adhan_playing_title': 'الأذان يعمل الآن',
+      'adhan_playing_body': 'اضغط لإيقاف الأذان',
+      'adhan_stop_action': 'إيقاف الأذان',
+      'debug_now_title': 'اختبار فوري',
+      'debug_now_body': 'إذا ظهر هذا فورا فالصلاحية الأساسية تعمل.',
+      'debug_scheduled_title': 'اختبار الإشعارات ✅',
+      'debug_scheduled_body': 'إذا ظهر هذا الإشعار فالنظام يعمل بشكل صحيح.',
+      'test_title': 'سِلى - اختبار الإشعارات 🕌',
+      'test_body': 'إذا وصلك هذا الإشعار فالنظام يعمل بشكل صحيح',
+    },
+    'en': {
+      'prayer_title': '🕌 It is time for {}',
+      'prayer_body': 'Prayer time - {}',
+      'fallback_wird_title': 'Time for your Quran wird 📖',
+      'fallback_wird_body': 'Set aside a few minutes for your daily wird.',
+      'fallback_azkar_title': 'Morning Azkar 🌅',
+      'fallback_azkar_body': 'Start your day with remembrance of Allah.',
+      'fallback_tasbih_title': 'A moment for dhikr and tasbih ✦',
+      'fallback_tasbih_body': 'Keep your tongue moist with remembrance of Allah.',
+      'fallback_report_title': 'Your Daily Report Is Ready 📋',
+      'fallback_report_body': 'After Maghrib: open My Tracking and review your day mindfully.',
+      'adhan_playing_title': 'Adhan Is Playing Now',
+      'adhan_playing_body': 'Tap to stop the adhan',
+      'adhan_stop_action': 'Stop Adhan',
+      'debug_now_title': 'Instant Test',
+      'debug_now_body': 'If this appears now, basic permission is working.',
+      'debug_scheduled_title': 'Notification Test ✅',
+      'debug_scheduled_body': 'If this appears, the notification system works correctly.',
+      'test_title': 'Sila - Notification Test 🕌',
+      'test_body': 'If you received this notification, the system is working correctly',
+    },
+    'tr': {
+      'prayer_title': '🕌 {} vakti geldi',
+      'prayer_body': 'Namaz vakti - {}',
+      'fallback_wird_title': 'Kur an virdin zamani 📖',
+      'fallback_wird_body': 'Gunluk virdin icin birkac dakika ayir.',
+      'fallback_azkar_title': 'Sabah zikirleri 🌅',
+      'fallback_azkar_body': 'Gunune Allah i anarak basla.',
+      'fallback_tasbih_title': 'Zikir ve tesbih icin bir an ✦',
+      'fallback_tasbih_body': 'Dilini Allah i anmakla mesgul tut.',
+      'fallback_report_title': 'Gunluk raporun hazir 📋',
+      'fallback_report_body': 'Aksamdan sonra: Takibim i ac ve gununu huzurla degerlendir.',
+      'adhan_playing_title': 'Ezan simdi caliyor',
+      'adhan_playing_body': 'Ezani durdurmak icin dokun',
+      'adhan_stop_action': 'Ezani durdur',
+      'debug_now_title': 'Anlik test',
+      'debug_now_body': 'Bu hemen gorunurse temel izin calisiyor demektir.',
+      'debug_scheduled_title': 'Bildirim testi ✅',
+      'debug_scheduled_body': 'Bu gorunurse bildirim sistemi dogru calisiyor.',
+      'test_title': 'Sila - Bildirim testi 🕌',
+      'test_body': 'Bu bildirimi aldiysan sistem dogru calisiyor',
+    },
+    'fr': {
+      'prayer_title': '🕌 C est l heure de {}',
+      'prayer_body': 'Heure de priere - {}',
+      'fallback_wird_title': 'Il est temps pour votre wird coranique 📖',
+      'fallback_wird_body': 'Consacrez quelques minutes a votre wird quotidien.',
+      'fallback_azkar_title': 'Invocations du matin 🌅',
+      'fallback_azkar_body': 'Commencez votre journee par le rappel d Allah.',
+      'fallback_tasbih_title': 'Un moment pour le dhikr et le tasbih ✦',
+      'fallback_tasbih_body': 'Gardez votre langue humide par le rappel d Allah.',
+      'fallback_report_title': 'Votre rapport quotidien est pret 📋',
+      'fallback_report_body': 'Apres le Maghrib: ouvrez Mon Suivi et revoyez votre journee sereinement.',
+      'adhan_playing_title': 'L adhan est en cours',
+      'adhan_playing_body': 'Touchez pour arreter l adhan',
+      'adhan_stop_action': 'Arreter l adhan',
+      'debug_now_title': 'Test instantane',
+      'debug_now_body': 'Si ceci apparait immediatement, l autorisation de base fonctionne.',
+      'debug_scheduled_title': 'Test de notification ✅',
+      'debug_scheduled_body': 'Si ceci apparait, le systeme de notification fonctionne correctement.',
+      'test_title': 'Sila - Test de notification 🕌',
+      'test_body': 'Si vous recevez cette notification, le systeme fonctionne correctement',
+    },
+  };
 
   Future<void> initialize() async {
     if (_initialized || _initializing) return;
@@ -147,7 +237,7 @@ class NotificationService {
     }
   }
 
-  void saveDeferredPayload(String payload) async {
+  Future<void> saveDeferredPayload(String payload) async {
     _deferredPayload = payload;
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -208,9 +298,6 @@ class NotificationService {
 
       if (savedVersion >= _channelVersion) return; // مفيش migration مطلوبة
 
-      // ✅ احفظ الـ version أول حاجة
-      await prefs.setInt('channel_version', _channelVersion);
-
       debugPrint('🔄 Migrating notification channels from v$savedVersion to v$_channelVersion');
 
       final android = _notifications
@@ -232,6 +319,8 @@ class NotificationService {
         await _createNotificationChannel();
         debugPrint('✅ New channels created');
       }
+
+      await prefs.setInt('channel_version', _channelVersion);
 
       debugPrint('✅ Channel migration complete: v$_channelVersion');
     } catch (e) {
@@ -367,13 +456,15 @@ class NotificationService {
       ),
     );
 
+    final locale = await _currentLocale();
+
     // Try exact alarm first
     try {
-      final localizedPrayerName = _localizedPrayerName(prayerName);
+      final localizedPrayerName = _localizedPrayerName(prayerName, locale);
       await _notifications.zonedSchedule(
         id,
-        '🕌 حان وقت $localizedPrayerName',
-        'حان وقت الصلاة — $localizedPrayerName',
+        _nt('prayer_title', locale, localizedPrayerName),
+        _nt('prayer_body', locale, localizedPrayerName),
         scheduledTime,
         details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -389,11 +480,11 @@ class NotificationService {
 
     // Fallback: inexact alarm
     try {
-      final localizedPrayerName = _localizedPrayerName(prayerName);
+      final localizedPrayerName = _localizedPrayerName(prayerName, locale);
       await _notifications.zonedSchedule(
         id,
-        '🕌 حان وقت $localizedPrayerName',
-        'حان وقت الصلاة — $localizedPrayerName',
+        _nt('prayer_title', locale, localizedPrayerName),
+        _nt('prayer_body', locale, localizedPrayerName),
         scheduledTime,
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
@@ -423,7 +514,7 @@ class NotificationService {
       location = tz.local;
     } catch (e) {
       debugPrint('Timezone not ready in scheduleDaily: $e');
-      location = tz.local;
+      location = tz.UTC;
     }
 
     final scheduledTime = tz.TZDateTime.from(dateTime, location);
@@ -682,7 +773,8 @@ class NotificationService {
   };
 
   String _dl(String key, String locale) {
-    return _dlTexts[locale]?[key] ?? _dlTexts['ar']![key]!;
+    final normalized = _normalizeLocale(locale);
+    return _dlTexts[normalized]?[key] ?? _dlTexts['ar']![key]!;
   }
 
   Future<void> showDownloadProgress({
@@ -846,6 +938,7 @@ class NotificationService {
     try {
       final isar = await IsarService().db;
       final repo = IsarNotificationRepository(isar);
+      final userLang = await PrefsService().getUserLanguage() ?? 'ar';
       final allSettings = await repo.getAllSettings();
       for (final setting in allSettings) {
         if (!setting.isEnabled || setting.timingType != 'fixed') continue;
@@ -860,10 +953,12 @@ class NotificationService {
         if (!scheduled.isAfter(now)) {
           scheduled = scheduled.add(const Duration(days: 1));
         }
+        final customNotificationId =
+            await _resolveCustomReminderNotificationId(setting.id);
         await scheduleDaily(
-          id: NotificationIds.userCustomDailyOffset + setting.id,
-          title: 'تذكير ${setting.featureKey}',
-          body: 'لا تنس وردك اليومي',
+          id: customNotificationId,
+          title: _localizedFixedReminderTitle(setting.featureKey, userLang),
+          body: _localizedFixedReminderBody(userLang),
           dateTime: scheduled,
         );
       }
@@ -878,8 +973,89 @@ class NotificationService {
     }
   }
 
+  String _localizedFixedReminderTitle(String featureKey, String locale) {
+    final normalizedLocale = _normalizeLocale(locale);
+    final normalized = featureKey.toLowerCase();
+
+    const ar = {
+      'azkar': 'الأذكار',
+      'tasbih': 'التسبيح',
+      'salah': 'الصلاة',
+      'prayer': 'الصلاة',
+      'wird': 'الورد',
+      'hifz': 'الحفظ',
+      'scholars': 'أقوال العلماء',
+    };
+    const en = {
+      'azkar': 'Azkar',
+      'tasbih': 'Tasbih',
+      'salah': 'Salah',
+      'prayer': 'Prayer',
+      'wird': 'Wird',
+      'hifz': 'Hifz',
+      'scholars': 'Scholars',
+    };
+    const tr = {
+      'azkar': 'Zikirler',
+      'tasbih': 'Tesbih',
+      'salah': 'Namaz',
+      'prayer': 'Namaz',
+      'wird': 'Vird',
+      'hifz': 'Hifz',
+      'scholars': 'Alimler',
+    };
+    const fr = {
+      'azkar': 'Invocations',
+      'tasbih': 'Tasbih',
+      'salah': 'Priere',
+      'prayer': 'Priere',
+      'wird': 'Wird',
+      'hifz': 'Memorisation',
+      'scholars': 'Savants',
+    };
+
+    final localizedFeature = switch (normalizedLocale) {
+      'en' => en[normalized] ?? featureKey,
+      'tr' => tr[normalized] ?? featureKey,
+      'fr' => fr[normalized] ?? featureKey,
+      _ => ar[normalized] ?? featureKey,
+    };
+
+    return switch (normalizedLocale) {
+      'en' => '$localizedFeature Reminder',
+      'tr' => '$localizedFeature Hatirlatmasi',
+      'fr' => 'Rappel: $localizedFeature',
+      _ => 'تذكير $localizedFeature',
+    };
+  }
+
+  String _localizedFixedReminderBody(String locale) {
+    final normalizedLocale = _normalizeLocale(locale);
+    return switch (normalizedLocale) {
+      'en' => 'Do not forget your daily worship.',
+      'tr' => 'Gunluk ibadetini unutma.',
+      'fr' => 'N oubliez pas votre adoration quotidienne.',
+      _ => 'لا تنس وردك اليومي',
+    };
+  }
+
+  Future<int> _resolveCustomReminderNotificationId(int settingId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final mappingKey = '$_customReminderBySettingPrefix$settingId';
+
+    final existing = prefs.getInt(mappingKey);
+    if (existing != null) return existing;
+
+    final lastCounter = prefs.getInt(_customReminderCounterKey) ?? _customReminderIdStart;
+    final next = lastCounter + 1;
+    await prefs.setInt(_customReminderCounterKey, next);
+    await prefs.setInt(mappingKey, next);
+    return next;
+  }
+
   Future<void> _ensureFallbackSmartNotifications() async {
     final now = DateTime.now();
+    final locale = await _currentLocale();
 
     Future<DateTime> at(int hour, int minute) async {
       var dt = DateTime(now.year, now.month, now.day, hour, minute);
@@ -889,30 +1065,30 @@ class NotificationService {
 
     await scheduleOneShot(
       id: NotificationIds.wird,
-      title: 'وقت وردك القرآني 📖',
-      body: 'خصص دقائق لوردك اليومي.',
+      title: _nt('fallback_wird_title', locale),
+      body: _nt('fallback_wird_body', locale),
       dateTime: await at(7, 0),
       payload: 'wird_reminder',
     );
     await scheduleOneShot(
       id: NotificationIds.azkarSabah,
-      title: 'أذكار الصباح 🌅',
-      body: 'ابدأ يومك بذكر الله.',
+      title: _nt('fallback_azkar_title', locale),
+      body: _nt('fallback_azkar_body', locale),
       dateTime: await at(5, 0),
       payload: 'azkar_sabah',
     );
     await scheduleOneShot(
       id: NotificationIds.tasbih,
-      title: 'لحظة للذكر والتسبيح ✦',
-      body: 'اجعل لسانك رطبًا بذكر الله.',
+      title: _nt('fallback_tasbih_title', locale),
+      body: _nt('fallback_tasbih_body', locale),
       dateTime: await at(13, 30),
       payload: 'tasbih_reminder',
     );
 
     await scheduleOneShot(
       id: NotificationIds.dailyReport,
-      title: 'تقريرك اليومي جاهز 📋',
-      body: 'بعد المغرب: افتح متابعتي وراجع يومك بصدق وطمأنينة.',
+      title: _nt('fallback_report_title', locale),
+      body: _nt('fallback_report_body', locale),
       dateTime: await at(18, 30),
       payload: jsonEncode({'route': 'daily_report'}),
     );
@@ -950,7 +1126,9 @@ class NotificationService {
   }
 
   Future<void> _showAdhanPlaybackNotification() async {
-    const androidDetails = AndroidNotificationDetails(
+    final locale = await _currentLocale();
+
+    final androidDetails = AndroidNotificationDetails(
       'adhan_channel',
       'أذان الصلاة',
       channelDescription: 'إشعارات أذان الصلاة',
@@ -964,7 +1142,7 @@ class NotificationService {
       actions: [
         AndroidNotificationAction(
           _stopAdhanActionId,
-          'إيقاف الأذان',
+          _nt('adhan_stop_action', locale),
           cancelNotification: true,
           showsUserInterface: true,
         ),
@@ -981,8 +1159,8 @@ class NotificationService {
         NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _notifications.show(
       _adhanPlaybackNotificationId,
-      'الأذان يعمل الآن',
-      'اضغط لإيقاف الأذان',
+      _nt('adhan_playing_title', locale),
+      _nt('adhan_playing_body', locale),
       details,
       payload: _stopAdhanActionId,
     );
@@ -1033,17 +1211,18 @@ class NotificationService {
 
     final now = DateTime.now();
     final at = now.add(Duration(seconds: seconds));
+    final locale = await _currentLocale();
 
     await showInstantNotification(
       id: NotificationIds.testNotificationFixedId - 1, // 9900
-      title: 'اختبار فوري',
-      body: 'إذا ظهر هذا فورًا فالصلاحية الأساسية تعمل.',
+      title: _nt('debug_now_title', locale),
+      body: _nt('debug_now_body', locale),
       payload: jsonEncode({'route': 'debug_notification_now'}),
     );
     await scheduleOneShot(
       id: NotificationIds.testNotificationFixedId, // 9901
-      title: 'اختبار الإشعارات ✅',
-      body: 'إذا ظهر هذا الإشعار فالنظام يعمل بشكل صحيح.',
+      title: _nt('debug_scheduled_title', locale),
+      body: _nt('debug_scheduled_body', locale),
       dateTime: at,
       payload: jsonEncode({'route': 'debug_notification'}),
     );
@@ -1054,10 +1233,11 @@ class NotificationService {
 
   Future<void> showTestNotification() async {
     try {
+      final locale = await _currentLocale();
       await _notifications.show(
-        NotificationIds.testNotificationFixedId + 998, // 10899 (dummy testing)
-        'سِلى — اختبار الإشعارات 🕌',
-        'إذا وصلك هذا الإشعار فالنظام يعمل بشكل صحيح',
+        NotificationIds.testNotificationStandaloneId,
+        _nt('test_title', locale),
+        _nt('test_body', locale),
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'adhan_channel',
@@ -1321,13 +1501,43 @@ class NotificationService {
   }
 
   /// Get prayer name in current app locale for notifications
-  String _localizedPrayerName(String key) {
-    final navigatorContext = _navigatorKey?.currentContext;
-    final locale = navigatorContext != null
-        ? EasyLocalization.of(navigatorContext)?.locale.languageCode ?? 'ar'
-        : 'ar';
-    final map = _prayerNames[locale] ?? _prayerNames['ar']!;
+  String _localizedPrayerName(String key, [String? locale]) {
+    final effectiveLocale =
+        _normalizeLocale(locale ?? _localeFromContext() ?? 'ar');
+    final map = _prayerNames[effectiveLocale] ?? _prayerNames['ar']!;
     return map[key.toLowerCase()] ?? key;
+  }
+
+  String _normalizeLocale(String? locale) {
+    if (locale == null || locale.trim().isEmpty) return 'ar';
+    final normalized = locale.trim().replaceAll('_', '-').toLowerCase();
+    return normalized.split('-').first;
+  }
+
+  String? _localeFromContext() {
+    final navigatorContext = _navigatorKey?.currentContext;
+    if (navigatorContext == null) return null;
+    return EasyLocalization.of(navigatorContext)?.locale.languageCode;
+  }
+
+  Future<String> _currentLocale() async {
+    final localeFromContext = _localeFromContext();
+    if (localeFromContext != null && localeFromContext.trim().isNotEmpty) {
+      return _normalizeLocale(localeFromContext);
+    }
+
+    final prefLocale = await PrefsService().getUserLanguage();
+    return _normalizeLocale(prefLocale);
+  }
+
+  String _nt(String key, String locale, [String? placeholder]) {
+    final normalizedLocale = _normalizeLocale(locale);
+    var text = _notificationTexts[normalizedLocale]?[key] ??
+        _notificationTexts['ar']![key]!;
+    if (placeholder != null) {
+      text = text.replaceFirst('{}', placeholder);
+    }
+    return text;
   }
 
   static const _prayerNames = {

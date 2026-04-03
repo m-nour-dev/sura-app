@@ -18,7 +18,7 @@ class PrayerTimesController extends _$PrayerTimesController {
 
   @override
   FutureOr<PrayerTimesEntity> build() async {
-    final timer = Timer(_ttl, () {
+    final timer = Timer.periodic(_ttl, (_) {
       final repository = ref.read(prayerRepositoryProvider);
       if (repository.isPrayerCacheStale()) {
         ref.invalidateSelf();

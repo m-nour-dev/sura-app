@@ -3,7 +3,6 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -12,7 +11,7 @@ class NotificationPermissionHelper {
       FlutterLocalNotificationsPlugin();
 
   /// استدعيها في main.dart قبل runApp
-  static Future<void> requestAllPermissions(BuildContext? context) async {
+  static Future<void> requestAllPermissions() async {
     if (Platform.isAndroid) {
       await _requestPostNotificationsPermission();
       await _requestExactAlarmPermission();
@@ -36,9 +35,6 @@ class NotificationPermissionHelper {
             AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
-      // Android 13+ — يطلب إذن الإشعارات
-      await androidPlugin.requestNotificationsPermission();
-
       // Android 12+ — يطلب إذن الـ exact alarm
       final bool? exactAlarmGranted =
           await androidPlugin.requestExactAlarmsPermission();
@@ -56,9 +52,8 @@ class NotificationPermissionHelper {
     if (status.isDenied) {
       final result = await Permission.ignoreBatteryOptimizations.request();
       if (result.isPermanentlyDenied) {
-        // المستخدم رفض — وجّهه للإعدادات
+        // Keep non-blocking; let UI decide if it should open settings.
         debugPrint('⚠️ Battery optimization exemption permanently denied');
-        await openAppSettings();
       }
     }
   }

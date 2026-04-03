@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/services/notification_permission_helper.dart'; // ← ADD
 
 class SplashPage extends StatefulWidget {
@@ -13,6 +14,8 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
+  static const _permissionsRequestedKey = 'permissions_requested';
+
   late final AnimationController _fadeController;
   late final AnimationController _scaleController;
   late final Animation<double> _fadeAnim;
@@ -24,7 +27,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
 
     // ← ADD: Request all required notification, alarm, and battery permissions
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await NotificationPermissionHelper.requestAllPermissions(context);
+      await _requestPermissionsOnce();
     });
 
     _fadeController = AnimationController(
@@ -42,6 +45,15 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     );
 
     _startSequence();
+  }
+
+  Future<void> _requestPermissionsOnce() async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyRequested = prefs.getBool(_permissionsRequestedKey) ?? false;
+    if (alreadyRequested) return;
+
+    await NotificationPermissionHelper.requestAllPermissions();
+    await prefs.setBool(_permissionsRequestedKey, true);
   }
 
   Future<void> _startSequence() async {

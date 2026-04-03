@@ -34,7 +34,7 @@ class MushafTasmiView extends ConsumerWidget {
         ref.watch(
             tasmiControllerProvider.select((state) => state.currentIndex));
 
-    final words = wordsRaw ?? <TasmiWordEntry>[];
+    final words = wordsRaw ?? const <TasmiWordEntry>[];
     final currentIndex = currentIndexRaw ?? 0;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;

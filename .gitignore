@@ -13,6 +13,7 @@ flutter_*.log
 # Build Artifacts
 build/
 .dart_tool/
+.flutter-plugins-dependencies
 **/doc/api/
 .pub-cache/
 .pub/

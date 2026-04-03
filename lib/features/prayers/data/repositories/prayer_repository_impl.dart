@@ -63,6 +63,11 @@ class PrayerRepositoryImpl extends PrayerRepository {
     _cachedPrayerTimesKey = null;
     _cachedNextPrayer = null;
     _cachedNextPrayerAt = null;
+    _lastAutoLocationFetchAt = null;
+    _lastResolvedLat = null;
+    _lastResolvedLong = null;
+    _lastResolvedCity = null;
+    _lastResolvedCountryCode = null;
   }
 
   Prayer _resolveNextPrayer(PrayerTimesEntity entity) {
@@ -82,16 +87,8 @@ class PrayerRepositoryImpl extends PrayerRepository {
     final prefs = PrefsService();
 
     final now = DateTime.now();
-    final methodString = await prefs.getCalculationMethod();
+    var methodString = await prefs.getCalculationMethod();
     final isAuto = await prefs.isAutoLocation();
-
-    // Warm-start: return valid cache immediately for repeated openings/tab switches.
-    if (_cachedPrayerTimes != null &&
-        _cachedPrayerTimesKey != null &&
-        _isFresh(_cachedPrayerTimesAt, _prayerTimesTtl) &&
-        _cachedPrayerTimesKey!.startsWith('${_dayKey(now)}|$methodString|$isAuto|')) {
-      return _cachedPrayerTimes!;
-    }
 
     var lat = _defaultLat;
     var long = _defaultLong;
@@ -162,6 +159,7 @@ class PrayerRepositoryImpl extends PrayerRepository {
           final autoMethod = _getMethodForCountry(countryCode);
           await prefs.setCalculationMethod(autoMethod);
           await prefs.saveCountryCode(countryCode);
+          methodString = autoMethod;
         }
       } else {
         final stored = await prefs.getStoredLocation();
@@ -175,11 +173,27 @@ class PrayerRepositoryImpl extends PrayerRepository {
             final autoMethod = _getMethodForCountry(countryCode);
             await prefs.setCalculationMethod(autoMethod);
             await prefs.saveCountryCode(countryCode);
+            methodString = autoMethod;
           }
         }
       }
     } catch (e) {
       print('Location Error: $e');
+    }
+
+    final resolvedCacheKey = _buildCacheKey(
+      date: now,
+      method: methodString,
+      isAuto: isAuto,
+      lat: lat,
+      long: long,
+    );
+
+    // Warm-start: return valid cache only when method + location key still matches.
+    if (_cachedPrayerTimes != null &&
+        _cachedPrayerTimesKey == resolvedCacheKey &&
+        _isFresh(_cachedPrayerTimesAt, _prayerTimesTtl)) {
+      return _cachedPrayerTimes!;
     }
 
     final params = _getCalculationParams(methodString);
@@ -222,13 +236,7 @@ class PrayerRepositoryImpl extends PrayerRepository {
 
     _cachedPrayerTimes = result;
     _cachedPrayerTimesAt = DateTime.now();
-    _cachedPrayerTimesKey = _buildCacheKey(
-      date: now,
-      method: methodString,
-      isAuto: isAuto,
-      lat: lat,
-      long: long,
-    );
+    _cachedPrayerTimesKey = resolvedCacheKey;
 
     return result;
   }

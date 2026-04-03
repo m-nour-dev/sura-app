@@ -62,9 +62,9 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _prefetchPrayerData();
       await _checkAndShowNotificationPrompt();
       _checkForUpdate();
-      _prefetchPrayerData();
 
       // Initial sync of Riverpod appLocaleProvider with easy_localization locale
       if (mounted) {

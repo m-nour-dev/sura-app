@@ -350,9 +350,10 @@ class HifzHomeController extends _$HifzHomeController {
     required int dueReviews,
   }) async {
     final notificationService = NotificationService();
+    final lang = await _currentLanguage();
     final body = remainingAyahs > 0
-        ? 'تبقى ${_toArabicIndic(remainingAyahs)} آيات لتكمل هدفك اليوم'
-        : 'لديك ${_toArabicIndic(dueReviews)} آيات للمراجعة';
+        ? _remainingAyahsBody(remainingAyahs, lang)
+        : _dueReviewsBody(dueReviews, lang);
 
     final now = DateTime.now();
     var scheduled = DateTime(now.year, now.month, now.day, 5, 30);
@@ -362,10 +363,51 @@ class HifzHomeController extends _$HifzHomeController {
 
     await notificationService.scheduleDaily(
       id: _notificationId,
-      title: 'وقت الحفظ اليوم 📖',
+      title: _hifzReminderTitle(lang),
       body: body,
       dateTime: scheduled,
     );
+  }
+
+  Future<String> _currentLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('user_language') ?? 'ar';
+    final normalized = raw.trim().replaceAll('_', '-').toLowerCase();
+    return normalized.split('-').first;
+  }
+
+  String _hifzReminderTitle(String lang) {
+    return switch (lang) {
+      'en' => 'Today s Hifz Time 📖',
+      'tr' => 'Bugunun ezber zamani 📖',
+      'fr' => 'L heure de memorisation aujourd hui 📖',
+      _ => 'وقت الحفظ اليوم 📖',
+    };
+  }
+
+  String _remainingAyahsBody(int count, String lang) {
+    final n = _formatNumber(count, lang);
+    return switch (lang) {
+      'en' => '$n ayahs left to complete your daily goal',
+      'tr' => 'Gunluk hedefini tamamlamak icin $n ayet kaldi',
+      'fr' => 'Il reste $n versets pour completer votre objectif du jour',
+      _ => 'تبقى $n آيات لتكمل هدفك اليوم',
+    };
+  }
+
+  String _dueReviewsBody(int count, String lang) {
+    final n = _formatNumber(count, lang);
+    return switch (lang) {
+      'en' => 'You have $n ayahs due for review',
+      'tr' => 'Tekrar icin $n ayetin var',
+      'fr' => 'Vous avez $n versets a reviser',
+      _ => 'لديك $n آيات للمراجعة',
+    };
+  }
+
+  String _formatNumber(int value, String lang) {
+    if (lang == 'ar') return _toArabicIndic(value);
+    return value.toString();
   }
 
   String _toArabicIndic(int value) {

@@ -47,7 +47,7 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_title_missed_user': 'We Miss You!',
       'notif_body_missed_user':
           'Don’t forget your wird today. Open the app and start again.',
-      'notif_streak_title': ' {title} (Streak {days} days)',
+      'notif_streak_title': '{title} (Streak {days} days)',
       // ... add more keys as needed
     },
     'tr': {
@@ -64,7 +64,7 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_title_missed_user': 'Seni Özledik!',
       'notif_body_missed_user':
           'Bugünkü wirdini unutma. Uygulamayı aç ve tekrar başla.',
-      'notif_streak_title': ' {title} (Seri {days} gün)',
+      'notif_streak_title': '{title} (Seri {days} gün)',
       // ... add more keys as needed
     },
   };
@@ -283,7 +283,7 @@ class AdhanSchedulerService {
                 'title': personalizedTitle,
                 'days': activity.streakDays.toString()
               }) ??
-              ' $personalizedTitle (سلسلة ${activity.streakDays} يوم)';
+            '$personalizedTitle (سلسلة ${activity.streakDays} يوم)';
         }
         planned.add(_PlannedNotification(
           id: slotId,
@@ -484,14 +484,15 @@ class AdhanSchedulerService {
       }
 
       // Add back the Daily Report as a bonus
+      final userLang = _normalizeLang(await _prefsService.getUserLanguage());
       final reportTime =
           normalizeToNext(prayerTimes.maghrib.add(const Duration(minutes: 30)));
       await _notificationService
           .cancelNotification(NotificationIds.dailyReport);
       await _notificationService.scheduleOneShot(
         id: NotificationIds.dailyReport,
-        title: 'تقريرك اليومي جاهز 📋',
-        body: 'راجع يومك وخذ خطوة لغد أفضل.',
+        title: _dailyReportTitle(userLang),
+        body: _dailyReportBody(userLang),
         dateTime: reportTime,
         payload: jsonEncode({'route': 'daily_report'}),
         channelKey: 'report', // ← ADD: channel منخفضة للتقرير
@@ -512,6 +513,8 @@ class AdhanSchedulerService {
         .getAdhanMode(prayerName); // "adhan" or "notification"
     final reminderMinutes =
         await _prefsService.getPrayerReminderMinutes(prayerName) ?? 0;
+    final lang = _normalizeLang(await _prefsService.getUserLanguage());
+    final localizedPrayerName = _localizedPrayerName(prayerName, lang);
 
     if (isEnabled) {
       final now = DateTime.now();
@@ -529,8 +532,8 @@ class AdhanSchedulerService {
         if (reminderTime.isAfter(DateTime.now())) {
           await _notificationService.scheduleOneShot(
             id: id + NotificationIds.prayerReminderOffset, // id خاص بالتذكير
-            title: 'اقترب وقت $prayerName',
-            body: 'باقي $reminderMinutes دقيقة على $prayerName',
+            title: _prayerReminderTitle(localizedPrayerName, lang),
+            body: _prayerReminderBody(localizedPrayerName, reminderMinutes, lang),
             dateTime: reminderTime,
             payload: null,
             channelKey: 'reminder',
@@ -572,6 +575,84 @@ class AdhanSchedulerService {
     } catch (e) {
       print('Error rescheduling prayers: $e');
     }
+  }
+
+  String _normalizeLang(String? lang) {
+    if (lang == null || lang.trim().isEmpty) return 'ar';
+    final normalized = lang.trim().replaceAll('_', '-').toLowerCase();
+    return normalized.split('-').first;
+  }
+
+  String _localizedPrayerName(String prayerKey, String lang) {
+    const names = {
+      'ar': {
+        'fajr': 'الفجر',
+        'dhuhr': 'الظهر',
+        'asr': 'العصر',
+        'maghrib': 'المغرب',
+        'isha': 'العشاء',
+      },
+      'en': {
+        'fajr': 'Fajr',
+        'dhuhr': 'Dhuhr',
+        'asr': 'Asr',
+        'maghrib': 'Maghrib',
+        'isha': 'Isha',
+      },
+      'tr': {
+        'fajr': 'Imsak',
+        'dhuhr': 'Ogle',
+        'asr': 'Ikindi',
+        'maghrib': 'Aksam',
+        'isha': 'Yatsi',
+      },
+      'fr': {
+        'fajr': 'Fajr',
+        'dhuhr': 'Dhuhr',
+        'asr': 'Asr',
+        'maghrib': 'Maghrib',
+        'isha': 'Isha',
+      },
+    };
+
+    final effectiveLang = names.containsKey(lang) ? lang : 'ar';
+    return names[effectiveLang]?[prayerKey.toLowerCase()] ?? prayerKey;
+  }
+
+  String _dailyReportTitle(String lang) {
+    return switch (lang) {
+      'en' => 'Your Daily Report Is Ready 📋',
+      'tr' => 'Gunluk raporun hazir 📋',
+      'fr' => 'Votre rapport quotidien est pret 📋',
+      _ => 'تقريرك اليومي جاهز 📋',
+    };
+  }
+
+  String _dailyReportBody(String lang) {
+    return switch (lang) {
+      'en' => 'Review your day and take one step toward a better tomorrow.',
+      'tr' => 'Gununu degerlendir ve daha iyi bir yarin icin bir adim at.',
+      'fr' => 'Revisez votre journee et faites un pas vers un meilleur lendemain.',
+      _ => 'راجع يومك وخذ خطوة لغد أفضل.',
+    };
+  }
+
+  String _prayerReminderTitle(String prayerName, String lang) {
+    return switch (lang) {
+      'en' => 'Prayer time is near: $prayerName',
+      'tr' => '$prayerName vakti yaklasiyor',
+      'fr' => 'L heure de la priere approche: $prayerName',
+      _ => 'اقترب وقت $prayerName',
+    };
+  }
+
+  String _prayerReminderBody(String prayerName, int minutes, String lang) {
+    return switch (lang) {
+      'en' => '$minutes minutes left until $prayerName',
+      'tr' => '$prayerName icin $minutes dakika kaldi',
+      'fr' => 'Il reste $minutes minutes avant $prayerName',
+      _ => 'باقي $minutes دقيقة على $prayerName',
+    };
   }
 
   /// Cancel all scheduled prayers

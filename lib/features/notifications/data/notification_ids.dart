@@ -42,6 +42,7 @@ class NotificationIds {
   static const int downloadServiceFixedId = 9000;
   static const int adhanPlaybackFixedId = 9090;
   static const int testNotificationFixedId = 9901;
+  static const int testNotificationStandaloneId = 10899;
   static const int postPrayerDhuhrFixedId = 9002;
   static const int reEngagementFixedId = 9999;
 
