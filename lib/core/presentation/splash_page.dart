@@ -25,11 +25,6 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // ← ADD: Request all required notification, alarm, and battery permissions
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _requestPermissionsOnce();
-    });
-
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -44,7 +39,13 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
     );
 
-    _startSequence();
+    unawaited(_bootstrapSplash());
+  }
+
+  Future<void> _bootstrapSplash() async {
+    await _requestPermissionsOnce();
+    if (!mounted) return;
+    await _startSequence();
   }
 
   Future<void> _requestPermissionsOnce() async {

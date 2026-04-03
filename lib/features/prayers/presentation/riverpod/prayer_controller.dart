@@ -14,11 +14,11 @@ PrayerRepositoryImpl prayerRepository(PrayerRepositoryRef ref) {
 
 @Riverpod(keepAlive: true)
 class PrayerTimesController extends _$PrayerTimesController {
-  static const _ttl = Duration(minutes: 20);
-
   @override
   FutureOr<PrayerTimesEntity> build() async {
-    final timer = Timer.periodic(_ttl, (_) {
+    final repository = ref.watch(prayerRepositoryProvider);
+    final ttl = repository.prayerTimesCacheTtl;
+    final timer = Timer.periodic(ttl, (_) {
       final repository = ref.read(prayerRepositoryProvider);
       if (repository.isPrayerCacheStale()) {
         ref.invalidateSelf();
@@ -26,7 +26,6 @@ class PrayerTimesController extends _$PrayerTimesController {
     });
     ref.onDispose(timer.cancel);
 
-    final repository = ref.watch(prayerRepositoryProvider);
     return await repository.getPrayerTimes();
   }
 
@@ -41,6 +40,7 @@ class PrayerTimesController extends _$PrayerTimesController {
   Future<void> forceRefresh() async {
     final repository = ref.read(prayerRepositoryProvider);
     repository.clearCache();
+    ref.invalidate(nextPrayerControllerProvider);
     ref.invalidateSelf();
     await future;
   }
@@ -48,15 +48,53 @@ class PrayerTimesController extends _$PrayerTimesController {
 
 @Riverpod(keepAlive: true)
 class NextPrayerController extends _$NextPrayerController {
+  Timer? _nextPrayerBoundaryTimer;
+
   @override
   FutureOr<Prayer> build() async {
+    ref.onDispose(() => _nextPrayerBoundaryTimer?.cancel());
+
+    final prayerTimes = await ref.watch(prayerTimesControllerProvider.future);
     final repository = ref.watch(prayerRepositoryProvider);
-    return await repository.getNextPrayer();
+    final nextPrayer = await repository.getNextPrayer();
+    _scheduleBoundaryRefresh(prayerTimes, nextPrayer);
+    return nextPrayer;
   }
 
   Future<void> refreshFromPrayerTimes() async {
     await ref.read(prayerTimesControllerProvider.notifier).refreshIfStale();
     ref.invalidateSelf();
     await future;
+  }
+
+  void _scheduleBoundaryRefresh(PrayerTimesEntity entity, Prayer nextPrayer) {
+    _nextPrayerBoundaryTimer?.cancel();
+
+    final now = DateTime.now();
+    var boundary = _boundaryForPrayer(entity, nextPrayer);
+    if (!boundary.isAfter(now)) {
+      boundary = boundary.add(const Duration(days: 1));
+    }
+
+    var delay = boundary.difference(now) + const Duration(seconds: 1);
+    if (delay.isNegative || delay == Duration.zero) {
+      delay = const Duration(seconds: 1);
+    }
+
+    _nextPrayerBoundaryTimer = Timer(delay, () {
+      ref.invalidateSelf();
+    });
+  }
+
+  DateTime _boundaryForPrayer(PrayerTimesEntity entity, Prayer prayer) {
+    return switch (prayer) {
+      Prayer.fajr => entity.fajr,
+      Prayer.sunrise => entity.sunrise,
+      Prayer.dhuhr => entity.dhuhr,
+      Prayer.asr => entity.asr,
+      Prayer.maghrib => entity.maghrib,
+      Prayer.isha => entity.isha,
+      _ => entity.fajr.add(const Duration(days: 1)),
+    };
   }
 }

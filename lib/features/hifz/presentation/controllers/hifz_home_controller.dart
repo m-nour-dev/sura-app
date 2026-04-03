@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sila_app/core/utils/language_utils.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
@@ -370,15 +372,13 @@ class HifzHomeController extends _$HifzHomeController {
   }
 
   Future<String> _currentLanguage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('user_language') ?? 'ar';
-    final normalized = raw.trim().replaceAll('_', '-').toLowerCase();
-    return normalized.split('-').first;
+    final raw = await PrefsService().getUserLanguage();
+    return normalizeLanguageCode(raw);
   }
 
   String _hifzReminderTitle(String lang) {
     return switch (lang) {
-      'en' => 'Today s Hifz Time 📖',
+      'en' => 'Today\'s Hifz Time 📖',
       'tr' => 'Bugunun ezber zamani 📖',
       'fr' => 'L heure de memorisation aujourd hui 📖',
       _ => 'وقت الحفظ اليوم 📖',

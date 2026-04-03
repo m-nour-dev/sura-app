@@ -9,6 +9,7 @@ class TasmiTtsService {
   final FlutterTts _tts = FlutterTts();
   bool _initialized = false;
   bool _isSpeaking = false;
+  bool _isStopping = false;
   Timer? _debounceTimer;
   Completer<void>? _speakCompleter;
 
@@ -103,27 +104,43 @@ class TasmiTtsService {
     return _speakCompleter!.future;
   }
 
-  void stop() {
+  Future<void> stop() async {
     _debounceTimer?.cancel();
     _isSpeaking = false;
     if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
       _speakCompleter!.complete();
     }
-    _tts.stop();
+    await _stopTtsClean();
   }
 
-  void dispose() {
+  Future<void> dispose() async {
     _debounceTimer?.cancel();
     if (_speakCompleter != null && !_speakCompleter!.isCompleted) {
       _speakCompleter!.complete();
     }
-    _tts.stop();
+    await _stopTtsClean();
+  }
+
+  Future<void> _stopTtsClean() async {
+    if (_isStopping) return;
+    _isStopping = true;
+    try {
+      await _tts.stop();
+      // Allow native codec/audio thread to settle before next init/speak/dispose.
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    } catch (e) {
+      debugPrint('TTS stop error: $e');
+    } finally {
+      _isStopping = false;
+    }
   }
 }
 
 @riverpod
 TasmiTtsService tasmiTtsService(TasmiTtsServiceRef ref) {
   final service = TasmiTtsService();
-  ref.onDispose(service.dispose);
+  ref.onDispose(() {
+    unawaited(service.dispose());
+  });
   return service;
 }

@@ -1,4 +1,6 @@
 import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/core/utils/language_utils.dart';
+import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,9 +55,15 @@ class StreakTracker {
     if (!milestones.contains(days)) return;
     final lang = await _currentLanguage();
     final feature = _featureName(featureKey, lang);
+        final featureHash = featureKey
+          .toLowerCase()
+          .codeUnits
+          .fold<int>(0, (acc, unit) => (acc * 31 + unit) % 800);
+    final notificationId =
+        NotificationIds.streakMilestone + (days * 10) + featureHash;
 
     await notificationService.showInstantNotification(
-      id: 110,
+      id: notificationId,
       title: _streakTitle(days, lang),
       body: _streakBody(feature, lang),
       payload: featureKey,
@@ -65,15 +73,14 @@ class StreakTracker {
   Future<String> _currentLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('user_language') ?? 'ar';
-    final normalized = raw.trim().replaceAll('_', '-').toLowerCase();
-    return normalized.split('-').first;
+    return normalizeLanguageCode(raw);
   }
 
   String _streakTitle(int days, String lang) {
     return switch (lang) {
       'en' => 'Masha Allah! ✦ $days day streak',
-      'tr' => 'Masallah! ✦ $days gunluk seri',
-      'fr' => 'Machallah! ✦ serie de $days jours',
+      'tr' => 'Maşallah! ✦ $days günlük seri',
+      'fr' => 'Maşallah! ✦ série de $days jours',
       _ => 'ما شاء الله! ✦ $days يوم متواصل',
     };
   }
@@ -82,7 +89,7 @@ class StreakTracker {
     return switch (lang) {
       'en' => 'Keep your $featureName streak going!',
       'tr' => '$featureName serini bozma, devam et!',
-      'fr' => 'Ne cassez pas votre serie de $featureName, continuez!',
+      'fr' => 'Ne cassez pas votre série de $featureName, continuez!',
       _ => 'لا تكسر سلسلة $featureName - استمر!',
     };
   }

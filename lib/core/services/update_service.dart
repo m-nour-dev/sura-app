@@ -201,8 +201,8 @@ class UpdateService {
           return;
         }
 
-        // For potentially corrupt partial files, cleanup and retry.
-        if (e.response?.statusCode == 422) {
+        // For stale/corrupt partial files, cleanup and retry from scratch.
+        if (e.response?.statusCode == 422 || e.response?.statusCode == 416) {
           final file = File(savePath);
           if (await file.exists()) {
             await file.delete();
@@ -303,7 +303,7 @@ class UpdateService {
 
       // Some servers ignore Range and return 200 with full file.
       // In that case, redownload from scratch to avoid corrupt APK.
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 416) {
         if (await existingFile.exists()) {
           await existingFile.delete();
         }

@@ -133,7 +133,15 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   }
 
   Future<void> _applyScheduleChanges() async {
-    await _adhanSvc.rescheduleDaily(PrayerRepositoryImpl());
+    try {
+      await _adhanSvc.rescheduleDaily(PrayerRepositoryImpl());
+    } catch (e) {
+      debugPrint(
+        'Failed to reschedule prayer notifications via '
+        '_adhanSvc.rescheduleDaily(PrayerRepositoryImpl()): $e',
+      );
+      _snack('تعذر تحديث الجدولة. حاول مرة أخرى.');
+    }
   }
 
   Future<void> _testAdhan() async {

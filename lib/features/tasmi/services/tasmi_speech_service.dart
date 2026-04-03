@@ -27,6 +27,7 @@ class TasmiSpeechService {
   Timer? _watchdogTimer;
   DateTime? _lastWordReceivedAt;
   bool _isWatchdogHealing = false;
+  bool _engineOpInFlight = false;
   bool _disposed = false;
 
   // ─── FIX 1+3: Audio focus conflict prevention ──────────────────────
@@ -36,6 +37,10 @@ class TasmiSpeechService {
   /// Set this to true only when a Tasmi/Hifz page is active.
   /// When false, watchdog and auto-restart are fully disabled.
   void setActive(bool active) {
+    if (_isActive == active) {
+      return;
+    }
+
     _isActive = active;
     debugPrint('STT setActive: $active');
     if (!active) {
@@ -123,26 +128,36 @@ class TasmiSpeechService {
   }
 
   Future<bool> _startInternal() async {
-    if (_isManuallyStopped || _wordController.isClosed) return false;
-    if (_speech.isListening) return true;
-
-    _lastRecognizedWords = '';
-
-    try {
-      await _speech.listen(
-        onResult: _onResult,
-        localeId: 'ar-SA',
-        listenMode: stt.ListenMode.dictation,
-        listenFor: const Duration(seconds: 20),
-        pauseFor: const Duration(seconds: 3),
-        cancelOnError: false,
-        partialResults: true,
-      );
-      return true;
-    } catch (e) {
-      debugPrint('Speech listen error: $e');
-      _wordController.addError('تعذر بدء الاستماع. حاول مرة أخرى.');
+    if (_engineOpInFlight) {
+      debugPrint('⚠️ startInternal skipped — engine op in flight');
       return false;
+    }
+
+    _engineOpInFlight = true;
+    try {
+      if (_isManuallyStopped || _wordController.isClosed) return false;
+      if (_speech.isListening) return true;
+
+      _lastRecognizedWords = '';
+
+      try {
+        await _speech.listen(
+          onResult: _onResult,
+          localeId: 'ar-SA',
+          listenMode: stt.ListenMode.dictation,
+          listenFor: const Duration(seconds: 20),
+          pauseFor: const Duration(seconds: 3),
+          cancelOnError: false,
+          partialResults: true,
+        );
+        return true;
+      } catch (e) {
+        debugPrint('Speech listen error: $e');
+        _wordController.addError('تعذر بدء الاستماع. حاول مرة أخرى.');
+        return false;
+      }
+    } finally {
+      _engineOpInFlight = false;
     }
   }
 
@@ -227,14 +242,30 @@ class TasmiSpeechService {
 
   void _onStatus(String status) {
     debugPrint('STT Status: $status');
-    // FIX 1+3: Only auto-restart if page is active AND audio is not playing
-    if (_canAutoRestart() && (status == 'done' || status == 'notListening')) {
-      _isRestarting = false;
-      _scheduleRestart();
+    // Only restart on done to avoid duplicate scheduling with notListening.
+    if (_canAutoRestart() && status == 'done') {
+      if (!_isRestarting && !_isWatchdogHealing) {
+        _isRestarting = false;
+        _scheduleRestart();
+      }
     }
   }
 
   void _onError(SpeechRecognitionError error) {
+    final isBusy = error.errorMsg.contains('busy');
+    if (isBusy) {
+      _restartTimer?.cancel();
+      _isRestarting = false;
+      unawaited(Future<void>.delayed(const Duration(seconds: 3), () async {
+        if (!_isManuallyStopped &&
+            !_isPausedForTts &&
+            !_isWatchdogHealing) {
+          await _hardReset();
+        }
+      }));
+      return;
+    }
+
     if (error.errorMsg != 'error_client' &&
         error.errorMsg != 'error_speech_timeout' &&
         error.errorMsg != 'error_no_match') {
@@ -342,6 +373,8 @@ class TasmiSpeechService {
     if (_isManuallyStopped || _isPausedForTts || _wordController.isClosed) {
       return;
     }
+    if (!_autoRestartEnabled) return;
+    if (_isRestarting) return;
 
     _isWatchdogHealing = true;
 
@@ -379,15 +412,15 @@ class TasmiSpeechService {
   Future<bool> _hardReset() async {
     _restartTimer?.cancel();
     _isRestarting = false;
+    _engineOpInFlight = false;
 
     try {
       // Use cancel() to discard any in-progress recognition results
       // since we're doing a hard reset and don't need to finalize anything
       await _speech.cancel();
-      await Future.delayed(const Duration(milliseconds: 400));
+      await Future.delayed(const Duration(milliseconds: 1200));
     } catch (e, st) {
-      debugPrint(
-          'tasmi_speech_service _hardReset failed during cancel: $e\n$st');
+      debugPrint('_hardReset cancel error: $e\n$st');
     }
 
     if (!_isManuallyStopped && !_isPausedForTts && !_wordController.isClosed) {

@@ -19,6 +19,7 @@ import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
 import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 @pragma('vm:entry-point')
@@ -457,10 +458,10 @@ class NotificationService {
     );
 
     final locale = await _currentLocale();
+    final localizedPrayerName = _localizedPrayerName(prayerName, locale);
 
     // Try exact alarm first
     try {
-      final localizedPrayerName = _localizedPrayerName(prayerName, locale);
       await _notifications.zonedSchedule(
         id,
         _nt('prayer_title', locale, localizedPrayerName),
@@ -480,7 +481,6 @@ class NotificationService {
 
     // Fallback: inexact alarm
     try {
-      final localizedPrayerName = _localizedPrayerName(prayerName, locale);
       await _notifications.zonedSchedule(
         id,
         _nt('prayer_title', locale, localizedPrayerName),
@@ -513,8 +513,14 @@ class NotificationService {
     try {
       location = tz.local;
     } catch (e) {
-      debugPrint('Timezone not ready in scheduleDaily: $e');
-      location = tz.UTC;
+      debugPrint('Timezone local lookup failed in scheduleDaily, trying initializeTimeZones: $e');
+      try {
+        tzdata.initializeTimeZones();
+        location = tz.local;
+      } catch (initError) {
+        debugPrint('Timezone initialization failed in scheduleDaily, falling back to UTC: $initError');
+        location = tz.UTC;
+      }
     }
 
     final scheduledTime = tz.TZDateTime.from(dateTime, location);
@@ -774,7 +780,7 @@ class NotificationService {
 
   String _dl(String key, String locale) {
     final normalized = _normalizeLocale(locale);
-    return _dlTexts[normalized]?[key] ?? _dlTexts['ar']![key]!;
+    return _dlTexts[normalized]?[key] ?? _dlTexts['ar']?[key] ?? key;
   }
 
   Future<void> showDownloadProgress({
@@ -924,8 +930,8 @@ class NotificationService {
       presentBadge: false,
       presentSound: false,
     );
-    const details =
-        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    final details =
+      NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _notifications.show(id, title, body, details,
         payload: 'download_waiting');
   }
@@ -1105,9 +1111,9 @@ class NotificationService {
         await _audioPlayer.play(AssetSource('audio/$soundFile'));
       }
       await _showAdhanPlaybackNotification();
-      print('Playing Adhan: $soundFile');
+      debugPrint('Playing Adhan: $soundFile');
     } catch (e) {
-      print('Error playing $soundFile, trying fallback: $e');
+      debugPrint('Error playing $soundFile, trying fallback: $e');
       // Try any available audio file as fallback
       try {
         await _audioPlayer.stop();
@@ -1115,7 +1121,7 @@ class NotificationService {
         await _audioPlayer.play(AssetSource('audio/adhan_egypt.mp3'));
         await _showAdhanPlaybackNotification();
       } catch (e2) {
-        print('Fallback audio also failed: $e2');
+        debugPrint('Fallback audio also failed: $e2');
       }
     }
   }
@@ -1155,8 +1161,8 @@ class NotificationService {
       presentSound: false,
     );
 
-    const details =
-        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    final details =
+      NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _notifications.show(
       _adhanPlaybackNotificationId,
       _nt('adhan_playing_title', locale),
@@ -1533,7 +1539,8 @@ class NotificationService {
   String _nt(String key, String locale, [String? placeholder]) {
     final normalizedLocale = _normalizeLocale(locale);
     var text = _notificationTexts[normalizedLocale]?[key] ??
-        _notificationTexts['ar']![key]!;
+        _notificationTexts['ar']?[key] ??
+        key;
     if (placeholder != null) {
       text = text.replaceFirst('{}', placeholder);
     }

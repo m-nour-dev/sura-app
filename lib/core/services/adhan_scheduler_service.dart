@@ -5,6 +5,7 @@ import 'package:sila_app/core/services/adhan_native_service.dart';
 import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sila_app/core/utils/language_utils.dart';
 import 'package:sila_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
 import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
@@ -484,7 +485,7 @@ class AdhanSchedulerService {
       }
 
       // Add back the Daily Report as a bonus
-      final userLang = _normalizeLang(await _prefsService.getUserLanguage());
+      final userLang = normalizeLanguageCode(await _prefsService.getUserLanguage());
       final reportTime =
           normalizeToNext(prayerTimes.maghrib.add(const Duration(minutes: 30)));
       await _notificationService
@@ -513,7 +514,7 @@ class AdhanSchedulerService {
         .getAdhanMode(prayerName); // "adhan" or "notification"
     final reminderMinutes =
         await _prefsService.getPrayerReminderMinutes(prayerName) ?? 0;
-    final lang = _normalizeLang(await _prefsService.getUserLanguage());
+    final lang = normalizeLanguageCode(await _prefsService.getUserLanguage());
     final localizedPrayerName = _localizedPrayerName(prayerName, lang);
 
     if (isEnabled) {
@@ -577,12 +578,6 @@ class AdhanSchedulerService {
     }
   }
 
-  String _normalizeLang(String? lang) {
-    if (lang == null || lang.trim().isEmpty) return 'ar';
-    final normalized = lang.trim().replaceAll('_', '-').toLowerCase();
-    return normalized.split('-').first;
-  }
-
   String _localizedPrayerName(String prayerKey, String lang) {
     const names = {
       'ar': {
@@ -600,11 +595,11 @@ class AdhanSchedulerService {
         'isha': 'Isha',
       },
       'tr': {
-        'fajr': 'Imsak',
-        'dhuhr': 'Ogle',
-        'asr': 'Ikindi',
-        'maghrib': 'Aksam',
-        'isha': 'Yatsi',
+        'fajr': 'İmsak',
+        'dhuhr': 'Öğle',
+        'asr': 'İkindi',
+        'maghrib': 'Akşam',
+        'isha': 'Yatsı',
       },
       'fr': {
         'fajr': 'Fajr',
@@ -622,8 +617,8 @@ class AdhanSchedulerService {
   String _dailyReportTitle(String lang) {
     return switch (lang) {
       'en' => 'Your Daily Report Is Ready 📋',
-      'tr' => 'Gunluk raporun hazir 📋',
-      'fr' => 'Votre rapport quotidien est pret 📋',
+      'tr' => 'Günlük raporun hazır 📋',
+      'fr' => 'Votre rapport quotidien est prêt 📋',
       _ => 'تقريرك اليومي جاهز 📋',
     };
   }
@@ -631,8 +626,8 @@ class AdhanSchedulerService {
   String _dailyReportBody(String lang) {
     return switch (lang) {
       'en' => 'Review your day and take one step toward a better tomorrow.',
-      'tr' => 'Gununu degerlendir ve daha iyi bir yarin icin bir adim at.',
-      'fr' => 'Revisez votre journee et faites un pas vers un meilleur lendemain.',
+      'tr' => 'Gününü değerlendir ve daha iyi bir yarın için bir adım at.',
+      'fr' => 'Révisez votre journée et faites un pas vers un meilleur lendemain.',
       _ => 'راجع يومك وخذ خطوة لغد أفضل.',
     };
   }
@@ -640,8 +635,8 @@ class AdhanSchedulerService {
   String _prayerReminderTitle(String prayerName, String lang) {
     return switch (lang) {
       'en' => 'Prayer time is near: $prayerName',
-      'tr' => '$prayerName vakti yaklasiyor',
-      'fr' => 'L heure de la priere approche: $prayerName',
+      'tr' => '$prayerName vakti yaklaşıyor',
+      'fr' => 'L\'heure de la prière approche: $prayerName',
       _ => 'اقترب وقت $prayerName',
     };
   }
@@ -649,7 +644,7 @@ class AdhanSchedulerService {
   String _prayerReminderBody(String prayerName, int minutes, String lang) {
     return switch (lang) {
       'en' => '$minutes minutes left until $prayerName',
-      'tr' => '$prayerName icin $minutes dakika kaldi',
+      'tr' => '$prayerName için $minutes dakika kaldı',
       'fr' => 'Il reste $minutes minutes avant $prayerName',
       _ => 'باقي $minutes دقيقة على $prayerName',
     };

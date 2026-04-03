@@ -30,6 +30,8 @@ class PrayerRepositoryImpl extends PrayerRepository {
   static String? _lastResolvedCity;
   static String? _lastResolvedCountryCode;
 
+  Duration get prayerTimesCacheTtl => _prayerTimesTtl;
+
   bool _isFresh(DateTime? value, Duration ttl) {
     if (value == null) return false;
     return DateTime.now().difference(value) <= ttl;

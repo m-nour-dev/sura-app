@@ -77,6 +77,11 @@ class HifzAudioSessionManager {
   }
 
   Future<bool> startMic({bool autoRestart = false}) async {
+    if (_switching) {
+      debugPrint('⚠️ startMic skipped — transition already in progress');
+      return false;
+    }
+
     _switching = true;
     try {
       await stopAudio();
@@ -91,6 +96,10 @@ class HifzAudioSessionManager {
   }
 
   Future<void> stopMic() async {
+    if (_switching && !_micActive && !_speechService.isListening) {
+      return;
+    }
+
     await _speechService.stopListening();
     _micActive = false;
   }

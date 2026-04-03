@@ -119,6 +119,7 @@ class TasmiController extends _$TasmiController {
   StreamSubscription<String>? _speechSubscription;
   int? _surahNumber;
   bool _isProcessingWord = false;
+  bool _isStartingListening = false;
   final List<TasmiWordError> _sessionErrors = [];
 
   @override
@@ -147,7 +148,6 @@ class TasmiController extends _$TasmiController {
       _speechSubscription?.cancel();
       _speechService
           .setActive(false); // FIX 3: Page left — disable STT watchdog/restart
-      _speechService.dispose();
     });
 
     return TasmiState.initial();
@@ -225,7 +225,7 @@ class TasmiController extends _$TasmiController {
       },
     );
 
-    final startedListening = await _speechService.startListening();
+    final startedListening = await _safeStartListening();
     if (!startedListening) {
       await _stopServicesOnly();
       state = state.copyWith(
@@ -259,7 +259,7 @@ class TasmiController extends _$TasmiController {
       );
 
       if (result == WordMatchResult.correct) {
-        _handleCorrect();
+        await _handleCorrect();
         return;
       }
 
@@ -289,7 +289,7 @@ class TasmiController extends _$TasmiController {
     }
   }
 
-  void _handleCorrect() {
+  Future<void> _handleCorrect() async {
     final updatedWords = List<TasmiWordEntry>.from(state.words);
     updatedWords[state.currentIndex].status = WordEntryStatus.correct;
     state = state.copyWith(
@@ -300,7 +300,7 @@ class TasmiController extends _$TasmiController {
     );
 
     if (state.currentIndex >= state.words.length) {
-      _finish();
+      await _finish();
     }
   }
 
@@ -355,7 +355,7 @@ class TasmiController extends _$TasmiController {
     }
 
     if (state.currentIndex >= state.words.length) {
-      _finish();
+      await _finish();
     }
   }
 
@@ -367,7 +367,7 @@ class TasmiController extends _$TasmiController {
     state = state.copyWith(isMicListening: true);
 
     if (state.currentIndex >= state.words.length) {
-      _finish();
+      await _finish();
     }
   }
 
@@ -389,13 +389,13 @@ class TasmiController extends _$TasmiController {
     });
   }
 
-  void stopSession() {
+  Future<void> stopSession() async {
     if (state.status == TasmiStatus.listening) {
-      _finish(); // Also calculate stats if stopped manually
+      await _finish(); // Also calculate stats if stopped manually
       return;
     }
 
-    unawaited(_stopServicesOnly());
+    await _stopServicesOnly();
   }
 
   Future<void> resumeSession() async {
@@ -430,7 +430,7 @@ class TasmiController extends _$TasmiController {
       sessionStartTime: state.sessionStartTime ?? DateTime.now(),
     );
 
-    final startedListening = await _speechService.startListening();
+    final startedListening = await _safeStartListening();
     if (!startedListening) {
       state = state.copyWith(
         status: TasmiStatus.error,
@@ -441,11 +441,11 @@ class TasmiController extends _$TasmiController {
     state = state.copyWith(isMicListening: true);
   }
 
-  void _finish() async {
+  Future<void> _finish() async {
     _isProcessingWord = false;
-    _speechService.stopListening();
-    _speechSubscription?.cancel();
-    ref.read(tasmiTtsServiceProvider).stop();
+    await _speechService.stopListening();
+    await _speechSubscription?.cancel();
+    await ref.read(tasmiTtsServiceProvider).stop();
 
     var correct = 0;
     var close = 0;
@@ -540,8 +540,22 @@ class TasmiController extends _$TasmiController {
     await _speechService.stopListening();
     await _speechSubscription?.cancel();
     _speechSubscription = null;
-    ref.read(tasmiTtsServiceProvider).stop();
+    await ref.read(tasmiTtsServiceProvider).stop();
     state = state.copyWith(isMicListening: false);
+  }
+
+  Future<bool> _safeStartListening() async {
+    if (_isStartingListening) {
+      debugPrint('⚠️ startListening skipped — already in progress');
+      return false;
+    }
+
+    _isStartingListening = true;
+    try {
+      return await _speechService.startListening();
+    } finally {
+      _isStartingListening = false;
+    }
   }
 }
 

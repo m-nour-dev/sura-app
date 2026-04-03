@@ -46,7 +46,6 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
 
   @override
   void dispose() {
-    _speechService.dispose();
     super.dispose();
   }
 

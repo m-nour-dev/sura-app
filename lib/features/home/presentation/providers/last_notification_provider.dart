@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
@@ -80,13 +81,13 @@ Future<LastNotification?> lastNotification(LastNotificationRef ref) async {
       }
     } catch (e) {
       // Non-fatal: keep last notification behavior even if local DB read fails.
-      print('Skipping ibadah-based notification filtering: $e');
+      debugPrint('Skipping ibadah-based notification filtering: $e');
     }
 
     if (passed.isEmpty) return null;
     return passed.first;
   } catch (e) {
-    print('Error parsing last notification: $e');
+    debugPrint('Error parsing last notification: $e');
     return null;
   }
 }
