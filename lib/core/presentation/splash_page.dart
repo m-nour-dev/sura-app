@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:sila_app/core/services/notification_permission_helper.dart'; // ← ADD
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key, required this.onComplete});
@@ -20,6 +21,11 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    // ← ADD: Request all required notification, alarm, and battery permissions
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await NotificationPermissionHelper.requestAllPermissions(context);
+    });
 
     _fadeController = AnimationController(
       vsync: this,

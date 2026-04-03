@@ -36,4 +36,33 @@ class NotificationIds {
   static const int dailySlot4 = 204; // 15:00
   static const int dailySlot5 = 205; // 17:00
   static const int dailySlot6 = 206; // After Asr (Azkar Masa)
+
+  // ─── Centralized Hardcoded IDs ──────────────────────────────
+  static const int hifzReminderFixedId = 7001;
+  static const int downloadServiceFixedId = 9000;
+  static const int adhanPlaybackFixedId = 9090;
+  static const int testNotificationFixedId = 9901;
+  static const int postPrayerDhuhrFixedId = 9002;
+  static const int reEngagementFixedId = 9999;
+
+  // ─── Dynamic Offsets & Formulas ────────────────────────────
+  /// صياغة (Formula): ID الخاص بالصلاة + 10000 
+  /// مثال: الفجر (1) = 10001
+  static const int prayerReminderOffset = 10000; 
+
+  /// صياغة (Formula): 9100 + index (من 0 إلى 4 لـ 5 صلوات)
+  /// مثال: الفجر (Index 0) = 9100, الظهر (Index 1) = 9101
+  static const int smartPrayerActionOffset = 9100;
+
+  /// صياغة (Formula): 2000 + User Setting ID
+  /// مثال: التذكير رقم 5 = 2005
+  static const int userCustomDailyOffset = 2000; 
+
+  // ─── Reserved Empty Ranges (For Future Use) ─────────────────
+  // تم تخصيص هذه الجداول للإضافات المستقبلية لضمان عدم التداخل:
+  // - 7002 مخصص لـ Hifz/Tasmi الإضافي.
+  // - 9001, 9003 إلى 9089: مخصصة للتحديثات الخلفية والتنبيهات النظامية الجديدة.
+  // - 9091 إلى 9099: مخصصة لأصوات الخلفية ومزايا التلاوة الصوتية المتزامنة.
+  // - 9105 إلى 9899: مخصصة للعبادات الإضافية والمناسبات (رمضان/عشر ذي الحجة).
+  // - 10006 فما فوق: مخصصة للتذكيرات القبلية للإيفنتات الخاصة.
 }

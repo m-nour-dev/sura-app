@@ -6,7 +6,7 @@ part of 'tasmi_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tasmiControllerHash() => r'f89d47f6afb3a731d6a2aee0975489e543e24ecf';
+String _$tasmiControllerHash() => r'e804353adb744f04abd18136112b1b81f376e3ba';
 
 /// See also [TasmiController].
 @ProviderFor(TasmiController)

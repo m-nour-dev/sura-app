@@ -88,16 +88,19 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
 
   Future<void> _setAdhanMode(String prayer, String mode) async {
     await _prefs.setAdhanMode(prayer, mode);
+    if (!mounted) return;
     setState(() => _adhanModes[prayer] = mode);
   }
 
   Future<void> _setReminderMinutes(String prayer, int minutes) async {
     await _prefs.setPrayerReminderMinutes(prayer, minutes);
+    if (!mounted) return;
     setState(() => _reminderMinutes[prayer] = minutes);
   }
 
   Future<void> _toggleGlobal(bool v) async {
     await _prefs.setAdhanNotificationsEnabled(v);
+    if (!mounted) return;
     setState(() => _adhanEnabled = v);
     if (!v) await _adhanSvc.cancelAllPrayers();
     _snack(v ? 'adhan_enabled_message'.tr() : 'adhan_disabled_message'.tr());
@@ -105,15 +108,17 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
 
   Future<void> _togglePrayer(String key, bool v) async {
     await _prefs.setAdhanEnabled(key, v);
+    if (!mounted) return;
     setState(() => _prayerSettings[key] = v);
     ref.invalidate(prayerTimesControllerProvider);
     _snack(v
-        ? 'adhan_prayer_enabled'.tr(args: [_arabicName(key)])
-        : 'adhan_prayer_disabled'.tr(args: [_arabicName(key)]));
+      ? 'adhan_prayer_enabled'.tr(args: [_arabicName(key)])
+      : 'adhan_prayer_disabled'.tr(args: [_arabicName(key)]));
   }
 
   Future<void> _changeSound(String f) async {
     await _prefs.setAdhanSound(f);
+    if (!mounted) return;
     setState(() => _selectedSound = f);
     _snack('adhan_sound_changed'.tr());
   }

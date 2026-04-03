@@ -1,5 +1,6 @@
 import 'package:adhan/adhan.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:sila_app/core/services/location_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
 import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
@@ -11,10 +12,86 @@ class PrayerRepositoryImpl extends PrayerRepository {
   static const double _defaultLong = 28.9784;
   static String get _defaultCity => 'unknown_location'.tr();
 
+  // Warm-start cache and fetch discipline
+  static const Duration _prayerTimesTtl = Duration(minutes: 20);
+  static const Duration _autoLocationDebounce = Duration(minutes: 2);
+  static const double _significantLocationChangeMeters = 750;
+
+  static PrayerTimesEntity? _cachedPrayerTimes;
+  static DateTime? _cachedPrayerTimesAt;
+  static String? _cachedPrayerTimesKey;
+
+  static Prayer? _cachedNextPrayer;
+  static DateTime? _cachedNextPrayerAt;
+
+  static DateTime? _lastAutoLocationFetchAt;
+  static double? _lastResolvedLat;
+  static double? _lastResolvedLong;
+  static String? _lastResolvedCity;
+  static String? _lastResolvedCountryCode;
+
+  bool _isFresh(DateTime? value, Duration ttl) {
+    if (value == null) return false;
+    return DateTime.now().difference(value) <= ttl;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  String _dayKey(DateTime date) => '${date.year}-${date.month}-${date.day}';
+
+  String _buildCacheKey({
+    required DateTime date,
+    required String method,
+    required bool isAuto,
+    required double lat,
+    required double long,
+  }) {
+    return '${_dayKey(date)}|$method|$isAuto|${lat.toStringAsFixed(3)}|${long.toStringAsFixed(3)}';
+  }
+
+  bool isPrayerCacheStale() {
+    if (_cachedPrayerTimes == null) return true;
+    if (!_isFresh(_cachedPrayerTimesAt, _prayerTimesTtl)) return true;
+    return !_isSameDay(DateTime.now(), _cachedPrayerTimes!.fajr);
+  }
+
+  void clearCache() {
+    _cachedPrayerTimes = null;
+    _cachedPrayerTimesAt = null;
+    _cachedPrayerTimesKey = null;
+    _cachedNextPrayer = null;
+    _cachedNextPrayerAt = null;
+  }
+
+  Prayer _resolveNextPrayer(PrayerTimesEntity entity) {
+    final now = DateTime.now();
+    if (entity.fajr.isAfter(now)) return Prayer.fajr;
+    if (entity.sunrise.isAfter(now)) return Prayer.sunrise;
+    if (entity.dhuhr.isAfter(now)) return Prayer.dhuhr;
+    if (entity.asr.isAfter(now)) return Prayer.asr;
+    if (entity.maghrib.isAfter(now)) return Prayer.maghrib;
+    if (entity.isha.isAfter(now)) return Prayer.isha;
+    return Prayer.fajr;
+  }
+
   @override
   Future<PrayerTimesEntity> getPrayerTimes() async {
     final locService = LocationService();
     final prefs = PrefsService();
+
+    final now = DateTime.now();
+    final methodString = await prefs.getCalculationMethod();
+    final isAuto = await prefs.isAutoLocation();
+
+    // Warm-start: return valid cache immediately for repeated openings/tab switches.
+    if (_cachedPrayerTimes != null &&
+        _cachedPrayerTimesKey != null &&
+        _isFresh(_cachedPrayerTimesAt, _prayerTimesTtl) &&
+        _cachedPrayerTimesKey!.startsWith('${_dayKey(now)}|$methodString|$isAuto|')) {
+      return _cachedPrayerTimes!;
+    }
 
     var lat = _defaultLat;
     var long = _defaultLong;
@@ -23,16 +100,61 @@ class PrayerRepositoryImpl extends PrayerRepository {
 
     // Get location
     try {
-      final isAuto = await prefs.isAutoLocation();
       final oldCountryCode = await prefs.getCountryCode();
 
       if (isAuto) {
-        final position = await locService.determinePosition();
-        lat = position.latitude;
-        long = position.longitude;
-        final locationInfo = await locService.getLocationInfo(lat, long);
-        city = locationInfo['city'] ?? _defaultCity;
-        countryCode = locationInfo['countryCode'] ?? 'TR';
+        final canReuseRecentAutoLocation =
+            _lastResolvedLat != null &&
+            _lastResolvedLong != null &&
+            _lastAutoLocationFetchAt != null &&
+            now.difference(_lastAutoLocationFetchAt!) <= _autoLocationDebounce;
+
+        if (canReuseRecentAutoLocation) {
+          lat = _lastResolvedLat!;
+          long = _lastResolvedLong!;
+          city = _lastResolvedCity ?? _defaultCity;
+          countryCode = _lastResolvedCountryCode ?? oldCountryCode;
+        } else {
+          final position = await locService.determinePosition();
+          final newLat = position.latitude;
+          final newLong = position.longitude;
+
+          if (_lastResolvedLat != null && _lastResolvedLong != null) {
+            final movedMeters = Geolocator.distanceBetween(
+              _lastResolvedLat!,
+              _lastResolvedLong!,
+              newLat,
+              newLong,
+            );
+
+            if (movedMeters < _significantLocationChangeMeters &&
+                _lastResolvedCity != null &&
+                _lastResolvedCountryCode != null) {
+              lat = _lastResolvedLat!;
+              long = _lastResolvedLong!;
+              city = _lastResolvedCity!;
+              countryCode = _lastResolvedCountryCode!;
+            } else {
+              lat = newLat;
+              long = newLong;
+              final locationInfo = await locService.getLocationInfo(lat, long);
+              city = locationInfo['city'] ?? _defaultCity;
+              countryCode = locationInfo['countryCode'] ?? 'TR';
+            }
+          } else {
+            lat = newLat;
+            long = newLong;
+            final locationInfo = await locService.getLocationInfo(lat, long);
+            city = locationInfo['city'] ?? _defaultCity;
+            countryCode = locationInfo['countryCode'] ?? 'TR';
+          }
+
+          _lastResolvedLat = lat;
+          _lastResolvedLong = long;
+          _lastResolvedCity = city;
+          _lastResolvedCountryCode = countryCode;
+          _lastAutoLocationFetchAt = now;
+        }
 
         // ONLY Auto-select calculation method if the country actually changed
         // This prevents overwriting the user's manual method choice on every reload
@@ -60,8 +182,6 @@ class PrayerRepositoryImpl extends PrayerRepository {
       print('Location Error: $e');
     }
 
-    // Get calculation method from preferences
-    final methodString = await prefs.getCalculationMethod();
     final params = _getCalculationParams(methodString);
 
     final myCoordinates = Coordinates(lat, long);
@@ -86,7 +206,7 @@ class PrayerRepositoryImpl extends PrayerRepository {
       return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
     }
 
-    return PrayerTimesEntity(
+    final result = PrayerTimesEntity(
       fajr: toLocal(prayerTimes.fajr),
       sunrise: toLocal(prayerTimes.sunrise),
       dhuhr: toLocal(prayerTimes.dhuhr),
@@ -99,45 +219,37 @@ class PrayerRepositoryImpl extends PrayerRepository {
       countryCode: countryCode,
       calculationMethod: methodString,
     );
+
+    _cachedPrayerTimes = result;
+    _cachedPrayerTimesAt = DateTime.now();
+    _cachedPrayerTimesKey = _buildCacheKey(
+      date: now,
+      method: methodString,
+      isAuto: isAuto,
+      lat: lat,
+      long: long,
+    );
+
+    return result;
   }
 
   @override
   Future<Prayer> getNextPrayer() async {
-    final prefs = PrefsService();
-    final locService = LocationService();
-
-    var lat = _defaultLat;
-    var long = _defaultLong;
-
-    try {
-      final isAuto = await prefs.isAutoLocation();
-      if (isAuto) {
-        final position = await locService.determinePosition();
-        lat = position.latitude;
-        long = position.longitude;
-      } else {
-        final stored = await prefs.getStoredLocation();
-        if (stored != null) {
-          lat = stored['lat'] as double;
-          long = stored['long'] as double;
-        }
-      }
-    } catch (e) {
-      print('Location Error in getNextPrayer: $e');
+    if (_cachedPrayerTimes != null &&
+        _isFresh(_cachedPrayerTimesAt, _prayerTimesTtl) &&
+        _isSameDay(DateTime.now(), _cachedPrayerTimes!.fajr)) {
+      return _resolveNextPrayer(_cachedPrayerTimes!);
     }
 
-    final methodString = await prefs.getCalculationMethod();
-    final params = _getCalculationParams(methodString);
+    if (_cachedNextPrayer != null && _isFresh(_cachedNextPrayerAt, const Duration(minutes: 1))) {
+      return _cachedNextPrayer!;
+    }
 
-    final myCoordinates = Coordinates(lat, long);
-    final date = DateComponents.from(DateTime.now());
-
-    // Use same utcOffset as getPrayerTimes for consistency
-    final utcOffset = DateTime.now().timeZoneOffset;
-    final prayerTimes =
-        PrayerTimes(myCoordinates, date, params, utcOffset: utcOffset);
-
-    return prayerTimes.nextPrayer();
+    final entity = await getPrayerTimes();
+    final next = _resolveNextPrayer(entity);
+    _cachedNextPrayer = next;
+    _cachedNextPrayerAt = DateTime.now();
+    return next;
   }
 
   /// Automatically pick the correct calculation method for a given country.

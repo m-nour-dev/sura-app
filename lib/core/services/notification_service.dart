@@ -5,16 +5,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:isar/isar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
 import 'package:sila_app/core/services/analytics_service.dart';
 import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/core/services/remote_config_service.dart';
 import 'package:sila_app/core/services/update_service.dart';
 import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
-import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
 import 'package:sila_app/features/notifications/data/notification_ids.dart';
 import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
 import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
@@ -58,9 +57,16 @@ class NotificationService {
   String? _lastDownloadUrl;
 
   bool _initialized = false;
+  bool _initializing = false;
+
+  // Channel & schedule migration versions
+  // ارفع الرقم كل ما تغيّر الـ channels أو الـ scheduling logic
+  static const int _channelVersion = 5;
+  static const int _scheduleVersion = 5;
 
   Future<void> initialize() async {
-    if (_initialized) return;
+    if (_initialized || _initializing) return;
+    _initializing = true;
 
     try {
       const androidSettings =
@@ -82,6 +88,11 @@ class NotificationService {
       );
 
       await _createNotificationChannel();
+
+      // ✅ ADD: Migration للمستخدمين القدامى
+      await _migrateChannelsIfNeeded();
+      await _rescheduleAfterMigration();
+      // ─────────────────────────────────────
 
       final launchDetails =
           await _notifications.getNotificationAppLaunchDetails();
@@ -115,20 +126,33 @@ class NotificationService {
     } catch (e) {
       debugPrint('NotificationService initialization error: $e');
       _initialized = true;
+    } finally {
+      _initializing = false;
     }
   }
 
-  void setNavigatorKey(GlobalKey<NavigatorState> navigatorKey) {
+  Future<void> dispose() async {
+    await _audioPlayer.dispose();
+  }
+
+  Future<void> setNavigatorKey(GlobalKey<NavigatorState> navigatorKey) async {
     _navigatorKey = navigatorKey;
-    if (_deferredPayload != null) {
-      final payload = _deferredPayload!;
+    final prefs = await SharedPreferences.getInstance();
+    final payload = prefs.getString('pending_notification_payload') ?? _deferredPayload;
+    
+    if (payload != null) {
       _deferredPayload = null;
+      await prefs.remove('pending_notification_payload');
       Future<void>.microtask(() => handleNotificationPayload(payload));
     }
   }
 
-  void saveDeferredPayload(String payload) {
+  void saveDeferredPayload(String payload) async {
     _deferredPayload = payload;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('pending_notification_payload', payload);
+    } catch (_) {}
   }
 
   Future<void> _createNotificationChannel() async {
@@ -176,18 +200,91 @@ class NotificationService {
     ));
   }
 
+  /// يحذف الـ channels القديمة ويعيد إنشاءها لو في migration مطلوبة
+  Future<void> _migrateChannelsIfNeeded() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedVersion = prefs.getInt('channel_version') ?? 1;
+
+      if (savedVersion >= _channelVersion) return; // مفيش migration مطلوبة
+
+      // ✅ احفظ الـ version أول حاجة
+      await prefs.setInt('channel_version', _channelVersion);
+
+      debugPrint('🔄 Migrating notification channels from v$savedVersion to v$_channelVersion');
+
+      final android = _notifications
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
+      if (android != null) {
+        final existingChannels = await android.getNotificationChannels();
+        debugPrint('🔍 Found ${existingChannels?.length ?? 0} existing channels to review');
+
+        // احذف الـ channels القديمة عشان تتعمل من جديد بالإعدادات الصح
+        await android.deleteNotificationChannel('adhan_channel');
+        await android.deleteNotificationChannel('reminder_channel');
+        await android.deleteNotificationChannel('report_channel');
+        await android.deleteNotificationChannel('update_channel');
+        debugPrint('🗑️ Old channels requested to be deleted');
+
+        // أعد إنشاءها بالإعدادات الصحيحة
+        await _createNotificationChannel();
+        debugPrint('✅ New channels created');
+      }
+
+      debugPrint('✅ Channel migration complete: v$_channelVersion');
+    } catch (e) {
+      debugPrint('Channel migration error (non-fatal): $e');
+      // لا توقف التطبيق لو فشلت الـ migration
+    }
+  }
+
+  /// يعيد جدولة الإشعارات بعد الـ migration
+  Future<void> _rescheduleAfterMigration() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedVersion = prefs.getInt('schedule_version') ?? 1;
+
+      if (savedVersion >= _scheduleVersion) return; // مفيش reschedule مطلوب
+
+      // ✅ احفظ الـ version أول حاجة قبل أي عملية لمنع Infinite Loop
+      await prefs.setInt('schedule_version', _scheduleVersion);
+
+      debugPrint('🔄 Rescheduling notifications after migration...');
+
+      // إلغاء كل الإشعارات القديمة المجدولة على الـ channels الغلط
+      await cancelAllNotifications();
+      debugPrint('🗑️ Old scheduled notifications cancelled');
+
+      // rescheduleAllOnBoot هيعيد جدولة الـ reminders الثابتة
+      // إشعارات الصلاة هتتجدول تلقائياً أول ما المستخدم يفتح الـ prayers page
+      await rescheduleAllOnBoot();
+
+      debugPrint('✅ Reschedule complete');
+    } catch (e) {
+      debugPrint('Reschedule after migration error (non-fatal): $e');
+    }
+  }
+
   Future<bool> requestPermissions() async {
     debugPrint('🔔 Requesting notification permissions...');
+
+    final android = _notifications.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
 
     // Step 1: POST_NOTIFICATIONS (Android 13+)
     try {
       final status = await Permission.notification.status;
-      debugPrint('Notification permission status: $status');
-
       if (!status.isGranted) {
         final result = await Permission.notification.request();
-        debugPrint('Notification permission result: $result');
+        if (!result.isGranted) {
+          debugPrint('❌ Notification permission denied');
+        }
       }
+
+      // Plugin-level request (Android 13+) for better OEM compatibility.
+      await android?.requestNotificationsPermission();
     } catch (e) {
       debugPrint('❌ POST_NOTIFICATIONS error: $e');
     }
@@ -195,21 +292,31 @@ class NotificationService {
     // Step 2: SCHEDULE_EXACT_ALARM (Android 12+)
     try {
       final exactStatus = await Permission.scheduleExactAlarm.status;
-      debugPrint('Exact alarm status: $exactStatus');
-
       if (!exactStatus.isGranted) {
         final result = await Permission.scheduleExactAlarm.request();
-        debugPrint('Exact alarm result: $result');
-
         if (!result.isGranted) {
-          // Open settings so user can grant manually
-          debugPrint('⚠️ User must grant exact alarm in settings');
           await openAppSettings();
         }
       }
+
+      // Plugin-level exact alarm request (Android 12+) for better compatibility.
+      await android?.requestExactAlarmsPermission();
     } catch (e) {
       debugPrint('❌ SCHEDULE_EXACT_ALARM error: $e');
     }
+
+    // ✅ ADD — Step 3: Battery Optimization Exemption
+    try {
+      final batteryStatus =
+          await Permission.ignoreBatteryOptimizations.status;
+      if (!batteryStatus.isGranted) {
+        await Permission.ignoreBatteryOptimizations.request();
+        debugPrint('🔋 Battery optimization exemption requested');
+      }
+    } catch (e) {
+      debugPrint('❌ Battery optimization error: $e');
+    }
+    // ─────────────────────────────────────────────────────
 
     debugPrint('✅ Permission requests complete');
     return await Permission.notification.isGranted;
@@ -310,24 +417,35 @@ class NotificationService {
   }) async {
     if (!_initialized) await initialize();
 
-    final scheduledTime = tz.TZDateTime.from(dateTime, tz.local);
+    // Timezone safety check: ensure local timezone object is accessible.
+    late final tz.Location location;
+    try {
+      location = tz.local;
+    } catch (e) {
+      debugPrint('Timezone not ready in scheduleDaily: $e');
+      location = tz.local;
+    }
+
+    final scheduledTime = tz.TZDateTime.from(dateTime, location);
 
     const androidDetails = AndroidNotificationDetails(
-      'adhan_channel',
-      'أذان الصلاة',
-      channelDescription: 'إشعارات أذان الصلاة',
-      importance: Importance.max,
-      priority: Priority.high,
+      'reminder_channel',
+      'التذكيرات اليومية',
+      channelDescription: 'تذكيرات العبادات اليومية',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
       playSound: true,
       enableVibration: true,
       enableLights: true,
       icon: '@drawable/ic_notification',
+      sound: RawResourceAndroidNotificationSound('reminder_tone'),
     );
 
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      sound: 'reminder_tone.aiff',
     );
 
     const notificationDetails = NotificationDetails(
@@ -743,7 +861,7 @@ class NotificationService {
           scheduled = scheduled.add(const Duration(days: 1));
         }
         await scheduleDaily(
-          id: 2000 + setting.id,
+          id: NotificationIds.userCustomDailyOffset + setting.id,
           title: 'تذكير ${setting.featureKey}',
           body: 'لا تنس وردك اليومي',
           dateTime: scheduled,
@@ -882,29 +1000,62 @@ class NotificationService {
     return await _notifications.pendingNotificationRequests();
   }
 
+  Future<void> logNotificationHealth() async {
+    try {
+      final notif = await Permission.notification.status;
+      final exact = await Permission.scheduleExactAlarm.status;
+      final battery = await Permission.ignoreBatteryOptimizations.status;
+      final pending = await getPendingNotifications();
+
+      debugPrint('🩺 Notification health check');
+      debugPrint('  - POST_NOTIFICATIONS: $notif');
+      debugPrint('  - SCHEDULE_EXACT_ALARM: $exact');
+      debugPrint('  - IGNORE_BATTERY_OPT: $battery');
+      debugPrint('  - Pending notifications: ${pending.length}');
+    } catch (e) {
+      debugPrint('Notification health check failed: $e');
+    }
+  }
+
   Future<void> scheduleDebugNotificationInSeconds({int seconds = 15}) async {
     if (!_initialized) await initialize();
+
+    await logNotificationHealth();
+
+    final permissionGranted = await requestPermissions();
+    if (!permissionGranted) {
+      debugPrint('❌ Debug notification aborted: notification permission denied');
+      return;
+    }
+
+    await cancelNotification(NotificationIds.testNotificationFixedId - 1);
+    await cancelNotification(NotificationIds.testNotificationFixedId);
+
     final now = DateTime.now();
     final at = now.add(Duration(seconds: seconds));
+
     await showInstantNotification(
-      id: 9900,
+      id: NotificationIds.testNotificationFixedId - 1, // 9900
       title: 'اختبار فوري',
       body: 'إذا ظهر هذا فورًا فالصلاحية الأساسية تعمل.',
       payload: jsonEncode({'route': 'debug_notification_now'}),
     );
     await scheduleOneShot(
-      id: 9901,
+      id: NotificationIds.testNotificationFixedId, // 9901
       title: 'اختبار الإشعارات ✅',
       body: 'إذا ظهر هذا الإشعار فالنظام يعمل بشكل صحيح.',
       dateTime: at,
       payload: jsonEncode({'route': 'debug_notification'}),
     );
+
+    final pending = await getPendingNotifications();
+    debugPrint('🧪 Debug test scheduled. Pending notifications count: ${pending.length}');
   }
 
   Future<void> showTestNotification() async {
     try {
       await _notifications.show(
-        9999,
+        NotificationIds.testNotificationFixedId + 998, // 10899 (dummy testing)
         'سِلى — اختبار الإشعارات 🕌',
         'إذا وصلك هذا الإشعار فالنظام يعمل بشكل صحيح',
         const NotificationDetails(
@@ -1046,30 +1197,27 @@ class NotificationService {
     if (payload == null) return;
     try {
       final isar = await IsarService().db;
+      final repo = IsarNotificationRepository(isar);
       final featureKey = _extractFeatureKey(payload);
       if (featureKey == null) return;
-      final settings = await isar.notificationSettings
-          .filter()
-          .featureKeyEqualTo(featureKey)
-          .findFirst();
-      if (settings == null) return;
-      await isar.writeTxn(() async {
-        settings.tapCount += 1;
-        settings.consecutiveIgnored = 0;
-        settings.lastTappedAt = DateTime.now();
-        // حساب متوسط وقت الاستجابة
-        if (settings.lastShownAt != null) {
-          final delay =
-              DateTime.now().difference(settings.lastShownAt!).inMinutes;
-          if (settings.avgResponseMinutes == -1) {
-            settings.avgResponseMinutes = delay;
-          } else {
-            settings.avgResponseMinutes =
-                ((settings.avgResponseMinutes * 0.7) + (delay * 0.3)).round();
-          }
+      final settings = await repo.getSettings(featureKey);
+
+      settings.tapCount += 1;
+      settings.consecutiveIgnored = 0;
+      settings.lastTappedAt = DateTime.now();
+
+      // حساب متوسط وقت الاستجابة
+      if (settings.lastShownAt != null) {
+        final delay = DateTime.now().difference(settings.lastShownAt!).inMinutes;
+        if (settings.avgResponseMinutes == -1) {
+          settings.avgResponseMinutes = delay;
+        } else {
+          settings.avgResponseMinutes =
+              ((settings.avgResponseMinutes * 0.7) + (delay * 0.3)).round();
         }
-        await isar.notificationSettings.put(settings);
-      });
+      }
+
+      await repo.saveSettings(settings);
     } catch (e) {
       debugPrint('recordTap failed: $e');
     }
@@ -1229,9 +1377,14 @@ class NotificationService {
     return map[prayerName.toLowerCase()] ?? 0;
   }
 
+  static bool _isUpdateDialogOpen = false;
+
   Future<void> _showUpdateNotification(RemoteMessage message) async {
     final context = _navigatorKey?.currentContext;
     if (context == null) return;
+
+    if (_isUpdateDialogOpen) return;
+    _isUpdateDialogOpen = true;
 
     final analytics = AnalyticsService();
     final updateService = UpdateService(analytics: analytics);
@@ -1262,6 +1415,6 @@ class NotificationService {
         updateService: updateService,
         analyticsService: analytics,
       ),
-    );
+    ).then((_) => _isUpdateDialogOpen = false);
   }
 }

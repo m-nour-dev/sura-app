@@ -6,7 +6,7 @@ part of 'last_notification_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$lastNotificationHash() => r'7d07c8f4c559c5afe0cc1d9e4c20f84042530382';
+String _$lastNotificationHash() => r'ff91086450da471e21a455cf4eb70b8d54e97a13';
 
 /// See also [lastNotification].
 @ProviderFor(lastNotification)

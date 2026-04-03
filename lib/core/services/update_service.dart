@@ -80,6 +80,18 @@ class UpdateService {
   Future<void> downloadInBackground({required String apkUrl}) async {
     final locale = _currentLocale;
 
+    final normalizedUrl = apkUrl.trim();
+    if (!(normalizedUrl.startsWith('http://') ||
+        normalizedUrl.startsWith('https://'))) {
+      await _notif.showDownloadError(
+        id: NotificationService.downloadNotificationId,
+        locale: locale,
+        errorType: 'url',
+        withRetry: false,
+      );
+      return;
+    }
+
     // Request permission
     final permissionStatus = await Permission.requestInstallPackages.status;
     if (!permissionStatus.isGranted) {
@@ -108,6 +120,10 @@ class UpdateService {
     }
 
     final savePath = '${dir.path}/sila_update.apk';
+    final file = File(savePath);
+    if (await file.exists()) {
+      await file.delete();
+    }
 
     // Show initial progress notification
     await _notif.showDownloadProgress(
@@ -121,7 +137,32 @@ class UpdateService {
     var retries = 0;
     while (retries < _maxRetries) {
       try {
-        await _downloadWithResume(apkUrl, savePath, locale);
+        await _downloadWithResume(normalizedUrl, savePath, locale);
+
+        final downloadedFile = File(savePath);
+        final exists = await downloadedFile.exists();
+        final size = exists ? await downloadedFile.length() : 0;
+        final validApk = exists ? await _isLikelyApk(downloadedFile) : false;
+
+        if (!exists || size <= 0 || !validApk) {
+          throw DioException(
+            requestOptions: RequestOptions(path: normalizedUrl),
+            type: DioExceptionType.badResponse,
+            message: 'Downloaded file is not a valid APK',
+            response: Response(
+              requestOptions: RequestOptions(path: normalizedUrl),
+              statusCode: 422,
+            ),
+          );
+        }
+
+        // Show 100% right before completion notification for better UX.
+        await _notif.showDownloadProgress(
+          id: NotificationService.downloadNotificationId,
+          locale: locale,
+          percent: 100,
+        );
+
         // Success — show install notification
         await _notif.showDownloadComplete(
           id: NotificationService.downloadNotificationId,
@@ -152,12 +193,14 @@ class UpdateService {
         }
 
         // Check if it's a URL issue (403/404)
-        if (e.response?.statusCode == 403 || e.response?.statusCode == 404) {
+        if (e.response?.statusCode == 403 ||
+            e.response?.statusCode == 404 ||
+            e.response?.statusCode == 422) {
           _notif.showDownloadError(
             id: NotificationService.downloadNotificationId,
             locale: locale,
             errorType: 'url',
-            downloadUrl: apkUrl,
+            downloadUrl: normalizedUrl,
             withRetry: false,
           );
           return;
@@ -191,7 +234,7 @@ class UpdateService {
       id: NotificationService.downloadNotificationId,
       locale: locale,
       errorType: 'network',
-      downloadUrl: apkUrl,
+      downloadUrl: normalizedUrl,
       withRetry: true,
     );
     await analytics.logUpdateDownloadFailed(error: 'Max retries exceeded');
@@ -210,31 +253,91 @@ class UpdateService {
     }
 
     final dio = Dio();
-    await dio.download(
-      apkUrl,
-      savePath,
-      options: Options(
-        headers: existingBytes > 0 ? {'Range': 'bytes=$existingBytes-'} : null,
-        receiveTimeout: const Duration(minutes: 5),
-        sendTimeout: const Duration(seconds: 30),
-      ),
-      onReceiveProgress: (received, total) {
-        int percent;
-        if (total > 0) {
-          percent = ((existingBytes + received) / (existingBytes + total) * 100)
-              .toInt();
-        } else {
-          percent = existingBytes > 0 ? 50 : 0; // Unknown total
+
+    Future<Response<dynamic>> performDownload({
+      required bool useRange,
+      required int baseBytes,
+      required FileAccessMode accessMode,
+      required bool deleteOnError,
+    }) {
+      return dio.download(
+        apkUrl,
+        savePath,
+        options: Options(
+          headers: useRange && baseBytes > 0 ? {'Range': 'bytes=$baseBytes-'} : null,
+          receiveTimeout: const Duration(minutes: 5),
+          sendTimeout: const Duration(seconds: 30),
+        ),
+        fileAccessMode: accessMode,
+        deleteOnError: deleteOnError,
+        onReceiveProgress: (received, total) {
+          int percent;
+          if (total > 0) {
+            final fullTotal = baseBytes + total;
+            percent = ((baseBytes + received) / fullTotal * 100).toInt();
+          } else {
+            percent = baseBytes > 0 ? 50 : 0;
+          }
+
+          // Keep 99% until we validate file and show completion.
+          percent = percent.clamp(0, 99);
+          _notif.showDownloadProgress(
+            id: NotificationService.downloadNotificationId,
+            locale: locale,
+            percent: percent,
+          );
+        },
+      );
+    }
+
+    if (existingBytes > 0) {
+      final response = await performDownload(
+        useRange: true,
+        baseBytes: existingBytes,
+        accessMode: FileAccessMode.append,
+        deleteOnError: false,
+      );
+
+      // Some servers ignore Range and return 200 with full file.
+      // In that case, redownload from scratch to avoid corrupt APK.
+      if (response.statusCode == 200) {
+        if (await existingFile.exists()) {
+          await existingFile.delete();
         }
-        percent =
-            percent.clamp(0, 99); // Don't show 100% until install notification
-        _notif.showDownloadProgress(
-          id: NotificationService.downloadNotificationId,
-          locale: locale,
-          percent: percent,
+        await performDownload(
+          useRange: false,
+          baseBytes: 0,
+          accessMode: FileAccessMode.write,
+          deleteOnError: true,
         );
-      },
+      }
+      return;
+    }
+
+    await performDownload(
+      useRange: false,
+      baseBytes: 0,
+      accessMode: FileAccessMode.write,
+      deleteOnError: true,
     );
+  }
+
+  Future<bool> _isLikelyApk(File file) async {
+    try {
+      final raf = await file.open();
+      final header = await raf.read(4);
+      await raf.close();
+
+      if (header.length < 4) return false;
+
+      // APK is a ZIP archive and should start with PK\x03\x04
+      return header[0] == 0x50 &&
+          header[1] == 0x4B &&
+          header[2] == 0x03 &&
+          header[3] == 0x04;
+    } catch (_) {
+      return false;
+    }
   }
 
   String get _currentLocale {

@@ -40,6 +40,8 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
     final timesAsync = ref.watch(prayerTimesControllerProvider);
 
     return timesAsync.when(
+      skipLoadingOnRefresh: true,
+      skipLoadingOnReload: true,
       data: (entity) {
         // ── Find next prayer ──────────────────────────────────────────────
         final now = DateTime.now();
@@ -124,12 +126,34 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
       },
       loading: () => Container(
         height: 100,
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: const Color(0xFF064E3B),
           borderRadius: BorderRadius.circular(16),
         ),
-        child:
-            const Center(child: CircularProgressIndicator(color: Colors.white)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _skeletonLine(90, 12),
+                const SizedBox(height: 8),
+                _skeletonLine(120, 22),
+                const SizedBox(height: 8),
+                _skeletonLine(80, 14),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _skeletonLine(75, 11),
+                const SizedBox(height: 8),
+                _skeletonLine(100, 20),
+              ],
+            ),
+          ],
+        ),
       ),
       error: (e, _) => Container(
         height: 100,
@@ -140,6 +164,17 @@ class _NextPrayerCardState extends ConsumerState<NextPrayerCard> {
         child: Center(
             child: Text(e.toString(),
                 style: const TextStyle(color: Colors.white))),
+      ),
+    );
+  }
+
+  Widget _skeletonLine(double width, double height) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.22),
+        borderRadius: BorderRadius.circular(8),
       ),
     );
   }

@@ -30,7 +30,7 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_title_missed_user': 'اشتقنا لك!',
       'notif_body_missed_user':
           'لا تنس وردك اليوم. افتح التطبيق وابدأ من جديد.',
-      'notif_streak_title': '🔥 {title} (سلسلة {days} يوم)',
+      'notif_streak_title': '⭐ {title} (سلسلة {days} يوم)',
       // ... add more keys as needed
     },
     'en': {
@@ -47,7 +47,7 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_title_missed_user': 'We Miss You!',
       'notif_body_missed_user':
           'Don’t forget your wird today. Open the app and start again.',
-      'notif_streak_title': '🔥 {title} (Streak {days} days)',
+      'notif_streak_title': ' {title} (Streak {days} days)',
       // ... add more keys as needed
     },
     'tr': {
@@ -64,7 +64,7 @@ String? t(String key, String lang, [Map<String, String>? params]) {
       'notif_title_missed_user': 'Seni Özledik!',
       'notif_body_missed_user':
           'Bugünkü wirdini unutma. Uygulamayı aç ve tekrar başla.',
-      'notif_streak_title': '🔥 {title} (Seri {days} gün)',
+      'notif_streak_title': ' {title} (Seri {days} gün)',
       // ... add more keys as needed
     },
   };
@@ -283,7 +283,7 @@ class AdhanSchedulerService {
                 'title': personalizedTitle,
                 'days': activity.streakDays.toString()
               }) ??
-              '🔥 $personalizedTitle (سلسلة ${activity.streakDays} يوم)';
+              ' $personalizedTitle (سلسلة ${activity.streakDays} يوم)';
         }
         planned.add(_PlannedNotification(
           id: slotId,
@@ -359,7 +359,7 @@ class AdhanSchedulerService {
         final prayerName = p['key'] as String;
         final prayerTime = p['time'] as DateTime;
         final inMasjid = p['inMasjid'] as bool?;
-        final slotId = 9100 + i;
+        final slotId = NotificationIds.smartPrayerActionOffset + i;
         if (inMasjid == false) {
           // تذكير تحفيزي للصلاة في المسجد
           await addSmartReminder(
@@ -394,7 +394,7 @@ class AdhanSchedulerService {
       // 4. تذكير أذكار ما بعد الصلاة (مثلاً بعد الظهر بـ 20 دقيقة)
       final dhuhrAfterTime = prayerTimes.dhuhr.add(const Duration(minutes: 20));
       planned.add(_PlannedNotification(
-        id: 9002,
+        id: NotificationIds.postPrayerDhuhrFixedId,
         when: normalizeToNext(dhuhrAfterTime),
         title: t('notif_title_azkar_post_prayer',
                 await _prefsService.getUserLanguage() ?? 'ar') ??
@@ -431,7 +431,7 @@ class AdhanSchedulerService {
       if (lastOpen != null && now.difference(lastOpen).inDays >= 2) {
         final lang = await _prefsService.getUserLanguage() ?? 'ar';
         planned.add(_PlannedNotification(
-          id: 9999,
+          id: NotificationIds.reEngagementFixedId,
           when: normalizeToNext(now.add(const Duration(minutes: 5))),
           title: t('notif_title_missed_user', lang) ?? 'اشتقنا لك!',
           body: t('notif_body_missed_user', lang) ??
@@ -463,6 +463,7 @@ class AdhanSchedulerService {
                 'time': p.when.toIso8601String(),
                 'title': p.title,
                 'body': p.body,
+                'payload': p.payload,
                 'category': p.category,
                 'contentId': p.selectedContentId,
               })
@@ -478,6 +479,7 @@ class AdhanSchedulerService {
           body: item.body,
           dateTime: item.when,
           payload: item.payload,
+          channelKey: 'reminder', // ← ADD: يضمن importance صح
         );
       }
 
@@ -492,6 +494,7 @@ class AdhanSchedulerService {
         body: 'راجع يومك وخذ خطوة لغد أفضل.',
         dateTime: reportTime,
         payload: jsonEncode({'route': 'daily_report'}),
+        channelKey: 'report', // ← ADD: channel منخفضة للتقرير
       );
     } catch (e) {
       print('Error scheduling smart reminders: $e');
@@ -525,7 +528,7 @@ class AdhanSchedulerService {
             nextPrayerTime.subtract(Duration(minutes: reminderMinutes));
         if (reminderTime.isAfter(DateTime.now())) {
           await _notificationService.scheduleOneShot(
-            id: id + 10000, // id خاص بالتذكير
+            id: id + NotificationIds.prayerReminderOffset, // id خاص بالتذكير
             title: 'اقترب وقت $prayerName',
             body: 'باقي $reminderMinutes دقيقة على $prayerName',
             dateTime: reminderTime,

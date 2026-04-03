@@ -10,6 +10,7 @@ import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provide
 import 'package:sila_app/features/hifz/data/repositories/i_hifz_repository.dart';
 import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
 import 'package:sila_app/features/hifz/domain/plan_generator.dart';
+import 'package:sila_app/features/notifications/data/notification_ids.dart';
 
 part 'hifz_home_controller.g.dart';
 
@@ -113,7 +114,7 @@ class HifzHomeState {
 
 @riverpod
 class HifzHomeController extends _$HifzHomeController {
-  static const _notificationId = 7001;
+  static const _notificationId = NotificationIds.hifzReminderFixedId;
   static const _streakKey = 'hifz_streak_days';
   static const _streakDateKey = 'hifz_streak_last_date';
   static const _resumeSurahKey = 'hifz_resume_surah';

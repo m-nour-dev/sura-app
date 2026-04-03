@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:adhan/adhan.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
@@ -5,27 +7,56 @@ import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.da
 
 part 'prayer_controller.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 PrayerRepositoryImpl prayerRepository(PrayerRepositoryRef ref) {
   return PrayerRepositoryImpl();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class PrayerTimesController extends _$PrayerTimesController {
+  static const _ttl = Duration(minutes: 20);
+
   @override
   FutureOr<PrayerTimesEntity> build() async {
-    // PERF FIX 1: Removed NotificationService().initialize() and AdhanSchedulerService().scheduleAllPrayers()
-    // These are already handled in main.dart _initBackgroundServices()
+    final timer = Timer(_ttl, () {
+      final repository = ref.read(prayerRepositoryProvider);
+      if (repository.isPrayerCacheStale()) {
+        ref.invalidateSelf();
+      }
+    });
+    ref.onDispose(timer.cancel);
+
     final repository = ref.watch(prayerRepositoryProvider);
     return await repository.getPrayerTimes();
   }
+
+  Future<void> refreshIfStale() async {
+    final repository = ref.read(prayerRepositoryProvider);
+    if (repository.isPrayerCacheStale()) {
+      ref.invalidateSelf();
+      await future;
+    }
+  }
+
+  Future<void> forceRefresh() async {
+    final repository = ref.read(prayerRepositoryProvider);
+    repository.clearCache();
+    ref.invalidateSelf();
+    await future;
+  }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class NextPrayerController extends _$NextPrayerController {
   @override
   FutureOr<Prayer> build() async {
     final repository = ref.watch(prayerRepositoryProvider);
     return await repository.getNextPrayer();
+  }
+
+  Future<void> refreshFromPrayerTimes() async {
+    await ref.read(prayerTimesControllerProvider.notifier).refreshIfStale();
+    ref.invalidateSelf();
+    await future;
   }
 }

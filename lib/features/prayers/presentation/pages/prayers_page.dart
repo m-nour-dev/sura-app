@@ -148,6 +148,8 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
         body: TabBarView(
           children: [
             prayerState.when(
+              skipLoadingOnRefresh: true,
+              skipLoadingOnReload: true,
               data: (entity) {
                 final now = DateTime.now();
 
