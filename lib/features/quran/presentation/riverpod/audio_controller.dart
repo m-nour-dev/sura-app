@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -59,6 +60,7 @@ class AudioController extends _$AudioController {
     String? surahName,
     int? surahNumber,
     int? ayahNumber,
+    bool useDuckingFocus = false,
   }) async {
     // THIS is the critical fix - use singleton's isLoading flag
     // This ensures that even if riverpod creates multiple controller instances,
@@ -80,6 +82,8 @@ class AudioController extends _$AudioController {
         _singleton.player = AudioPlayer();
         _singleton.isDisposed = false;
       }
+
+      await _configureAudioSession(useDuckingFocus: useDuckingFocus);
 
       await _singleton.player.stop();
 
@@ -123,6 +127,30 @@ class AudioController extends _$AudioController {
     await _singleton.player.stop();
     _singleton.currentUrl = null;
     _singleton.isLoading = false;
+  }
+
+  Future<void> _configureAudioSession({required bool useDuckingFocus}) async {
+    final session = await AudioSession.instance;
+
+    if (useDuckingFocus) {
+      await session.configure(
+        const AudioSessionConfiguration(
+          avAudioSessionCategory: AVAudioSessionCategory.playback,
+          avAudioSessionMode: AVAudioSessionMode.spokenAudio,
+          avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
+          androidAudioAttributes: AndroidAudioAttributes(
+            contentType: AndroidAudioContentType.speech,
+            usage: AndroidAudioUsage.media,
+          ),
+          androidAudioFocusGainType:
+              AndroidAudioFocusGainType.gainTransientMayDuck,
+          androidWillPauseWhenDucked: false,
+        ),
+      );
+      return;
+    }
+
+    await session.configure(const AudioSessionConfiguration.music());
   }
 
   Future<void> disposeSession() async {

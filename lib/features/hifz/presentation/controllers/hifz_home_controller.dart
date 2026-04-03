@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sila_app/core/utils/language_utils.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
 import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
@@ -10,6 +12,7 @@ import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provide
 import 'package:sila_app/features/hifz/data/repositories/i_hifz_repository.dart';
 import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
 import 'package:sila_app/features/hifz/domain/plan_generator.dart';
+import 'package:sila_app/features/notifications/data/notification_ids.dart';
 
 part 'hifz_home_controller.g.dart';
 
@@ -113,7 +116,7 @@ class HifzHomeState {
 
 @riverpod
 class HifzHomeController extends _$HifzHomeController {
-  static const _notificationId = 7001;
+  static const _notificationId = NotificationIds.hifzReminderFixedId;
   static const _streakKey = 'hifz_streak_days';
   static const _streakDateKey = 'hifz_streak_last_date';
   static const _resumeSurahKey = 'hifz_resume_surah';
@@ -349,9 +352,10 @@ class HifzHomeController extends _$HifzHomeController {
     required int dueReviews,
   }) async {
     final notificationService = NotificationService();
+    final lang = await _currentLanguage();
     final body = remainingAyahs > 0
-        ? 'تبقى ${_toArabicIndic(remainingAyahs)} آيات لتكمل هدفك اليوم'
-        : 'لديك ${_toArabicIndic(dueReviews)} آيات للمراجعة';
+        ? _remainingAyahsBody(remainingAyahs, lang)
+        : _dueReviewsBody(dueReviews, lang);
 
     final now = DateTime.now();
     var scheduled = DateTime(now.year, now.month, now.day, 5, 30);
@@ -361,10 +365,49 @@ class HifzHomeController extends _$HifzHomeController {
 
     await notificationService.scheduleDaily(
       id: _notificationId,
-      title: 'وقت الحفظ اليوم 📖',
+      title: _hifzReminderTitle(lang),
       body: body,
       dateTime: scheduled,
     );
+  }
+
+  Future<String> _currentLanguage() async {
+    final raw = await PrefsService().getUserLanguage();
+    return normalizeLanguageCode(raw);
+  }
+
+  String _hifzReminderTitle(String lang) {
+    return switch (lang) {
+      'en' => 'Today\'s Hifz Time 📖',
+      'tr' => 'Bugunun ezber zamani 📖',
+      'fr' => 'L heure de memorisation aujourd hui 📖',
+      _ => 'وقت الحفظ اليوم 📖',
+    };
+  }
+
+  String _remainingAyahsBody(int count, String lang) {
+    final n = _formatNumber(count, lang);
+    return switch (lang) {
+      'en' => '$n ayahs left to complete your daily goal',
+      'tr' => 'Gunluk hedefini tamamlamak icin $n ayet kaldi',
+      'fr' => 'Il reste $n versets pour completer votre objectif du jour',
+      _ => 'تبقى $n آيات لتكمل هدفك اليوم',
+    };
+  }
+
+  String _dueReviewsBody(int count, String lang) {
+    final n = _formatNumber(count, lang);
+    return switch (lang) {
+      'en' => 'You have $n ayahs due for review',
+      'tr' => 'Tekrar icin $n ayetin var',
+      'fr' => 'Vous avez $n versets a reviser',
+      _ => 'لديك $n آيات للمراجعة',
+    };
+  }
+
+  String _formatNumber(int value, String lang) {
+    if (lang == 'ar') return _toArabicIndic(value);
+    return value.toString();
   }
 
   String _toArabicIndic(int value) {

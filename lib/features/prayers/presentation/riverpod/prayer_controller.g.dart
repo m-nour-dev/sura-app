@@ -6,12 +6,11 @@ part of 'prayer_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$prayerRepositoryHash() => r'9dcfac8f343b46cbfa5b0afa59c55417e51519fd';
+String _$prayerRepositoryHash() => r'c6cab4350d3079fc981d3ac1125295bf754d4bad';
 
 /// See also [prayerRepository].
 @ProviderFor(prayerRepository)
-final prayerRepositoryProvider =
-    AutoDisposeProvider<PrayerRepositoryImpl>.internal(
+final prayerRepositoryProvider = Provider<PrayerRepositoryImpl>.internal(
   prayerRepository,
   name: r'prayerRepositoryProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -21,14 +20,14 @@ final prayerRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
-typedef PrayerRepositoryRef = AutoDisposeProviderRef<PrayerRepositoryImpl>;
+typedef PrayerRepositoryRef = ProviderRef<PrayerRepositoryImpl>;
 String _$prayerTimesControllerHash() =>
-    r'72b91277c13bc96b0c6434f7150142332e0552db';
+    r'db9853f3bd93ff289af68d52379c479927f6730f';
 
 /// See also [PrayerTimesController].
 @ProviderFor(PrayerTimesController)
-final prayerTimesControllerProvider = AutoDisposeAsyncNotifierProvider<
-    PrayerTimesController, PrayerTimesEntity>.internal(
+final prayerTimesControllerProvider =
+    AsyncNotifierProvider<PrayerTimesController, PrayerTimesEntity>.internal(
   PrayerTimesController.new,
   name: r'prayerTimesControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -38,14 +37,14 @@ final prayerTimesControllerProvider = AutoDisposeAsyncNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$PrayerTimesController = AutoDisposeAsyncNotifier<PrayerTimesEntity>;
+typedef _$PrayerTimesController = AsyncNotifier<PrayerTimesEntity>;
 String _$nextPrayerControllerHash() =>
-    r'03fc2726494a407dc3e063eaf2557e6e6ffbe9c8';
+    r'a425f9d903bb3e24394cc545cc84f35a3592fe69';
 
 /// See also [NextPrayerController].
 @ProviderFor(NextPrayerController)
 final nextPrayerControllerProvider =
-    AutoDisposeAsyncNotifierProvider<NextPrayerController, Prayer>.internal(
+    AsyncNotifierProvider<NextPrayerController, Prayer>.internal(
   NextPrayerController.new,
   name: r'nextPrayerControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -55,6 +54,6 @@ final nextPrayerControllerProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$NextPrayerController = AutoDisposeAsyncNotifier<Prayer>;
+typedef _$NextPrayerController = AsyncNotifier<Prayer>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

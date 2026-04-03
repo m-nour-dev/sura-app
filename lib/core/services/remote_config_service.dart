@@ -19,7 +19,7 @@ class RemoteConfigService {
       RemoteConfigSettings(
         fetchTimeout: const Duration(seconds: 10),
         minimumFetchInterval:
-            kDebugMode ? const Duration(minutes: 1) : const Duration(hours: 12),
+            kDebugMode ? Duration.zero : const Duration(hours: 6),
       ),
     );
 

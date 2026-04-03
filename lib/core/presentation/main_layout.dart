@@ -17,6 +17,7 @@ import 'package:sila_app/features/azkar/presentation/pages/azkar_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
 import 'package:sila_app/features/home/presentation/pages/home_page.dart';
+import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
 import 'package:sila_app/features/quran/presentation/pages/quran_page.dart';
 import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
@@ -61,6 +62,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _prefetchPrayerData();
       await _checkAndShowNotificationPrompt();
       _checkForUpdate();
 
@@ -72,6 +74,17 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
     // PERF FIX 6: Log screen on tab change via provider listener, not in build()
     ref.listenManual(bottomNavIndexProvider, (_, __) => _logCurrentScreen());
+  }
+
+  Future<void> _prefetchPrayerData() async {
+    try {
+      await Future.wait([
+        ref.read(prayerTimesControllerProvider.future),
+        ref.read(nextPrayerControllerProvider.future),
+      ]);
+    } catch (_) {
+      // Non-fatal prefetch; UI will fetch again if needed.
+    }
   }
 
   // PERF FIX 3: Build page lazily

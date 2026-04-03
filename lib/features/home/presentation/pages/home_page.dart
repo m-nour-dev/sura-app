@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/features/azkar/presentation/widgets/post_prayer_quick_card.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
 import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
@@ -222,7 +223,7 @@ class _NotificationInboxCard extends ConsumerWidget {
         if (notif == null) return const SizedBox.shrink();
 
         return GestureDetector(
-          onTap: () {
+          onTap: () async {
             if (notif.category != null && notif.contentId != null) {
               Navigator.push(
                 context,
@@ -233,7 +234,19 @@ class _NotificationInboxCard extends ConsumerWidget {
                   ),
                 ),
               );
+              return;
             }
+
+            if (notif.payload != null && notif.payload!.trim().isNotEmpty) {
+              await NotificationService().handleNotificationPayload(notif.payload);
+              if (!context.mounted) return;
+              return;
+            }
+
+            if (!context.mounted) return;
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const NotificationHubPage()),
+            );
           },
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -267,14 +280,19 @@ class _NotificationInboxCard extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            notif.title,
-                            style: GoogleFonts.notoKufiArabic(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
+                          Expanded(
+                            child: Text(
+                              notif.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.notoKufiArabic(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Text(
                             _formatTime(notif.time),
                             style: GoogleFonts.notoKufiArabic(

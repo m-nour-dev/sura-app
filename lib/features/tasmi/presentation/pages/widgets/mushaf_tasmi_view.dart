@@ -28,11 +28,14 @@ class MushafTasmiView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Optimization: Select only words and currentIndex to prevent rebuilding on other state changes
-    final words = wordsOverride ??
+    final wordsRaw = wordsOverride ??
         ref.watch(tasmiControllerProvider.select((state) => state.words));
-    final currentIndex = currentIndexOverride ??
+    final currentIndexRaw = currentIndexOverride ??
         ref.watch(
             tasmiControllerProvider.select((state) => state.currentIndex));
+
+    final words = wordsRaw ?? const <TasmiWordEntry>[];
+    final currentIndex = currentIndexRaw ?? 0;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 

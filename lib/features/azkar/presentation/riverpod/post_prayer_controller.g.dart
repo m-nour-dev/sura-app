@@ -7,7 +7,7 @@ part of 'post_prayer_controller.dart';
 // **************************************************************************
 
 String _$currentPostPrayerNameHash() =>
-    r'92949819a92b0090ee0a6bb821353d4b458b5470';
+    r'ae83a6a28106aee957b2e36e608d68ceaf55639e';
 
 /// See also [currentPostPrayerName].
 @ProviderFor(currentPostPrayerName)

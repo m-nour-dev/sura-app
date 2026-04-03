@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sila_app/core/services/adhan_native_service.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class AdhanSettingsPage extends ConsumerStatefulWidget {
@@ -88,34 +89,59 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
 
   Future<void> _setAdhanMode(String prayer, String mode) async {
     await _prefs.setAdhanMode(prayer, mode);
+    await _applyScheduleChanges();
+    if (!mounted) return;
     setState(() => _adhanModes[prayer] = mode);
   }
 
   Future<void> _setReminderMinutes(String prayer, int minutes) async {
     await _prefs.setPrayerReminderMinutes(prayer, minutes);
+    await _applyScheduleChanges();
+    if (!mounted) return;
     setState(() => _reminderMinutes[prayer] = minutes);
   }
 
   Future<void> _toggleGlobal(bool v) async {
     await _prefs.setAdhanNotificationsEnabled(v);
+    if (!v) {
+      await _adhanSvc.cancelAllPrayers();
+    } else {
+      await _applyScheduleChanges();
+    }
+    if (!mounted) return;
     setState(() => _adhanEnabled = v);
-    if (!v) await _adhanSvc.cancelAllPrayers();
     _snack(v ? 'adhan_enabled_message'.tr() : 'adhan_disabled_message'.tr());
   }
 
   Future<void> _togglePrayer(String key, bool v) async {
     await _prefs.setAdhanEnabled(key, v);
-    setState(() => _prayerSettings[key] = v);
     ref.invalidate(prayerTimesControllerProvider);
+    await _applyScheduleChanges();
+    if (!mounted) return;
+    setState(() => _prayerSettings[key] = v);
     _snack(v
-        ? 'adhan_prayer_enabled'.tr(args: [_arabicName(key)])
-        : 'adhan_prayer_disabled'.tr(args: [_arabicName(key)]));
+      ? 'adhan_prayer_enabled'.tr(args: [_arabicName(key)])
+      : 'adhan_prayer_disabled'.tr(args: [_arabicName(key)]));
   }
 
   Future<void> _changeSound(String f) async {
     await _prefs.setAdhanSound(f);
+    await _applyScheduleChanges();
+    if (!mounted) return;
     setState(() => _selectedSound = f);
     _snack('adhan_sound_changed'.tr());
+  }
+
+  Future<void> _applyScheduleChanges() async {
+    try {
+      await _adhanSvc.rescheduleDaily(PrayerRepositoryImpl());
+    } catch (e) {
+      debugPrint(
+        'Failed to reschedule prayer notifications via '
+        '_adhanSvc.rescheduleDaily(PrayerRepositoryImpl()): $e',
+      );
+      _snack('تعذر تحديث الجدولة. حاول مرة أخرى.');
+    }
   }
 
   Future<void> _testAdhan() async {

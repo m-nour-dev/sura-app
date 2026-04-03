@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sila_app/core/services/notification_permission_helper.dart'; // ← ADD
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key, required this.onComplete});
@@ -12,6 +15,8 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
+  static const _permissionsRequestedKey = 'permissions_requested';
+
   late final AnimationController _fadeController;
   late final AnimationController _scaleController;
   late final Animation<double> _fadeAnim;
@@ -35,7 +40,29 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
     );
 
-    _startSequence();
+    unawaited(_bootstrapSplash());
+  }
+
+  Future<void> _bootstrapSplash() async {
+    try {
+      await _requestPermissionsOnce();
+    } catch (e) {
+      debugPrint('Splash permission bootstrap failed: $e');
+    }
+
+    if (!mounted) return;
+    await _startSequence();
+  }
+
+  Future<void> _requestPermissionsOnce() async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyRequested = prefs.getBool(_permissionsRequestedKey) ?? false;
+    if (alreadyRequested) return;
+
+    final allGranted = await NotificationPermissionHelper.requestAllPermissions();
+    if (allGranted) {
+      await prefs.setBool(_permissionsRequestedKey, true);
+    }
   }
 
   Future<void> _startSequence() async {

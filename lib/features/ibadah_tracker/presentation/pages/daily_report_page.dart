@@ -845,6 +845,7 @@ List<_IbadahItem> _completedItems(IbadahRecord r,
       out.add(_IbadahItem(
           key: 'maghrib', label: tr('daily_report_page.maghrib_congregation')));
     }
+    // Only one ishaInMasjid block
     if (r.ishaInMasjid == true) {
       out.add(_IbadahItem(
           key: 'isha', label: tr('daily_report_page.isha_congregation')));
@@ -943,6 +944,7 @@ List<_IbadahItem> _incompleteItems(IbadahRecord r,
       out.add(_IbadahItem(
           key: 'maghrib', label: tr('daily_report_page.maghrib_congregation')));
     }
+    // Only one ishaStatus/ishaInMasjid block
     if (r.ishaStatus > 0 && r.ishaInMasjid == false) {
       out.add(_IbadahItem(
           key: 'isha', label: tr('daily_report_page.isha_congregation')));
