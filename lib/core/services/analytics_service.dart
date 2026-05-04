@@ -1,4 +1,4 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'analytics_service.g.dart';
@@ -7,64 +7,46 @@ part 'analytics_service.g.dart';
 AnalyticsService analyticsService(AnalyticsServiceRef ref) =>
     AnalyticsService();
 
+/// No-op analytics service (Firebase removed).
+/// All methods simply log to debug console.
 class AnalyticsService {
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
-
   Future<void> logEvent({
     required String name,
     Map<String, Object>? parameters,
   }) async {
-    await _analytics.logEvent(name: name, parameters: parameters);
+    debugPrint('📊 [Analytics] $name ${parameters ?? ''}');
   }
 
   Future<void> logScreenHome() async =>
-      _analytics.logEvent(name: 'screen_home');
+      debugPrint('📊 [Analytics] screen_home');
   Future<void> logScreenQuran() async =>
-      _analytics.logEvent(name: 'screen_quran');
+      debugPrint('📊 [Analytics] screen_quran');
   Future<void> logScreenHifz() async =>
-      _analytics.logEvent(name: 'screen_hifz');
+      debugPrint('📊 [Analytics] screen_hifz');
   Future<void> logScreenPrayers() async =>
-      _analytics.logEvent(name: 'screen_prayers');
+      debugPrint('📊 [Analytics] screen_prayers');
   Future<void> logScreenAzkar() async =>
-      _analytics.logEvent(name: 'screen_azkar');
+      debugPrint('📊 [Analytics] screen_azkar');
 
   Future<void> logQuranSurahOpen({
     required String surahName,
     required int surahNumber,
   }) async {
-    await _analytics.logEvent(
-      name: 'quran_surah_open',
-      parameters: {
-        'surah_name': surahName,
-        'surah_number': surahNumber,
-      },
-    );
+    debugPrint('📊 [Analytics] quran_surah_open: $surahName #$surahNumber');
   }
 
   Future<void> logPlayAudio({
     required String surahName,
     required int ayahNumber,
   }) async {
-    await _analytics.logEvent(
-      name: 'play_audio',
-      parameters: {
-        'surah_name': surahName,
-        'ayah_number': ayahNumber,
-      },
-    );
+    debugPrint('📊 [Analytics] play_audio: $surahName ayah $ayahNumber');
   }
 
   Future<void> logHifzSessionStart({
     required String surahName,
     required String method,
   }) async {
-    await _analytics.logEvent(
-      name: 'hifz_session_start',
-      parameters: {
-        'surah_name': surahName,
-        'method': method,
-      },
-    );
+    debugPrint('📊 [Analytics] hifz_session_start: $surahName ($method)');
   }
 
   Future<void> logHifzSessionComplete({
@@ -72,102 +54,68 @@ class AnalyticsService {
     required double accuracy,
     required int hasanat,
   }) async {
-    await _analytics.logEvent(
-      name: 'hifz_session_complete',
-      parameters: {
-        'ayahs_count': ayahsCount,
-        'accuracy': accuracy,
-        'hasanat': hasanat,
-      },
-    );
+    debugPrint('📊 [Analytics] hifz_session_complete: $ayahsCount ayahs, ${accuracy}% accuracy');
   }
 
   Future<void> logHifzOnboardingComplete() async {
-    await _analytics.logEvent(name: 'hifz_onboarding_complete');
+    debugPrint('📊 [Analytics] hifz_onboarding_complete');
   }
 
   Future<void> logTasmiSessionStart({required String surahName}) async {
-    await _analytics.logEvent(
-      name: 'tasmi_session_start',
-      parameters: {'surah_name': surahName},
-    );
+    debugPrint('📊 [Analytics] tasmi_session_start: $surahName');
   }
 
   Future<void> logTasmiSessionComplete({
     required double accuracy,
     required int errorsCount,
   }) async {
-    await _analytics.logEvent(
-      name: 'tasmi_session_complete',
-      parameters: {
-        'accuracy': accuracy,
-        'errors_count': errorsCount,
-      },
-    );
+    debugPrint('📊 [Analytics] tasmi_session_complete: ${accuracy}% accuracy, $errorsCount errors');
   }
 
   Future<void> logAzkarCategoryOpen({required String categoryName}) async {
-    await _analytics.logEvent(
-      name: 'azkar_category_open',
-      parameters: {'category_name': categoryName},
-    );
+    debugPrint('📊 [Analytics] azkar_category_open: $categoryName');
   }
 
   Future<void> logAzkarComplete({required String categoryName}) async {
-    await _analytics.logEvent(
-      name: 'azkar_complete',
-      parameters: {'category_name': categoryName},
-    );
+    debugPrint('📊 [Analytics] azkar_complete: $categoryName');
   }
 
   Future<void> logWirdPageRead({required int pageNumber}) async {
-    await _analytics.logEvent(
-      name: 'wird_page_read',
-      parameters: {'page_number': pageNumber},
-    );
+    debugPrint('📊 [Analytics] wird_page_read: page $pageNumber');
   }
 
   Future<void> logWirdKhatmaComplete() async {
-    await _analytics.logEvent(name: 'wird_khatma_complete');
+    debugPrint('📊 [Analytics] wird_khatma_complete');
   }
 
   Future<void> logQiblahOpen() async =>
-      _analytics.logEvent(name: 'qiblah_open');
+      debugPrint('📊 [Analytics] qiblah_open');
 
   Future<void> logVefaPersonAdd() async =>
-      _analytics.logEvent(name: 'vefa_person_add');
+      debugPrint('📊 [Analytics] vefa_person_add');
 
   Future<void> logVefaDuaSend({required int personCount}) async {
-    await _analytics.logEvent(
-      name: 'vefa_dua_send',
-      parameters: {'person_count': personCount},
-    );
+    debugPrint('📊 [Analytics] vefa_dua_send: $personCount persons');
   }
 
   Future<void> logUpdateDialogShown({required int newVersion}) async {
-    await _analytics.logEvent(
-      name: 'update_dialog_shown',
-      parameters: {'new_version': newVersion},
-    );
+    debugPrint('📊 [Analytics] update_dialog_shown: v$newVersion');
   }
 
   Future<void> logUpdateAccepted() async =>
-      _analytics.logEvent(name: 'update_accepted');
+      debugPrint('📊 [Analytics] update_accepted');
   Future<void> logUpdateDismissed() async =>
-      _analytics.logEvent(name: 'update_dismissed');
+      debugPrint('📊 [Analytics] update_dismissed');
   Future<void> logUpdateDownloadStart() async =>
-      _analytics.logEvent(name: 'update_download_start');
+      debugPrint('📊 [Analytics] update_download_start');
   Future<void> logUpdateDownloadComplete() async =>
-      _analytics.logEvent(name: 'update_download_complete');
+      debugPrint('📊 [Analytics] update_download_complete');
 
   Future<void> logUpdateDownloadFailed({required String error}) async {
-    await _analytics.logEvent(
-      name: 'update_download_failed',
-      parameters: {'error': error},
-    );
+    debugPrint('📊 [Analytics] update_download_failed: $error');
   }
 
   Future<void> setUserProperties({required String appVersion}) async {
-    await _analytics.setUserProperty(name: 'app_version', value: appVersion);
+    debugPrint('📊 [Analytics] setUserProperties: appVersion=$appVersion');
   }
 }

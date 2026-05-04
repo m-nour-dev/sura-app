@@ -40,7 +40,7 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
         color: surfaceColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            color: Colors.black.withAlpha(isDark ? 76 : 13),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -60,7 +60,7 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                  color: primaryColor.withAlpha(isDark ? 51 : 26),
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
@@ -103,12 +103,12 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isListening
-                      ? Colors.red.withOpacity(0.1)
-                      : primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                      ? Colors.red.withAlpha(26)
+                      : primaryColor.withAlpha(isDark ? 51 : 26),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isListening
-                        ? Colors.red.withOpacity(0.5)
+                        ? Colors.red.withAlpha(128)
                         : Colors.transparent,
                   ),
                 ),

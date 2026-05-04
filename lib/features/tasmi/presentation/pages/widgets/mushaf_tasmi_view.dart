@@ -28,14 +28,11 @@ class MushafTasmiView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Optimization: Select only words and currentIndex to prevent rebuilding on other state changes
-    final wordsRaw = wordsOverride ??
+    final List<TasmiWordEntry> words = wordsOverride ??
         ref.watch(tasmiControllerProvider.select((state) => state.words));
-    final currentIndexRaw = currentIndexOverride ??
+    final int currentIndex = currentIndexOverride ??
         ref.watch(
             tasmiControllerProvider.select((state) => state.currentIndex));
-
-    final words = wordsRaw ?? const <TasmiWordEntry>[];
-    final currentIndex = currentIndexRaw ?? 0;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -117,8 +114,8 @@ class MushafTasmiView extends ConsumerWidget {
       return TextStyle(
         color: isDark ? accentColor : primaryColor, // Highlight color
         backgroundColor: isDark
-            ? accentColor.withOpacity(0.2)
-            : primaryColor.withOpacity(0.15),
+            ? accentColor.withAlpha(51)
+            : primaryColor.withAlpha(38),
         fontWeight: FontWeight.bold,
       );
     }
@@ -134,8 +131,8 @@ class MushafTasmiView extends ConsumerWidget {
         return TextStyle(
           color: isDark ? const Color(0xFFE57373) : const Color(0xFFA32D2D),
           backgroundColor: isDark
-              ? const Color(0xFFE57373).withOpacity(0.15)
-              : const Color(0xFFA32D2D).withOpacity(0.1),
+              ? const Color(0xFFE57373).withAlpha(38)
+              : const Color(0xFFA32D2D).withAlpha(26),
         );
       case WordEntryStatus.skipped:
         return TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]);

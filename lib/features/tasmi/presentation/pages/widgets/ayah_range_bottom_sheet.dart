@@ -87,7 +87,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withAlpha(51),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -112,7 +112,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                  color: primaryColor.withAlpha(isDark ? 51 : 26),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.menu_book_rounded, color: primaryColor),
@@ -189,12 +189,12 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color:
-                      isDark ? Colors.white.withOpacity(0.05) : Colors.grey[50],
+                      isDark ? Colors.white.withAlpha(13) : Colors.grey[50],
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                       color: isDark
                           ? Colors.white10
-                          : Colors.black.withOpacity(0.05)),
+                          : Colors.black.withAlpha(13)),
                 ),
                 child: Column(
                   children: [
@@ -210,7 +210,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
+                            color: primaryColor.withAlpha(26),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -226,9 +226,9 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                     SliderTheme(
                       data: SliderThemeData(
                         activeTrackColor: primaryColor,
-                        inactiveTrackColor: primaryColor.withOpacity(0.2),
+                        inactiveTrackColor: primaryColor.withAlpha(51),
                         thumbColor: accentColor,
-                        overlayColor: accentColor.withOpacity(0.2),
+                        overlayColor: accentColor.withAlpha(51),
                         valueIndicatorColor: accentColor,
                       ),
                       child: Slider(
@@ -261,7 +261,7 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
+                            color: primaryColor.withAlpha(26),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -277,9 +277,9 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
                     SliderTheme(
                       data: SliderThemeData(
                         activeTrackColor: primaryColor,
-                        inactiveTrackColor: primaryColor.withOpacity(0.2),
+                        inactiveTrackColor: primaryColor.withAlpha(51),
                         thumbColor: accentColor,
-                        overlayColor: accentColor.withOpacity(0.2),
+                        overlayColor: accentColor.withAlpha(51),
                         valueIndicatorColor: accentColor,
                       ),
                       child: Slider(
@@ -352,13 +352,13 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? primaryColor.withOpacity(isDark ? 0.2 : 0.05)
+              ? primaryColor.withAlpha(isDark ? 51 : 13)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? primaryColor
-                : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+                : (isDark ? Colors.white10 : Colors.black.withAlpha(13)),
             width: isSelected ? 2 : 1,
           ),
         ),

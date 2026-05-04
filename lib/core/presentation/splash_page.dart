@@ -89,7 +89,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
-          const Color(0xFFFDFBF7), // Parchment background from design system
+          const Color.fromRGBO(138, 21, 56, 1), // Parchment background from design system
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

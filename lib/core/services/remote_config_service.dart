@@ -1,4 +1,3 @@
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,59 +7,28 @@ part 'remote_config_service.g.dart';
 RemoteConfigService remoteConfigService(RemoteConfigServiceRef ref) =>
     RemoteConfigService();
 
+/// Hardcoded config service (Firebase Remote Config removed).
+/// Returns static defaults — update checking is effectively disabled.
 class RemoteConfigService {
-  final FirebaseRemoteConfig _config = FirebaseRemoteConfig.instance;
   bool _initialized = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
-
-    await _config.setConfigSettings(
-      RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 10),
-        minimumFetchInterval:
-            kDebugMode ? Duration.zero : const Duration(hours: 6),
-      ),
-    );
-
-    await _config.setDefaults({
-      'latest_version': 4,
-      'force_update': false,
-      'apk_url': '',
-      'update_release_notes': '',
-    });
-
-    await _config.fetchAndActivate();
     _initialized = true;
+    debugPrint('📋 [RemoteConfig] Initialized with local defaults (no Firebase)');
   }
 
-  int get latestVersion => _config.getInt('latest_version');
-  bool get forceUpdate => _config.getBool('force_update');
-  String get apkUrl => _config.getString('apk_url');
-  String get updateReleaseNotes => _config.getString('update_release_notes');
+  int get latestVersion => 0;
+  bool get forceUpdate => false;
+  String get apkUrl => '';
+  String get updateReleaseNotes => '';
 
   Future<UpdateCheckResult> checkForUpdate(int currentVersion) async {
-    try {
-      if (!_initialized) {
-        await initialize();
-      }
-
-      await _config.fetchAndActivate();
-
-      if (latestVersion > currentVersion) {
-        return UpdateCheckResult(
-          hasUpdate: true,
-          isForced: forceUpdate,
-          latestVersion: latestVersion,
-          apkUrl: apkUrl,
-          releaseNotes: updateReleaseNotes,
-        );
-      }
-
-      return const UpdateCheckResult(hasUpdate: false);
-    } catch (_) {
-      return const UpdateCheckResult(hasUpdate: false);
+    if (!_initialized) {
+      await initialize();
     }
+    // No remote config — never report updates
+    return const UpdateCheckResult(hasUpdate: false);
   }
 }
 

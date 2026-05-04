@@ -100,7 +100,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withAlpha(38),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: TextField(
@@ -155,7 +155,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                             border: Border.all(color: border, width: 0.8),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.02),
+                                color: Colors.black.withAlpha(5),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -168,7 +168,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                 width: 38,
                                 height: 38,
                                 decoration: BoxDecoration(
-                                  color: primaryColor.withOpacity(0.08),
+                                  color: primaryColor.withAlpha(20),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
@@ -223,7 +223,7 @@ class _QuranPageState extends ConsumerState<QuranPage> {
                                         : surah.nameTurkish,
                                 style: GoogleFonts.amiri(
                                   fontSize: 22,
-                                  color: primaryColor.withOpacity(0.4),
+                                  color: primaryColor.withAlpha(102),
                                 ),
                               ),
                             ],

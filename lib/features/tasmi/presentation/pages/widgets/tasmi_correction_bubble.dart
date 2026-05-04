@@ -21,13 +21,13 @@ class TasmiCorrectionBubble extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: accentColor.withOpacity(isDark ? 0.15 : 0.1),
+            color: accentColor.withAlpha(isDark ? 38 : 26),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: accentColor.withOpacity(0.5),
+          color: accentColor.withAlpha(128),
           width: 2,
         ),
       ),
@@ -66,7 +66,7 @@ class TasmiCorrectionBubble extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
+              color: accentColor.withAlpha(26),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

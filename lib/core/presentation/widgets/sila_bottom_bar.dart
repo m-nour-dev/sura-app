@@ -50,7 +50,7 @@ class SilaBottomBar extends ConsumerWidget {
         border: Border(top: BorderSide(color: border, width: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withAlpha(15),
             blurRadius: 16,
             offset: const Offset(0, -4),
           )
@@ -114,7 +114,7 @@ class _NavItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
         decoration: BoxDecoration(
           color: isSelected && !featured
-              ? primaryColor.withOpacity(0.1)
+              ? primaryColor.withAlpha(26)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -133,7 +133,7 @@ class _NavItem extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: primaryColor.withOpacity(0.3),
+                      color: primaryColor.withAlpha(76),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     )

@@ -292,9 +292,9 @@ class _Section extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withAlpha(13),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.07)),
+            border: Border.all(color: Colors.white.withAlpha(18)),
           ),
           child: Column(children: children),
         ),
@@ -325,7 +325,7 @@ class _Tile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: const Color(0xFF43A047).withOpacity(0.15),
+          color: const Color(0xFF43A047).withAlpha(38),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: const Color(0xFF66BB6A), size: 20),

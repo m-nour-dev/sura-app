@@ -168,7 +168,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                     backgroundColor:
-                        primaryColor.withOpacity(isDark ? 0.2 : 0.1),
+                        primaryColor.withAlpha(isDark ? 51 : 26),
                   ),
                   onPressed: () {
                     Navigator.push(
@@ -197,7 +197,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                    color: Colors.black.withAlpha(isDark ? 76 : 13),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -215,7 +215,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             color:
-                                primaryColor.withOpacity(isDark ? 0.2 : 0.05),
+                                primaryColor.withAlpha(isDark ? 51 : 13),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.mic_none_rounded,
@@ -243,10 +243,10 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
+                              color: Colors.red.withAlpha(26),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                  color: Colors.red.withOpacity(0.3)),
+                                  color: Colors.red.withAlpha(76)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -364,7 +364,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
                     elevation: 4,
-                    shadowColor: primaryColor.withOpacity(0.4),
+                    shadowColor: primaryColor.withAlpha(102),
                   ),
                 ),
               ),
@@ -407,7 +407,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                   const BorderRadius.vertical(top: Radius.circular(32)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withAlpha(51),
                   blurRadius: 20,
                   offset: const Offset(0, -5),
                 ),
@@ -483,13 +483,13 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? Colors.white.withOpacity(0.05)
+                        ? Colors.white.withAlpha(13)
                         : Colors.grey[50],
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                         color: isDark
                             ? Colors.white10
-                            : Colors.black.withOpacity(0.05)),
+                            : Colors.black.withAlpha(13)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -562,7 +562,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       border: Border.all(
                           color: isDark
                               ? Colors.white10
-                              : Colors.black.withOpacity(0.05)),
+                              : Colors.black.withAlpha(13)),
                     ),
                     child: ListView.separated(
                       shrinkWrap: true,
@@ -578,7 +578,7 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                           leading: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
+                              color: Colors.red.withAlpha(26),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -639,8 +639,8 @@ class _TasmiPageState extends ConsumerState<TasmiPage> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
                       side: BorderSide(
-                          color: accentColor.withOpacity(0.5), width: 2),
-                      backgroundColor: accentColor.withOpacity(0.05),
+                          color: accentColor.withAlpha(128), width: 2),
+                      backgroundColor: accentColor.withAlpha(13),
                     ),
                     onPressed: () {
                       Navigator.pop(sheetContext);

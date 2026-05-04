@@ -316,7 +316,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 14, vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.12),
+                                      color: Colors.white.withAlpha(31),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
@@ -373,12 +373,12 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                   horizontal: 16, vertical: 14),
                               decoration: BoxDecoration(
                                 color: isNext
-                                    ? primaryColor.withOpacity(0.08)
+                                    ? primaryColor.withAlpha(20)
                                     : surface,
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: isNext
-                                      ? primaryColor.withOpacity(0.3)
+                                      ? primaryColor.withAlpha(76)
                                       : border,
                                   width: isNext ? 1.5 : 0.5,
                                 ),
@@ -395,7 +395,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                         decoration: BoxDecoration(
                                           color: isNext
                                               ? primaryColor
-                                              : primaryColor.withOpacity(0.08),
+                                              : primaryColor.withAlpha(20),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
@@ -505,7 +505,7 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: primaryColor.withOpacity(0.1),
+                                      color: primaryColor.withAlpha(26),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(Icons.explore_rounded,

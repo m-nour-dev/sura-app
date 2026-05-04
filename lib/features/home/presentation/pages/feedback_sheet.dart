@@ -1,9 +1,5 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 class FeedbackSheet extends StatefulWidget {
   const FeedbackSheet({super.key});
@@ -71,47 +67,14 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
       return;
     }
 
-    setState(() => _isSending = true);
-
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final localeCode = context.locale.languageCode;
-      final data = {
-        'rating': _rating > 0 ? _rating : null,
-        'problem': _problemController.text.trim(),
-        'suggestion': _suggestionController.text.trim(),
-        'nextUpdate': _nextUpdateController.text.trim(),
-        'usageFrequency': _usageFrequency,
-        'favoriteFeature': _favoriteController.text.trim(),
-        'timestamp': FieldValue.serverTimestamp(),
-        'appVersion': '${packageInfo.version}+${packageInfo.buildNumber}',
-        'locale': localeCode,
-        'platform': Platform.operatingSystem,
-      };
-
-      await FirebaseFirestore.instance
-          .collection('feedback')
-          .add(data)
-          .timeout(const Duration(seconds: 10));
-
-      if (mounted) {
-        setState(() {
-          _isSending = false;
-          _sent = true;
-        });
-        await Future<void>.delayed(const Duration(milliseconds: 1500));
-        if (mounted) Navigator.of(context).pop();
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isSending = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('feedback_error'.tr()),
-            backgroundColor: Colors.red.shade700,
-          ),
-        );
-      }
+    // Firebase Firestore removed — feedback submission disabled
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('feedback_error'.tr()),
+          backgroundColor: Colors.orange.shade700,
+        ),
+      );
     }
   }
 

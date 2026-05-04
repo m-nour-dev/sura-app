@@ -2,39 +2,48 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sila_app/core/presentation/main_layout.dart';
 import 'package:sila_app/core/presentation/splash_page.dart';
 import 'package:sila_app/core/services/adhan_scheduler_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
+import 'package:sila_app/core/services/timezone_service.dart';
 import 'package:sila_app/core/theme/app_theme.dart';
 import 'package:sila_app/features/onboarding/presentation/pages/language_selection_page.dart';
 import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
-import 'package:timezone/data/latest.dart' as tz;
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ 1. Timezone — أول حاجة دايمًا
-  tz.initializeTimeZones();
+  FlutterError.onError = (details) {
+    final text = details.exceptionAsString();
+    if (text.contains('MdbxError (11)')) {
+      debugPrint('Ignored transient Isar lock: $text');
+      return;
+    }
+    FlutterError.presentError(details);
+  };
 
-  // ✅ 2. Firebase
-  await Firebase.initializeApp();
-  
+  // PERF: Disable GoogleFonts runtime fetching (fonts are bundled locally)
+  GoogleFonts.config.allowRuntimeFetching = false;
 
-  // ✅ 4. NotificationService — لازم قبل runApp عشان الـ background handler
-  await NotificationService().initialize();
+  // PERF: Run all init operations in parallel instead of sequentially
+  final results = await Future.wait([
+    EasyLocalization.ensureInitialized(),
+    TimezoneService().initialize(),
+    SharedPreferences.getInstance(),
+  ]);
 
-  // ✅ Check if language was already selected
-  final prefs = await SharedPreferences.getInstance();
+  NotificationService().setNavigatorKey(appNavigatorKey);
+
+  final prefs = results[2] as SharedPreferences;
   final isLanguageSelected = prefs.getBool('is_language_selected') ?? false;
 
-  // ✅ 5. runApp
   runApp(
     ProviderScope(
       child: EasyLocalization(
@@ -51,15 +60,19 @@ void main() async {
       ),
     ),
   );
+
+  unawaited(_initBackgroundServices());
 }
 
 Future<void> _initBackgroundServices() async {
   try {
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+
     final prayerRepo = PrayerRepositoryImpl();
     final prayerTimes = await prayerRepo.getPrayerTimes();
     final adhanScheduler = AdhanSchedulerService();
     await adhanScheduler.scheduleAllPrayers(prayerTimes);
-
     debugPrint('✅ Background services initialized');
   } catch (e) {
     debugPrint('❌ Background init failed: $e');
@@ -74,41 +87,8 @@ class SilaApp extends StatefulWidget {
   State<SilaApp> createState() => _SilaAppState();
 }
 
-class _SilaAppState extends State<SilaApp> with WidgetsBindingObserver {
+class _SilaAppState extends State<SilaApp> {
   bool _showSplash = true;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await NotificationService().setNavigatorKey(appNavigatorKey);
-      } catch (e) {
-        debugPrint('Failed to set notification navigator key: $e');
-      }
-
-      try {
-        await _initBackgroundServices();
-      } catch (e) {
-        debugPrint('Background service bootstrap failed: $e');
-      }
-    });
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.detached) {
-      unawaited(NotificationService().dispose());
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

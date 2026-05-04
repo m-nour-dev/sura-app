@@ -71,19 +71,19 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
           child: Container(
             decoration: BoxDecoration(
               color: _getBackgroundColor(settings.themeMode)
-                  .withOpacity(isDark ? 0.85 : 0.95),
+                  .withAlpha(isDark ? 217 : 242),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(40)),
               boxShadow: [
                 BoxShadow(
-                  color: _getAccentColor(settings.themeMode).withOpacity(0.15),
+                  color: _getAccentColor(settings.themeMode).withAlpha(38),
                   blurRadius: 30,
                   spreadRadius: 5,
                 )
               ],
               border: Border.all(
                 color: _getAccentColor(settings.themeMode)
-                    .withOpacity(isDark ? 0.2 : 0.4),
+                    .withAlpha(isDark ? 51 : 102),
                 width: 1.0,
               ),
             ),
@@ -97,7 +97,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                       width: 50,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.4),
+                        color: Colors.grey.withAlpha(102),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -176,11 +176,11 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color:
-                          _getAccentColor(settings.themeMode).withOpacity(0.05),
+                          _getAccentColor(settings.themeMode).withAlpha(13),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                           color: _getAccentColor(settings.themeMode)
-                              .withOpacity(0.15)),
+                              .withAlpha(38)),
                     ),
                     child: Column(
                       children: [
@@ -195,7 +195,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                                   colors: [
                                     _getAccentColor(settings.themeMode),
                                     _getAccentColor(settings.themeMode)
-                                        .withOpacity(0.7)
+                                        .withAlpha(178)
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -204,7 +204,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                                 boxShadow: [
                                   BoxShadow(
                                       color: _getAccentColor(settings.themeMode)
-                                          .withOpacity(0.4),
+                                          .withAlpha(102),
                                       blurRadius: 15,
                                       offset: const Offset(0, 6))
                                 ]),
@@ -262,7 +262,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
                           widget.showTafsir ? settings.fontFamily : 'Roboto',
                       fontSize: settings.fontSize * 0.9,
                       height: widget.showTafsir ? 2.2 : 1.6,
-                      color: _getTextColor(settings.themeMode).withOpacity(0.9),
+                      color: _getTextColor(settings.themeMode).withAlpha(230),
                     ),
                   ),
 
@@ -302,7 +302,7 @@ class _QuranDetailsSheetState extends ConsumerState<QuranDetailsSheet> {
       required QuranSettings settings}) {
     return Container(
       decoration: BoxDecoration(
-        color: _getAccentColor(settings.themeMode).withOpacity(0.1),
+        color: _getAccentColor(settings.themeMode).withAlpha(26),
         shape: BoxShape.circle,
       ),
       child: IconButton(

@@ -24,7 +24,7 @@ class SilaCtaButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(50),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFD97706).withOpacity(0.3),
+              color: const Color(0xFFD97706).withAlpha(76),
               blurRadius: 16,
               offset: const Offset(0, 6),
             )

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:sila_app/core/services/adhan_native_service.dart';
 import 'package:sila_app/core/services/isar_service.dart';
 import 'package:sila_app/core/services/notification_service.dart';
 import 'package:sila_app/core/services/prefs_service.dart';

@@ -18,7 +18,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
     final bgColor =
         isDark ? AppTheme.darkBackgroundColor : const Color(0xFFF1F5F9);
     final cardColor =
-        isDark ? AppTheme.darkSurfaceColor.withOpacity(0.8) : Colors.white;
+        isDark ? AppTheme.darkSurfaceColor.withAlpha(204) : Colors.white;
 
     final currentIbtihal = audioState.currentIbtihal;
 
@@ -35,7 +35,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: primaryColor.withOpacity(0.05),
+                color: primaryColor.withAlpha(13),
               ),
             ),
           ),
@@ -163,7 +163,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+            color: Colors.black.withAlpha(isDark ? 76 : 26),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -177,7 +177,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
             aspectRatio: 16 / 9,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+                color: isDark ? Colors.white10 : Colors.black.withAlpha(13),
                 image: DecorationImage(
                   image: NetworkImage(
                     current?.id.startsWith('T') == true
@@ -192,7 +192,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
-                    colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+                    colors: [Colors.black.withAlpha(204), Colors.transparent],
                   ),
                 ),
                 padding: const EdgeInsets.all(20),
@@ -223,7 +223,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                     overlayShape:
                         const RoundSliderOverlayShape(overlayRadius: 14),
                     activeTrackColor: primaryColor,
-                    inactiveTrackColor: primaryColor.withOpacity(0.2),
+                    inactiveTrackColor: primaryColor.withAlpha(51),
                     thumbColor: primaryColor,
                   ),
                   child: Slider(
@@ -270,7 +270,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: primaryColor.withOpacity(0.4),
+                              color: primaryColor.withAlpha(102),
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),
@@ -320,7 +320,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected ? primaryColor.withOpacity(0.1) : Colors.transparent,
+        color: isSelected ? primaryColor.withAlpha(26) : Colors.transparent,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
@@ -331,7 +331,7 @@ class NafahatNakshabandiPage extends ConsumerWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? primaryColor
-                : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+                : (isDark ? Colors.white10 : Colors.black.withAlpha(13)),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(

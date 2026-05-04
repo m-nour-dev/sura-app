@@ -206,7 +206,7 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF43A047).withOpacity(0.15),
+                  color: const Color(0xFF43A047).withAlpha(38),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.volume_up_rounded,
@@ -316,7 +316,7 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
                     ),
                     if (i < _prayerList.length - 1)
                       Divider(
-                          color: Colors.white.withOpacity(0.06),
+                          color: Colors.white.withAlpha(15),
                           height: 1,
                           indent: 16,
                           endIndent: 16),
@@ -374,9 +374,9 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.08),
+              color: Colors.blue.withAlpha(20),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withOpacity(0.2)),
+              border: Border.all(color: Colors.blue.withAlpha(51)),
             ),
             child: Row(
               children: [
@@ -403,9 +403,9 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
   Widget _card({required Widget child}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withAlpha(13),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.07)),
+        border: Border.all(color: Colors.white.withAlpha(18)),
       ),
       child: child,
     );

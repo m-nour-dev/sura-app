@@ -468,7 +468,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                                               BorderRadius.circular(16),
                                           side: BorderSide(
                                               color:
-                                                  textColor.withOpacity(0.1))),
+                                                  textColor.withAlpha(26))),
                                       title: Text(
                                         'finish_session_title'.tr(),
                                         style: GoogleFonts.cairo(
@@ -479,7 +479,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                                       content: Text(
                                         'finish_session_desc'.tr(),
                                         style: GoogleFonts.cairo(
-                                            color: textColor.withOpacity(0.7),
+                                            color: textColor.withAlpha(178),
                                             fontSize: 13),
                                         textAlign: TextAlign.center,
                                       ),
@@ -492,7 +492,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                                           child: Text('cancel'.tr(),
                                               style: GoogleFonts.cairo(
                                                   color: textColor
-                                                      .withOpacity(0.5))),
+                                                      .withAlpha(128))),
                                         ),
                                         ElevatedButton(
                                           onPressed: () =>
@@ -519,7 +519,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(
                                       color: Colors.red
-                                          .withOpacity(isDark ? 0.3 : 0.5),
+                                          .withAlpha(isDark ? 76 : 128),
                                       width: 1.5),
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 12),
@@ -532,7 +532,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.red
-                                        .withOpacity(isDark ? 0.7 : 0.8),
+                                        .withAlpha(isDark ? 178 : 204),
                                   ),
                                 ),
                               ),
@@ -640,8 +640,8 @@ class _TopHeader extends ConsumerWidget {
                     final color = current < stage
                         ? Colors.white
                         : current == stage
-                            ? Colors.white.withOpacity(0.6)
-                            : Colors.white.withOpacity(0.2);
+                            ? Colors.white.withAlpha(153)
+                            : Colors.white.withAlpha(51);
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       width: 20,
@@ -662,19 +662,19 @@ class _TopHeader extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withAlpha(38),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    border: Border.all(color: Colors.white.withAlpha(51)),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.mic_rounded,
-                          color: Colors.white.withOpacity(0.9), size: 13),
+                          color: Colors.white.withAlpha(230), size: 13),
                       const SizedBox(width: 3),
                       Text(
                         reciterLabel,
                         style: GoogleFonts.cairo(
-                            fontSize: 10, color: Colors.white.withOpacity(0.9)),
+                            fontSize: 10, color: Colors.white.withAlpha(230)),
                       ),
                     ],
                   ),
@@ -687,9 +687,9 @@ class _TopHeader extends ConsumerWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withAlpha(38),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    border: Border.all(color: Colors.white.withAlpha(51)),
                   ),
                   child: const Center(
                     child: Text('💎', style: TextStyle(fontSize: 14)),
@@ -718,7 +718,7 @@ class _StageBanner extends ConsumerWidget {
     final isDark = settings.themeMode == QuranThemeMode.dark;
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
     final bgColor =
-        isDark ? const Color(0xFF1E293B) : accentColor.withOpacity(0.12);
+        isDark ? const Color(0xFF1E293B) : accentColor.withAlpha(31);
     final textColor = isDark ? accentColor : accentColor;
 
     return Container(
@@ -727,7 +727,7 @@ class _StageBanner extends ConsumerWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: accentColor.withOpacity(0.2), width: 0.5),
+        border: Border.all(color: accentColor.withAlpha(51), width: 0.5),
       ),
       child: Center(
         child: Text(
@@ -881,7 +881,7 @@ class _WordChip extends ConsumerWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: accentColor.withOpacity(0.12),
+          color: accentColor.withAlpha(31),
           shape: BoxShape.circle,
         ),
         child: Text(
@@ -900,7 +900,7 @@ class _WordChip extends ConsumerWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         decoration: BoxDecoration(
-          color: textColor.withOpacity(0.04),
+          color: textColor.withAlpha(10),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -921,10 +921,10 @@ class _WordChip extends ConsumerWidget {
         curve: Curves.easeOut,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         decoration: BoxDecoration(
-          color: const Color(0xFF10B981).withOpacity(0.15),
+          color: const Color(0xFF10B981).withAlpha(38),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-              color: const Color(0xFF10B981).withOpacity(0.4), width: 0.5),
+              color: const Color(0xFF10B981).withAlpha(102), width: 0.5),
         ),
         child: Text(
           entry.word,
@@ -943,15 +943,15 @@ class _WordChip extends ConsumerWidget {
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
-        color: textColor.withOpacity(0.03),
+        color: textColor.withAlpha(8),
         borderRadius: BorderRadius.circular(8),
         border: Border(
-            bottom: BorderSide(color: textColor.withOpacity(0.2), width: 1.5)),
+            bottom: BorderSide(color: textColor.withAlpha(51), width: 1.5)),
       ),
       child: Text(
         '—' * dashCount,
         style: TextStyle(
-            fontSize: 16, color: textColor.withOpacity(0.2), letterSpacing: 4),
+            fontSize: 16, color: textColor.withAlpha(51), letterSpacing: 4),
       ),
     );
   }
@@ -980,7 +980,7 @@ class _AudioBar extends ConsumerWidget {
     final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
     final textColor = QuranUIUtils.getTextColor(settings.themeMode);
     final containerColor =
-        isDark ? const Color(0xFF1E293B) : textColor.withOpacity(0.05);
+        isDark ? const Color(0xFF1E293B) : textColor.withAlpha(13);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -988,7 +988,7 @@ class _AudioBar extends ConsumerWidget {
       decoration: BoxDecoration(
         color: containerColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: accentColor.withOpacity(0.1), width: 0.5),
+        border: Border.all(color: accentColor.withAlpha(26), width: 0.5),
       ),
       child: Row(
         children: [
@@ -1014,7 +1014,7 @@ class _AudioBar extends ConsumerWidget {
           Text(reciterLabel,
               style: GoogleFonts.cairo(
                   fontSize: 10,
-                  color: textColor.withOpacity(0.6),
+                  color: textColor.withAlpha(153),
                   fontWeight: FontWeight.w600)),
         ],
       ),
@@ -1056,14 +1056,14 @@ class _InlineWordInput extends ConsumerWidget {
     Color bgColor;
 
     if (isCorrect == null) {
-      borderColor = textColor.withOpacity(0.2);
-      bgColor = textColor.withOpacity(0.04);
+      borderColor = textColor.withAlpha(51);
+      bgColor = textColor.withAlpha(10);
     } else if (isCorrect == true) {
       borderColor = const Color(0xFF10B981);
-      bgColor = const Color(0xFF10B981).withOpacity(0.12);
+      bgColor = const Color(0xFF10B981).withAlpha(31);
     } else {
       borderColor = const Color(0xFFEF4444);
-      bgColor = const Color(0xFFEF4444).withOpacity(0.12);
+      bgColor = const Color(0xFFEF4444).withAlpha(31);
     }
 
     return AnimatedContainer(
@@ -1102,7 +1102,7 @@ class _InlineWordInput extends ConsumerWidget {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 hintText: '...',
                 hintStyle:
-                    TextStyle(color: textColor.withOpacity(0.2), fontSize: 18),
+                    TextStyle(color: textColor.withAlpha(51), fontSize: 18),
               ),
               onChanged: onChanged,
               textInputAction: TextInputAction.next,
@@ -1186,10 +1186,10 @@ class _WritingModeBar extends ConsumerWidget {
             decoration: BoxDecoration(
               color: textColor.withValues(alpha: 0.07),
               shape: BoxShape.circle,
-              border: Border.all(color: textColor.withOpacity(0.2), width: 1.5),
+              border: Border.all(color: textColor.withAlpha(51), width: 1.5),
             ),
             child: Icon(Icons.edit_note_rounded,
-                color: textColor.withOpacity(0.7), size: 20),
+                color: textColor.withAlpha(178), size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1209,7 +1209,7 @@ class _WritingModeBar extends ConsumerWidget {
                 Text(
                   'writing_mode_hint'.tr(),
                   style: GoogleFonts.cairo(
-                      fontSize: 10, color: textColor.withOpacity(0.5)),
+                      fontSize: 10, color: textColor.withAlpha(128)),
                 ),
               ],
             ),
@@ -1242,10 +1242,10 @@ class _InlineStatusMessage extends ConsumerWidget {
     final bgColor = isError
         ? const Color(0xFF7F1D1D).withValues(alpha: isDark ? 0.4 : 0.2)
         : QuranUIUtils.getAccentColor(settings.themeMode)
-            .withOpacity(isDark ? 0.3 : 0.1);
+            .withAlpha(isDark ? 76 : 26);
     final borderColor = isError
         ? const Color(0xFFEF4444).withValues(alpha: 0.45)
-        : QuranUIUtils.getAccentColor(settings.themeMode).withOpacity(0.4);
+        : QuranUIUtils.getAccentColor(settings.themeMode).withAlpha(102);
     final textColor = isError
         ? (isDark ? const Color(0xFFFECACA) : const Color(0xFFB91C1C))
         : QuranUIUtils.getAccentColor(settings.themeMode);
@@ -1288,7 +1288,7 @@ class _MicBar extends ConsumerWidget {
 
     final containerColor = isDark
         ? const Color(0xFF1E293B)
-        : QuranUIUtils.getTextColor(settings.themeMode).withOpacity(0.05);
+        : QuranUIUtils.getTextColor(settings.themeMode).withAlpha(13);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -1315,7 +1315,7 @@ class _MicBar extends ConsumerWidget {
                 border: Border.all(
                     color: isListening
                         ? const Color(0xFF10B981)
-                        : accentColor.withOpacity(0.3),
+                        : accentColor.withAlpha(76),
                     width: 1.5),
               ),
               child: Icon(
@@ -1335,7 +1335,7 @@ class _MicBar extends ConsumerWidget {
                     ? (snapshot.data ?? MicHealthStatus.active)
                     : null;
                 final statusColor = switch (status) {
-                  null => textColor.withOpacity(0.6),
+                  null => textColor.withAlpha(153),
                   MicHealthStatus.active => const Color(0xFF1D9E75),
                   MicHealthStatus.reconnecting => Colors.orange,
                   MicHealthStatus.stalled => Colors.red,
@@ -1385,7 +1385,7 @@ class _MicBar extends ConsumerWidget {
                           ? 'speak_clearly'.tr()
                           : 'tap_to_start_mic'.tr(),
                       style: GoogleFonts.cairo(
-                          fontSize: 9.5, color: textColor.withOpacity(0.4)),
+                          fontSize: 9.5, color: textColor.withAlpha(102)),
                     ),
                     const SizedBox(height: 5),
                     ClipRRect(
@@ -1477,7 +1477,7 @@ class _StatChip extends ConsumerWidget {
                     color: valueColor)),
             Text(label,
                 style: GoogleFonts.cairo(
-                    fontSize: 10, color: textColor.withOpacity(0.5))),
+                    fontSize: 10, color: textColor.withAlpha(128))),
           ],
         ),
       ),
@@ -1503,8 +1503,8 @@ class _InstructionCard extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: accentColor.withOpacity(0.08),
-        border: Border.all(color: accentColor.withOpacity(0.25), width: 0.5),
+        color: accentColor.withAlpha(20),
+        border: Border.all(color: accentColor.withAlpha(64), width: 0.5),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -1519,7 +1519,7 @@ class _InstructionCard extends ConsumerWidget {
               style: GoogleFonts.cairo(
                   fontSize: 11,
                   color: QuranUIUtils.getTextColor(settings.themeMode)
-                      .withOpacity(0.6),
+                      .withAlpha(153),
                   fontWeight: FontWeight.w500)),
         ],
       ),
@@ -2162,7 +2162,7 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
           Text(
             widget.surahName,
             style: GoogleFonts.cairo(
-                fontSize: 10, color: textColor.withOpacity(0.4)),
+                fontSize: 10, color: textColor.withAlpha(102)),
           ),
           const SizedBox(height: 6),
           Directionality(
@@ -2170,7 +2170,7 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
             child: Text(
               widget.verseText,
               style: GoogleFonts.amiri(
-                  fontSize: 14, color: textColor.withOpacity(0.8), height: 2.0),
+                  fontSize: 14, color: textColor.withAlpha(204), height: 2.0),
               textAlign: TextAlign.center,
             ),
           ),
@@ -2198,14 +2198,14 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
           const SizedBox(height: 10),
           TextField(
             style: GoogleFonts.cairo(
-                fontSize: 13, color: textColor.withOpacity(0.9)),
+                fontSize: 13, color: textColor.withAlpha(230)),
             textDirection: ui.TextDirection.rtl,
             maxLines: 2,
             onChanged: (v) => _note = v,
             decoration: InputDecoration(
               hintText: 'moment_note_hint'.tr(),
               hintStyle: GoogleFonts.cairo(
-                  fontSize: 12, color: textColor.withOpacity(0.3)),
+                  fontSize: 12, color: textColor.withAlpha(76)),
               filled: true,
               fillColor: textColor.withValues(alpha: 0.04),
               border: OutlineInputBorder(
@@ -2239,7 +2239,7 @@ class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
                   ),
                   child: Text('skip'.tr(),
                       style: GoogleFonts.cairo(
-                          fontSize: 12, color: textColor.withOpacity(0.5))),
+                          fontSize: 12, color: textColor.withAlpha(128))),
                 ),
               ),
               const SizedBox(width: 10),

@@ -306,7 +306,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryColor.withOpacity(0.3),
+                            color: AppTheme.primaryColor.withAlpha(76),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -322,7 +322,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.goldLight.withOpacity(0.2),
+                                    color: AppTheme.goldLight.withAlpha(51),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -349,7 +349,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                                   'ai_tasmi_desc'.tr(),
                                   style: GoogleFonts.cairo(
                                     fontSize: 12,
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withAlpha(204),
                                     height: 1.5,
                                   ),
                                 ),
@@ -365,7 +365,7 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.accentColor.withOpacity(0.3),
+                                  color: AppTheme.accentColor.withAlpha(76),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -602,7 +602,7 @@ class _DailyPlanCard extends StatelessWidget {
             width: 0.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+            color: Colors.black.withAlpha(isDark ? 76 : 10),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -830,13 +830,13 @@ class _MethodsGrid extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: c.featured
-                    ? AppTheme.accentColor.withOpacity(0.5)
+                    ? AppTheme.accentColor.withAlpha(128)
                     : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
                 width: c.featured ? 1.5 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.03),
+                  color: Colors.black.withAlpha(isDark ? 76 : 8),
                   blurRadius: 6,
                 ),
               ],
@@ -956,7 +956,7 @@ class _MomentsSection extends StatelessWidget {
                   width: 1.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.03),
+                  color: Colors.black.withAlpha(isDark ? 76 : 8),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

@@ -26,7 +26,7 @@ class DailyContentCard extends StatelessWidget {
         border: Border.all(color: border, width: 0.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -129,7 +129,7 @@ class DailyContentCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.08),
+                      color: primaryColor.withAlpha(20),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
