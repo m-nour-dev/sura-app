@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_preferences.dart';
 
 enum WordMatchResult { correct, closeError, wrongWord }
 
@@ -168,3 +168,4 @@ class TajweedNormalizer {
     return v1[s2.length];
   }
 }
+

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:adhan/adhan.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
-import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
+import 'package:sura_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+import 'package:sura_app/features/prayers/domain/entities/prayer_times_entity.dart';
 
 part 'prayer_controller.g.dart';
 
@@ -122,3 +122,4 @@ class NextPrayerController extends _$NextPrayerController {
     };
   }
 }
+

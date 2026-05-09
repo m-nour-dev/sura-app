@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/services/audio_download_service.dart';
-import 'package:sila_app/core/services/reciter_service.dart';
+import 'package:sura_app/core/services/audio_download_service.dart';
+import 'package:sura_app/core/services/reciter_service.dart';
 
 class AudioDownloadState {
   const AudioDownloadState({
@@ -167,3 +167,4 @@ final audioDownloadControllerProvider =
     StateNotifierProvider<AudioDownloadController, AudioDownloadState>(
   (ref) => AudioDownloadController(),
 );
+

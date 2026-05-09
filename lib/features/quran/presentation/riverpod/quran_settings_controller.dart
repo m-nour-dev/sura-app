@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sura_app/features/quran/domain/entities/quran_settings.dart';
 
 part 'quran_settings_controller.g.dart';
 
@@ -40,3 +40,4 @@ class QuranSettingsController extends _$QuranSettingsController {
     state = AsyncData(state.value!.copyWith(themeMode: mode));
   }
 }
+

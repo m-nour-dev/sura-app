@@ -5,22 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_verse_record.dart';
-import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
-import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
-import 'package:sila_app/features/hifz/domain/smart_word_matcher.dart';
-import 'package:sila_app/features/hifz/domain/spaced_repetition_engine.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/hifz_settings_controller.dart';
-import 'package:sila_app/features/hifz/services/hifz_audio_session_manager.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_session.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_settings.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_verse_record.dart';
+import 'package:sura_app/features/hifz/data/repositories/hifz_repository_provider.dart';
+import 'package:sura_app/features/hifz/domain/hasanat_calculator.dart';
+import 'package:sura_app/features/hifz/domain/smart_word_matcher.dart';
+import 'package:sura_app/features/hifz/domain/spaced_repetition_engine.dart';
+import 'package:sura_app/features/hifz/presentation/controllers/hifz_settings_controller.dart';
+import 'package:sura_app/features/hifz/services/hifz_audio_session_manager.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sura_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sura_app/features/tasmi/services/tasmi_speech_service.dart';
+import 'package:sura_app/features/vefa/presentation/pages/vefa_page.dart';
 
 part 'interactive_shadow_controller.g.dart';
 
@@ -81,12 +80,9 @@ class InteractiveShadowState {
     required this.stageResults,
     required this.correctWords,
     required this.wrongWords,
-    required this.showMomentPrompt,
     required this.finished,
     required this.accuracy,
     required this.errorMessage,
-    required this.reflectionText,
-    required this.sessionMoments,
     required this.finishedEarly,
   });
 
@@ -104,12 +100,9 @@ class InteractiveShadowState {
       stageResults: {},
       correctWords: 0,
       wrongWords: 0,
-      showMomentPrompt: false,
       finished: false,
       accuracy: 0,
       errorMessage: null,
-      reflectionText: '',
-      sessionMoments: [],
       finishedEarly: false,
     );
   }
@@ -125,12 +118,9 @@ class InteractiveShadowState {
   final Map<int, StageResult> stageResults;
   final int correctWords;
   final int wrongWords;
-  final bool showMomentPrompt;
   final bool finished;
   final double accuracy;
   final String? errorMessage;
-  final String reflectionText;
-  final List<HifzMoment> sessionMoments;
   final bool finishedEarly;
 
   InteractiveShadowState copyWith({
@@ -146,13 +136,10 @@ class InteractiveShadowState {
     Map<int, StageResult>? stageResults,
     int? correctWords,
     int? wrongWords,
-    bool? showMomentPrompt,
     bool? finished,
     double? accuracy,
     String? errorMessage,
     bool clearErrorMessage = false,
-    String? reflectionText,
-    List<HifzMoment>? sessionMoments,
     bool? finishedEarly,
   }) {
     return InteractiveShadowState(
@@ -168,13 +155,10 @@ class InteractiveShadowState {
       stageResults: stageResults ?? this.stageResults,
       correctWords: correctWords ?? this.correctWords,
       wrongWords: wrongWords ?? this.wrongWords,
-      showMomentPrompt: showMomentPrompt ?? this.showMomentPrompt,
       finished: finished ?? this.finished,
       accuracy: accuracy ?? this.accuracy,
       errorMessage:
           clearErrorMessage ? null : errorMessage ?? this.errorMessage,
-      reflectionText: reflectionText ?? this.reflectionText,
-      sessionMoments: sessionMoments ?? this.sessionMoments,
       finishedEarly: finishedEarly ?? this.finishedEarly,
     );
   }
@@ -250,12 +234,10 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       stageResults: {},
       correctWords: 0,
       wrongWords: 0,
-      showMomentPrompt: false,
       finished: false,
       finishedEarly: false,
       accuracy: 0,
       clearErrorMessage: true,
-      sessionMoments: const [],
     );
     debugPrint(
       'InteractiveShadow startSession surah=$surahNumber from=$safeFrom to=$safeTo',
@@ -297,8 +279,6 @@ class InteractiveShadowController extends _$InteractiveShadowController {
       state = state.copyWith(
         currentVerseIndex: state.currentVerseIndex + 1,
         currentStage: 1,
-        showMomentPrompt: false,
-        reflectionText: '',
         isMicListening: false,
         isPlaying: false,
       );
@@ -310,38 +290,6 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     }
   }
 
-  Future<void> saveMoment({String? reflection, String? feeling}) async {
-    final effectiveReflection = (reflection ?? state.reflectionText).trim();
-    final effectiveFeeling = (feeling ?? '').trim();
-    final didSave =
-        effectiveReflection.isNotEmpty || effectiveFeeling.isNotEmpty;
-    if (effectiveReflection.isNotEmpty || effectiveFeeling.isNotEmpty) {
-      final repository = await ref.read(hifzRepositoryProvider.future);
-      final moment = HifzMoment()
-        ..surahIndex = state.surahNumber
-        ..verseNumber = state.fromVerse + state.currentVerseIndex
-        ..reflection = effectiveReflection
-        ..feeling = effectiveFeeling
-        ..createdAt = DateTime.now();
-      await repository.saveMoment(moment);
-      state = state.copyWith(sessionMoments: [...state.sessionMoments, moment]);
-    }
-
-    state = state.copyWith(showMomentPrompt: !didSave, reflectionText: '');
-  }
-
-  void setReflectionText(String text) {
-    state = state.copyWith(reflectionText: text);
-  }
-
-  Future<void> skipMoment() async {
-    await saveMoment();
-  }
-
-  Future<void> saveMomentFromState() async {
-    await saveMoment(reflection: state.reflectionText);
-    state = state.copyWith(reflectionText: '');
-  }
 
   Future<void> toggleAudio() async {
     if (state.isPlaying) {
@@ -882,7 +830,6 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     final accuracy = total == 0 ? 0.0 : totalCorrect / total;
     state = state.copyWith(
       finished: true,
-      showMomentPrompt: false,
       isMicListening: false,
       isPlaying: false,
       accuracy: accuracy,
@@ -951,3 +898,4 @@ class InteractiveShadowController extends _$InteractiveShadowController {
     return quran.getVerse(state.surahNumber, ayah, verseEndSymbol: false);
   }
 }
+

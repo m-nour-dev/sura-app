@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/daily_status_quotes_ar.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/daily_status_quotes_en.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/daily_status_quotes_fr.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/daily_status_quotes_tr.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/daily_status_quotes_ar.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/daily_status_quotes_en.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/daily_status_quotes_fr.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/daily_status_quotes_tr.dart';
 
 class DailyStatusCalculator {
   static final Random _random = Random();
@@ -160,3 +160,4 @@ class DailyStatusCalculator {
         isMale: true, languageCode: languageCode, customIbadahs: customIbadahs);
   }
 }
+

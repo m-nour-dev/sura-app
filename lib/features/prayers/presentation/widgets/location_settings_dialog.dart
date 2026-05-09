@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:sila_app/core/services/location_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
+import 'package:sura_app/core/services/location_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
 
 class LocationSettingsDialog extends StatefulWidget {
   const LocationSettingsDialog({super.key});
@@ -118,3 +118,4 @@ class _LocationSettingsDialogState extends State<LocationSettingsDialog> {
     );
   }
 }
+

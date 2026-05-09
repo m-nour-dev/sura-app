@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:sila_app/features/azkar/presentation/pages/azkar_page.dart';
-import 'package:sila_app/features/azkar/presentation/pages/tasbih_page.dart';
-import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_detail_controller.dart';
-import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
-import 'package:sila_app/features/wird/presentation/pages/wird_history_page.dart';
+import 'package:sura_app/features/azkar/presentation/pages/azkar_page.dart';
+import 'package:sura_app/features/azkar/presentation/pages/tasbih_page.dart';
+import 'package:sura_app/features/hifz/presentation/pages/hifz_home_page.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_detail_controller.dart';
+import 'package:sura_app/features/prayers/presentation/pages/prayers_page.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
+import 'package:sura_app/features/wird/presentation/pages/wird_history_page.dart';
 
 class NotificationDetailPage extends ConsumerWidget {
   const NotificationDetailPage({
@@ -392,3 +392,4 @@ class _TafsirCardState extends State<_TafsirCard> {
     );
   }
 }
+

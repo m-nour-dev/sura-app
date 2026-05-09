@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/core/utils/surah_utils.dart';
-import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart';
-import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/core/utils/surah_utils.dart';
+import 'package:sura_app/features/wird/presentation/pages/wird_reader_page.dart';
+import 'package:sura_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class LastReadCard extends ConsumerWidget {
   const LastReadCard({super.key});
@@ -115,3 +115,4 @@ class LastReadCard extends ConsumerWidget {
     );
   }
 }
+

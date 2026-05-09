@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/audio_controller.dart';
 
 /// Auto-play state for a surah
 class AutoPlayState {
@@ -219,3 +219,4 @@ final surahAutoPlayControllerProvider =
         (ref, totalAyahs) {
   return SurahAutoPlayController(ref, totalAyahs);
 });
+

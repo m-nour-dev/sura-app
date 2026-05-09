@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/comparison_engine.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/ibadah_content_selector.dart';
-import 'package:sila_app/features/ibadah_tracker/presentation/controllers/custom_ibadah_controller.dart';
-import 'package:sila_app/features/ibadah_tracker/presentation/controllers/daily_report_controller.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/comparison_engine.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/ibadah_content_selector.dart';
+import 'package:sura_app/features/ibadah_tracker/presentation/controllers/custom_ibadah_controller.dart';
+import 'package:sura_app/features/ibadah_tracker/presentation/controllers/daily_report_controller.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
 
 class DailyReportPage extends ConsumerStatefulWidget {
   const DailyReportPage({super.key});
@@ -1087,3 +1087,4 @@ class _ReminderCards extends ConsumerWidget {
     );
   }
 }
+

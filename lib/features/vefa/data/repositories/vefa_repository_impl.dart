@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:sila_app/core/error/failure.dart';
-import 'package:sila_app/features/vefa/data/datasources/vefa_local_data_source.dart';
-import 'package:sila_app/features/vefa/data/models/vefa_person_model.dart';
-import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
-import 'package:sila_app/features/vefa/domain/repositories/vefa_repository.dart';
+import 'package:sura_app/core/error/failure.dart';
+import 'package:sura_app/features/vefa/data/datasources/vefa_local_data_source.dart';
+import 'package:sura_app/features/vefa/data/models/vefa_person_model.dart';
+import 'package:sura_app/features/vefa/domain/entities/vefa_person.dart';
+import 'package:sura_app/features/vefa/domain/repositories/vefa_repository.dart';
 
 class VefaRepositoryImpl implements VefaRepository {
   VefaRepositoryImpl(this.localDataSource);
@@ -62,3 +62,4 @@ class VefaRepositoryImpl implements VefaRepository {
     }
   }
 }
+

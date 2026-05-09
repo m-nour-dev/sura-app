@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/azkar/presentation/riverpod/nafahat_audio_controller.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/azkar/presentation/riverpod/nafahat_audio_controller.dart';
 
 class NafahatNakshabandiPage extends ConsumerWidget {
   const NafahatNakshabandiPage({super.key});
@@ -449,3 +449,4 @@ class NafahatNakshabandiPage extends ConsumerWidget {
     );
   }
 }
+

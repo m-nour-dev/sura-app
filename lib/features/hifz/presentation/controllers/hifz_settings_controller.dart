@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
-import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_settings.dart';
+import 'package:sura_app/features/hifz/data/repositories/hifz_repository_provider.dart';
 
 part 'hifz_settings_controller.g.dart';
 
@@ -50,3 +50,4 @@ class HifzSettingsController extends _$HifzSettingsController {
     await save(next);
   }
 }
+

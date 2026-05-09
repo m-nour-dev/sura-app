@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/core/providers/time_provider.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sura_app/core/providers/time_provider.dart';
+import 'package:sura_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 part 'post_prayer_controller.g.dart';
 
@@ -72,3 +72,4 @@ String? currentPostPrayerName(CurrentPostPrayerNameRef ref) {
     orElse: () => null,
   );
 }
+

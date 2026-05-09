@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sura_app/features/tasmi/domain/tajweed_normalizer.dart';
 
 void main() {
   group('TajweedNormalizer.normalize', () {
@@ -103,3 +103,4 @@ void main() {
     });
   });
 }
+

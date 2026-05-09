@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/presentation/controllers/ibadah_tracker_controller.dart';
 
 class DailyReportState {
   const DailyReportState(
@@ -29,3 +29,4 @@ final recordsRangeProvider =
   final repo = await ref.watch(ibadahRepositoryProvider.future);
   return repo.getRecordsInRange(start: range.start, end: range.end);
 });
+

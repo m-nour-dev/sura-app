@@ -1,4 +1,4 @@
-package com.sila.app.sila_app
+package com.sura.app.sura_app
 
 import android.content.Intent
 import io.flutter.embedding.android.FlutterActivity
@@ -6,7 +6,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-	private val CHANNEL = "com.sila.adhan/channel"
+	private val CHANNEL = "com.sura.adhan/channel"
 
 	override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
 		super.configureFlutterEngine(flutterEngine)
@@ -14,7 +14,7 @@ class MainActivity : FlutterActivity() {
 			when (call.method) {
 				"playAdhan" -> {
 					val sound = call.argument<String>("sound") ?: "adhan_egypt"
-					val intent = Intent(this, Class.forName("com.sila.adhan.AdhanService"))
+					val intent = Intent(this, AdhanService::class.java)
 					intent.putExtra("sound", sound)
 					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 						startForegroundService(intent)
@@ -24,7 +24,7 @@ class MainActivity : FlutterActivity() {
 					result.success(true)
 				}
 				"stopAdhan" -> {
-					val intent = Intent(this, Class.forName("com.sila.adhan.AdhanService"))
+					val intent = Intent(this, AdhanService::class.java)
 					intent.action = "STOP_ADHAN"
 					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 						startForegroundService(intent)
@@ -38,3 +38,4 @@ class MainActivity : FlutterActivity() {
 		}
 	}
 }
+

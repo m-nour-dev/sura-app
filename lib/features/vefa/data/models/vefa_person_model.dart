@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
+import 'package:sura_app/features/vefa/domain/entities/vefa_person.dart';
 
 part 'vefa_person_model.g.dart';
 
@@ -36,3 +36,4 @@ class VefaPersonModel {
       ..giftCount = entity.giftCount;
   }
 }
+

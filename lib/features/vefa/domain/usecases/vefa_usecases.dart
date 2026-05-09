@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:sila_app/core/error/failure.dart';
-import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
-import 'package:sila_app/features/vefa/domain/repositories/vefa_repository.dart';
+import 'package:sura_app/core/error/failure.dart';
+import 'package:sura_app/features/vefa/domain/entities/vefa_person.dart';
+import 'package:sura_app/features/vefa/domain/repositories/vefa_repository.dart';
 
 class GetVefaListUseCase {
   GetVefaListUseCase(this.repository);
@@ -38,3 +38,4 @@ class GiftThawabUseCase {
     return repository.incrementGiftCount(id);
   }
 }
+

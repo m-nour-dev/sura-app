@@ -6,23 +6,23 @@ import 'package:flutter/foundation.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
-import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
-import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_session_stats.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
-import 'package:sila_app/features/tasmi/data/repositories/i_tasmi_error_repository.dart';
-import 'package:sila_app/features/tasmi/data/repositories/isar_tasmi_error_repository.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
-import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_tts_service.dart';
-import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_session.dart';
+import 'package:sura_app/features/hifz/data/repositories/hifz_repository_provider.dart';
+import 'package:sura_app/features/hifz/domain/hasanat_calculator.dart';
+import 'package:sura_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_preferences.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_session_stats.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_word_entry.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_word_error.dart';
+import 'package:sura_app/features/tasmi/data/repositories/i_tasmi_error_repository.dart';
+import 'package:sura_app/features/tasmi/data/repositories/isar_tasmi_error_repository.dart';
+import 'package:sura_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sura_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
+import 'package:sura_app/features/tasmi/services/tasmi_speech_service.dart';
+import 'package:sura_app/features/tasmi/services/tasmi_tts_service.dart';
+import 'package:sura_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 
 part 'tasmi_controller.g.dart';
 
@@ -601,3 +601,4 @@ class _NoOpTasmiErrorRepository implements ITasmiErrorRepository {
   @override
   Future<void> clearAll() async {}
 }
+

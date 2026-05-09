@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:sila_app/core/services/isar_service.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/core/utils/language_utils.dart';
-import 'package:sila_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
-import 'package:sila_app/features/notifications/data/notification_ids.dart';
-import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
-import 'package:sila_app/features/notifications/domain/smart_notification_engine.dart';
-import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
-import 'package:sila_app/features/prayers/domain/repositories/prayer_repository.dart';
+import 'package:sura_app/core/services/isar_service.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
+import 'package:sura_app/core/utils/language_utils.dart';
+import 'package:sura_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
+import 'package:sura_app/features/notifications/data/notification_ids.dart';
+import 'package:sura_app/features/notifications/data/repositories/isar_notification_repository.dart';
+import 'package:sura_app/features/notifications/domain/smart_notification_engine.dart';
+import 'package:sura_app/features/prayers/domain/entities/prayer_times_entity.dart';
+import 'package:sura_app/features/prayers/domain/repositories/prayer_repository.dart';
 
 // Simple translation function for notification keys
 String? t(String key, String lang, [Map<String, String>? params]) {
@@ -573,13 +573,12 @@ class AdhanSchedulerService {
         prayerTime: nextPrayerTime,
         soundFile: soundFile,
       );
-    } else {
       // إشعار نصي فقط
       await _notificationService.scheduleNotification(
         id: id,
         prayerName: prayerName,
         prayerTime: nextPrayerTime,
-        silent: true,
+        soundFile: '', // Empty sound file for text-only notification
       );
     }
   }
@@ -669,10 +668,13 @@ class AdhanSchedulerService {
       _ => 'باقي $minutes دقيقة على $prayerName',
     };
   }
-
+  
   /// Cancel all scheduled prayers
   Future<void> cancelAllPrayers() async {
-    await _notificationService.cancelPrayerNotifications();
+    for (var i = 1; i <= 5; i++) {
+      await _notificationService.cancelNotification(i);
+      await _notificationService.cancelNotification(i + NotificationIds.prayerReminderOffset);
+    }
     print('Cancelled all prayer notifications');
   }
 
@@ -729,3 +731,4 @@ class _PlannedNotification {
     );
   }
 }
+

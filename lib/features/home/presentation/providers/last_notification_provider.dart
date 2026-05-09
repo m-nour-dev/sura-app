@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/core/services/isar_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
-import 'package:sila_app/features/notifications/data/notification_ids.dart';
+import 'package:sura_app/core/services/isar_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
+import 'package:sura_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
+import 'package:sura_app/features/notifications/data/notification_ids.dart';
 
 part 'last_notification_provider.g.dart';
 
@@ -91,3 +91,4 @@ Future<LastNotification?> lastNotification(LastNotificationRef ref) async {
     return null;
   }
 }
+

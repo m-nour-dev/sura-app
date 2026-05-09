@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/core/services/remote_config_service.dart';
-import 'package:sila_app/core/services/update_service.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/core/services/remote_config_service.dart';
+import 'package:sura_app/core/services/update_service.dart';
 
 class UpdateDialog extends StatefulWidget {
   const UpdateDialog({
@@ -166,3 +166,4 @@ class _UpdateDialogState extends State<UpdateDialog> {
     );
   }
 }
+

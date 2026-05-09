@@ -1,10 +1,10 @@
 import 'package:adhan/adhan.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:sila_app/core/services/location_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
-import 'package:sila_app/features/prayers/domain/repositories/prayer_repository.dart';
+import 'package:sura_app/core/services/location_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
+import 'package:sura_app/features/prayers/domain/entities/prayer_times_entity.dart';
+import 'package:sura_app/features/prayers/domain/repositories/prayer_repository.dart';
 
 class PrayerRepositoryImpl extends PrayerRepository {
   // Default Location: Istanbul, Turkey (fallback)
@@ -345,3 +345,4 @@ class PrayerRepositoryImpl extends PrayerRepository {
     return params;
   }
 }
+

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
-import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_word_entry.dart';
+import 'package:sura_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
 String _toArabicNumber(String input) {
   const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -153,3 +153,4 @@ class MushafTasmiView extends ConsumerWidget {
     return List<String>.filled(length, 'ـ').join();
   }
 }
+

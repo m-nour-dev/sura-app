@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
-import 'package:sila_app/features/wird/data/models/wird_settings.dart';
-import 'package:sila_app/features/wird/presentation/pages/wird_reader_page.dart';
-import 'package:sila_app/features/wird/presentation/pages/wird_setup_page.dart';
-import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:sura_app/features/wird/data/models/wird_settings.dart';
+import 'package:sura_app/features/wird/presentation/pages/wird_reader_page.dart';
+import 'package:sura_app/features/wird/presentation/pages/wird_setup_page.dart';
+import 'package:sura_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdCard extends ConsumerWidget {
   const WirdCard({super.key});
@@ -754,3 +754,4 @@ class _CelebrationWidgetState extends State<_CelebrationWidget>
     );
   }
 }
+

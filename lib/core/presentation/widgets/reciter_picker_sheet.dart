@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/services/reciter_service.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/core/services/reciter_service.dart';
 
 Future<void> showReciterPickerSheet(BuildContext context) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -171,3 +171,4 @@ class _RecommendedBadge extends StatelessWidget {
     );
   }
 }
+

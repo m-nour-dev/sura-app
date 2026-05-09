@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/features/quran/presentation/pages/surah_detail_page.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_controller.dart';
+import 'package:sura_app/features/quran/presentation/pages/surah_detail_page.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_controller.dart';
 
 class QuranPage extends ConsumerStatefulWidget {
   const QuranPage({super.key});
@@ -297,3 +297,4 @@ class _QuranPageState extends ConsumerState<QuranPage> {
     );
   }
 }
+

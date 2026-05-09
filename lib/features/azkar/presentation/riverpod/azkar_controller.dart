@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/features/azkar/data/models/azkar_model.dart';
-import 'package:sila_app/features/azkar/data/repositories/azkar_repository.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
+import 'package:sura_app/features/azkar/data/models/azkar_model.dart';
+import 'package:sura_app/features/azkar/data/repositories/azkar_repository.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
 part 'azkar_controller.g.dart';
 
@@ -16,3 +16,4 @@ Future<Map<String, List<AzkarItem>>> azkarData(AzkarDataRef ref) async {
   final locale = ref.watch(appLocaleProvider);
   return await repository.getAzkar(locale.languageCode);
 }
+

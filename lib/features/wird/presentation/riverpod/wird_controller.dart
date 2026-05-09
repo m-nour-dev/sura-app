@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
-import 'package:sila_app/features/wird/data/datasources/wird_service.dart';
-import 'package:sila_app/features/wird/data/models/wird_history.dart';
-import 'package:sila_app/features/wird/data/models/wird_settings.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/features/vefa/presentation/riverpod/vefa_providers.dart';
+import 'package:sura_app/features/wird/data/datasources/wird_service.dart';
+import 'package:sura_app/features/wird/data/models/wird_history.dart';
+import 'package:sura_app/features/wird/data/models/wird_settings.dart';
 
 // Provider for WirdService
 final wirdServiceProvider = FutureProvider<WirdService>((ref) async {
@@ -265,3 +265,4 @@ class _FallbackWirdService implements WirdService {
     // Silently handle
   }
 }
+

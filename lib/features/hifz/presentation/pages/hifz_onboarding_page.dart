@@ -4,9 +4,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/hifz_onboarding_controller.dart';
-import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/hifz/presentation/controllers/hifz_onboarding_controller.dart';
+import 'package:sura_app/features/hifz/presentation/pages/hifz_home_page.dart';
 
 const Color _errorColor = Color(0xFFF87171);
 const LinearGradient _onboardingGradient = LinearGradient(
@@ -896,3 +896,4 @@ String _toArabicIndic(int value) {
   }
   return buffer.toString();
 }
+

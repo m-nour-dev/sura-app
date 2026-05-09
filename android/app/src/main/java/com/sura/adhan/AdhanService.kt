@@ -1,4 +1,4 @@
-package com.sila.adhan
+package com.sura.adhan
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -13,7 +13,7 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.sila.app.sila_app.R
+import com.sura.app.sura_app.R
 
 class AdhanService : Service() {
     private var mediaPlayer: MediaPlayer? = null
@@ -89,3 +89,4 @@ class AdhanReceiver : BroadcastReceiver() {
         }
     }
 }
+

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:sila_app/features/quran/domain/entities/surah.dart';
-import 'package:sila_app/features/quran/domain/repositories/quran_repository.dart';
-import 'package:sila_app/features/quran/domain/usecases/get_surahs.dart';
+import 'package:sura_app/features/quran/domain/entities/surah.dart';
+import 'package:sura_app/features/quran/domain/repositories/quran_repository.dart';
+import 'package:sura_app/features/quran/domain/usecases/get_surahs.dart';
 
 class MockQuranRepository extends Mock implements QuranRepository {}
 
@@ -42,3 +42,4 @@ void main() {
     },
   );
 }
+

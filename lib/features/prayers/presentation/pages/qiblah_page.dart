@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sura_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class QiblahPage extends ConsumerStatefulWidget {
   const QiblahPage({super.key});
@@ -183,3 +183,4 @@ class _QiblahPageState extends ConsumerState<QiblahPage> {
     );
   }
 }
+

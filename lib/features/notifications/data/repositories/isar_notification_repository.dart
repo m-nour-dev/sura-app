@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:isar/isar.dart';
-import 'package:sila_app/features/notifications/data/models/notification_content.dart';
-import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
-import 'package:sila_app/features/notifications/data/models/user_activity_log.dart';
-import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
+import 'package:sura_app/features/notifications/data/models/notification_content.dart';
+import 'package:sura_app/features/notifications/data/models/notification_settings.dart';
+import 'package:sura_app/features/notifications/data/models/user_activity_log.dart';
+import 'package:sura_app/features/notifications/data/repositories/i_notification_repository.dart';
 
 extension IsarNotificationRepositoryTracking on IsarNotificationRepository {
   /// Track notification shown and check for ignored/dismissed
@@ -226,3 +226,4 @@ class IsarNotificationRepository implements INotificationRepository {
     });
   }
 }
+

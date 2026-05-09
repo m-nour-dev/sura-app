@@ -1,7 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/features/wird/data/models/wird_history.dart';
-import 'package:sila_app/features/wird/data/models/wird_settings.dart';
+import 'package:sura_app/features/wird/data/models/wird_history.dart';
+import 'package:sura_app/features/wird/data/models/wird_settings.dart';
 
 class WirdService {
   WirdService(this._isar);
@@ -155,3 +155,4 @@ class WirdService {
     });
   }
 }
+

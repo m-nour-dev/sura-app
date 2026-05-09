@@ -4,18 +4,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/mushaf_tasmi_view.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_action_button.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_correction_bubble.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_page_header.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_stats_row.dart';
-import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sura_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/mushaf_tasmi_view.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/tasmi_action_button.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/tasmi_correction_bubble.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/tasmi_page_header.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/tasmi_stats_row.dart';
+import 'package:sura_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
+import 'package:sura_app/features/tasmi/services/tasmi_speech_service.dart';
+import 'package:sura_app/features/vefa/presentation/pages/vefa_page.dart';
 
 class TasmiPage extends ConsumerStatefulWidget {
   const TasmiPage({
@@ -739,3 +739,4 @@ class _StatChip extends StatelessWidget {
     );
   }
 }
+

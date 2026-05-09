@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:sila_app/features/quran/data/models/ayah_model.dart';
-import 'package:sila_app/features/quran/domain/entities/surah.dart';
+import 'package:sura_app/features/quran/data/models/ayah_model.dart';
+import 'package:sura_app/features/quran/domain/entities/surah.dart';
 
 part 'surah_model.g.dart';
 
@@ -23,3 +23,4 @@ class SurahModel extends Surah {
 
   Map<String, dynamic> toJson() => _$SurahModelToJson(this);
 }
+

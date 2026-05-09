@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/user_gender_prefs.dart';
-import 'package:sila_app/features/ibadah_tracker/data/repositories/i_ibadah_repository.dart';
-import 'package:sila_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
-import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/user_gender_prefs.dart';
+import 'package:sura_app/features/ibadah_tracker/data/repositories/i_ibadah_repository.dart';
+import 'package:sura_app/features/ibadah_tracker/data/repositories/isar_ibadah_repository.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
+import 'package:sura_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 
 class IbadahTrackerState {
   const IbadahTrackerState({
@@ -162,3 +162,4 @@ final ibadahTrackerControllerProvider = StateNotifierProvider<
   final repoFuture = ref.watch(ibadahRepositoryProvider.future);
   return IbadahTrackerController(repositoryFuture: repoFuture);
 });
+

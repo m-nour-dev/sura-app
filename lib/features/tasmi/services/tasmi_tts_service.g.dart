@@ -6,7 +6,7 @@ part of 'tasmi_tts_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tasmiTtsServiceHash() => r'36e9ad5e9689ec90255b2612ebba7568f7a45fe7';
+String _$tasmiTtsServiceHash() => r'047ef847978283a2fffa436c98ba40813cbccda4';
 
 /// See also [tasmiTtsService].
 @ProviderFor(tasmiTtsService)

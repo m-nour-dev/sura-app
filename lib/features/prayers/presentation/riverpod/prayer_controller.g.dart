@@ -22,7 +22,7 @@ final prayerRepositoryProvider = Provider<PrayerRepositoryImpl>.internal(
 
 typedef PrayerRepositoryRef = ProviderRef<PrayerRepositoryImpl>;
 String _$prayerTimesControllerHash() =>
-    r'db9853f3bd93ff289af68d52379c479927f6730f';
+    r'c2b82b1fdaf910f53b9b94366cfbddb13a8ee36f';
 
 /// See also [PrayerTimesController].
 @ProviderFor(PrayerTimesController)
@@ -39,7 +39,7 @@ final prayerTimesControllerProvider =
 
 typedef _$PrayerTimesController = AsyncNotifier<PrayerTimesEntity>;
 String _$nextPrayerControllerHash() =>
-    r'a425f9d903bb3e24394cc545cc84f35a3592fe69';
+    r'f6575f99b37b059cba7c43217378ca772d8eceae';
 
 /// See also [NextPrayerController].
 @ProviderFor(NextPrayerController)

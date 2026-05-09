@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/notifications/data/models/notification_settings.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
 
 final notificationSettingsProvider = StateNotifierProvider.family<
     NotificationSettingsController,
@@ -98,3 +98,4 @@ class NotificationSettingsController
     await repo.saveSettings(next);
   }
 }
+

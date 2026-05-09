@@ -7,21 +7,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/core/services/remote_config_service.dart';
-import 'package:sila_app/core/services/update_service.dart';
-import 'package:sila_app/features/azkar/presentation/pages/azkar_page.dart';
-import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
-import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
-import 'package:sila_app/features/home/presentation/pages/home_page.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
-import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
-import 'package:sila_app/features/quran/presentation/pages/quran_page.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:sura_app/core/presentation/widgets/update_dialog.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
+import 'package:sura_app/core/services/remote_config_service.dart';
+import 'package:sura_app/core/services/update_service.dart';
+import 'package:sura_app/features/azkar/presentation/pages/azkar_page.dart';
+import 'package:sura_app/features/hifz/presentation/pages/hifz_home_page.dart';
+import 'package:sura_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
+import 'package:sura_app/features/home/presentation/pages/home_page.dart';
+import 'package:sura_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sura_app/features/prayers/presentation/pages/prayers_page.dart';
+import 'package:sura_app/features/quran/presentation/pages/quran_page.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_data_provider.dart';
+import 'package:sura_app/features/vefa/presentation/pages/vefa_page.dart';
 
 import 'widgets/sila_bottom_bar.dart';
 
@@ -388,3 +388,4 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     );
   }
 }
+

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
-import 'package:sila_app/features/azkar/presentation/riverpod/tasbih_controller.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/tasbih_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sura_app/core/presentation/widgets/sila_app_bar.dart';
+import 'package:sura_app/features/azkar/presentation/riverpod/tasbih_controller.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/notifications/presentation/pages/settings/tasbih_notification_settings.dart';
+import 'package:sura_app/features/notifications/presentation/widgets/streak_badge.dart';
 
 class TasbihPage extends ConsumerStatefulWidget {
   const TasbihPage({super.key});
@@ -84,7 +84,7 @@ class _TasbihPageState extends ConsumerState<TasbihPage>
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: SilaAppBar(
+      appBar: SuraAppBar(
         title: 'azkar_tasbih'.tr(),
         actions: [
           const Padding(
@@ -331,3 +331,4 @@ class _TasbihPageState extends ConsumerState<TasbihPage>
     );
   }
 }
+

@@ -1,7 +1,7 @@
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/utils/language_utils.dart';
-import 'package:sila_app/features/notifications/data/notification_ids.dart';
-import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/core/utils/language_utils.dart';
+import 'package:sura_app/features/notifications/data/notification_ids.dart';
+import 'package:sura_app/features/notifications/data/repositories/i_notification_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StreakTracker {
@@ -142,3 +142,4 @@ class StreakTracker {
     };
   }
 }
+

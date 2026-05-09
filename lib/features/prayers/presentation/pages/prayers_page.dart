@@ -4,17 +4,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart'; // ADDED: per-prayer adhan toggle
-import 'package:sila_app/core/utils/time_utils.dart';
-import 'package:sila_app/features/ibadah_tracker/presentation/pages/ibadah_tracker_tab.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/salah_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:sila_app/features/prayers/presentation/pages/prayer_settings_page.dart';
-import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart'; // ADDED: per-prayer adhan toggle
+import 'package:sura_app/core/utils/time_utils.dart';
+import 'package:sura_app/features/ibadah_tracker/presentation/pages/ibadah_tracker_tab.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/notifications/presentation/pages/settings/salah_notification_settings.dart';
+import 'package:sura_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sura_app/features/prayers/presentation/pages/prayer_settings_page.dart';
+import 'package:sura_app/features/prayers/presentation/pages/qiblah_page.dart';
+import 'package:sura_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class PrayersPage extends ConsumerStatefulWidget {
   const PrayersPage({super.key, this.initialTabIndex = 0});
@@ -562,3 +562,4 @@ class _PrayersPageState extends ConsumerState<PrayersPage> {
     );
   }
 }
+

@@ -1,9 +1,9 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:sila_app/core/error/exceptions.dart';
-import 'package:sila_app/core/error/failures.dart';
-import 'package:sila_app/features/quran/data/datasources/quran_local_data_source.dart';
-import 'package:sila_app/features/quran/domain/entities/surah.dart';
-import 'package:sila_app/features/quran/domain/repositories/quran_repository.dart';
+import 'package:sura_app/core/error/exceptions.dart';
+import 'package:sura_app/core/error/failures.dart';
+import 'package:sura_app/features/quran/data/datasources/quran_local_data_source.dart';
+import 'package:sura_app/features/quran/domain/entities/surah.dart';
+import 'package:sura_app/features/quran/domain/repositories/quran_repository.dart';
 
 class QuranRepositoryImpl implements QuranRepository {
   QuranRepositoryImpl({required this.localDataSource});
@@ -31,3 +31,4 @@ class QuranRepositoryImpl implements QuranRepository {
     }
   }
 }
+

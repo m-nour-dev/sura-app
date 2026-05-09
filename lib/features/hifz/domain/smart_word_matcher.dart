@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_settings.dart';
+import 'package:sura_app/features/tasmi/domain/tajweed_normalizer.dart';
 
 enum HifzWordMatchResult {
   correct,
@@ -183,3 +183,4 @@ class SmartWordMatcher {
     return dp[m][n];
   }
 }
+

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SilaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const SilaAppBar({
+class SuraAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const SuraAppBar({
     super.key,
     required this.title,
     this.actions,
@@ -46,3 +46,4 @@ class SilaAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
+

@@ -1,6 +1,6 @@
-import 'package:sila_app/features/notifications/data/models/notification_content.dart';
-import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
-import 'package:sila_app/features/notifications/data/models/user_activity_log.dart';
+import 'package:sura_app/features/notifications/data/models/notification_content.dart';
+import 'package:sura_app/features/notifications/data/models/notification_settings.dart';
+import 'package:sura_app/features/notifications/data/models/user_activity_log.dart';
 
 abstract class INotificationRepository {
   Future<void> seedInitialContentIfNeeded();
@@ -16,3 +16,4 @@ abstract class INotificationRepository {
   Future<UserActivityLog> getActivityLog(String featureKey);
   Future<void> saveActivityLog(UserActivityLog log);
 }
+

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
-import 'package:sila_app/features/tasmi/data/repositories/tasmi_preferences_repository.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_preferences.dart';
+import 'package:sura_app/features/tasmi/data/repositories/tasmi_preferences_repository.dart';
 
 final sharedPreferencesProvider =
     FutureProvider<SharedPreferences>((ref) async {
@@ -32,3 +32,4 @@ class TasmiPreferencesNotifier extends Notifier<TasmiPreferences> {
     await repo?.save(newPrefs);
   }
 }
+

@@ -2,9 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
-import 'package:sila_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_preferences.dart';
+import 'package:sura_app/features/tasmi/presentation/riverpod/tasmi_preferences_provider.dart';
 
 class TasmiOnboardingPage extends ConsumerStatefulWidget {
   const TasmiOnboardingPage({super.key, required this.onDone});
@@ -376,3 +376,4 @@ class _AttemptsChip extends StatelessWidget {
     );
   }
 }
+

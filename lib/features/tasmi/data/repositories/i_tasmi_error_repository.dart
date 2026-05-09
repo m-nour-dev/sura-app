@@ -1,4 +1,4 @@
-import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_word_error.dart';
 
 abstract class ITasmiErrorRepository {
   Future<void> saveError(TasmiWordError error);
@@ -6,3 +6,4 @@ abstract class ITasmiErrorRepository {
   Future<List<TasmiWordError>> getBySurah(int surahIndex);
   Future<void> clearAll();
 }
+

@@ -1,5 +1,5 @@
 import 'package:adhan/adhan.dart';
-import 'package:sila_app/features/prayers/domain/entities/prayer_times_entity.dart';
+import 'package:sura_app/features/prayers/domain/entities/prayer_times_entity.dart';
 
 /// Abstract repository interface for prayer times
 abstract class PrayerRepository {
@@ -9,3 +9,4 @@ abstract class PrayerRepository {
   /// Get the next prayer
   Future<Prayer> getNextPrayer();
 }
+

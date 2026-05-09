@@ -1,5 +1,5 @@
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/user_gender_prefs.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/user_gender_prefs.dart';
 
 abstract class IIbadahRepository {
   Future<IbadahRecord> getOrCreateRecord(DateTime date);
@@ -32,3 +32,4 @@ abstract class IIbadahRepository {
   Future<UserGenderPrefs?> getGenderPrefs();
   Future<void> setGenderPrefs({required bool isMale});
 }
+

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sura_app/features/quran/domain/entities/quran_settings.dart';
 
 class QuranUIUtils {
   static Color getBackgroundColor(QuranThemeMode mode) {
@@ -117,3 +117,4 @@ class QuranUIUtils {
     return getTextColor(mode);
   }
 }
+

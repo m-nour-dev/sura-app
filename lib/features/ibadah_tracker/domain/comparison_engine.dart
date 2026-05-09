@@ -1,5 +1,5 @@
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/domain/daily_status_calculator.dart';
 
 class ComparisonEngine {
   bool isTodayBetter({
@@ -29,3 +29,4 @@ class ComparisonEngine {
     return 'فرصة جديدة غدًا — والله يعينك على الأحسن 🌅';
   }
 }
+

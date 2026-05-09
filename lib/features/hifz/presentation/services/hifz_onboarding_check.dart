@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sila_app/core/services/device_permission_service.dart';
+import 'package:sura_app/core/services/device_permission_service.dart';
 
 class HifzOnboardingCheck {
   static Future<void> checkAndRequest(BuildContext context) async {
@@ -52,3 +52,4 @@ class HifzOnboardingCheck {
     );
   }
 }
+

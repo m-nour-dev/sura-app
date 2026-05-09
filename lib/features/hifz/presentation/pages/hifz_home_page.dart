@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/core/utils/surah_utils.dart';
-import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
-import 'package:sila_app/features/hifz/presentation/pages/hifz_settings_page.dart';
-import 'package:sila_app/features/hifz/presentation/pages/methods/interactive_shadow_page.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/hifz_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
-import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart'
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/core/utils/surah_utils.dart';
+import 'package:sura_app/features/hifz/domain/hifz_selection.dart';
+import 'package:sura_app/features/hifz/presentation/controllers/hifz_home_controller.dart';
+import 'package:sura_app/features/hifz/presentation/pages/hifz_settings_page.dart';
+import 'package:sura_app/features/hifz/presentation/pages/methods/interactive_shadow_page.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/notifications/presentation/pages/settings/hifz_notification_settings.dart';
+import 'package:sura_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sura_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
+import 'package:sura_app/features/quran/presentation/utils/quran_ui_utils.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart'
     as import_tasmi;
 
 const Color _hasanatGold = AppTheme.goldLight;
@@ -238,7 +238,6 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
     Future<void>.microtask(() {
       final c = ref.read(hifzHomeControllerProvider.notifier);
       c.loadTodayStats();
-      c.loadRecentMoments();
       c.loadDueReviews();
     });
     Future<void>.microtask(() async {
@@ -417,16 +416,6 @@ class _HifzHomePageState extends ConsumerState<HifzHomePage> {
                         _showComingSoon('repetition_method'.tr()),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'my_moments'.tr(),
-                    style: GoogleFonts.cairo(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _MomentsSection(moments: state.recentMoments),
                   if (state.hasResumePoint) ...[
                     const SizedBox(height: 16),
                     SizedBox(
@@ -889,116 +878,7 @@ class _MethodsGrid extends StatelessWidget {
   }
 }
 
-class _MomentsSection extends StatelessWidget {
-  const _MomentsSection({required this.moments});
-  final List<dynamic> moments;
 
-  @override
-  Widget build(BuildContext context) {
-    const isDark =
-        false; // Always use light mode layout for this page as requested
-
-    if (moments.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-              color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-              width: 0.5),
-        ),
-        child: Column(
-          children: [
-            const Text('💎', style: TextStyle(fontSize: 24)),
-            const SizedBox(height: 6),
-            Text(
-              'no_moments_title'.tr(),
-              style: GoogleFonts.cairo(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E40AF),
-              ),
-            ),
-            Text(
-              'no_moments_desc'.tr(),
-              style: GoogleFonts.cairo(
-                fontSize: 10,
-                color: const Color(0xFF93C5FD),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: 140,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: moments.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (_, index) {
-          final moment = moments[index];
-          // Use localized helper
-          final surahName =
-              SurahUtils.getLocalizedSurahName(context, moment.surahIndex);
-          final reflection = (moment.reflection ?? '').toString().trim();
-
-          return Container(
-            width: 200,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isDark ? AppTheme.darkSurfaceColor : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                  color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-                  width: 1.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(isDark ? 76 : 8),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      surahName,
-                      style: GoogleFonts.cairo(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryColor,
-                      ),
-                    ),
-                    const Text('💎', style: TextStyle(fontSize: 14)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  reflection.isEmpty ? 'no_reflection'.tr() : reflection,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.cairo(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF1E293B),
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
 
 class _ErrorCard extends StatelessWidget {
   const _ErrorCard({required this.message});
@@ -1033,3 +913,4 @@ String _toArabicIndic(int value) {
   }
   return buffer.toString();
 }
+

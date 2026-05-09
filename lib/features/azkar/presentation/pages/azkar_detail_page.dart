@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/azkar/presentation/riverpod/azkar_controller.dart';
-import 'package:sila_app/features/vefa/presentation/pages/vefa_page.dart';
+import 'package:sura_app/core/presentation/widgets/sila_app_bar.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/features/azkar/presentation/riverpod/azkar_controller.dart';
+import 'package:sura_app/features/vefa/presentation/pages/vefa_page.dart';
 
 class AzkarDetailPage extends ConsumerStatefulWidget {
   const AzkarDetailPage(
@@ -312,7 +312,7 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: SilaAppBar(
+      appBar: SuraAppBar(
         title: widget.title,
       ),
       body: azkarAsync.when(
@@ -433,3 +433,4 @@ class _AzkarDetailPageState extends ConsumerState<AzkarDetailPage> {
 }
 
 // No longer needed, using global azkarData which is locale-aware
+

@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import 'package:sila_app/features/vefa/data/models/vefa_person_model.dart';
+import 'package:sura_app/features/vefa/data/models/vefa_person_model.dart';
 
 abstract class VefaLocalDataSource {
   Future<List<VefaPersonModel>> getVefaList();
@@ -50,3 +50,4 @@ class VefaLocalDataSourceImpl implements VefaLocalDataSource {
     });
   }
 }
+

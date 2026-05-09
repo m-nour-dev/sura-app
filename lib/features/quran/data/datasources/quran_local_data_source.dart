@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:sila_app/core/error/exceptions.dart';
-import 'package:sila_app/features/quran/data/models/surah_model.dart'; // Import this for JSON decoding
+import 'package:sura_app/core/error/exceptions.dart';
+import 'package:sura_app/features/quran/data/models/surah_model.dart'; // Import this for JSON decoding
 
 abstract class QuranLocalDataSource {
   Future<List<SurahModel>> getSurahs();
@@ -34,3 +34,4 @@ class QuranLocalDataSourceImpl implements QuranLocalDataSource {
     }
   }
 }
+

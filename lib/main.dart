@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/presentation/main_layout.dart';
-import 'package:sila_app/core/presentation/splash_page.dart';
-import 'package:sila_app/core/services/adhan_scheduler_service.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/services/timezone_service.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/onboarding/presentation/pages/language_selection_page.dart';
-import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+import 'package:sura_app/core/presentation/main_layout.dart';
+import 'package:sura_app/core/presentation/splash_page.dart';
+import 'package:sura_app/core/services/adhan_scheduler_service.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/core/services/timezone_service.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/onboarding/presentation/pages/language_selection_page.dart';
+import 'package:sura_app/features/prayers/data/repositories/prayer_repository_impl.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -56,7 +56,7 @@ void main() async {
         path: 'assets/translations',
         fallbackLocale: const Locale('ar', 'SA'),
         startLocale: const Locale('ar', 'SA'),
-        child: SilaApp(isLanguageSelected: isLanguageSelected),
+        child: SuraApp(isLanguageSelected: isLanguageSelected),
       ),
     ),
   );
@@ -79,15 +79,15 @@ Future<void> _initBackgroundServices() async {
   }
 }
 
-class SilaApp extends StatefulWidget {
-  const SilaApp({super.key, required this.isLanguageSelected});
+class SuraApp extends StatefulWidget {
+  const SuraApp({super.key, required this.isLanguageSelected});
   final bool isLanguageSelected;
 
   @override
-  State<SilaApp> createState() => _SilaAppState();
+  State<SuraApp> createState() => _SuraAppState();
 }
 
-class _SilaAppState extends State<SilaApp> {
+class _SuraAppState extends State<SuraApp> {
   bool _showSplash = true;
 
   @override

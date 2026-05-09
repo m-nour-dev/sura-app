@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/core/utils/surah_utils.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/core/utils/surah_utils.dart';
 
 String _toArabicNumber(BuildContext context, String input) {
   if (context.locale.languageCode != 'ar') return input;
@@ -129,3 +129,4 @@ class SurahListItem extends StatelessWidget {
     );
   }
 }
+

@@ -7,8 +7,8 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/core/services/reciter_service.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/core/services/reciter_service.dart';
 
 part 'audio_controller.g.dart';
 
@@ -382,3 +382,4 @@ class PlayingAyahId extends _$PlayingAyahId {
     state = ayahNumber;
   }
 }
+

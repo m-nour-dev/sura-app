@@ -8,15 +8,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/utils/surah_utils.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
-import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
-import 'package:sila_app/features/quran/presentation/widgets/quran_details_sheet.dart';
+import 'package:sura_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/core/utils/surah_utils.dart';
+import 'package:sura_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_data_provider.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
+import 'package:sura_app/features/quran/presentation/utils/quran_ui_utils.dart';
+import 'package:sura_app/features/quran/presentation/widgets/quran_details_sheet.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class SurahDetailPage extends ConsumerStatefulWidget {
@@ -800,3 +800,4 @@ class _SurahDetailPageState extends ConsumerState<SurahDetailPage> {
     }
   }
 }
+

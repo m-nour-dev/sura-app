@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/presentation/main_layout.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
+import 'package:sura_app/core/presentation/main_layout.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
 class LanguageSelectionPage extends ConsumerWidget {
   const LanguageSelectionPage({super.key});
@@ -186,3 +186,4 @@ class _LanguageOptionCard extends StatelessWidget {
     );
   }
 }
+

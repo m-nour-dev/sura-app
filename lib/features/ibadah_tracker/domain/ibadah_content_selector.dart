@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_content.dart';
-import 'package:sila_app/features/notifications/data/models/notification_content.dart';
-import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_content.dart';
+import 'package:sura_app/features/notifications/data/models/notification_content.dart';
+import 'package:sura_app/features/notifications/data/repositories/i_notification_repository.dart';
 
 class IbadahContentSelector {
   IbadahContentSelector(
@@ -219,3 +219,4 @@ class IbadahContentSelector {
         key == 'isha';
   }
 }
+

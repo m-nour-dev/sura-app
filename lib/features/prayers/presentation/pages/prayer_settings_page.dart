@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sila_app/core/presentation/widgets/audio_storage_sheet.dart';
-import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
-import 'package:sila_app/core/presentation/widgets/update_dialog.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/core/services/remote_config_service.dart';
-import 'package:sila_app/core/services/update_service.dart';
-import 'package:sila_app/features/prayers/presentation/pages/adhan_settings_page.dart';
-import 'package:sila_app/features/prayers/presentation/pages/qiblah_page.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
-import 'package:sila_app/features/prayers/presentation/widgets/location_settings_dialog.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
+import 'package:sura_app/core/presentation/widgets/audio_storage_sheet.dart';
+import 'package:sura_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sura_app/core/presentation/widgets/update_dialog.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
+import 'package:sura_app/core/services/remote_config_service.dart';
+import 'package:sura_app/core/services/update_service.dart';
+import 'package:sura_app/features/prayers/presentation/pages/adhan_settings_page.dart';
+import 'package:sura_app/features/prayers/presentation/pages/qiblah_page.dart';
+import 'package:sura_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sura_app/features/prayers/presentation/widgets/location_settings_dialog.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/tasmi_onboarding_page.dart';
 
 // ── All supported calculation methods ────────────────────────────────────────
 const _methods = {
@@ -399,3 +399,4 @@ class _MethodDialog extends StatelessWidget {
     );
   }
 }
+

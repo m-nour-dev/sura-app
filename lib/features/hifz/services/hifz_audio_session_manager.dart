@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sura_app/features/tasmi/services/tasmi_speech_service.dart';
 
 class HifzAudioSessionManager {
   HifzAudioSessionManager(this._ref, this._speechService) {
@@ -167,3 +167,4 @@ class HifzAudioSessionManager {
     }
   }
 }
+

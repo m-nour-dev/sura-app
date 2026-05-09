@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:sila_app/features/quran/domain/entities/ayah.dart';
+import 'package:sura_app/features/quran/domain/entities/ayah.dart';
 
 class Surah extends Equatable {
   // Nullable, loaded only when reading
@@ -32,3 +32,4 @@ class Surah extends Equatable {
         ayahs,
       ];
 }
+

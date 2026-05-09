@@ -1,17 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/azkar/presentation/pages/azkar_detail_page.dart';
-import 'package:sila_app/features/azkar/presentation/pages/tasbih_page.dart';
-import 'package:sila_app/features/azkar/presentation/widgets/azkar_category_card.dart';
-import 'package:sila_app/features/azkar/presentation/widgets/nafahat_nakshabandi_card.dart';
-import 'package:sila_app/features/azkar/presentation/widgets/post_prayer_quick_card.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/azkar_notification_settings.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_badge.dart';
-import 'package:sila_app/features/sunan_mahjoura/presentation/pages/sunan_list_page.dart';
+import 'package:sura_app/core/presentation/widgets/sila_app_bar.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/features/azkar/presentation/pages/azkar_detail_page.dart';
+import 'package:sura_app/features/azkar/presentation/pages/tasbih_page.dart';
+import 'package:sura_app/features/azkar/presentation/widgets/azkar_category_card.dart';
+import 'package:sura_app/features/azkar/presentation/widgets/nafahat_nakshabandi_card.dart';
+import 'package:sura_app/features/azkar/presentation/widgets/post_prayer_quick_card.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/notifications/presentation/pages/settings/azkar_notification_settings.dart';
+import 'package:sura_app/features/notifications/presentation/widgets/streak_badge.dart';
+import 'package:sura_app/features/sunan_mahjoura/presentation/pages/sunan_list_page.dart';
 
 class AzkarPage extends ConsumerStatefulWidget {
   const AzkarPage({super.key});
@@ -49,7 +49,7 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: SilaAppBar(
+      appBar: SuraAppBar(
         title: 'azkar'.tr(),
         actions: [
           const Padding(
@@ -242,3 +242,4 @@ class _AzkarPageState extends ConsumerState<AzkarPage> {
     );
   }
 }
+

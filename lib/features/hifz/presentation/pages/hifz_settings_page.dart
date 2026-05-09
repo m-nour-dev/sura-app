@@ -2,9 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_settings.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/hifz_settings_controller.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_settings.dart';
+import 'package:sura_app/features/hifz/presentation/controllers/hifz_settings_controller.dart';
 
 class HifzSettingsPage extends ConsumerWidget {
   const HifzSettingsPage({super.key});
@@ -200,3 +200,4 @@ class _StepperTile extends StatelessWidget {
     );
   }
 }
+

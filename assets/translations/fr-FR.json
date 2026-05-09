@@ -1,8 +1,8 @@
 {
-  "app_title": "Sila",
-  "app_name": "Sila",
+  "app_title": "Sura",
+  "app_name": "Sura",
   "app_tagline": "Votre compagnon de dévotion",
-  "welcome_message": "Bienvenue sur Sila",
+  "welcome_message": "Bienvenue sur Sura",
   "quran": "Le Saint Coran",
   "azkar": "Adhkar",
   "prayers": "Horaires de Prière",
@@ -456,7 +456,7 @@
   "notification_settings_label": "Paramètres",
   "miui_warning_title": "Pour les utilisateurs Xiaomi 📱",
   "miui_warning_desc": "Pour garantir l'Adhan et les notifications, merci de suivre ces étapes :",
-  "miui_step1": "Ouvrir les paramètres de Sila",
+  "miui_step1": "Ouvrir les paramètres de Sura",
   "miui_step2": "Activer 'Démarrage Automatique'",
   "miui_step3": "En Économie d'Énergie, choisir 'Aucune Restriction'",
   "hifz_continue": "Continuez votre apprentissage",
@@ -797,7 +797,7 @@
   "settings_load_error": "Erreur lors du chargement",
   "retry": "Réessayer",
   "notification_reminder_settings": "Paramètres de rappel",
-  "customize_reminders": "Personnaliser les paramètres de rappel pour les notifications de Sila",
+  "customize_reminders": "Personnaliser les paramètres de rappel pour les notifications de Sura",
   "smart_notifications_title": "Notifications Intelligentes",
   "salah_settings_title": "Notifications des Prières",
   "salah_settings_subtitle": "Heures et méthodes pour les notifications de Salah",
@@ -875,3 +875,4 @@
   "tafsir_label": "Tafsir",
   "translation_label": "Traduction"
 }
+

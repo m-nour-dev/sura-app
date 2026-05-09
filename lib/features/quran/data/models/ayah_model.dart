@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:sila_app/features/quran/domain/entities/ayah.dart';
+import 'package:sura_app/features/quran/domain/entities/ayah.dart';
 
 part 'ayah_model.g.dart';
 
@@ -17,3 +17,4 @@ class AyahModel extends Ayah {
 
   Map<String, dynamic> toJson() => _$AyahModelToJson(this);
 }
+

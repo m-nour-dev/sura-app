@@ -1,4 +1,4 @@
-import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_user_profile.dart';
 
 class HifzDailyPlan {
   const HifzDailyPlan({
@@ -72,3 +72,4 @@ class PlanGenerator {
     return buffer.toString();
   }
 }
+

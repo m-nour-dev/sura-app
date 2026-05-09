@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:sila_app/features/notifications/data/models/notification_content.dart';
+import 'package:sura_app/features/notifications/data/models/notification_content.dart';
 
 class ContentSelector {
   final Random _random = Random();
@@ -38,3 +38,4 @@ class ContentSelector {
     return shortlist[_random.nextInt(shortlist.length)];
   }
 }
+

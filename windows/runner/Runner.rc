@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.sila.app" "\0"
-            VALUE "FileDescription", "sila_app" "\0"
+            VALUE "CompanyName", "com.Sura.app" "\0"
+            VALUE "FileDescription", "sura_app" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "sila_app" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.sila.app. All rights reserved." "\0"
-            VALUE "OriginalFilename", "sila_app.exe" "\0"
-            VALUE "ProductName", "sila_app" "\0"
+            VALUE "InternalName", "sura_app" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.Sura.app. All rights reserved." "\0"
+            VALUE "OriginalFilename", "sura_app.exe" "\0"
+            VALUE "ProductName", "sura_app" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
@@ -119,3 +119,4 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+

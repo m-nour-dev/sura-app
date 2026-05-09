@@ -5,7 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/features/azkar/data/models/ibtihal_model.dart';
+import 'package:sura_app/features/azkar/data/models/ibtihal_model.dart';
 
 part 'nafahat_audio_controller.g.dart';
 
@@ -301,3 +301,4 @@ class NafahatAudioController extends _$NafahatAudioController {
     return _defaultPlaylist.map((i) => i.artistName).toSet().toList();
   }
 }
+

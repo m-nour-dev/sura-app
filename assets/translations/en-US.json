@@ -1,8 +1,8 @@
 {
-  "app_title": "Sila",
-  "app_name": "Sila",
+  "app_title": "Sura",
+  "app_name": "Sura",
   "app_tagline": "Your worship companion",
-  "welcome_message": "Welcome to Sila",
+  "welcome_message": "Welcome to Sura",
   "quran": "Holy Quran",
   "azkar": "Adhkar",
   "prayers": "Prayer Times",
@@ -471,7 +471,7 @@
   "notification_settings_label": "Settings",
   "miui_warning_title": "Note for Xiaomi Users 📱",
   "miui_warning_desc": "To ensure the adhan and notifications work on time, please follow these steps in your phone settings:",
-  "miui_step1": "Open Sila app settings",
+  "miui_step1": "Open Sura app settings",
   "miui_step2": "Enable the \"Autostart\" option",
   "miui_step3": "In \"Battery Saver\" select \"No Restrictions\"",
   "hifz_continue": "Continue your journey",
@@ -891,3 +891,4 @@
   "tafsir_label": "Tafsir",
   "translation_label": "Translation"
 }
+

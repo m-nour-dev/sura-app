@@ -2,17 +2,16 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/core/utils/language_utils.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_moment.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_session.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
-import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
-import 'package:sila_app/features/hifz/data/repositories/i_hifz_repository.dart';
-import 'package:sila_app/features/hifz/domain/hasanat_calculator.dart';
-import 'package:sila_app/features/hifz/domain/plan_generator.dart';
-import 'package:sila_app/features/notifications/data/notification_ids.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
+import 'package:sura_app/core/utils/language_utils.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_session.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_user_profile.dart';
+import 'package:sura_app/features/hifz/data/repositories/hifz_repository_provider.dart';
+import 'package:sura_app/features/hifz/data/repositories/i_hifz_repository.dart';
+import 'package:sura_app/features/hifz/domain/hasanat_calculator.dart';
+import 'package:sura_app/features/hifz/domain/plan_generator.dart';
+import 'package:sura_app/features/notifications/data/notification_ids.dart';
 
 part 'hifz_home_controller.g.dart';
 
@@ -26,7 +25,6 @@ class HifzHomeState {
     required this.reviewDueCount,
     required this.streakDays,
     required this.hasanatToday,
-    required this.recentMoments,
     required this.activeSession,
     required this.resumeSurah,
     required this.resumeFromVerse,
@@ -44,7 +42,6 @@ class HifzHomeState {
       reviewDueCount: 0,
       streakDays: 0,
       hasanatToday: 0,
-      recentMoments: [],
       activeSession: null,
       resumeSurah: 0,
       resumeFromVerse: 0,
@@ -60,7 +57,6 @@ class HifzHomeState {
   final int reviewDueCount;
   final int streakDays;
   final int hasanatToday;
-  final List<HifzMoment> recentMoments;
   final HifzSession? activeSession;
   final int resumeSurah;
   final int resumeFromVerse;
@@ -82,7 +78,6 @@ class HifzHomeState {
     int? reviewDueCount,
     int? streakDays,
     int? hasanatToday,
-    List<HifzMoment>? recentMoments,
     HifzSession? activeSession,
     bool clearActiveSession = false,
     int? resumeSurah,
@@ -101,7 +96,6 @@ class HifzHomeState {
       reviewDueCount: reviewDueCount ?? this.reviewDueCount,
       streakDays: streakDays ?? this.streakDays,
       hasanatToday: hasanatToday ?? this.hasanatToday,
-      recentMoments: recentMoments ?? this.recentMoments,
       activeSession:
           clearActiveSession ? null : activeSession ?? this.activeSession,
       resumeSurah: clearResumePoint ? 0 : resumeSurah ?? this.resumeSurah,
@@ -145,7 +139,6 @@ class HifzHomeController extends _$HifzHomeController {
       }
 
       final plan = PlanGenerator.generate(profile);
-      final recentMoments = await repository.getRecentMoments(12);
       final todaySessions = await _getTodaySessions(repository);
       final dueReviews = await repository.getDueReviews(DateTime.now());
       final activeSession = await _findActiveSession(repository);
@@ -165,7 +158,6 @@ class HifzHomeController extends _$HifzHomeController {
         reviewDueCount: dueReviews.length,
         streakDays: streak,
         hasanatToday: hasanat,
-        recentMoments: recentMoments,
         activeSession: activeSession,
         resumeSurah: resumePoint['surah'],
         resumeFromVerse: resumePoint['fromVerse'],
@@ -192,9 +184,7 @@ class HifzHomeController extends _$HifzHomeController {
     await loadHome();
   }
 
-  Future<void> loadRecentMoments() async {
-    await loadHome();
-  }
+
 
   Future<void> loadDueReviews() async {
     await loadHome();
@@ -423,3 +413,4 @@ class HifzHomeController extends _$HifzHomeController {
     return buffer.toString();
   }
 }
+

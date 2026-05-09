@@ -8,13 +8,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:isar/isar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sila_app/core/services/isar_service.dart';
-import 'package:sila_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
-import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
-import 'package:sila_app/features/notifications/data/notification_ids.dart';
-import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
-import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
-import 'package:sila_app/features/prayers/presentation/pages/prayers_page.dart';
+import 'package:sura_app/core/services/isar_service.dart';
+import 'package:sura_app/features/ibadah_tracker/presentation/pages/daily_report_page.dart';
+import 'package:sura_app/features/notifications/data/models/notification_settings.dart';
+import 'package:sura_app/features/notifications/data/notification_ids.dart';
+import 'package:sura_app/features/notifications/data/repositories/isar_notification_repository.dart';
+import 'package:sura_app/features/notifications/presentation/pages/notification_detail_page.dart';
+import 'package:sura_app/features/prayers/presentation/pages/prayers_page.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 @pragma('vm:entry-point')
@@ -1209,3 +1209,4 @@ class NotificationService {
 
   // _showUpdateNotification removed — Firebase Messaging removed
 }
+

@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_page.dart';
+import 'package:sura_app/features/hifz/domain/hifz_selection.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/tasmi_page.dart';
 
 String _toArabicNumber(BuildContext context, String input) {
   if (context.locale.languageCode != 'ar') return input;
@@ -417,3 +417,4 @@ class _AyahRangeBottomSheetState extends State<AyahRangeBottomSheet> {
     );
   }
 }
+

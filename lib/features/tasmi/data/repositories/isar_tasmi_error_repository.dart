@@ -1,6 +1,6 @@
 import 'package:isar/isar.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_word_error.dart';
-import 'package:sila_app/features/tasmi/data/repositories/i_tasmi_error_repository.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_word_error.dart';
+import 'package:sura_app/features/tasmi/data/repositories/i_tasmi_error_repository.dart';
 
 class IsarTasmiErrorRepository implements ITasmiErrorRepository {
   IsarTasmiErrorRepository(this._isar);
@@ -40,3 +40,4 @@ class IsarTasmiErrorRepository implements ITasmiErrorRepository {
   //   Add getMostFrequentErrors(int limit) for
   //   targeted re-memorization sessions
 }
+

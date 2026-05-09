@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/features/hifz/domain/hifz_selection.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/ayah_range_bottom_sheet.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/search_and_filter_bar.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/surah_list_item.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/widgets/tasmi_selection_header.dart';
+import 'package:sura_app/features/hifz/domain/hifz_selection.dart';
+import 'package:sura_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/ayah_range_bottom_sheet.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/search_and_filter_bar.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/surah_list_item.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/widgets/tasmi_selection_header.dart';
 
 const List<bool> _isMakki = [
   true,
@@ -334,3 +334,4 @@ class _TasmiSurahSelectionPageState extends State<TasmiSurahSelectionPage> {
     );
   }
 }
+

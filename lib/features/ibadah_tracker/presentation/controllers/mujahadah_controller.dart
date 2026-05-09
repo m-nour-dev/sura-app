@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/mujahadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/data/repositories/isar_mujahadah_repository.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/mujahadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/data/repositories/isar_mujahadah_repository.dart';
 
 final isarMujahadahRepositoryProvider =
     Provider<IsarMujahadahRepository>((ref) {
@@ -58,3 +58,4 @@ class MujahadahController
     await loadRecords();
   }
 }
+

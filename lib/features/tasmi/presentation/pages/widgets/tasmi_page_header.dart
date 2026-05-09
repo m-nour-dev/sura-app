@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
 
 String _toArabicNumber(BuildContext context, String input) {
   if (context.locale.languageCode != 'ar') return input;
@@ -195,3 +195,4 @@ class TasmiPageHeader extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(146);
 }
+

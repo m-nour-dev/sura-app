@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/_notification_settings_sheet.dart';
+import 'package:sura_app/features/notifications/presentation/pages/settings/_notification_settings_sheet.dart';
 
 class HifzNotificationSettings extends StatelessWidget {
   const HifzNotificationSettings({super.key});
@@ -11,3 +11,4 @@ class HifzNotificationSettings extends StatelessWidget {
     );
   }
 }
+

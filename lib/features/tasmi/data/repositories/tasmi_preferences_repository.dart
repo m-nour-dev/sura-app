@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_preferences.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_preferences.dart';
 
 class TasmiPreferencesRepository {
   TasmiPreferencesRepository(this._prefs);
@@ -32,3 +32,4 @@ class TasmiPreferencesRepository {
     await _prefs.setBool(_keyDone, prefs.isOnboardingDone);
   }
 }
+

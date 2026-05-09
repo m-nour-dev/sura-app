@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/features/azkar/presentation/widgets/post_prayer_quick_card.dart';
-import 'package:sila_app/features/hifz/presentation/pages/hifz_home_page.dart';
-import 'package:sila_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
-import 'package:sila_app/features/home/presentation/pages/feedback_sheet.dart';
-import 'package:sila_app/features/home/presentation/providers/last_notification_provider.dart';
-import 'package:sila_app/features/home/presentation/widgets/daily_content_card.dart';
-import 'package:sila_app/features/home/presentation/widgets/home_header.dart';
-import 'package:sila_app/features/home/presentation/widgets/next_prayer_card.dart';
-import 'package:sila_app/features/notifications/presentation/pages/notification_detail_page.dart';
-import 'package:sila_app/features/notifications/presentation/pages/notification_hub_page.dart';
-import 'package:sila_app/features/notifications/presentation/widgets/streak_summary_card.dart';
-import 'package:sila_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
-import 'package:sila_app/features/wird/presentation/widgets/wird_card.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/features/azkar/presentation/widgets/post_prayer_quick_card.dart';
+import 'package:sura_app/features/hifz/presentation/pages/hifz_home_page.dart';
+import 'package:sura_app/features/hifz/presentation/pages/hifz_onboarding_page.dart';
+import 'package:sura_app/features/home/presentation/pages/feedback_sheet.dart';
+import 'package:sura_app/features/home/presentation/providers/last_notification_provider.dart';
+import 'package:sura_app/features/home/presentation/widgets/daily_content_card.dart';
+import 'package:sura_app/features/home/presentation/widgets/home_header.dart';
+import 'package:sura_app/features/home/presentation/widgets/next_prayer_card.dart';
+import 'package:sura_app/features/notifications/presentation/pages/notification_detail_page.dart';
+import 'package:sura_app/features/notifications/presentation/pages/notification_hub_page.dart';
+import 'package:sura_app/features/notifications/presentation/widgets/streak_summary_card.dart';
+import 'package:sura_app/features/tasmi/presentation/pages/tasmi_surah_selection_page.dart';
+import 'package:sura_app/features/wird/presentation/widgets/wird_card.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -342,3 +342,4 @@ class _NotificationInboxCard extends ConsumerWidget {
     return '${time.day}/${time.month}';
   }
 }
+

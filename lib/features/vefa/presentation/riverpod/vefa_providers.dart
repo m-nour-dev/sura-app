@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/core/services/isar_service.dart';
-import 'package:sila_app/features/vefa/data/datasources/vefa_local_data_source.dart';
-import 'package:sila_app/features/vefa/data/repositories/vefa_repository_impl.dart';
-import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
-import 'package:sila_app/features/vefa/domain/usecases/vefa_usecases.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/core/services/isar_service.dart';
+import 'package:sura_app/features/vefa/data/datasources/vefa_local_data_source.dart';
+import 'package:sura_app/features/vefa/data/repositories/vefa_repository_impl.dart';
+import 'package:sura_app/features/vefa/domain/entities/vefa_person.dart';
+import 'package:sura_app/features/vefa/domain/usecases/vefa_usecases.dart';
 
 // Service & Core Providers
 final isarServiceProvider = Provider<IsarService>((ref) {
@@ -141,3 +141,4 @@ final vefaListControllerProvider =
     ref: ref,
   );
 });
+

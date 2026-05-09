@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_data_provider.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
@@ -282,3 +282,4 @@ class _LanguageHeaderButton extends ConsumerWidget {
     );
   }
 }
+

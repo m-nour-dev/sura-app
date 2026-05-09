@@ -5,10 +5,11 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = sila_app
+PRODUCT_NAME = sura_app
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.sila.app.silaApp
+PRODUCT_BUNDLE_IDENTIFIER = com.Sura.app.SuraApp
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.sila.app. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 com.Sura.app. All rights reserved.
+

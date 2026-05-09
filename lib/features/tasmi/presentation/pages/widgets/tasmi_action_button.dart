@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
+import 'package:sura_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
 class TasmiActionButton extends StatelessWidget {
   const TasmiActionButton({
@@ -138,3 +138,4 @@ class TasmiActionButton extends StatelessWidget {
     );
   }
 }
+

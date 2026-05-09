@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:sila_app/core/error/failures.dart';
-import 'package:sila_app/features/quran/domain/entities/surah.dart';
-import 'package:sila_app/features/quran/domain/repositories/quran_repository.dart';
+import 'package:sura_app/core/error/failures.dart';
+import 'package:sura_app/features/quran/domain/entities/surah.dart';
+import 'package:sura_app/features/quran/domain/repositories/quran_repository.dart';
 
 class GetSurahs {
   GetSurahs(this.repository);
@@ -11,3 +11,4 @@ class GetSurahs {
     return await repository.getSurahs();
   }
 }
+

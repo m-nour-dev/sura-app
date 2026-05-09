@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sila_app/core/services/notification_service.dart';
-import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
-import 'package:sila_app/features/notifications/data/repositories/isar_notification_repository.dart';
-import 'package:sila_app/features/notifications/domain/smart_notification_engine.dart';
-import 'package:sila_app/features/notifications/domain/streak_tracker.dart';
-import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
+import 'package:sura_app/core/services/notification_service.dart';
+import 'package:sura_app/features/notifications/data/repositories/i_notification_repository.dart';
+import 'package:sura_app/features/notifications/data/repositories/isar_notification_repository.dart';
+import 'package:sura_app/features/notifications/domain/smart_notification_engine.dart';
+import 'package:sura_app/features/notifications/domain/streak_tracker.dart';
+import 'package:sura_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 
 final notificationRepositoryProvider = FutureProvider<INotificationRepository>((
   ref,
@@ -51,3 +51,4 @@ final streakSummaryProvider = FutureProvider<Map<String, int>>((ref) async {
   }
   return map;
 });
+

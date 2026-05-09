@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/services/reciter_service.dart';
+import 'package:sura_app/core/services/reciter_service.dart';
 
 class AudioDownloadProgress {
   const AudioDownloadProgress({
@@ -96,3 +96,4 @@ class AudioDownloadService {
     }
   }
 }
+

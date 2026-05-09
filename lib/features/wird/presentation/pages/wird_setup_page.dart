@@ -2,8 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/features/wird/data/models/wird_settings.dart';
-import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+import 'package:sura_app/features/wird/data/models/wird_settings.dart';
+import 'package:sura_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdSetupPage extends ConsumerStatefulWidget {
   const WirdSetupPage({super.key});
@@ -290,3 +290,4 @@ class _WirdSetupPageState extends ConsumerState<WirdSetupPage> {
     );
   }
 }
+

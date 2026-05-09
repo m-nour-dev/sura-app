@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sila_app/features/hifz/domain/spaced_repetition_engine.dart';
+import 'package:sura_app/features/hifz/domain/spaced_repetition_engine.dart';
 
 void main() {
   group('SpacedRepetitionEngine.calculateNext', () {
@@ -40,3 +40,4 @@ void main() {
     });
   });
 }
+

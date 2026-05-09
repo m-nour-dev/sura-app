@@ -1,7 +1,7 @@
 import 'package:isar/isar.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/ibadah_record.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/user_gender_prefs.dart';
-import 'package:sila_app/features/ibadah_tracker/data/repositories/i_ibadah_repository.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/ibadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/user_gender_prefs.dart';
+import 'package:sura_app/features/ibadah_tracker/data/repositories/i_ibadah_repository.dart';
 
 class IsarIbadahRepository implements IIbadahRepository {
   IsarIbadahRepository(this._isar);
@@ -185,3 +185,4 @@ class IsarIbadahRepository implements IIbadahRepository {
     });
   }
 }
+

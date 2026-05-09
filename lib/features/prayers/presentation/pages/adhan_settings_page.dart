@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/services/adhan_native_service.dart';
-import 'package:sila_app/core/services/adhan_scheduler_service.dart';
-import 'package:sila_app/core/services/prefs_service.dart';
-import 'package:sila_app/features/prayers/data/repositories/prayer_repository_impl.dart';
-import 'package:sila_app/features/prayers/presentation/riverpod/prayer_controller.dart';
+import 'package:sura_app/core/services/adhan_native_service.dart';
+import 'package:sura_app/core/services/adhan_scheduler_service.dart';
+import 'package:sura_app/core/services/prefs_service.dart';
+import 'package:sura_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+import 'package:sura_app/features/prayers/presentation/riverpod/prayer_controller.dart';
 
 class AdhanSettingsPage extends ConsumerStatefulWidget {
   const AdhanSettingsPage({super.key});
@@ -453,3 +453,4 @@ class _AdhanSettingsPageState extends ConsumerState<AdhanSettingsPage> {
     );
   }
 }
+

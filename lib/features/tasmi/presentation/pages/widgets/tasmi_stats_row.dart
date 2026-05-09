@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:sila_app/features/tasmi/data/models/tasmi_word_entry.dart';
-import 'package:sila_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
+import 'package:sura_app/features/tasmi/data/models/tasmi_word_entry.dart';
+import 'package:sura_app/features/tasmi/presentation/controllers/tasmi_controller.dart';
 
 String _toArabicNumber(BuildContext context, String input) {
   if (context.locale.languageCode != 'ar') return input;
@@ -130,3 +130,4 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
+

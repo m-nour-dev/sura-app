@@ -1,5 +1,5 @@
 import 'package:isar/isar.dart';
-import 'package:sila_app/features/ibadah_tracker/data/models/mujahadah_record.dart';
+import 'package:sura_app/features/ibadah_tracker/data/models/mujahadah_record.dart';
 
 class IsarMujahadahRepository {
   IsarMujahadahRepository(this._isar);
@@ -108,3 +108,4 @@ class IsarMujahadahRepository {
     });
   }
 }
+

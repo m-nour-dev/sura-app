@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
 
 class HifzConstants {
   static const Color primaryColor = AppTheme.primaryColor;
@@ -7,3 +7,4 @@ class HifzConstants {
   static const Color backgroundColor = AppTheme.backgroundColor;
   static const Color surfaceColor = AppTheme.surfaceColor;
 }
+

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/vefa/domain/entities/vefa_person.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/vefa/domain/entities/vefa_person.dart';
 
 class VefaCard extends StatelessWidget {
   const VefaCard({
@@ -149,3 +149,4 @@ class VefaCard extends StatelessWidget {
     );
   }
 }
+

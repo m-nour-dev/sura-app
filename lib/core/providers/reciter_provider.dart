@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/core/models/reciter_settings.dart';
-import 'package:sila_app/core/services/reciter_service.dart';
-import 'package:sila_app/features/vefa/presentation/riverpod/vefa_providers.dart';
+import 'package:sura_app/core/models/reciter_settings.dart';
+import 'package:sura_app/core/services/reciter_service.dart';
+import 'package:sura_app/features/vefa/presentation/riverpod/vefa_providers.dart';
 
 part 'reciter_provider.g.dart';
 
@@ -37,3 +37,4 @@ class ReciterController extends _$ReciterController {
     return reciter.buildAyahUrl(surahNumber, ayahNumber);
   }
 }
+

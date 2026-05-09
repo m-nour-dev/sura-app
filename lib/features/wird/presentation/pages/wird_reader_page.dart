@@ -7,17 +7,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/features/notifications/presentation/controllers/notification_providers.dart';
-import 'package:sila_app/features/notifications/presentation/pages/settings/wird_notification_settings.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/audio_controller.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
-import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
-import 'package:sila_app/features/quran/presentation/widgets/quran_details_sheet.dart';
-import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+import 'package:sura_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/features/notifications/presentation/controllers/notification_providers.dart';
+import 'package:sura_app/features/notifications/presentation/pages/settings/wird_notification_settings.dart';
+import 'package:sura_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/audio_controller.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
+import 'package:sura_app/features/quran/presentation/utils/quran_ui_utils.dart';
+import 'package:sura_app/features/quran/presentation/widgets/quran_details_sheet.dart';
+import 'package:sura_app/features/wird/presentation/riverpod/wird_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class WirdReaderPage extends ConsumerStatefulWidget {
@@ -917,3 +917,4 @@ class _WirdReaderPageState extends ConsumerState<WirdReaderPage> {
     }
   }
 }
+

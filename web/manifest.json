@@ -1,6 +1,6 @@
 {
-    "name": "sila_app",
-    "short_name": "sila_app",
+    "name": "sura_app",
+    "short_name": "sura_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
@@ -33,3 +33,4 @@
         }
     ]
 }
+

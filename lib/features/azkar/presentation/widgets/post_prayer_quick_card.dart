@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sila_app/features/azkar/presentation/pages/azkar_detail_page.dart';
-import 'package:sila_app/features/azkar/presentation/riverpod/post_prayer_controller.dart';
+import 'package:sura_app/features/azkar/presentation/pages/azkar_detail_page.dart';
+import 'package:sura_app/features/azkar/presentation/riverpod/post_prayer_controller.dart';
 
 class PostPrayerQuickCard extends ConsumerWidget {
   const PostPrayerQuickCard({super.key});
@@ -159,3 +159,4 @@ class PostPrayerQuickCard extends ConsumerWidget {
     }
   }
 }
+

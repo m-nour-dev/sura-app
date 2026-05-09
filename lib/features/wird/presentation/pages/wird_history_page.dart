@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:sila_app/core/presentation/widgets/sila_app_bar.dart';
-import 'package:sila_app/features/wird/presentation/riverpod/wird_controller.dart';
+import 'package:sura_app/core/presentation/widgets/sila_app_bar.dart';
+import 'package:sura_app/features/wird/presentation/riverpod/wird_controller.dart';
 
 class WirdHistoryPage extends ConsumerWidget {
   const WirdHistoryPage({super.key});
@@ -25,7 +25,7 @@ class WirdHistoryPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: const SilaAppBar(
+      appBar: const SuraAppBar(
         title: 'الأوراد السابقة',
       ),
       body: SafeArea(
@@ -145,3 +145,4 @@ class WirdHistoryPage extends ConsumerWidget {
     );
   }
 }
+

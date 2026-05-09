@@ -1,9 +1,9 @@
 import 'package:hijri/hijri_calendar.dart';
-import 'package:sila_app/features/notifications/data/models/notification_content.dart';
-import 'package:sila_app/features/notifications/data/models/notification_settings.dart';
-import 'package:sila_app/features/notifications/data/models/user_activity_log.dart';
-import 'package:sila_app/features/notifications/data/repositories/i_notification_repository.dart';
-import 'package:sila_app/features/notifications/domain/content_selector.dart';
+import 'package:sura_app/features/notifications/data/models/notification_content.dart';
+import 'package:sura_app/features/notifications/data/models/notification_settings.dart';
+import 'package:sura_app/features/notifications/data/models/user_activity_log.dart';
+import 'package:sura_app/features/notifications/data/repositories/i_notification_repository.dart';
+import 'package:sura_app/features/notifications/domain/content_selector.dart';
 
 class SmartNotificationEngine {
   SmartNotificationEngine({
@@ -57,3 +57,4 @@ class SmartNotificationEngine {
     return 'عام';
   }
 }
+

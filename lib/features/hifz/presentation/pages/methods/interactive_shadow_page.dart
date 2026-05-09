@@ -7,20 +7,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quran/quran.dart' as quran;
-import 'package:sila_app/core/presentation/widgets/reciter_picker_sheet.dart';
-import 'package:sila_app/core/providers/reciter_provider.dart';
-import 'package:sila_app/core/services/device_permission_service.dart';
-import 'package:sila_app/core/theme/app_theme.dart';
-import 'package:sila_app/core/utils/surah_utils.dart';
-import 'package:sila_app/features/hifz/data/models/hifz_user_profile.dart';
-import 'package:sila_app/features/hifz/data/repositories/hifz_repository_provider.dart';
-import 'package:sila_app/features/hifz/presentation/controllers/interactive_shadow_controller.dart';
-import 'package:sila_app/features/hifz/presentation/services/hifz_onboarding_check.dart';
-import 'package:sila_app/features/quran/domain/entities/quran_settings.dart';
-import 'package:sila_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
-import 'package:sila_app/features/quran/presentation/utils/quran_ui_utils.dart';
-import 'package:sila_app/features/tasmi/domain/tajweed_normalizer.dart';
-import 'package:sila_app/features/tasmi/services/tasmi_speech_service.dart';
+import 'package:sura_app/core/presentation/widgets/reciter_picker_sheet.dart';
+import 'package:sura_app/core/providers/reciter_provider.dart';
+import 'package:sura_app/core/services/device_permission_service.dart';
+import 'package:sura_app/core/theme/app_theme.dart';
+import 'package:sura_app/core/utils/surah_utils.dart';
+import 'package:sura_app/features/hifz/data/models/hifz_user_profile.dart';
+import 'package:sura_app/features/hifz/data/repositories/hifz_repository_provider.dart';
+import 'package:sura_app/features/hifz/presentation/controllers/interactive_shadow_controller.dart';
+import 'package:sura_app/features/hifz/presentation/services/hifz_onboarding_check.dart';
+import 'package:sura_app/features/quran/domain/entities/quran_settings.dart';
+import 'package:sura_app/features/quran/presentation/riverpod/quran_settings_controller.dart';
+import 'package:sura_app/features/quran/presentation/utils/quran_ui_utils.dart';
+import 'package:sura_app/features/tasmi/domain/tajweed_normalizer.dart';
+import 'package:sura_app/features/tasmi/services/tasmi_speech_service.dart';
 
 const Color _successColor = AppTheme.successGreen;
 const Color _hasanatGold = AppTheme.goldLight;
@@ -342,20 +342,6 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
                           reciterLabel: reciter?.nameArabic.split(' ').last ??
                               'default_reciter_name'.tr(),
                           onReciterTap: () => showReciterPickerSheet(context),
-                          onMomentTap: () {
-                            final verseIndex =
-                                state.fromVerse + state.currentVerseIndex;
-                            _showMomentCapture(
-                              context,
-                              quran.getVerse(
-                                state.surahNumber,
-                                verseIndex,
-                                verseEndSymbol: false,
-                              ),
-                              SurahUtils.getLocalizedSurahName(
-                                  context, state.surahNumber),
-                            );
-                          },
                         ),
                         _buildMiuiBatteryBanner(),
                         _StageBanner(stage: state.currentStage),
@@ -550,32 +536,7 @@ class _InteractiveShadowPageState extends ConsumerState<InteractiveShadowPage>
     );
   }
 
-  void _showMomentCapture(
-    BuildContext context,
-    String verseText,
-    String surahName,
-  ) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: _MomentCaptureSheet(
-          surahName: surahName,
-          verseText: verseText,
-          onSave: (feeling, note) async {
-            await ref
-                .read(interactiveShadowControllerProvider.notifier)
-                .saveMoment(reflection: note, feeling: feeling);
-            if (ctx.mounted) {
-              Navigator.pop(ctx);
-            }
-          },
-        ),
-      ),
-    );
-  }
+
 }
 
 class _TopHeader extends ConsumerWidget {
@@ -584,13 +545,11 @@ class _TopHeader extends ConsumerWidget {
     required this.stage,
     required this.reciterLabel,
     required this.onReciterTap,
-    required this.onMomentTap,
   });
   final String surahName;
   final int stage;
   final String reciterLabel;
   final VoidCallback onReciterTap;
-  final VoidCallback onMomentTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -680,22 +639,7 @@ class _TopHeader extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: onMomentTap,
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(38),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withAlpha(51)),
-                  ),
-                  child: const Center(
-                    child: Text('💎', style: TextStyle(fontSize: 14)),
-                  ),
-                ),
-              ),
+
             ],
           ),
         ],
@@ -2084,192 +2028,7 @@ class _ResultsStatCard extends StatelessWidget {
   }
 }
 
-class _MomentCaptureSheet extends ConsumerStatefulWidget {
-  const _MomentCaptureSheet({
-    required this.surahName,
-    required this.verseText,
-    required this.onSave,
-  });
-  final String surahName;
-  final String verseText;
-  final Future<void> Function(String feeling, String note) onSave;
 
-  @override
-  ConsumerState<_MomentCaptureSheet> createState() =>
-      _MomentCaptureSheetState();
-}
-
-class _MomentCaptureSheetState extends ConsumerState<_MomentCaptureSheet> {
-  String _selectedFeeling = 'feeling_touched';
-  String _note = '';
-
-  @override
-  Widget build(BuildContext context) {
-    final settings = ref.watch(quranSettingsControllerProvider).valueOrNull ??
-        const QuranSettings(
-            fontSize: 26,
-            fontFamily: 'Scheherazade New',
-            themeMode: QuranThemeMode.sepia);
-    final isDark = settings.themeMode == QuranThemeMode.dark;
-    final bgColor = QuranUIUtils.getBackgroundColor(settings.themeMode);
-    final textColor = QuranUIUtils.getTextColor(settings.themeMode);
-    final accentColor = QuranUIUtils.getAccentColor(settings.themeMode);
-
-    Widget feelingChip(String emoji, String label) {
-      final selected = _selectedFeeling == label;
-      return ChoiceChip(
-        label: Text('$emoji ${label.tr()}',
-            style: GoogleFonts.cairo(fontSize: 11)),
-        selected: selected,
-        showCheckmark: false,
-        onSelected: (_) => setState(() => _selectedFeeling = label),
-        selectedColor: AppTheme.accentColor.withValues(alpha: 0.2),
-        backgroundColor: textColor.withValues(alpha: 0.05),
-        labelStyle: TextStyle(
-          color: selected
-              ? AppTheme.accentColor
-              : textColor.withValues(alpha: 0.6),
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-        ),
-      );
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-        border: Border(
-            top: BorderSide(
-                color: textColor.withValues(alpha: 0.1), width: 0.5)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                  color: textColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            widget.surahName,
-            style: GoogleFonts.cairo(
-                fontSize: 10, color: textColor.withAlpha(102)),
-          ),
-          const SizedBox(height: 6),
-          Directionality(
-            textDirection: ui.TextDirection.rtl,
-            child: Text(
-              widget.verseText,
-              style: GoogleFonts.amiri(
-                  fontSize: 14, color: textColor.withAlpha(204), height: 2.0),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Divider(color: textColor.withValues(alpha: 0.1), height: 24),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              'moment_prompt'.tr(),
-              style: GoogleFonts.cairo(
-                  fontSize: 14, fontWeight: FontWeight.w700, color: textColor),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              feelingChip('🥺', 'feeling_touched'),
-              feelingChip('😢', 'feeling_cried'),
-              feelingChip('😌', 'feeling_comforted'),
-              feelingChip('🤔', 'feeling_reflected'),
-              feelingChip('🙏', 'feeling_thankful'),
-            ],
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            style: GoogleFonts.cairo(
-                fontSize: 13, color: textColor.withAlpha(230)),
-            textDirection: ui.TextDirection.rtl,
-            maxLines: 2,
-            onChanged: (v) => _note = v,
-            decoration: InputDecoration(
-              hintText: 'moment_note_hint'.tr(),
-              hintStyle: GoogleFonts.cairo(
-                  fontSize: 12, color: textColor.withAlpha(76)),
-              filled: true,
-              fillColor: textColor.withValues(alpha: 0.04),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                    color: textColor.withValues(alpha: 0.1), width: 0.5),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                    color: textColor.withValues(alpha: 0.1), width: 0.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: accentColor, width: 1),
-              ),
-              contentPadding: const EdgeInsets.all(12),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: textColor.withValues(alpha: 0.1)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: Text('skip'.tr(),
-                      style: GoogleFonts.cairo(
-                          fontSize: 12, color: textColor.withAlpha(128))),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: () async =>
-                      widget.onSave(_selectedFeeling, _note.trim()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accentColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'save_moment_button'.tr(),
-                    style: GoogleFonts.cairo(
-                        fontSize: 13, fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 String _toArabicIndic(BuildContext context, int value) {
   // Always use Arabic numerals for this Islamic memorization app
@@ -2284,3 +2043,4 @@ String _toArabicIndic(BuildContext context, int value) {
   }
   return buffer.toString();
 }
+

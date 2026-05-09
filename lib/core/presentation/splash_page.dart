@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sila_app/core/services/notification_permission_helper.dart'; // ← ADD
+import 'package:sura_app/core/services/notification_permission_helper.dart'; // ← ADD
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key, required this.onComplete});
@@ -141,3 +141,4 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     );
   }
 }
+

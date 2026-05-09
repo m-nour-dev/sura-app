@@ -1,12 +1,12 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:sila_app/core/services/analytics_service.dart';
-import 'package:sila_app/features/quran/data/datasources/quran_local_data_source.dart';
-import 'package:sila_app/features/quran/data/repositories/quran_repository_impl.dart';
-import 'package:sila_app/features/quran/domain/entities/surah.dart';
-import 'package:sila_app/features/quran/domain/repositories/quran_repository.dart';
-import 'package:sila_app/features/quran/domain/usecases/get_surah_detail.dart';
-import 'package:sila_app/features/quran/domain/usecases/get_surahs.dart';
+import 'package:sura_app/core/services/analytics_service.dart';
+import 'package:sura_app/features/quran/data/datasources/quran_local_data_source.dart';
+import 'package:sura_app/features/quran/data/repositories/quran_repository_impl.dart';
+import 'package:sura_app/features/quran/domain/entities/surah.dart';
+import 'package:sura_app/features/quran/domain/repositories/quran_repository.dart';
+import 'package:sura_app/features/quran/domain/usecases/get_surah_detail.dart';
+import 'package:sura_app/features/quran/domain/usecases/get_surahs.dart';
 
 part 'quran_controller.g.dart';
 
@@ -72,3 +72,4 @@ class SurahDetailController extends _$SurahDetailController {
     );
   }
 }
+
