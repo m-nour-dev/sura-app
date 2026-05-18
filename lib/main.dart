@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,11 +15,16 @@ import 'package:sura_app/core/services/timezone_service.dart';
 import 'package:sura_app/core/theme/app_theme.dart';
 import 'package:sura_app/features/onboarding/presentation/pages/language_selection_page.dart';
 import 'package:sura_app/features/prayers/data/repositories/prayer_repository_impl.dart';
+import 'firebase_options.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   FlutterError.onError = (details) {
     final text = details.exceptionAsString();

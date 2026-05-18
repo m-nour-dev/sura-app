@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sura_app/core/presentation/main_layout.dart';
+import 'package:sura_app/features/auth/presentation/pages/auth_page.dart';
 import 'package:sura_app/features/quran/presentation/riverpod/quran_data_provider.dart';
 
 class LanguageSelectionPage extends ConsumerWidget {
@@ -22,9 +23,9 @@ class LanguageSelectionPage extends ConsumerWidget {
 
     if (!context.mounted) return;
 
-    // Navigate to MainLayout
+    // Navigate to AuthPage
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MainLayout()),
+      MaterialPageRoute(builder: (_) => const AuthPage()),
     );
   }
 
